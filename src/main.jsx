@@ -4,10 +4,10 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import App from './App';
 import './css/style.css';
 import './css/satoshi.css';
-import 'jsvectormap/dist/css/jsvectormap.css';
-import 'flatpickr/dist/flatpickr.min.css';
+import '/node_modules/jsvectormap/dist/css/jsvectormap.css';
+import '/node_modules/flatpickr/dist/flatpickr.min.css';
 import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import '/node_modules/react-toastify/dist/ReactToastify.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -17,4 +17,3 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <ToastContainer />
   </React.StrictMode>,
 );
-
