@@ -16,7 +16,7 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      external: ['jsvectormap/dist/css/jsvectormap.css'],
+      external: ['/jsvectormap/dist/css/jsvectormap.css'],
     },
     commonjsOptions: {
       include: [/node_modules/]
