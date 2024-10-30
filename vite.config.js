@@ -11,15 +11,19 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-  optimizeDeps: {
-    include: ['jsvectormap']
-  },
   build: {
     rollupOptions: {
-      external: ['/jsvectormap/dist/css/jsvectormap.css'],
+      external: [
+        'jsvectormap',
+        'jsvectormap/dist/css/jsvectormap.css'
+      ],
     },
     commonjsOptions: {
-      include: [/node_modules/]
+      include: [/node_modules/],
+      transformMixedEsModules: true
     }
+  },
+  optimizeDeps: {
+    include: ['jsvectormap']
   }
 })

@@ -1,45 +1,52 @@
-import jsVectorMap from 'jsvectormap';
-import 'jsvectormap/dist/css/jsvectormap.css';
+// import jsVectorMap from 'jsvectormap';
+// import 'jsvectormap/dist/css/jsvectormap.css';
 import { useEffect } from 'react';
 import '../../js/us-aea-en';
 
 const MapOne = () => {
   useEffect(() => {
-    const mapOne = new jsVectorMap({
-      selector: '#mapOne',
-      map: 'us_aea_en',
-      zoomButtons: true,
+    // Dynamic imports
+    const loadMap = async () => {
+      const jsVectorMap = (await import('jsvectormap')).default;
+      await import('jsvectormap/dist/css/jsvectormap.css');
 
-      regionStyle: {
-        initial: {
-          fill: '#C8D0D8',
-        },
-        hover: {
-          fillOpacity: 1,
-          fill: '#3056D3',
-        },
-      },
-      regionLabelStyle: {
-        initial: {
-          fontFamily: 'Satoshi',
-          fontWeight: 'semibold',
-          fill: '#fff',
-        },
-        hover: {
-          cursor: 'pointer',
-        },
-      },
+      const mapOne = new jsVectorMap({
+        selector: '#mapOne',
+        map: 'us_aea_en',
+        zoomButtons: true,
 
-      labels: {
-        regions: {
-          render(code) {
-            return code.split('-')[1];
+        regionStyle: {
+          initial: {
+            fill: '#C8D0D8',
+          },
+          hover: {
+            fillOpacity: 1,
+            fill: '#3056D3',
           },
         },
-      },
-    });
-    mapOne;
-  }, []); // Add an empty dependency array to avoid running on every render
+        regionLabelStyle: {
+          initial: {
+            fontFamily: 'Satoshi',
+            fontWeight: 'semibold',
+            fill: '#fff',
+          },
+          hover: {
+            cursor: 'pointer',
+          },
+        },
+
+        labels: {
+          regions: {
+            render(code) {
+              return code.split('-')[1];
+            },
+          },
+        },
+      });
+    };
+
+    loadMap().catch(console.error);
+  }, []); 
 
   return (
     <div className="col-span-12 rounded-sm border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark dark:bg-boxdark xl:col-span-7">
