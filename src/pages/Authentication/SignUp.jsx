@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import authService from "../../js/services/authService";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
-import LogoDark from '../../images/logo/logoo8.svg';
+import TLBCFullLogo from '../../images/logo/tlbc-full-logo.svg';
 import Logo from '../../images/logo/logo.svg';
 import TLBCLogo from '../../assets/images/TLBC_LOGO_removebg.png';
 
@@ -51,20 +51,7 @@ const validatePasswordMatch = () => {
   }
 };
 
-// const handleRetypePasswordBlur = (e) => {
-//   const retypeValue = e.target.value;
-//   if (retypeValue !== formData.password) {
-//     setErrors(prevErrors => ({
-//       ...prevErrors,
-//       retypepassword: "Passwords do not match"
-//     }));
-//   } else {
-//     setErrors(prevErrors => ({
-//       ...prevErrors,
-//       retypepassword: ""
-//     }));
-//   }
-// };
+
 
 const handleInputChange = (e) => {
   const { name, value } = e.target;
@@ -72,12 +59,7 @@ const handleInputChange = (e) => {
     ...prevData,
     [name]: value,
   }));
-  // Clear the specific error when user starts typing
-//   setErrors((prevErrors) => ({
-//     ...prevErrors,
-//     [name]: "",
-//   }));
-// };
+ 
 
  // Clear specific field error when user starts typing
  if (errors[name]) {
@@ -223,11 +205,12 @@ const validatePhone = (phone) => {
                   <img
                     className="hidden dark:block"
                     src={TLBCLogo}
+                    width={250}
                     alt="Logo"
                   />
                   <img
                     className="dark:hidden"
-                    src={LogoDark}
+                    src={TLBCFullLogo}
                     width={250}
                     alt="Logo"
                   />

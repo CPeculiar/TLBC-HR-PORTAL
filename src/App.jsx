@@ -20,6 +20,7 @@ import ForgotPassword from './pages/Authentication/ForgotPassword';
 import ResetPassword from './pages/Authentication/ResetPassword';
 import ProtectedRoute from './pages/Authentication/ProtectedRoute';
 import NotFound from './pages/NotFound';
+import ChangePassword from './pages/Authentication/ChangePassword';
 
 
 
@@ -99,11 +100,11 @@ function App() {
       
 
        {/* Dashboard Routes - Inside DefaultLayout */}
-       <Route path="/dashboard" element={
-         <ProtectedRoute>
+       <Route path="/dashboard" element=
+        //  <ProtectedRoute>
         {withDefaultLayout(<ECommerce />, "eCommerce Dashboard")} 
-        </ProtectedRoute>
-       }
+        // </ProtectedRoute>
+       
         />
       <Route path="/calendar" element={withDefaultLayout(<Calendar />, "Calendar")} />
       <Route path="/profile" element={withDefaultLayout(<Profile />, "Profile")} />
@@ -114,6 +115,7 @@ function App() {
       <Route path="/chart" element={withDefaultLayout(<Chart />, "Basic Chart")} />
       <Route path="/ui/alerts" element={withDefaultLayout(<Alerts />, "Alerts")} />
       <Route path="/ui/buttons" element={withDefaultLayout(<Buttons />, "Buttons")} />
+      <Route path="/changepassword" element={withDefaultLayout(<ChangePassword />, "Buttons")} />
     </Routes>
     
     </>

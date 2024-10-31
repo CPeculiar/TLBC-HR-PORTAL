@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import authService from '../../js/services/authService';
-import LogoDark from '../../images/logo/logoo8.svg';
+import TLBCFullLogo from '../../images/logo/tlbc-full-logo.svg';
 import Logo from '../../images/logo/logo.svg';
 import TLBCLogo from '../../assets/images/TLBC_LOGO_removebg.png';
 
@@ -92,7 +92,7 @@ const SignIn = () => {
                   />
                   <img
                     className="dark:hidden"
-                    src={LogoDark}
+                    src={TLBCFullLogo}
                     width={250}
                     alt="Logo"
                   />

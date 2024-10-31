@@ -9,7 +9,7 @@ const ProtectedRoute = ({ children }) => {
     const checkAuth = async () => {
       const isValid = await authService.checkTokenValidity();
       if (!isValid) {
-        navigate('/login');
+        navigate('/');
       }
     };
 
@@ -20,7 +20,7 @@ const ProtectedRoute = ({ children }) => {
   const refreshToken = localStorage.getItem('refreshToken');
 
   if (!accessToken || !refreshToken) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return children;
