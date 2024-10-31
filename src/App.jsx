@@ -18,9 +18,13 @@ import Buttons from './pages/UiElements/Buttons';
 import DefaultLayout from './layout/DefaultLayout';
 import ForgotPassword from './pages/Authentication/ForgotPassword';
 import ResetPassword from './pages/Authentication/ResetPassword';
+import ProtectedRoute from './pages/Authentication/ProtectedRoute';
+import NotFound from './pages/NotFound';
+
+
 
 function App() {
-  const [loading, setLoading] = useState(true); // Removed type annotation
+  const [loading, setLoading] = useState(true); 
   const { pathname } = useLocation();
 
   useEffect(() => {
@@ -35,7 +39,7 @@ function App() {
   // Helper function to wrap components with DefaultLayout
   const withDefaultLayout = (component, title) => (
     <>
-      <PageTitle title={`${title} | TailAdmin - Tailwind CSS Admin Dashboard Template`} />
+      <PageTitle title={`${title} | TLBC Portal`} />
       <DefaultLayout>{component}</DefaultLayout>
     </>
   );
@@ -46,58 +50,61 @@ function App() {
 
 
   return (
+    <>
       <Routes>
 
        {/* Auth Routes - Outside DefaultLayout */}
-       <Route
-        path="/auth/signin"
-        element={
+       <Route path="/signin" element={
           <>
-            <PageTitle title="Signin | TailAdmin - Tailwind CSS Admin Dashboard Template" />
+            <PageTitle title="Signin | TLBC Portal" />
             <SignIn />
           </>
         }
       />
-      <Route
-        path="/auth/signup"
-        element={
+      <Route path="/signup" element={
           <>
-            <PageTitle title="Signup | TailAdmin - Tailwind CSS Admin Dashboard Template" />
+            <PageTitle title="Signup | TLBC Portal" />
             <SignUp />
           </>
         }
       />
-      <Route
-        path="/forgotpassword"
-        element={
+      <Route path="/forgotpassword" element={
           <>
-            <PageTitle title="Forgot-Password | TailAdmin - Tailwind CSS Admin Dashboard Template" />
+            <PageTitle title="Forgot-Password | TLBC Portal" />
             <ForgotPassword />
           </>
         }
       />
-           <Route
-        path="/resetpassword"
-        element={
+      <Route path="/resetpassword" element={
           <>
-            <PageTitle title="Reset-Password | TailAdmin - Tailwind CSS Admin Dashboard Template" />
+            <PageTitle title="Reset-Password | TLBC Portal" />
             <ResetPassword />
           </>
         }
       />
-      <Route
-        path="/"
-        element={
+      <Route path="/"  element={
           <>
-            <PageTitle title="Signin | TailAdmin - Tailwind CSS Admin Dashboard Template" />
+            <PageTitle title="Signin | TLBC Portal" />
             <SignIn />
+          </>
+        }
+      />
+     <Route path="*" element={
+          <>
+            <PageTitle title="NotFound | TLBC Portal" />
+            <NotFound />
           </>
         }
       />
       
 
        {/* Dashboard Routes - Inside DefaultLayout */}
-       <Route path="/dashboard" element={withDefaultLayout(<ECommerce />, "eCommerce Dashboard")} />
+       <Route path="/dashboard" element={
+         <ProtectedRoute>
+        {withDefaultLayout(<ECommerce />, "eCommerce Dashboard")} 
+        </ProtectedRoute>
+       }
+        />
       <Route path="/calendar" element={withDefaultLayout(<Calendar />, "Calendar")} />
       <Route path="/profile" element={withDefaultLayout(<Profile />, "Profile")} />
       <Route path="/forms/form-elements" element={withDefaultLayout(<FormElements />, "Form Elements")} />
@@ -109,6 +116,7 @@ function App() {
       <Route path="/ui/buttons" element={withDefaultLayout(<Buttons />, "Buttons")} />
     </Routes>
     
+    </>
   );
 }
 

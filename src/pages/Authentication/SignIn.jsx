@@ -444,7 +444,7 @@ const SignIn = () => {
                     <p className="text-sm text-gray-600 dark:text-gray-400">
                       Don't have an account?{' '}
                       <Link
-                        to="/auth/signup"
+                        to="/signup"
                         className="font-medium text-primary hover:underline"
                       >
                         Sign up
