@@ -21,6 +21,10 @@ import ResetPassword from './pages/Authentication/ResetPassword';
 import ProtectedRoute from './pages/Authentication/ProtectedRoute';
 import NotFound from './pages/NotFound';
 import ChangePassword from './pages/Authentication/ChangePassword';
+import AttendanceCreationPage from "./pages/Attendance/CreateAttendance";
+import AttendanceReport from './pages/Attendance/AttendanceReport';
+import AttendanceMarkerPage from "./pages/Attendance/MarkAttendance";
+import SidebarCopy from "./components/Sidebar/index copy";
 
 
 
@@ -90,6 +94,13 @@ function App() {
           </>
         }
       />
+           <Route path="/sidebarcopy"  element={
+          <>
+            <PageTitle title="Sidebar-copy | TLBC Portal" />
+            <SidebarCopy />
+          </>
+        }
+      />
      <Route path="*" element={
           <>
             <PageTitle title="NotFound | TLBC Portal" />
@@ -102,7 +113,7 @@ function App() {
        {/* Dashboard Routes - Inside DefaultLayout */}
        <Route path="/dashboard" element=
         //  <ProtectedRoute>
-        {withDefaultLayout(<ECommerce />, "eCommerce Dashboard")} 
+        {withDefaultLayout(<ECommerce />, "Dashboard")} 
         // </ProtectedRoute>
        
         />
@@ -116,6 +127,9 @@ function App() {
       <Route path="/ui/alerts" element={withDefaultLayout(<Alerts />, "Alerts")} />
       <Route path="/ui/buttons" element={withDefaultLayout(<Buttons />, "Buttons")} />
       <Route path="/changepassword" element={withDefaultLayout(<ChangePassword />, "Buttons")} />
+      <Route path="/createattendance" element={withDefaultLayout(<AttendanceCreationPage />, "Create Attendance")} />
+      <Route path="/attendancereport" element={withDefaultLayout(<AttendanceReport />, "Attendance Report")} />
+      <Route path="/markattendance" element={withDefaultLayout(<AttendanceMarkerPage />, "Mark Attendance")} />
     </Routes>
     
     </>

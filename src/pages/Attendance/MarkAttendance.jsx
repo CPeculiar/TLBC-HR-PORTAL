@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Camera, SwitchCamera } from "lucide-react";
 import QrScanner from "react-qr-scanner";
+import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
+
 
 const AttendanceMarkerPage = () => {
   const [scanning, setScanning] = useState(false);
@@ -96,25 +98,38 @@ const AttendanceMarkerPage = () => {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <>
+       <Breadcrumb pageName="Mark Attendance" />
+
+    <div className="p-4 md:p-6 2xl:p-10">
+  <div className="mx-auto max-w-5xl">
+    {/* Main Card */}
+    <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+      <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
+        <h3 className="font-medium text-black dark:text-white">
+          Scan QR Code
+        </h3>
+      </div>
 
 
-        
-        <h1 className="text-3xl font-bold mb-5 text-center mt-8">Attendance Marker</h1>
+      <div className="p-6.5">
+              {/* Scanner Controls */}
+              {!scanning && !successMessage && (
+                <div className="flex justify-center mb-4.5">
+                  <button
+                    onClick={startScanning}
+                    className="flex items-center justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
+                  >
+                    <Camera className="mr-2 h-4 w-4" />
+                    Take Attendance
+                  </button>
+                </div>
+              )}
 
-        <div className="flex flex-col items-center justify-start min-h-screen bg-gray-100 p-4">
-        {!scanning && !successMessage && (
-          <button
-            onClick={startScanning}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center"
-          >
-            <Camera className="mr-2" />
-            Take Attendance
-          </button>
-        )}
-
+ {/* QR Scanner */}
         {scanning && (
-          <div className="w-full max-w-md">
+          <div className="mb-4.5">
+          <div className="w-full max-w-md mx-auto">
             <QrScanner
               delay={300}
               onError={handleError}
@@ -124,55 +139,69 @@ const AttendanceMarkerPage = () => {
                 video: { deviceId: cameraId },
               }}
             />
-            <p className="text-center mt-2">
-              Please scan the QR code displayed for attendance.
-            </p>
-            <div className="flex justify-between mt-4">
-              <button
+            <p className="text-center mt-4 text-black dark:text-white">
+                      Please scan the QR code displayed for attendance.
+                    </p>
+                    <div className="flex justify-between mt-4">
+                      <button
                 onClick={toggleCamera}
                 disabled={cameras.length <= 1}
-                className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded flex items-center"
-              >
-                <SwitchCamera className="mr-2" />
-                Switch Camera
-              </button>
-              <button
+                className="flex items-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90 disabled:bg-opacity-50 dark:text-white"
+                      >
+                        <SwitchCamera className="mr-2 h-4 w-4" />
+                        Switch Camera
+                      </button>
+                      <button
                 onClick={stopScanning}
-                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-              >
-                Stop Scanning
-              </button>
+                className="flex items-center rounded bg-danger p-3 font-medium text-gray hover:bg-opacity-90 dark:text-white"
+                      >
+                        Stop Scanning
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+
+        {/* Loading Indicator */}
+              {isLoading && (
+                <div className="flex justify-center mb-4.5">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary dark:text-white"></div>
+                </div>
+              )}
+
+
+         {/* Success Message */}
+              {successMessage && (
+                <div className="mb-4 rounded-md bg-green-50 p-4 text-sm text-green-500 dark:text-white">
+                  {successMessage}
+                </div>
+              )}
+
+              {/* Error Message */}
+              {error && (
+                <div className="mb-4 rounded-md bg-red-50 p-4 text-sm text-red-500 whitespace-pre-wrap">
+                  {error}
+                </div>
+              )}
+
+
+         {/* Back Button */}
+              <div className="flex justify-center mt-6">
+                <button
+                  onClick={() => navigate("/dashboard")}
+                  className="flex items-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
+                >
+                  Back to Dashboard
+                </button>
+              </div>
+            </div>
             </div>
           </div>
-        )}
-
-        {isLoading && (
-          <div className="mt-4">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-          </div>
-        )}
-
-        {successMessage && (
-          <div className="mt-4 p-4 bg-green-100 text-green-700 rounded">
-            {successMessage}
-          </div>
-        )}
-
-        {error && (
-          <div className="mt-4 p-4 bg-red-100 text-red-700 rounded whitespace-pre-wrap">
-            {error}
-          </div>
-        )}
-
-        <button
-          onClick={() => navigate("/dashboard")}
-          className="mt-8 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Back to Dashboard
-        </button>
-      </div>
-    </div>
+        </div>
+     
  
+    </>
   );
 };
 

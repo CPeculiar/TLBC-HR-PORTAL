@@ -15,7 +15,7 @@ export function Alert({ children, className = "", ...props }) {
   );
 }
 
-export function AlertDescription({ children, className = "" }) {x
+export function AlertDescription({ children, className = "" }) {
   return (
     <div className={`text-sm opacity-90 [&_p]:leading-relaxed ${className}`}>
       {children}

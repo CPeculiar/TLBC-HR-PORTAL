@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Search, X, Download } from "lucide-react";
+import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 
 const AttendanceCreationPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -54,10 +55,7 @@ const AttendanceCreationPage = () => {
 
       const { ref_code, qrcode, message } = response.data;
 
-      // Save ref_code to local storage
       localStorage.setItem("attendance_ref_code", ref_code);
-
-      // Set QR code image
       setQrCode(qrcode);
 
       // Generate QR code for newcomers
@@ -119,213 +117,214 @@ const AttendanceCreationPage = () => {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden">
-  
 
-        <main className="grow">
-          <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
-            <div className="sm:flex sm:justify-between sm:items-center mb-8">
-              <div className="mb-4 sm:mb-0">
-                <h1 className="text-2xl md:text-3xl text-slate-800 font-bold">
-                  Create Attendance
-                </h1>
-              </div>
-            </div>
+    <>
 
-            <div className="bg-white shadow-lg rounded-sm border border-slate-200">
-              <div className="p-6">
+<Breadcrumb pageName="Create Attendance" />
+
+    <div className="p-4 md:p-6 2xl:p-10">
+    <div className="mx-auto max-w-5xl">
+
+
+        {/* Main Form Card */}
+        <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+          <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
+            <h3 className="font-medium text-black dark:text-white">
+              Create Attendance form
+            </h3>
+          </div>
+
                 <form onSubmit={handleSubmit}>
-                  <div className="space-y-4">
-                    <div>
-                      <label
-                        className="block text-sm font-medium mb-1"
-                        htmlFor="program"
-                      >
-                        Program
-                      </label>
+                  <div className="p-6.5">
+              <div className="mb-4.5">
+                <label className="mb-2.5 block text-black dark:text-white">
+                  Program
+                </label>
                       <select
                         id="program"
-                        className="form-input w-full"
                         name="program"
                         value={attendanceData.program}
                         onChange={handleInputChange}
-                        required
-                      >
+                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  required
+                >
                       <option value="" disabled>Select meeting</option>
                         <option value="SUNDAY">Sunday Service</option>
                         <option value="MIDWEEK">Midweek Service</option>
                         <option value="OTHER">Other Meetings</option>
                       </select>
                       {errors.program && (
-                        <div className="text-sm text-red-600 mt-1">
-                          {errors.program}
-                        </div>
-                      )}
+                  <p className="mt-1 text-sm text-red-500">{errors.program}</p>
+                )}
                     </div>
-                    <div>
-                      <label
-                        className="block text-sm font-medium mb-1"
-                        htmlFor="name"
-                      >
-                        Name
-                      </label>
+
+
+                    <div className="mb-4.5">
+                <label className="mb-2.5 block text-black dark:text-white">
+                  Name
+                </label>
                       <input
                         id="name"
-                        className="form-input w-full"
                         type="text"
                         name="name"
                         value={attendanceData.name}
                         onChange={handleInputChange}
-                        required
-                      />
-                      {errors.name && (
-                        <div className="text-sm text-red-600 mt-1">
-                          {errors.name}
-                        </div>
-                      )}
+                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  required
+                />
+                       {errors.name && (
+                  <p className="mt-1 text-sm text-red-500">{errors.name}</p>
+                )}
                     </div>
-                    <div>
-                      <label
-                        className="block text-sm font-medium mb-1"
-                        htmlFor="venue"
-                      >
-                        Venue
-                      </label>
+
+
+                    <div className="mb-4.5">
+                <label className="mb-2.5 block text-black dark:text-white">
+                  Venue
+                </label>
                       <input
                         id="venue"
-                        className="form-input w-full"
                         type="text"
                         name="venue"
                         value={attendanceData.venue}
                         onChange={handleInputChange}
-                        required
-                      />
-                      {errors.venue && (
-                        <div className="text-sm text-red-600 mt-1">
-                          {errors.venue}
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <label
-                        className="block text-sm font-medium mb-1"
-                        htmlFor="date"
-                      >
-                        Date
-                      </label>
+                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  required
+                />
+                {errors.venue && (
+                  <p className="mt-1 text-sm text-red-500">{errors.venue}</p>
+                )}
+              </div>
+
+              <div className="mb-4.5">
+                <label className="mb-2.5 block text-black dark:text-white">
+                  Date
+                </label>
                       <input
                         id="date"
-                        className="form-input w-full"
                         type="date"
                         name="date"
                         value={attendanceData.date}
                         onChange={handleInputChange}
-                        required
-                      />
-                      {errors.date && (
-                        <div className="text-sm text-red-600 mt-1">
-                          {errors.date}
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <label
-                        className="block text-sm font-medium mb-1"
-                        htmlFor="active"
-                      >
-                        Active
-                      </label>
+                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  required
+                />
+                {errors.date && (
+                  <p className="mt-1 text-sm text-red-500">{errors.date}</p>
+                )}
+              </div>
+
+
+                       <div className="mb-5.5">
+                <label className="mb-2.5 block text-black dark:text-white">
+                  Active
+                </label>
                       <select
                         id="active"
-                        className="form-select w-full"
                         name="active"
                         value={attendanceData.active}
                         onChange={handleInputChange}
+                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                         required
                       >
                         <option value={true}>True</option>
                         <option value={false}>False</option>
                       </select>
                       {errors.active && (
-                        <div className="text-sm text-red-600 mt-1">
-                          {errors.active}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  {errors.message && (
-                    <div className="mt-4 text-sm text-red-600">
-                      {errors.message}
+                  <p className="mt-1 text-sm text-red-500">{errors.active}</p>
+                )}
+              </div>
+
+              {errors.message && (
+                <div className="mb-4 rounded-md bg-red-50 p-4 text-sm text-red-500">
+                  {errors.message}
+                </div>
+              )}
+
+              {successMessage && (
+                <div className="mb-4 rounded-md bg-green-50 p-4 text-sm text-green-500">
+                  {successMessage}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90 disabled:bg-opacity-50"
+              >
+                {isLoading ? "Creating..." : "Create Attendance"}
+              </button>
+            </div>
+          </form>
+        </div>
+
+                  {/* QR Codes Section */}
+        {(qrCode || newcomerQrCode) && (
+          <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+            {qrCode && (
+              <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+                <h4 className="mb-4 text-xl font-semibold text-black dark:text-white">
+                  Attendance QR Code
+                </h4>
+                <div className="flex flex-col items-center">
+                  <img
+                    ref={qrRef}
+                    src={qrCode}
+                    alt="Attendance QR Code"
+                    className="mb-4 max-w-full"
+                  />
+                  <button
+                    onClick={() => handleDownloadQR(qrRef, "attendance_qr_code.png")}
+                    className="flex items-center rounded bg-primary px-4 py-2 text-white hover:bg-opacity-90"
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    Download QR Code
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {newcomerQrCode && (
+              <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+                <h4 className="mb-4 text-xl font-semibold text-black dark:text-white">
+                  Newcomer QR Code
+                </h4>
+                <div className="flex flex-col items-center">
+                  <img
+                    ref={newcomerQrRef}
+                    src={newcomerQrCode}
+                    alt="Newcomer QR Code"
+                    className="mb-4 max-w-full"
+                  />
+                  <button
+                    onClick={() => handleDownloadQR(newcomerQrRef, "newcomer_qr_code.png")}
+                    className="flex items-center rounded bg-primary px-4 py-2 text-white hover:bg-opacity-90"
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    Download QR Code
+                  </button>
+                  {newcomerLink && (
+                    <div className="mt-4 text-center">
+                      <p className="font-semibold text-black dark:text-white">Newcomer Form Link:</p>
+                      <a
+                        href={newcomerLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline break-all"
+                      >
+                        {newcomerLink}
+                      </a>
                     </div>
                   )}
-
-                  <div className="mt-6">
-                    <button
-                      type="submit"
-                      className="btn bg-indigo-500 hover:bg-indigo-600 text-white"
-                      disabled={isLoading}
-                    >
-                      {isLoading ? "Creating..." : "Create Attendance"}
-                    </button>
-                  </div>
-                </form>
-
-                {successMessage && (
-                  <div className="mt-4 text-sm text-green-600">
-                    {successMessage}
-                  </div>
-                )}
-
-                {qrCode && (
-                  <div className="mt-6">
-                  <h2 className="text-xl font-semibold mb-2">Attendance QR Code</h2>
-                    <img
-                      ref={qrRef}
-                      src={qrCode}
-                      alt="Attendance QR Code"
-                      className="mx-auto"
-                    />
-                    <button
-                      onClick={() => handleDownloadQR(qrRef, "attendance_qr_code.png")}
-                      className="mt-4 btn bg-green-500 hover:bg-green-600 text-white flex items-center justify-center mx-auto"
-                    >
-                      <Download className="w-4 h-4 mr-2" />
-                      Download Attendance QR Code
-                    </button>
-                  </div>
-                )}
-
-                {newcomerQrCode && (
-              <div className="mt-6">
-                <h2 className="text-xl font-semibold mb-2">Newcomer QR Code</h2>
-                <img
-                  ref={newcomerQrRef}
-                  src={newcomerQrCode}
-                  alt="Newcomer QR Code"
-                  className="mx-auto"
-                />
-                <button
-                  onClick={() => handleDownloadQR(newcomerQrRef, "newcomer_qr_code.png")}
-                  className="mt-4 btn bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center mx-auto"
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Download Newcomer QR Code
-                </button>
-                {newcomerLink && (
-                  <div className="mt-4 text-center">
-                    <p className="font-semibold">Newcomer Form Link:</p>
-                    <a href={newcomerLink} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline break-all">
-                      {newcomerLink}
-                    </a>
-                  </div>
-                )}
+                </div>
               </div>
             )}
           </div>
-            </div>
-          </div>
-        </main>
+        )}
       </div>
+    </div>
+
+    </>
   );
 };
 

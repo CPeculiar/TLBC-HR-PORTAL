@@ -6,7 +6,10 @@ import UserOne from '../../images/user/user-01.png';
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [userInfo, setUserInfo] = useState({});
   const navigate = useNavigate();
+  const trigger = useRef(null);
+  const dropdown = useRef(null);
 
   const handleLogout = () => {
     authService.logout().then(() => {
@@ -15,20 +18,71 @@ const DropdownUser = () => {
     });
   };
 
+  const handleClickOutside = () => {
+    setDropdownOpen(false);
+  };
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const info = await authService.getUserInfo();
+        setUserInfo(info);
+      } catch (error) {
+        console.error('Error fetching user info:', error);
+      }
+    };
+    fetchUserInfo();
+  }, []);
+
+  const handleViewProfile = () => {
+    setDropdownOpen(false);
+    navigate('/profile');
+  };
+
+  const getNamePrefix = () => {
+    const pastorNames = ['Name1', 'Name2'];
+    if (pastorNames.includes(userInfo.first_name)) return 'Pastor';
+    return userInfo.gender === 'Male' ? 'Bro' : 'Sis';
+  };
+
+  const displayName = `${getNamePrefix()} ${userInfo.first_name || ''}`;
+
+  // close on click outside
+  useEffect(() => {
+    const clickHandler = ({ target }) => {
+      if (!dropdown.current) return;
+      if (!dropdownOpen || dropdown.current.contains(target) || trigger.current.contains(target)) return;
+      setDropdownOpen(false);
+    };
+    document.addEventListener('click', clickHandler);
+    return () => document.removeEventListener('click', clickHandler);
+  });
+
+  // close if the esc key is pressed
+  useEffect(() => {
+    const keyHandler = ({ keyCode }) => {
+      if (!dropdownOpen || keyCode !== 27) return;
+      setDropdownOpen(false);
+    };
+    document.addEventListener('keydown', keyHandler);
+    return () => document.removeEventListener('keydown', keyHandler);
+  });
+
 
   return (
-    <ClickOutside onClickOutside={() => setDropdownOpen(false)} className="relative">
+    <ClickOutside onClick={handleClickOutside}  className="relative">
       <Link
+       ref={trigger}
         onClick={() => setDropdownOpen(!dropdownOpen)}
         className="flex items-center gap-4"
         to="#"
       >
         <span className="hidden text-right lg:block">
           <span className="block text-sm font-medium text-black dark:text-white">
-            Thomas Anree
+          {displayName}
           </span>
-          <span className="block text-xs">UX Designer</span>
-        </span>
+          <span className="block text-xs">{userInfo.role}</span>
+          </span>
 
         <span className="h-12 w-12 rounded-full">
           <img src={UserOne} alt="User" />
@@ -54,11 +108,19 @@ const DropdownUser = () => {
       </Link>
 
       {dropdownOpen && (
-        <div className="absolute right-0 mt-4 flex w-62.5 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+        <div 
+         ref={dropdown}
+        className="absolute right-0 mt-4 flex w-62.5 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+           <div className="px-4 py-3 border-b border-stroke dark:border-strokedark">
+            <div className="text-sm font-medium text-black dark:text-white">{displayName}</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400 italic">{userInfo.role}</div>
+          </div>
+          
           <ul className="flex flex-col gap-5 border-b border-stroke px-6 py-7.5 dark:border-strokedark">
             <li>
               <Link
                 to="/profile"
+                onClick={handleViewProfile}
                 className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
               >
                 <svg
