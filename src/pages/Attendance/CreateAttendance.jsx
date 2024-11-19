@@ -60,10 +60,10 @@ const AttendanceCreationPage = () => {
 
       // Generate QR code for newcomers
       // Use the full URL of your deployed application
-      const newcomerLinkUrl = `${window.location.origin}/form/${ref_code}`;
+      const newcomerLinkUrl = `${window.location.origin}/forms/${ref_code}`;
       setNewcomerLink(newcomerLinkUrl);
             
-      const newcomerLink = `${window.location.origin}/form/${ref_code}`;
+      const newcomerLink = `${window.location.origin}/forms/${ref_code}`;
       const newcomerQrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(newcomerLink)}`;
       setNewcomerQrCode(newcomerQrCodeUrl);
 
@@ -83,7 +83,7 @@ const AttendanceCreationPage = () => {
     } catch (error) {
       console.error("Error creating attendance:", error);
 
-      // Set errors from backend response
+      
       if (error.response?.data?.detail) {
         setErrors({ message: error.response.data.detail });
       } else if (error.response?.data) {

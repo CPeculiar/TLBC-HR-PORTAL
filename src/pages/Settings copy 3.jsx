@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 // import userThree from '../images/user/user-03.png';
 import userThree from '../images/user/user-03.png';
@@ -149,101 +149,11 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-       // Validate file type and size
-       const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
-       const maxSize = 5 * 1024 * 1024; // 5MB
-
-       
-      if (!validTypes.includes(file.type)) {
-        alert('Please upload a valid image file (JPEG, PNG, or GIF)');
-        return;
-      }
-
-      if (file.size > maxSize) {
-        alert('File size should be less than 5MB');
-        return;
-      }
-
       // onFileSelect(file);
       setProfilePicture(file);
-      // handleSubmit(null, file);
-      uploadProfilePicture(file);
+      handleSubmit(null, file);
     }
   };
-
-
-  const uploadProfilePicture = async (file) => {
-    setUpdating(true);
-    try {
-      const accessToken = localStorage.getItem("accessToken");
-      if (!accessToken) {
-        alert("Access token not found. Please login first.");
-        navigate("/login");
-        return;
-      }
-
-      const formDataToSend = new FormData();
-      formDataToSend.append("profile_picture", file);
-
-      const response = await axios.patch(
-        "https://tlbc-platform-api.onrender.com/api/user/",
-        formDataToSend,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${accessToken}`,
-          },
-          withCredentials: true,
-        }
-      );
-
-      // Update profile data with new profile picture
-      const updatedProfileData = {
-        ...profileData,
-        profile_picture: response.data.profile_picture || profileData.profile_picture
-      };
-
-      setProfileData(updatedProfileData);
-      
-      // Force a re-render of the profile picture
-      const timestamp = new Date().getTime();
-      setProfileData(prev => ({
-        ...prev,
-        profile_picture: `${prev.profile_picture}?t=${timestamp}`
-      }));
-
-      alert("Profile picture updated successfully");
-    } catch (error) {
-      console.error("Error uploading profile picture:", error);
-      
-      // Log more detailed error information
-      if (error.response) {
-        console.error("Error response data:", error.response.data);
-        console.error("Error response status:", error.response.status);
-        console.error("Error response headers:", error.response.headers);
-        
-        // More specific error handling
-        if (error.response.data.profile_picture) {
-          alert(error.response.data.profile_picture[0]);
-        } else {
-          alert("Failed to upload profile picture");
-        }
-      } else if (error.request) {
-        console.error("No response received:", error.request);
-        alert("No response from server. Please check your connection.");
-      } else {
-        console.error("Error setting up request:", error.message);
-        alert("An error occurred while uploading profile picture");
-      }
-    } finally {
-      setUpdating(false);
-    }
-  };
-
-
-
-
-
 
   const handleSubmit = async (e, newProfilePicture = null) => {
     if (e) e.preventDefault();
@@ -328,8 +238,6 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
       setUpdating(false);
     }
   };
-
-
 
   const handleImageClick = () => {
     setShowImageOptions(true);
@@ -1261,7 +1169,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                 </h3>
               </div>
               <div className="p-7">
-                <form onSubmit={uploadProfilePicture}>
+                <form onSubmit={handleSubmit}>
                   <div className="mb-4 flex items-center gap-3">
                     <div
                       className="relative h-24 w-24 cursor-pointer rounded-full overflow-hidden border-2 border-primary"
@@ -1283,27 +1191,27 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                         Edit your photo
                       </span>
                       <span className="flex gap-2.5">
-                        <Link className="text-sm hover:text-primary"
-                        onClick={handleViewImage}>
-                          View Photo
-                        </Link>
-                        <Link
+                        <button className="text-sm hover:text-primary">
+                          Delete
+                        </button>
+                        <button
                           className="text-sm hover:text-primary"
-                          onClick={() => fileInputRef.current?.click()}
+                          onClick="#"
+                          // onClick={() => fileInputRef.current?.click()}
                         >
                           Update
-                        </Link>
+                        </button>
                       </span>
                     </div>
                   </div>
 
-                  <input
+                  {/* <input
                     type="file"
                     ref={fileInputRef}
                     className="hidden"
-                    accept="image/jpeg,image/png,image/gif"
+                    accept="image/*"
                     onChange={handleFileChange}
-                  />
+                  /> */}
 
                   {showModal && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">

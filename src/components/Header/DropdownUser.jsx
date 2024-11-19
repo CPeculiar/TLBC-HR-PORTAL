@@ -3,13 +3,44 @@ import { Link, useNavigate } from 'react-router-dom';
 import authService from '../../js/services/authService';
 import ClickOutside from '../ClickOutside';
 import UserOne from '../../images/user/user-01.png';
+import axios from 'axios';
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [userInfo, setUserInfo] = useState({});
+  const [profilePicture, setProfilePicture] = useState('');
   const navigate = useNavigate();
   const trigger = useRef(null);
   const dropdown = useRef(null);
+
+  const fetchProfileData = async () => {
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+      if (!accessToken) {
+        console.error("Access token not found");
+        return;
+      }
+
+      const response = await axios.get(
+        "https://tlbc-platform-api.onrender.com/api/user/",
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          withCredentials: true,
+        }
+      );
+
+      setUserInfo(response.data);
+      setProfilePicture(response.data.profile_picture);
+    } catch (error) {
+      console.error('Error fetching profile data:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchProfileData();
+  }, []);
 
   const handleLogout = () => {
     authService.logout().then(() => {
@@ -84,9 +115,20 @@ const DropdownUser = () => {
           <span className="block text-xs">{userInfo.role}</span>
           </span>
 
-        <span className="h-12 w-12 rounded-full">
-          <img src={UserOne} alt="User" />
+        <span className="h-12 w-12 rounded-full overflow-hidden border-2 border-primary">
+          {/* <img src={UserOne} alt="User" /> */}
+
+          <img
+            src={profilePicture || UserOne}
+            alt="User"
+            className="h-full w-full object-cover"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = UserOne;
+            }}
+          />
         </span>
+        
 
         <svg
           className={`hidden fill-current sm:block ${

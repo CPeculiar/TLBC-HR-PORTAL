@@ -25,6 +25,8 @@ import AttendanceCreationPage from "./pages/Attendance/CreateAttendance";
 import AttendanceReport from './pages/Attendance/AttendanceReport';
 import AttendanceMarkerPage from "./pages/Attendance/MarkAttendance";
 import SidebarCopy from "./components/Sidebar/index copy";
+import NewcomerForm from './pages/Attendance/NewcomerForm';
+import FirstTimersForm from './pages/Attendance/FirstTimersForm';
 
 
 
@@ -130,6 +132,9 @@ function App() {
       <Route path="/createattendance" element={withDefaultLayout(<AttendanceCreationPage />, "Create Attendance")} />
       <Route path="/attendancereport" element={withDefaultLayout(<AttendanceReport />, "Attendance Report")} />
       <Route path="/markattendance" element={withDefaultLayout(<AttendanceMarkerPage />, "Mark Attendance")} />
+      <Route path="/form" element={withDefaultLayout(<NewcomerForm />, "First Timer's form")} />
+      <Route path="/forms/:ref_code" element={withDefaultLayout(<FirstTimersForm />, "First Timer's form")} />
+      <Route path="/forms/" element={withDefaultLayout(<FirstTimersForm />, "First Timer's form")} />
     </Routes>
     
     </>

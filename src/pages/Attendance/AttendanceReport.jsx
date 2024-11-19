@@ -194,18 +194,19 @@ const AttendanceReport = () => {
                   <label className="mb-2 sm:mb-2.5 block text-sm sm:text-base text-black dark:text-white">
                     Ref Code
                   </label>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <input
                       type="text"
-                      className="flex-1 rounded border-[1.5px] border-stroke bg-transparent py-2 sm:py-3 px-3 sm:px-5 text-sm sm:text-base text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      className="flex-1 min-w-[60%] rounded border-[1.5px] border-stroke bg-transparent py-2 sm:py-3 px-3 sm:px-5 text-sm sm:text-base text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       value={searchParams.refCode}
                       onChange={(e) => setSearchParams({ ...searchParams, refCode: e.target.value })}
                     />
                      <button
                       onClick={searchNewcomers}
-                      className="flex items-center rounded bg-primary px-3 sm:px-4 py-2 sm:py-3 text-white hover:bg-opacity-90 text-sm sm:text-base"
-                    >
-                      <Search size={16} className="mr-1" /> Search
+                      className="inline-flex items-center justify-center whitespace-nowrap rounded bg-primary px-3 sm:px-4 py-2 sm:py-3 text-white hover:bg-opacity-90 text-sm sm:text-base"
+                      >
+                      <Search size={16} className="mr-1.5" /> 
+                      <span className="hidden xs:inline">Search</span>
                     </button>
                   </div>
                 </div>
