@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Download } from 'lucide-react';
+import { Download, Camera, SwitchCamera } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
+import QrScanner from "react-qr-scanner";
+
+import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 
 const FirstTimersForm = () => {
   const [formData, setFormData] = useState({
@@ -23,6 +27,11 @@ const FirstTimersForm = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [refCode, setRefCode] = useState('');
+    const [scanning, setScanning] = useState(false);
+    const [cameraId, setCameraId] = useState("environment");
+    const [cameras, setCameras] = useState([]);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Extract ref_code from URL
@@ -108,7 +117,7 @@ const FirstTimersForm = () => {
       const match = response.data.message.match(/for '(.*?)'/);
       const dateString = match ? match[1] : 'this service';
       
-      setSuccessMessage(`Newcomer successfully registered for ${dateString}`);
+      setSuccessMessage(`Your Attendance successfully marked for ${dateString}`);
     
       setFormData({
         first_name: '',
@@ -136,312 +145,89 @@ const FirstTimersForm = () => {
     }
   };
 
+  const startScanning = () => {
+    setScanning(true);
+    setError("");
+    setSuccessMessage("");
+  };
+
+  const stopScanning = () => {
+    setScanning(false);
+  };
+
+  const toggleCamera = () => {
+    const currentIndex = cameras.findIndex(
+      (camera) => camera.deviceId === cameraId
+    );
+    const nextIndex = (currentIndex + 1) % cameras.length;
+    setCameraId(cameras[nextIndex].deviceId);
+  };
+
   return (
-    <div className="p-4 md:p-6 2xl:p-10">
-      <div className="mx-auto max-w-5xl">
-        <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-          <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
-            <h3 className="font-medium text-black dark:text-white">
-              Newcomer Registration Form
-            </h3>
-          </div>
-
-          <form onSubmit={handleSubmit}>
-            <div className="p-6.5">
-              {/* First Name */}
-              <div className="mb-4.5">
-                <label className="mb-2.5 block text-black dark:text-white">
-                  First Name
-                </label>
-                <input
-                  id="first_name"
-                  type="text"
-                  name="first_name"
-                  value={formData.first_name}
-                  onChange={handleInputChange}
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  required
-                />
-                {errors.first_name && (
-                  <p className="mt-1 text-sm text-red-500">{errors.first_name[0]}</p>
-                )}
-              </div>
-
-              {/* Last Name */}
-              <div className="mb-4.5">
-                <label className="mb-2.5 block text-black dark:text-white">
-                  Last Name
-                </label>
-                <input
-                  id="last_name"
-                  type="text"
-                  name="last_name"
-                  value={formData.last_name}
-                  onChange={handleInputChange}
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  required
-                />
-                {errors.last_name && (
-                  <p className="mt-1 text-sm text-red-500">{errors.last_name[0]}</p>
-                )}
-              </div>
-
-              {/* Phone Number */}
-              <div className="mb-4.5">
-                <label className="mb-2.5 block text-black dark:text-white">
-                  Phone Number
-                </label>
-                <input
-                  id="phone_number"
-                  type="tel"
-                  name="phone_number"
-                  value={formData.phone_number}
-                  onChange={handleInputChange}
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  required
-                />
-                {errors.phone_number && (
-                  <p className="mt-1 text-sm text-red-500">{errors.phone_number[0]}</p>
-                )}
-              </div>
-
-              {/* Email */}
-              <div className="mb-4.5">
-                <label className="mb-2.5 block text-black dark:text-white">
-                  Email
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  required
-                />
-                {errors.email && (
-                  <p className="mt-1 text-sm text-red-500">{errors.email[0]}</p>
-                )}
-              </div>
-
-              {/* Gender */}
-              <div className="mb-4.5">
-                <label className="mb-2.5 block text-black dark:text-white">
-                  Gender
-                </label>
-                <select
-                  id="gender"
-                  name="gender"
-                  value={formData.gender}
-                  onChange={handleInputChange}
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  required
-                >
-                  <option value="" disabled>Select Gender</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                </select>
-                {errors.gender && (
-                  <p className="mt-1 text-sm text-red-500">{errors.gender[0]}</p>
-                )}
-              </div>
-
-              {/* Birth Date */}
-              <div className="mb-4.5">
-                <label className="mb-2.5 block text-black dark:text-white">
-                  Birth Date
-                </label>
-                <input
-                  id="birth_date"
-                  type="date"
-                  name="birth_date"
-                  value={formData.birth_date}
-                  onChange={handleInputChange}
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  required
-                />
-                {errors.birth_date && (
-                  <p className="mt-1 text-sm text-red-500">{errors.birth_date[0]}</p>
-                )}
-              </div>
-
-              {/* Address */}
-              <div className="mb-4.5">
-                <label className="mb-2.5 block text-black dark:text-white">
-                  Address
-                </label>
-                <input
-                  id="address"
-                  type="text"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleInputChange}
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  required
-                />
-                {errors.address && (
-                  <p className="mt-1 text-sm text-red-500">{errors.address[0]}</p>
-                )}
-              </div>
-
-              {/* Profile Picture */}
-              <div className="mb-4.5">
-                <label className="mb-2.5 block text-black dark:text-white">
-                  Profile Picture
-                </label>
-                <input
-                  id="profile_picture"
-                  type="file"
-                  name="profile_picture"
-                  onChange={handleInputChange}
-                  accept="image/*"
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                />
-                {errors.profile_picture && (
-                  <p className="mt-1 text-sm text-red-500">{errors.profile_picture[0]}</p>
-                )}
-              </div>
-
-              {/* Occupation */}
-              <div className="mb-4.5">
-                <label className="mb-2.5 block text-black dark:text-white">
-                  Occupation
-                </label>
-                <input
-                  id="occupation"
-                  type="text"
-                  name="occupation"
-                  value={formData.occupation}
-                  onChange={handleInputChange}
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                />
-                {errors.occupation && (
-                  <p className="mt-1 text-sm text-red-500">{errors.occupation[0]}</p>
-                )}
-              </div>
-
-              {/* Invited By */}
-              <div className="mb-4.5">
-                <label className="mb-2.5 block text-black dark:text-white">
-                  Invited By
-                </label>
-                <input
-                  id="invited_by"
-                  type="text"
-                  name="invited_by"
-                  value={formData.invited_by}
-                  onChange={handleInputChange}
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                />
-                {errors.invited_by && (
-                  <p className="mt-1 text-sm text-red-500">{errors.invited_by[0]}</p>
-                )}
-              </div>
-
-              {/* Membership Interest */}
-              <div className="mb-4.5">
-                <label className="mb-2.5 block text-black dark:text-white">
-                  Want to be a Member
-                </label>
-                <select
-                  id="want_to_be_member"
-                  name="want_to_be_member"
-                  value={formData.want_to_be_member}
-                  onChange={handleInputChange}
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  required
-                >
-                  <option value={true}>Yes</option>
-                  <option value={false}>No</option>
-                </select>
-                {errors.want_to_be_member && (
-                  <p className="mt-1 text-sm text-red-500">{errors.want_to_be_member[0]}</p>
-                )}
-              </div>
-
-              {/* Marital Status */}
-              <div className="mb-4.5">
-                <label className="mb-2.5 block text-black dark:text-white">
-                  Marital Status
-                </label>
-                <select
-                  id="marital_status"
-                  name="marital_status"
-                  value={formData.marital_status}
-                  onChange={handleInputChange}
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  required
-                >
-                  <option value="" disabled>Select Marital Status</option>
-                  <option value="Single">Single</option>
-                  <option value="Married">Married</option>
-                  <option value="Divorced">Divorced</option>
-                  <option value="Widowed">Widowed</option>
-                </select>
-                {errors.marital_status && (
-                  <p className="mt-1 text-sm text-red-500">{errors.marital_status[0]}</p>
-                )}
-              </div>
-
-              {/* Interested Department */}
-              <div className="mb-4.5">
-                <label className="mb-2.5 block text-black dark:text-white">
-                  Interested Department
-                </label>
-                <select
-                  id="interested_department"
-                  name="interested_department"
-                  value={formData.interested_department}
-                  onChange={handleInputChange}
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                >
-                  <option value="" disabled>Select Department</option>
-                  <option value="CHOIR">Choir</option>
-                  <option value="MEDIA">Media</option>
-                  <option value="PROTOCOL">Protocol</option>
-                  <option value="USHERING">Ushering</option>
-                  <option value="CHILDREN">Children Department</option>
-                  <option value="DRAMA">Drama</option>
-                  <option value="EVANGELISM">Evangelism</option>
-                </select>
-                {errors.interested_department && (
-                  <p className="mt-1 text-sm text-red-500">{errors.interested_department[0]}</p>
-                )}
-              </div>
-
-              {/* Global Error Message */}
-              {errors.message && (
-                <div className="mb-4 rounded-md bg-red-50 p-4 text-sm text-red-500">
-                  {errors.message}
-                </div>
-              )}
-
-              {/* Success Message */}
-              {successMessage && (
-                <div className="mb-4 rounded-md bg-green-50 p-4 text-sm text-green-500">
-                  {successMessage}
-                </div>
-              )}
-
-              {/* Submit Button */}
-              {/* <button
-                type="submit"
-                disabled={isLoading}
-                className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90 disabled:bg-opacity-50"
-              >
-                {isLoading ? "Submitting..." : "Register"}
-              </button> */}
-              <button
-              type="submit"
-              className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90 disabled:bg-opacity-50"
-              >
-                submit
-              </button>
+    <>
+      <Breadcrumb pageName="First Timers" />
+  
+      <div className="p-4 md:p-6 2xl:p-10">
+        <div className="mx-auto max-w-5xl">
+          {/* Main Card */}
+          <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+            <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
+              <h3 className="font-medium text-black dark:text-white">
+                Attendance Options
+              </h3>
             </div>
-          </form>
+  
+            <div className="p-6.5 space-y-4">
+              {/* Add Newcomer and Returning Member Buttons */}
+              <div className="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-4">
+                <button
+                  onClick={() => {
+                    const newcomerLink = localStorage.getItem('newcomerLink');
+                    if (newcomerLink) {
+                      navigate(newcomerLink.replace(window.location.origin, ''));
+                    }
+                  }}
+                  className="flex items-center justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
+                >
+                  Add a Newcomer
+                </button>
+                
+                <button
+                  onClick={() => navigate("/attendancereport")}
+                  className="flex items-center justify-center rounded bg-secondary p-3 font-medium text-gray hover:bg-opacity-90"
+                >
+                  Add a Returning New Member
+                </button>
+              </div>
+  
+              {/* Existing Scanning Section */}
+              {/* {!scanning && !successMessage && (
+                <div className="flex justify-center mb-4.5">
+                  <button
+                    onClick={startScanning}
+                    className="flex items-center justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
+                  >
+                    <Camera className="mr-2 h-4 w-4" />
+                    Take Attendance
+                  </button>
+                </div>
+              )}
+   */}
+  
+              {/* Back Button */}
+              <div className="flex justify-center mt-6">
+                <button
+                  onClick={() => navigate("/dashboard")}
+                  className="flex items-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
+                >
+                  Back to Dashboard
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

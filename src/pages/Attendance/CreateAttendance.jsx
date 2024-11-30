@@ -56,12 +56,15 @@ const AttendanceCreationPage = () => {
       const { ref_code, qrcode, message } = response.data;
 
       localStorage.setItem("attendance_ref_code", ref_code);
-      setQrCode(qrcode);
+      // setQrCode(qrcode);
 
       // Generate QR code for newcomers
       // Use the full URL of your deployed application
       const newcomerLinkUrl = `${window.location.origin}/forms/${ref_code}`;
+      localStorage.setItem("newcomerLink", newcomerLinkUrl);
       setNewcomerLink(newcomerLinkUrl);
+
+      setQrCode(qrcode);
             
       const newcomerLink = `${window.location.origin}/forms/${ref_code}`;
       const newcomerQrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(newcomerLink)}`;
@@ -96,23 +99,56 @@ const AttendanceCreationPage = () => {
     }
   };
 
+  // const handleDownloadQR = (qrRef, filename) => {
+  //   if (qrRef.current) {
+  //     const canvas = document.createElement("canvas");
+  //     const ctx = canvas.getContext("2d");
+  //     const img = qrRef.current;
+
+  //     // Ensure the crossOrigin attribute is set for the image
+  //     img.crossOrigin = "anonymous";
+
+  //     canvas.width = img.width;
+  //     canvas.height = img.height;
+  //     ctx.drawImage(img, 0, 0, img.width, img.height);
+
+  //     const link = document.createElement("a");
+  //     link.download = filename;
+  //     link.href = canvas.toDataURL();
+  //     link.click();
+  //   }
+  // };
+
   const handleDownloadQR = (qrRef, filename) => {
     if (qrRef.current) {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
       const img = qrRef.current;
-
-      // Ensure the crossOrigin attribute is set for the image
-      img.crossOrigin = "anonymous";
-
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.drawImage(img, 0, 0, img.width, img.height);
-
-      const link = document.createElement("a");
-      link.download = filename;
-      link.href = canvas.toDataURL();
-      link.click();
+      
+      // Create a new Image object to ensure proper loading
+      const tempImg = new Image();
+      tempImg.crossOrigin = "anonymous";
+      tempImg.src = img.src;
+      
+      tempImg.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+  
+        // Set canvas dimensions to match the image
+        canvas.width = tempImg.width;
+        canvas.height = tempImg.height;
+  
+        // Draw the image onto the canvas
+        ctx.drawImage(tempImg, 0, 0, tempImg.width, tempImg.height);
+  
+        // Convert to data URL and download
+        const link = document.createElement("a");
+        link.download = filename;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      };
+  
+      tempImg.onerror = () => {
+        console.error("Error loading QR code image");
+      };
     }
   };
 
