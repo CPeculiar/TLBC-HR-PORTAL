@@ -1,55 +1,55 @@
 import { Link } from 'react-router-dom';
 import UserOne from '../../images/user/user-01.png';
 import UserTwo from '../../images/user/user-02.png';
-import UserThree from '../../images/user/user-03.png';
+import UserThree from '../../images/user/user-08.png';
 import UserFour from '../../images/user/user-04.png';
 import UserFive from '../../images/user/user-05.png';
 
 const chatData = [
   {
     avatar: UserOne,
-    name: 'Devid Heilo',
-    text: 'How are you?',
+    name: 'Pst. Eloka Okeke',
+    text: 'Where are you?',
     time: 12,
     textCount: 3,
     color: '#10B981',
   },
   {
     avatar: UserTwo,
-    name: 'Henry Fisher',
-    text: 'Waiting for you!',
+    name: 'Evang. Dimma Egwu',
+    text: 'I"m waiting for your Report',
     time: 12,
     textCount: 0,
     color: '#DC3545',
   },
   {
     avatar: UserFour,
-    name: 'Jhon Doe',
-    text: "What's up?",
+    name: 'Sis. Faith Bidiki',
+    text: "You have a function tomorrow",
     time: 32,
     textCount: 0,
     color: '#10B981',
   },
   {
     avatar: UserFive,
-    name: 'Jane Doe',
-    text: 'Great',
+    name: 'Bro. Chibueze Arthur',
+    text: 'This is great 👍',
     time: 32,
     textCount: 2,
     color: '#FFBA00',
   },
   {
     avatar: UserOne,
-    name: 'Jhon Doe',
-    text: 'How are you?',
+    name: 'Bro. Ebere Chukwuemeka',
+    text: 'How are you, brother?',
     time: 32,
     textCount: 0,
     color: '#10B981',
   },
   {
     avatar: UserThree,
-    name: 'Jhon Doe',
-    text: 'How are you?',
+    name: 'Bro. Divine Gift',
+    text: 'Are you coming to meeting?',
     time: 32,
     textCount: 3,
     color: '#FFBA00',
@@ -60,7 +60,7 @@ const ChatCard = () => {
   return (
     <div className="col-span-12 rounded-sm border border-stroke bg-white py-6 shadow-default dark:border-strokedark dark:bg-boxdark xl:col-span-4">
       <h4 className="mb-6 px-7.5 text-xl font-semibold text-black dark:text-white">
-        Chats
+       Messages
       </h4>
 
       <div>

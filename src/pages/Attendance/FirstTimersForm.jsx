@@ -182,11 +182,13 @@ const FirstTimersForm = () => {
               <div className="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-4">
                 <button
                   onClick={() => {
-                    const newcomerLink = localStorage.getItem('newcomerLink');
-                    if (newcomerLink) {
-                      navigate(newcomerLink.replace(window.location.origin, ''));
-                    }
-                  }}
+                    if (refCode) {
+    navigate(`/form/${refCode}`, { state: { refCode } });
+  } else {
+    console.error('No reference code found');
+    // Optional: Add error handling or user feedback
+  }
+}}
                   className="flex items-center justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
                 >
                   Add a Newcomer

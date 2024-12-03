@@ -1,49 +1,44 @@
-import BrandOne from '../../images/brand/brand-01.svg';
-import BrandTwo from '../../images/brand/brand-02.svg';
-import BrandThree from '../../images/brand/brand-03.svg';
-import BrandFour from '../../images/brand/brand-04.svg';
-import BrandFive from '../../images/brand/brand-05.svg';
+import Image01 from '../../images/user/user-36-05.jpg';
+import Image02 from '../../images/user/user-36-06.jpg';
+import Image03 from '../../images/user/user-36-07.jpg';
+import Image04 from '../../images/user/user-10.png';
+import Image05 from '../../images/user/user-12.png';
 
 const brandData = [ // Removed type annotation
   {
-    logo: BrandOne,
-    name: 'Google',
-    visitors: 3.5,
-    revenues: '5,768',
-    sales: 590,
-    conversion: 4.8,
+    logo: Image01,
+    name: 'Michelle Okonkwo',
+    phone: '09013550819',
+    dob: 'Aug 18',
+    church: 'TLBC Awka',
   },
   {
-    logo: BrandTwo,
-    name: 'Twitter',
-    visitors: 2.2,
-    revenues: '4,635',
-    sales: 467,
-    conversion: 4.3,
+    logo: Image02,
+    name: 'Collins Nwokozor ',
+    phone: '08130543765',
+    dob: 'Aug25',
+    church: 'TLBC Awka',
   },
   {
-    logo: BrandThree,
-    name: 'Github',
-    visitors: 2.1,
-    revenues: '4,290',
-    sales: 420,
-    conversion: 3.7,
+    logo: Image03,
+    name: 'Michael Mmaduburum',
+    phone: '09021098669',
+    dob: 'Sept 14',
+    church: 'TLBC Ihiala',
   },
   {
-    logo: BrandFour,
-    name: 'Vimeo',
-    visitors: 1.5,
-    revenues: '3,580',
-    sales: 389,
-    conversion: 2.5,
+    logo: Image04,
+    name: 'Amaka Aham',
+    phone: '09067493068',
+     dob: 'Sept 24',
+     church: 'TLBC Awka',
   },
   {
-    logo: BrandFive,
-    name: 'Facebook',
-    visitors: 3.5,
-    revenues: '6,768',
-    sales: 390,
-    conversion: 4.2,
+    logo: Image05,
+    name: 'Ebuka Nwankwo',
+    phone: '08105606440',
+    dob: 'Sept 30',
+    church: 'TLBC Ekwulobia',
   },
 ];
 
@@ -51,34 +46,31 @@ const TableOne = () => {
   return (
     <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
       <h4 className="mb-6 text-xl font-semibold text-black dark:text-white">
-        Top Channels
+        Upcoming Birthdays
       </h4>
 
       <div className="flex flex-col">
         <div className="grid grid-cols-3 rounded-sm bg-gray-2 dark:bg-meta-4 sm:grid-cols-5">
           <div className="p-2.5 xl:p-5">
             <h5 className="text-sm font-medium uppercase xsm:text-base">
-              Source
+              Name
             </h5>
+          </div>
+          <div>
           </div>
           <div className="p-2.5 text-center xl:p-5">
             <h5 className="text-sm font-medium uppercase xsm:text-base">
-              Visitors
-            </h5>
-          </div>
-          <div className="p-2.5 text-center xl:p-5">
-            <h5 className="text-sm font-medium uppercase xsm:text-base">
-              Revenues
+             Phone
             </h5>
           </div>
           <div className="hidden p-2.5 text-center sm:block xl:p-5">
             <h5 className="text-sm font-medium uppercase xsm:text-base">
-              Sales
+              CHURCH
             </h5>
           </div>
           <div className="hidden p-2.5 text-center sm:block xl:p-5">
             <h5 className="text-sm font-medium uppercase xsm:text-base">
-              Conversion
+             DOB
             </h5>
           </div>
         </div>
@@ -96,25 +88,25 @@ const TableOne = () => {
               <div className="flex-shrink-0">
                 <img src={brand.logo} alt="Brand" />
               </div>
-              <p className="hidden text-black dark:text-white sm:block">
+              <p className="hidden text-black dark:text-white sm:block whitespace-nowrap">
                 {brand.name}
               </p>
             </div>
 
             <div className="flex items-center justify-center p-2.5 xl:p-5">
-              <p className="text-black dark:text-white">{brand.visitors}K</p>
+              <p className="text-black dark:text-white"></p>
             </div>
 
             <div className="flex items-center justify-center p-2.5 xl:p-5">
-              <p className="text-meta-3">${brand.revenues}</p>
+              <p className="text-black dark:text-white">{brand.phone}</p>
             </div>
 
             <div className="hidden items-center justify-center p-2.5 sm:flex xl:p-5">
-              <p className="text-black dark:text-white">{brand.sales}</p>
+              <p className="text-black dark:text-white">{brand.church}</p>
             </div>
 
             <div className="hidden items-center justify-center p-2.5 sm:flex xl:p-5">
-              <p className="text-meta-5">{brand.conversion}%</p>
+              <p className="text-meta-3">{brand.dob}</p>
             </div>
           </div>
         ))}

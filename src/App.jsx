@@ -28,6 +28,7 @@ import SidebarCopy from "./components/Sidebar/index copy";
 import NewcomerForm from './pages/Attendance/NewcomerForm';
 import FirstTimersForm from './pages/Attendance/FirstTimersForm';
 import NewcomerForm2 from './pages/Attendance/NewcomerForm copy';
+import FirstTimersFormCopy from './pages/Attendance/FirstTimersForm copy';
 
 
 
@@ -137,6 +138,7 @@ function App() {
       <Route path="/forms/:ref_code" element={withDefaultLayout(<FirstTimersForm />, "First Timer's form")} />
       <Route path="/forms/" element={withDefaultLayout(<FirstTimersForm />, "First Timer's form")} />
       <Route path="/forms2/" element={withDefaultLayout(<NewcomerForm2 />, "First Timer's form")} />
+      <Route path="/form/:ref_code" element={withDefaultLayout(<FirstTimersFormCopy />, "First Timer's form")} />
     </Routes>
     
     </>

@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Download } from 'lucide-react';
 
 const FirstTimersForm = () => {
+  const location = useLocation();
+  const refCode = location.state?.refCode || location.pathname.split('/form/')[1];
+  
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -22,27 +26,28 @@ const FirstTimersForm = () => {
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [refCode, setRefCode] = useState('');
-
-  useEffect(() => {
-    // Extract ref_code from URL
-    const path = window.location.pathname;
-    console.log("Full Path:", path); // Debug log
-
-    // Split by '/forms/' instead of '/form/'
-  const extractedRefCode = path.split('/forms/')[1];
-
-    console.log('Extracted refCode:', extractedRefCode);
+  // const [refCode, setRefCode] = useState('');
 
 
-    if (!extractedRefCode) {
-        // Handle case where ref_code is not found
-        console.error('No reference code found in URL');
-        // Optionally set an error state or redirect
-      } else {
-        setRefCode(extractedRefCode);
-      }
-     }, []);
+  // useEffect(() => {
+  //   // Extract ref_code from URL
+  //   const path = window.location.pathname;
+  //   console.log("Full Path:", path); // Debug log
+
+  //   // Split by '/forms/' instead of '/form/'
+  // const extractedRefCode = path.split('/forms/')[1];
+
+  //   console.log('Extracted refCode:', extractedRefCode);
+
+
+  //   if (!extractedRefCode) {
+  //       // Handle case where ref_code is not found
+  //       console.error('No reference code found in URL');
+  //       // Optionally set an error state or redirect
+  //     } else {
+  //       setRefCode(extractedRefCode);
+  //     }
+  //    }, []);
 
 
   const handleInputChange = (e) => {
