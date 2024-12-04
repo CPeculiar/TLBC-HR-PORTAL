@@ -117,8 +117,10 @@ const AttendanceReport = () => {
       try {
         const response = await axios.get("https://tlbc-platform-api.onrender.com/api/attendance/list/");
         setAttendanceList(response.data);
+        setNoResults(response.data.results.length === 0);
       } catch (error) {
         showAlert(error.response?.data?.message || "Error fetching attendance list", "error");
+        setNoResults(false);
       }
     };
   
@@ -127,8 +129,10 @@ const AttendanceReport = () => {
       try {
         const response = await axios.get("https://tlbc-platform-api.onrender.com/api/attendance/list/all/");
         setAllAttendanceList(response.data);
+        setNoResults(response.data.results.length === 0);
       } catch (error) {
         showAlert(error.response?.data?.message || "Error fetching all attendance lists", "error");
+        setNoResults(false);
       }
     };
 
@@ -186,160 +190,8 @@ const AttendanceReport = () => {
             </Alert>
           )}
 
-          {/* Newcomers Search Section */}
-          <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark mb-6">
-            <div className="border-b border-stroke py-4 px-4 sm:px-6.5 dark:border-strokedark">
-              <h3 className="font-medium text-base sm:text-lg text-black dark:text-white">
-                Newcomers Search
-              </h3>
-            </div>
-            <div className="p-4 sm:p-6.5">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                <div className="w-full">
-                  <label className="mb-2 sm:mb-2.5 block text-sm sm:text-base text-black dark:text-white">
-                    Enter Name
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-2 sm:py-3 px-3 sm:px-5 text-sm sm:text-base text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                     value={searchParams.name}
-                    onChange={(e) => setSearchParams({ ...searchParams, name: e.target.value })}
-                  />
-                </div>
-
-                <div className="w-full">
-                  <label className="mb-2 sm:mb-2.5 block text-sm sm:text-base text-black dark:text-white">
-                    Ref Code
-                  </label>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <input
-                      type="text"
-                      className="flex-1 min-w-[60%] rounded border-[1.5px] border-stroke bg-transparent py-2 sm:py-3 px-3 sm:px-5 text-sm sm:text-base text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                      value={searchParams.refCode}
-                      onChange={(e) => setSearchParams({ ...searchParams, refCode: e.target.value })}
-                    />
-                     <button
-                      onClick={searchNewcomers}
-                      className="inline-flex items-center justify-center whitespace-nowrap rounded bg-primary px-3 sm:px-4 py-2 sm:py-3 text-white hover:bg-opacity-90 text-sm sm:text-base"
-                      >
-                      <Search size={16} className="mr-1.5" /> 
-                      <span className="hidden xs:inline">Search</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {noResults && (
-        <div className="mt-4 sm:mt-6 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-4 sm:p-6.5">
-          <p className="text-[red] dark:text-white">No results found</p>
-        </div>
-      )}
-
-              {newcomersList.results.length > 0 &&  (
-                <div className="mt-4 sm:mt-6 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm sm:text-base">
-                      <thead>
-                        <tr className="bg-gray-50 dark:bg-meta-4 border-b border-stroke dark:border-strokedark">
-                          <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">Name</th>
-                          <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">Email</th>
-                          <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">Phone</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-
-                      {newcomersList.results.map((newcomer, index) => (
-                        <tr key={index} className="border-b border-stroke dark:border-strokedark">
-                            <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-black dark:text-white">{`${newcomer.first_name} ${newcomer.last_name}`}</td>
-                            <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-black dark:text-white">{newcomer.email}</td>
-                            <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-black dark:text-white">{newcomer.phone_number}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                    </div>
-                </div>
-              )}
-              {/* ) : (
-        <div className="mt-4 sm:mt-6 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-4 sm:p-6.5">
-          <p className=" dark:text-[red] text-[red]">No results found</p>
-        </div>      
-              )} */}
-            </div>
-          </div>
-{/* 
-                  <div className="flex justify-end gap-2 mt-4">
-                    {newcomersList.previous && (
-                      <button
-                       
-                        className="px-3 py-1 border rounded flex items-center gap-1"
-                      >
-                        <ChevronLeft size={16} /> Previous
-                      </button>
-                    )}
-                    {newcomersList.next && (
-                      <button
-                      
-                        className="px-3 py-1 border rounded flex items-center gap-1"
-                      >
-                        Next <ChevronRight size={16} />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
-
-            </CardContent>
-          </Card> */}
-
- {/* Returning Visitors Section */}
- <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark mb-6">
-            <div className="border-b border-stroke py-4 px-4 sm:px-6.5 dark:border-strokedark">
-              <h3 className="font-medium text-base sm:text-lg text-black dark:text-white">
-                Returning Visitors
-              </h3>
-            </div>
-            <div className="p-4 sm:p-6.5">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                <div>
-                  <label className="mb-2 sm:mb-2.5 block text-sm sm:text-base text-black dark:text-white">
-                    Ref Code
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-2 sm:py-3 px-3 sm:px-5 text-sm sm:text-base text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                    value={returningVisitorParams.refCode}
-                    onChange={(e) => setReturningVisitorParams({ ...returningVisitorParams, refCode: e.target.value })}
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-2 sm:mb-2.5 block text-sm sm:text-base text-black dark:text-white">
-                    Church
-                  </label>
-                  <select
-                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-2 sm:py-3 px-3 sm:px-5 text-sm sm:text-base text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                        value={returningVisitorParams.church}
-                    onChange={(e) => setReturningVisitorParams({ ...returningVisitorParams, church: e.target.value })}
-                  >
-                    <option value="">Select Church</option>
-                    {Object.entries(churchOptions).map(([label, value]) => (
-                      <option key={value} value={value} className="text-sm sm:text-base">
-                        {label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <button
-                onClick={handleReturningVisitor}
-                className="mt-3 sm:mt-4 flex w-full justify-center rounded bg-primary p-2 sm:p-3 text-sm sm:text-base font-medium text-gray hover:bg-opacity-90"
-              >
-                Submit
-              </button>
-            </div>
-          </div>
-
+     
+             
 
          {/* Update Attendance Section */}
          <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark mb-6">
@@ -437,7 +289,11 @@ const AttendanceReport = () => {
                 </button>
               </div>
 
-
+              {noResults && (
+        <div className="mt-4 sm:mt-6 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-4 sm:p-6.5">
+          <p className="text-[red] dark:text-white"> No attendance records found for your Church</p>
+        </div>
+      )}
                 {attendanceList.results.length === 0 ? (
                   <div className="mt-4 sm:mt-6 rounded-sm border border-stroke px-4 py-1 bg-white shadow-default dark:border-strokedark dark:bg-boxdark  dark:text-white">
                      {/* <div className="text-center py-8 text-gray-500">No attendance records found</div> */}
@@ -529,14 +385,19 @@ const AttendanceReport = () => {
                 </button>
               </div>
 
-              
+              {noResults && (
+        <div className="mt-4 sm:mt-6 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-4 sm:p-6.5">
+          <p className="text-[red] dark:text-white"> No attendance records found for your Church</p>
+        </div>
+      )}
+
                 {allAttendanceList.results.length === 0 ? (
                   <div className="mt-6 px-4 py-1 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
                   No attendance records found</div>
                 ) : (
                   <>
                   <div className="overflow-x-auto">
-                  <table className="w-full">
+                  <table className="w-full text-sm sm:text-base">
                         <thead>
                         <tr className="bg-gray-50 dark:bg-meta-4 border-b border-stroke dark:border-strokedark">
                             <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">Program</th>
@@ -565,11 +426,15 @@ const AttendanceReport = () => {
                               </td>
                               <td className="px-4 py-2 text-center text-black dark:text-white">
                                 <button
-                                  onClick={() => getAttendanceDetails(attendance.ref_code)}
+                                  onClick={() => {
+                                    console.log("Captured ref_code:", attendance.ref_code);
+                                  handleAttendanceDetails(attendance.ref_code)
+                                  }}
                                   className="mt-4 flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
                                   >
                                   <Eye size={18} />
                                 </button>
+                                
                               </td>
                             </tr>
                           ))}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Download, Eye } from 'lucide-react';
-import { Card } from '@/components/ui/card';
+import { Card } from '../../components/ui/card';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import jsPDF from 'jspdf'; 
@@ -257,7 +257,14 @@ const AttendanceDetailsPage = () => {
                                 </button>
                                 
                                 <button
-                                    onClick={() => navigate("/attendancereport")}
+                                    onClick={() => {
+                                        if (refCode) {
+                                            navigate(`/returningNewcomers/${refCode}`, { state: { refCode } });
+                                        } else {
+                                            console.error('No reference code found');
+                                            alert('No reference code found');
+                                        }
+                                    }}
                                     className="flex items-center justify-center rounded bg-secondary p-3 font-medium text-white hover:bg-opacity-90"
                                 >
                                     I'm not a Newcomer

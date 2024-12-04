@@ -30,6 +30,7 @@ import FirstTimersForm from './pages/Attendance/FirstTimersForm';
 import NewcomerForm2 from './pages/Attendance/NewcomerForm copy';
 import FirstTimersFormCopy from './pages/Attendance/FirstTimersForm copy';
 import AttendanceDetailsPage from './pages/Attendance/AttendanceDetailsPage';
+import ReturningNewComers from './pages/Attendance/ReturningNewComers';
 
 
 
@@ -141,6 +142,7 @@ function App() {
       <Route path="/forms2/" element={withDefaultLayout(<NewcomerForm2 />, "New Comers form")} />
       <Route path="/form/:ref_code" element={withDefaultLayout(<FirstTimersFormCopy />, "First Timer's form copy")} />
       <Route path="/attendanceDetails/:refCode" element={withDefaultLayout(<AttendanceDetailsPage />, "Attendance Details Page")} />
+      <Route path="/returningNewcomers/:refcode" element={withDefaultLayout(<ReturningNewComers />, "Returning NewComers")} />
       
     </Routes>
     
