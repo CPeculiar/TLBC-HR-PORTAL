@@ -16,6 +16,7 @@ const AttendanceReport = () => {
     // State for newcomers search
     const [searchParams, setSearchParams] = useState({ name: "", refCode: "" });
     const [newcomersList, setNewcomersList] = useState({ results: [], next: null, previous: null });
+    const [noResults, setNoResults] = useState(false);
     
     // State for returning visitors
     const [returningVisitorParams, setReturningVisitorParams] = useState({ refCode: "", church: "" });
@@ -71,8 +72,10 @@ const AttendanceReport = () => {
           }
         );
         setNewcomersList(response.data);
+        setNoResults(response.data.results.length === 0);
       } catch (error) {
         showAlert(error.response?.data?.message || "Error searching newcomers", "error");
+        setNoResults(false);
       }
     };
   
@@ -226,7 +229,13 @@ const AttendanceReport = () => {
                 </div>
               </div>
 
-              {newcomersList.results.length > 0 ? (
+              {noResults && (
+        <div className="mt-4 sm:mt-6 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-4 sm:p-6.5">
+          <p className="text-[red] dark:text-white">No results found</p>
+        </div>
+      )}
+
+              {newcomersList.results.length > 0 &&  (
                 <div className="mt-4 sm:mt-6 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm sm:text-base">
@@ -250,11 +259,12 @@ const AttendanceReport = () => {
                     </table>
                     </div>
                 </div>
-              ) : (
+              )}
+              {/* ) : (
         <div className="mt-4 sm:mt-6 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-4 sm:p-6.5">
           <p className=" dark:text-[red] text-[red]">No results found</p>
         </div>      
-              )}
+              )} */}
             </div>
           </div>
 {/* 
