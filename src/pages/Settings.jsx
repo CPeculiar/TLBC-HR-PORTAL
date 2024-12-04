@@ -171,6 +171,10 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
     }
   };
 
+  const handleCancel = () => {
+    navigate('/settings');
+  }
+
 
   const uploadProfilePicture = async (file) => {
     setUpdating(true);
@@ -178,7 +182,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
       const accessToken = localStorage.getItem("accessToken");
       if (!accessToken) {
         alert("Access token not found. Please login first.");
-        navigate("/login");
+        navigate("/");
         return;
       }
 
@@ -1236,12 +1240,14 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                     <button
                       className="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
                       type="submit"
+                      onClick={handleCancel}
                     >
                       Cancel
                     </button>
                     <button
                       className="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90"
                       type="submit"
+                      onClick={handleSubmit}
                     >
                       Save
                     </button>
@@ -1387,6 +1393,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                     <button
                       className="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
                       type="submit"
+                      onClick={handleCancel}
                     >
                       Cancel
                     </button>

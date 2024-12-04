@@ -99,26 +99,6 @@ const AttendanceCreationPage = () => {
     }
   };
 
-  // const handleDownloadQR = (qrRef, filename) => {
-  //   if (qrRef.current) {
-  //     const canvas = document.createElement("canvas");
-  //     const ctx = canvas.getContext("2d");
-  //     const img = qrRef.current;
-
-  //     // Ensure the crossOrigin attribute is set for the image
-  //     img.crossOrigin = "anonymous";
-
-  //     canvas.width = img.width;
-  //     canvas.height = img.height;
-  //     ctx.drawImage(img, 0, 0, img.width, img.height);
-
-  //     const link = document.createElement("a");
-  //     link.download = filename;
-  //     link.href = canvas.toDataURL();
-  //     link.click();
-  //   }
-  // };
-
   const handleDownloadQR = (qrRef, filename) => {
     if (qrRef.current) {
       const img = qrRef.current;

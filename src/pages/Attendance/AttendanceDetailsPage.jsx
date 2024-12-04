@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Download, Eye } from 'lucide-react';
 import { Card } from '../../components/ui/card';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -14,6 +14,12 @@ const AttendanceDetailsPage = () => {
     const { refCode } = useParams();
     const navigate = useNavigate();
 
+    const [qrCode, setQrCode] = useState(null);
+    const [newcomerQrCode, setNewcomerQrCode] = useState(null);
+    const [newcomerLink, setNewcomerLink] = useState(null);
+    const qrRef = useRef(null);
+    const newcomerQrRef = useRef(null);
+
     useEffect(() => {
         const fetchAttendanceDetails = async () => {
             try {
@@ -22,6 +28,20 @@ const AttendanceDetailsPage = () => {
                     `https://tlbc-platform-api.onrender.com/api/attendance/${refCode}/`
                 );
                 setSelectedAttendance(response.data);
+
+                // Generate QR codes
+                const newcomerLinkUrl = `${window.location.origin}/forms/${refCode}`;
+                setNewcomerLink(newcomerLinkUrl);
+
+                // Generate Attendance QR Code
+                const attendanceQrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(refCode)}`;
+                setQrCode(attendanceQrCodeUrl);
+
+                // Generate Newcomer QR Code
+                const newcomerQrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(newcomerLinkUrl)}`;
+                setNewcomerQrCode(newcomerQrCodeUrl);
+
+
                 setIsLoading(false);
             } catch (err) {
                 setError(err.response?.data?.message || "Error fetching attendance details");
@@ -34,6 +54,39 @@ const AttendanceDetailsPage = () => {
         }
     }, [refCode]);
 
+    const handleDownloadQR = (qrRef, filename) => {
+        if (qrRef.current) {
+            const img = qrRef.current;
+            
+            // Create a new Image object to ensure proper loading
+            const tempImg = new Image();
+            tempImg.crossOrigin = "anonymous";
+            tempImg.src = img.src;
+            
+            tempImg.onload = () => {
+                const canvas = document.createElement("canvas");
+                const ctx = canvas.getContext("2d");
+        
+                // Set canvas dimensions to match the image
+                canvas.width = tempImg.width;
+                canvas.height = tempImg.height;
+        
+                // Draw the image onto the canvas
+                ctx.drawImage(tempImg, 0, 0, tempImg.width, tempImg.height);
+        
+                // Convert to data URL and download
+                const link = document.createElement("a");
+                link.download = filename;
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+            };
+        
+            tempImg.onerror = () => {
+                console.error("Error loading QR code image");
+            };
+        }
+    };
+    
     const downloadTableAsPDF = (tableType) => {
         if (!selectedAttendance) return;
 
@@ -239,7 +292,7 @@ const AttendanceDetailsPage = () => {
                         <div className="p-4 md:p-6.5 space-y-4">
                             <h2 className='font-bold text-black text-center text-xl md:text-2xl'>Welcome!</h2>
                             <p className='text-black text-center text-base md:text-xl'>
-                                Please select the option that best applies to you from the options below.
+                                Please select which category of individuals you want to add manually.
                             </p>
                             <div className="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-4">
                                 <button
@@ -253,7 +306,7 @@ const AttendanceDetailsPage = () => {
                                     }}
                                     className="flex items-center justify-center rounded bg-primary p-3 font-medium text-white hover:bg-opacity-90"
                                 >
-                                    I'm a Newcomer
+                                    Add a Newcomer
                                 </button>
                                 
                                 <button
@@ -267,7 +320,7 @@ const AttendanceDetailsPage = () => {
                                     }}
                                     className="flex items-center justify-center rounded bg-secondary p-3 font-medium text-white hover:bg-opacity-90"
                                 >
-                                    I'm not a Newcomer
+                                    Add a returning First Timer
                                 </button>
                             </div>
 
@@ -284,6 +337,75 @@ const AttendanceDetailsPage = () => {
                     </div>
                 </div>
             </div>
+
+
+
+  {/* QR Codes Section */}
+  {(qrCode || newcomerQrCode) && (
+                <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+                    {qrCode && (
+                        <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+                            <h4 className="mb-4 text-xl font-semibold text-black dark:text-white">
+                                Attendance QR Code
+                            </h4>
+                            <div className="flex flex-col items-center">
+                                <img
+                                    ref={qrRef}
+                                    src={qrCode}
+                                    alt="Attendance QR Code"
+                                    className="mb-4 max-w-full"
+                                />
+                                <button
+                                    onClick={() => handleDownloadQR(qrRef, "attendance_qr_code.png")}
+                                    className="flex items-center rounded bg-primary px-4 py-2 text-white hover:bg-opacity-90"
+                                >
+                                    <Download className="mr-2 h-4 w-4" />
+                                    Download QR Code
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {newcomerQrCode && (
+                        <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+                            <h4 className="mb-4 text-xl font-semibold text-black dark:text-white">
+                                Newcomer QR Code
+                            </h4>
+                            <div className="flex flex-col items-center">
+                                <img
+                                    ref={newcomerQrRef}
+                                    src={newcomerQrCode}
+                                    alt="Newcomer QR Code"
+                                    className="mb-4 max-w-full"
+                                />
+                                <button
+                                    onClick={() => handleDownloadQR(newcomerQrRef, "newcomer_qr_code.png")}
+                                    className="flex items-center rounded bg-primary px-4 py-2 text-white hover:bg-opacity-90"
+                                >
+                                    <Download className="mr-2 h-4 w-4" />
+                                    Download QR Code
+                                </button>
+                                {newcomerLink && (
+                                    <div className="mt-4 text-center">
+                                        <p className="font-semibold text-black dark:text-white">Newcomer Form Link:</p>
+                                        <a
+                                            href={newcomerLink}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-primary hover:underline break-all"
+                                        >
+                                            {newcomerLink}
+                                        </a>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
+
+
         </div>
     );
 };

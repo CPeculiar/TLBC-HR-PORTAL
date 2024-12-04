@@ -32,6 +32,7 @@ const AttendanceReport = () => {
     // State for attendance lists
     const [attendanceList, setAttendanceList] = useState({ results: [], next: null, previous: null });
     const [allAttendanceList, setAllAttendanceList] = useState({ results: [], next: null, previous: null });
+    const [zonalAttendanceList, setZonalAttendanceList] = useState({ results: [] });
     const [selectedAttendance, setSelectedAttendance] = useState(null);
   
     const churchOptions = {
@@ -123,6 +124,18 @@ const AttendanceReport = () => {
         setNoResults(false);
       }
     };
+
+    // Get zonal attendance list
+const getZonalAttendanceList = async () => {
+  try {
+    const response = await axios.get("https://tlbc-platform-api.onrender.com/api/attendance/list/zone/");
+    setZonalAttendanceList(response.data);
+    setNoResults(response.data.results.length === 0);
+  } catch (error) {
+    showAlert(error.response?.data?.message || "Error fetching zonal attendance list", "error");
+    setNoResults(false);
+  }
+};
   
     // Get all attendance lists
     const getAllAttendanceLists = async () => {
@@ -275,6 +288,7 @@ const AttendanceReport = () => {
 
    {/* Attendance Lists Sections */}
           <div className="grid grid-cols-1 gap-6">
+           
             {/* Church Attendance List */}
             <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
               <div className="border-b border-stroke py-4 px-4 sm:px-6.5 dark:border-strokedark flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
@@ -369,6 +383,98 @@ const AttendanceReport = () => {
                   </>
                 )}
              
+{/* Zonal Attendance Lists */}
+<div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+  <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+    <h3 className="font-medium text-base sm:text-lg text-black dark:text-white">
+      Zonal Attendance Lists
+    </h3>
+    <button
+      onClick={getZonalAttendanceList}
+      className="w-full sm:w-auto flex justify-center items-center rounded bg-primary px-3 sm:px-4 py-2 sm:py-3 text-white hover:bg-opacity-90 text-sm sm:text-base"
+    >
+      Get Zonal Attendance
+    </button>
+  </div>
+
+  {noResults && (
+    <div className="mt-4 sm:mt-6 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-4 sm:p-6.5">
+      <p className="text-[red] dark:text-white">No zonal attendance records found</p>
+    </div>
+  )}
+
+  {zonalAttendanceList.results.length === 0 ? (
+    <div className="mt-6 px-4 py-1 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+      No zonal attendance records found
+    </div>
+  ) : (
+    <>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm sm:text-base">
+          <thead>
+            <tr className="bg-gray-50 dark:bg-meta-4 border-b border-stroke dark:border-strokedark">
+              <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">Program</th>
+              <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">Name</th>
+              <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">Venue</th>
+              <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">Date</th>
+              <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">Church</th>
+              <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">Status</th>
+              <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {zonalAttendanceList.results.map((attendance, index) => (
+              <tr key={index} className="border-b border-stroke dark:border-strokedark">
+                <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">{attendance.program}</td>
+                <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">{attendance.name}</td>
+                <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">{attendance.venue}</td>
+                <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">{attendance.date}</td>
+                <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">{attendance.church}</td>
+                <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
+                  <span className={`px-2 py-1 rounded-full text-xs text-black dark:text-white ${
+                    attendance.active ? 'bg-green-100 text-green-800 dark:text-white' : 'bg-red-100 text-red-800 dark:text-white'
+                  }`}>
+                    {attendance.active ? 'Active' : 'Inactive'}
+                  </span>
+                </td>
+                <td className="px-4 py-2 text-center text-black dark:text-white">
+                  <button
+                    onClick={() => {
+                      console.log("Captured ref_code:", attendance.ref_code);
+                      handleAttendanceDetails(attendance.ref_code)
+                    }}
+                    className="mt-4 flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
+                  >
+                    <Eye size={18} />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="flex justify-end gap-2 mt-4">
+        {zonalAttendanceList.previous && (
+          <button
+            onClick={() => handleAttendancePagination(zonalAttendanceList.previous, setZonalAttendanceList)}
+            className="px-3 py-1 border rounded flex items-center gap-1 hover:bg-gray-50"
+          >
+            <ChevronLeft size={16} /> Previous
+          </button>
+        )}
+        {zonalAttendanceList.next && (
+          <button
+            onClick={() => handleAttendancePagination(zonalAttendanceList.next, setZonalAttendanceList)}
+            className="px-3 py-1 border rounded flex items-center gap-1 hover:bg-gray-50"
+          >
+            Next <ChevronRight size={16} />
+          </button>
+        )}
+      </div>
+    </>
+  )}
+</div>
 
 
            {/* All Attendance Lists */}
