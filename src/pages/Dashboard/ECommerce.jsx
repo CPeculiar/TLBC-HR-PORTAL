@@ -11,7 +11,8 @@ const ECommerce = () => {
   return (
     <>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-5 2xl:gap-7.5">
-      <CardDataStats title="Total Users" total="100" rate="2.35%" levelUp>
+      {/* <CardDataStats title="Total Users" total="100" rate="2.35%" levelUp> */}
+      <CardDataStats title="Total Users" total="100"p>
           <svg
             className="fill-primary dark:fill-white"
             width="22"
@@ -55,7 +56,7 @@ const ECommerce = () => {
           </svg>
         </CardDataStats>
 
-        <CardDataStats title="Churches" total="15" rate="3.19%" levelUp>
+        <CardDataStats title="Churches" total="15" >
           <svg
             className="fill-primary dark:fill-white"
             width="22"
@@ -79,7 +80,7 @@ const ECommerce = () => {
           </svg>
         </CardDataStats>
 
-        <CardDataStats title="No. of Males" total="42" rate="2.59%" levelDown>
+        <CardDataStats title="No. of Males" total="42">
           {/* <svg
             className="fill-primary dark:fill-white"
             width="22"
@@ -120,7 +121,7 @@ const ECommerce = () => {
           </svg>
         </CardDataStats>
 
-        <CardDataStats title="No. of Females" total="58" rate="2.59%" levelUp>
+        <CardDataStats title="No. of Females" total="58">
           <svg
             className="fill-primary dark:fill-white"
             width="22"
