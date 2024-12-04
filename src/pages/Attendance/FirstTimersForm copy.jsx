@@ -113,7 +113,8 @@ const FirstTimersForm = () => {
       const match = response.data.message.match(/for '(.*?)'/);
       const dateString = match ? match[1] : 'this service';
       
-      setSuccessMessage(`Your Attendance successfully marked for ${dateString}`);
+      setSuccessMessage(`You have successfully marked your Attendance for ${dateString}`);
+      alert("You have successfully marked your Attendance for this service");
     
       setFormData({
         first_name: '',

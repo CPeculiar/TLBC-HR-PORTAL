@@ -236,7 +236,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                               Create Attendance
                             </NavLink>
                           </li>
-                          <li>
+                          {/* <li>
                             <NavLink
                               to="/forms"
                               className={({ isActive }) =>
@@ -246,7 +246,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                             >
                               First Timers Form
                             </NavLink>
-                          </li>
+                          </li> */}
                           <li>
                             <NavLink
                               to="/markattendance"

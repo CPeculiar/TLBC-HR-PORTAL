@@ -2,8 +2,11 @@ import React, { useState, useRef, useEffect  } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Eye, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Card } from '../../components/ui/card';
 import { Alert, AlertDescription } from "../../components/ui/alert";
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
+import jsPDF from 'jspdf'; 
+import 'jspdf-autotable';
 
 const AttendanceReport = () => {
     const navigate = useNavigate();
@@ -60,7 +63,12 @@ const AttendanceReport = () => {
     const searchNewcomers = async () => {
       try {
         const response = await axios.get(
-          `https://tlbc-platform-api.onrender.com/api/attendance/${searchParams.refCode}/newcomers/search/`
+          `https://tlbc-platform-api.onrender.com/api/attendance/${searchParams.refCode}/newcomers/search/`,
+          {
+            params: {
+              s: searchParams.name
+            }
+          }
         );
         setNewcomersList(response.data);
       } catch (error) {
@@ -119,6 +127,12 @@ const AttendanceReport = () => {
       } catch (error) {
         showAlert(error.response?.data?.message || "Error fetching all attendance lists", "error");
       }
+    };
+
+    const handleAttendanceDetails = (refCode) => {
+      // Navigate to the details page with the ref_code
+      console.log("Navigating to:", `/attendanceDetails/${refCode}`);
+      navigate(`/attendanceDetails/${refCode}`);
     };
   
     // Get attendance details
@@ -212,7 +226,7 @@ const AttendanceReport = () => {
                 </div>
               </div>
 
-              {newcomersList.results.length > 0 && (
+              {newcomersList.results.length > 0 ? (
                 <div className="mt-4 sm:mt-6 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm sm:text-base">
@@ -236,6 +250,10 @@ const AttendanceReport = () => {
                     </table>
                     </div>
                 </div>
+              ) : (
+        <div className="mt-4 sm:mt-6 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-4 sm:p-6.5">
+          <p className=" dark:text-[red] text-[red]">No results found</p>
+        </div>      
               )}
             </div>
           </div>
@@ -446,7 +464,12 @@ const AttendanceReport = () => {
                               </td>
                               <td className="px-4 py-2 text-center  text-black dark:text-white">
                                 <button
-                                  onClick={() => getAttendanceDetails(attendance.ref_code)}
+                                  onClick={() => {
+                                  console.log("Captured ref_code:", attendance.ref_code);
+                                  // getAttendanceDetails(attendance.ref_code)
+                                  handleAttendanceDetails(attendance.ref_code)
+                                  }}
+                                  
                                   // className="text-blue-600 hover:text-blue-800"
                                   className="mt-4 flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
                                 >

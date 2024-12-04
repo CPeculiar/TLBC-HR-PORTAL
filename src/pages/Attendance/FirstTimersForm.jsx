@@ -7,29 +7,11 @@ import QrScanner from "react-qr-scanner";
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 
 const FirstTimersForm = () => {
-  const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
-    phone_number: '',
-    email: '',
-    gender: '',
-    birth_date: '',
-    address: '',
-    profile_picture: null,
-    occupation: '',
-    invited_by: '',
-    want_to_be_member: true,
-    marital_status: '',
-    interested_department: ''
-  });
 
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [refCode, setRefCode] = useState('');
-    const [scanning, setScanning] = useState(false);
-    const [cameraId, setCameraId] = useState("environment");
-    const [cameras, setCameras] = useState([]);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -39,7 +21,7 @@ const FirstTimersForm = () => {
     console.log("Full Path:", path); // Debug log
 
     // Split by '/forms/' instead of '/form/'
-  const extractedRefCode = path.split('/forms/')[1];
+   const extractedRefCode = path.split('/forms/')[1];
 
     console.log('Extracted refCode:', extractedRefCode);
 
@@ -82,16 +64,6 @@ const FirstTimersForm = () => {
     return;
   }
 
-    const formDataToSubmit = new FormData();
-    
-    // Append all form fields to FormData
-  Object.keys(formData).forEach(key => {
-    if (formData[key] !== null && formData[key] !== undefined) {
-      formDataToSubmit.append(key, formData[key]);
-    }
-  });
-
-
   try {
     const accessToken = localStorage.getItem("accessToken");
     if (!accessToken) {
@@ -100,40 +72,12 @@ const FirstTimersForm = () => {
       return;
     }
 
-      const response = await axios.patch(
-        `https://tlbc-platform-api.onrender.com/api/attendance/${refCode}/newcomers/`,
-        formDataToSubmit,
-        {
-          params: { ref_code: refCode }, 
-          headers: { 
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${accessToken}`, 
-          },
-          
-        }
-      );
-
       // Extract date from response message
       const match = response.data.message.match(/for '(.*?)'/);
       const dateString = match ? match[1] : 'this service';
       
       setSuccessMessage(`Your Attendance successfully marked for ${dateString}`);
-    
-      setFormData({
-        first_name: '',
-        last_name: '',
-        phone_number: '',
-        email: '',
-        gender: '',
-        birth_date: '',
-        address: '',
-        profile_picture: null,
-        occupation: '',
-        invited_by: '',
-        want_to_be_member: true,
-        marital_status: '',
-        interested_department: ''
-      });
+ 
     } catch (error) {
       if (error.response && error.response.data) {
         setErrors(error.response.data);
@@ -145,23 +89,7 @@ const FirstTimersForm = () => {
     }
   };
 
-  const startScanning = () => {
-    setScanning(true);
-    setError("");
-    setSuccessMessage("");
-  };
 
-  const stopScanning = () => {
-    setScanning(false);
-  };
-
-  const toggleCamera = () => {
-    const currentIndex = cameras.findIndex(
-      (camera) => camera.deviceId === cameraId
-    );
-    const nextIndex = (currentIndex + 1) % cameras.length;
-    setCameraId(cameras[nextIndex].deviceId);
-  };
 
   return (
     <>
@@ -179,42 +107,33 @@ const FirstTimersForm = () => {
   
             <div className="p-6.5 space-y-4">
               {/* Add Newcomer and Returning Member Buttons */}
+              <h2 className='font-bold text-black dark:text-white text-center text-2xl'>Welcome!</h2>
+              <p className='font-xl text-black dark:text-white text-center'>Please select the option that 
+              best applies to you from the options below.</p>
               <div className="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-4">
                 <button
                   onClick={() => {
                     if (refCode) {
-    navigate(`/form/${refCode}`, { state: { refCode } });
-  } else {
-    console.error('No reference code found');
-    // Optional: Add error handling or user feedback
-  }
-}}
+                      navigate(`/form/${refCode}`, { state: { refCode } });
+                    } else {
+                      console.error('No reference code found');
+                      alert('No reference code found');
+                      // Optional: Add error handling or user feedback
+                    }
+                  }}
                   className="flex items-center justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
                 >
-                  Add a Newcomer
+                  I'm a Newcomer
                 </button>
                 
                 <button
                   onClick={() => navigate("/attendancereport")}
                   className="flex items-center justify-center rounded bg-secondary p-3 font-medium text-gray hover:bg-opacity-90"
                 >
-                  Add a Returning New Member
+                  I'm not a Newcomer
                 </button>
               </div>
-  
-              {/* Existing Scanning Section */}
-              {/* {!scanning && !successMessage && (
-                <div className="flex justify-center mb-4.5">
-                  <button
-                    onClick={startScanning}
-                    className="flex items-center justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
-                  >
-                    <Camera className="mr-2 h-4 w-4" />
-                    Take Attendance
-                  </button>
-                </div>
-              )}
-   */}
+
   
               {/* Back Button */}
               <div className="flex justify-center mt-6">

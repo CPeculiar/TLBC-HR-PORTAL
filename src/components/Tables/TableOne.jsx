@@ -49,8 +49,10 @@ const TableOne = () => {
         Upcoming Birthdays
       </h4>
 
-      <div className="flex flex-col">
-        <div className="grid grid-cols-3 rounded-sm bg-gray-2 dark:bg-meta-4 sm:grid-cols-5">
+    {/* Desktop Table */}
+      {/* <div className="flex flex-col"> */} <div className="hidden sm:block">
+      
+        <div className="grid grid-cols-5 rounded-sm bg-gray-2 dark:bg-meta-4 sm:grid-cols-5">
           <div className="p-2.5 xl:p-5">
             <h5 className="text-sm font-medium uppercase xsm:text-base">
               Name
@@ -111,6 +113,60 @@ const TableOne = () => {
           </div>
         ))}
       </div>
+
+
+
+       {/* Mobile Scrollable Table */}
+       <div className="block sm:hidden overflow-x-auto">
+       <div className="p-3">
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <table className="table-auto w-full">
+            {/* Table header */}
+            <thead className="text-xs font-semibold uppercase text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-700 dark:bg-opacity-50">
+              <tr>
+                <th className="p-2 whitespace-nowrap">
+                  <div className="font-semibold text-left">Name</div>
+                </th>
+                <th className="p-2 whitespace-nowrap">
+                  <div className="font-semibold text-left">Phone</div>
+                </th>
+                <th className="p-2 whitespace-nowrap">
+                  <div className="font-semibold text-left">Church</div>
+                </th>
+                <th className="p-2 whitespace-nowrap">
+                  <div className="font-semibold text-center">Dob</div>
+                </th>
+              </tr>
+            </thead>
+            {/* Table body */}
+            <tbody className="text-sm divide-y divide-gray-100 dark:divide-gray-700/60">
+              {brandData.map((brand, key) => (
+                <tr key={key}>
+                  <td className="p-2 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 shrink-0 mr-2 sm:mr-3">
+                        <img className="rounded-full" src={brand.logo} width="40" height="40" alt={brand.name} />
+                      </div>
+                      <div className="font-medium text-gray-800 dark:text-gray-100">{brand.name}</div>
+                    </div>
+                  </td>
+                  <td className="p-2 whitespace-nowrap">
+                    <div className="text-left">{brand.phone}</div>
+                  </td>
+                  <td className="p-2 whitespace-nowrap">
+                    <div className="text-left font-medium">{brand.church}</div>
+                  </td>
+                  <td className="p-2 whitespace-nowrap">
+                    <div className="text-sm text-center text-green-500">{brand.dob}</div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
     </div>
   );
 };
