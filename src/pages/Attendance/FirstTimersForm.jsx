@@ -124,10 +124,18 @@ const FirstTimersForm = () => {
                   className="flex items-center justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
                 >
                   I'm a Newcomer
-                </button>
-                
+                </button>               
+
                 <button
-                  onClick={() => navigate("/returningNewcomers/:refcode")}
+                  onClick={() => {
+                  
+                    if (refCode) {
+                                            navigate(`/returningNewcomers/${refCode}`, { state: { refCode } });
+                                        } else {
+                                            console.error('No reference code found');
+                                            alert('No reference code found');
+                                        }
+                                    }}
                   className="flex items-center justify-center rounded bg-secondary p-3 font-medium text-gray hover:bg-opacity-90"
                 >
                   I'm not a Newcomer
