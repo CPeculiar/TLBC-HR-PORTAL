@@ -68,7 +68,7 @@ const FirstTimersForm = () => {
     const accessToken = localStorage.getItem("accessToken");
     if (!accessToken) {
       alert("Access token not found. Please login first.");
-      navigate("/login");
+      navigate("/");
       return;
     }
 

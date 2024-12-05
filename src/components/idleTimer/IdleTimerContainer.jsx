@@ -9,7 +9,7 @@ axios.interceptors.response.use(
   (error) => {
     if (error.response && error.response.status === 401) {
       // Redirect to login page
-      window.location.href = '/login';
+      window.location.href = '/';
     }
     return Promise.reject(error);
   }
@@ -50,7 +50,7 @@ const IdleTimerContainer = ({ children }) => {
         localStorage.removeItem('firstName');
         localStorage.removeItem('userRole');
         delete axios.defaults.headers.common['Authorization'];
-        navigate('/login');
+        navigate('/');
       }
     } catch (error) {
       console.error('Logout error:', error);

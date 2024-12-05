@@ -41,10 +41,10 @@ const AttendanceCreationPage = () => {
       const accessToken = localStorage.getItem("accessToken");
       if (!accessToken) {
         alert("Access token not found. Please login first.");
-        navigate("/login");
+        navigate("/");
         return;
       }
-
+ 
       const response = await axios.post(
         "https://tlbc-platform-api.onrender.com/api/attendance/create/",
         attendanceData,
