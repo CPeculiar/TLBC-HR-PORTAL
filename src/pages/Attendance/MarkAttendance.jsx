@@ -55,14 +55,24 @@ const AttendanceMarkerPage = () => {
         setSuccessMessage(response.data.message);
       } catch (err) {
         console.error("Error marking attendance:", err);
-        if (err.response) {
-          setError(
-            `Error: ${err.response.status}\n${JSON.stringify(
-              err.response.data,
-              null,
-              2
-            )}`
-          );
+        // if (err.response) {
+        //   setError(
+        //     `Error: ${err.response.status}\n${JSON.stringify(
+        //       err.response.data,
+        //       null,
+        //       2
+        //     )}`
+        //   );
+        
+        if (err.response && err.response.data.message) {
+          // Check for specific attendance closed message
+          if (err.response.data.message.includes("attendance is closed")) {
+            setError("Sorry, this attendance is closed. Contact your Pastor.");
+          } else {
+            // Generic error handling for other types of errors
+            setError(err.response.data.message || "An error occurred while marking attendance.");
+          }
+
         } else {
           setError(
             "An error occurred while marking attendance. Please try again."
