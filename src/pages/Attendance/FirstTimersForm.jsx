@@ -127,7 +127,7 @@ const FirstTimersForm = () => {
                 </button>
                 
                 <button
-                  onClick={() => navigate("/attendancereport")}
+                  onClick={() => navigate("/returningNewcomers/:refcode")}
                   className="flex items-center justify-center rounded bg-secondary p-3 font-medium text-gray hover:bg-opacity-90"
                 >
                   I'm not a Newcomer
