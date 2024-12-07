@@ -56,6 +56,13 @@ const AttendanceReport = () => {
     // Newcomers search
     const searchNewcomers = async () => {
       try {
+        const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) {
+        alert('Access token not found. Please login first.');
+        navigate('/');
+        return;
+      }
+
         const response = await axios.get(
           `https://tlbc-platform-api.onrender.com/api/attendance/${searchParams.refCode}/newcomers/search/`,
           {
@@ -75,6 +82,13 @@ const AttendanceReport = () => {
     // Returning visitors
     const handleReturningVisitor = async () => {
       try {
+        const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) {
+        alert('Access token not found. Please login first.');
+        navigate('/');
+        return;
+      }
+
         const response = await axios.put(
           `https://tlbc-platform-api.onrender.com/api/attendance/${returningVisitorParams.refCode}/newcomers/${returningVisitorParams.church}/`
         );
@@ -88,6 +102,13 @@ const AttendanceReport = () => {
     // Get attendance list
     const getAttendanceList = async () => {
       try {
+        const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) {
+        alert('Access token not found. Please login first.');
+        navigate('/');
+        return;
+      }
+
         const response = await axios.get("https://tlbc-platform-api.onrender.com/api/attendance/list/");
         setAttendanceList(response.data);
         setNoResults(response.data.results.length === 0);
@@ -100,6 +121,13 @@ const AttendanceReport = () => {
     // Get zonal attendance list
 const getZonalAttendanceList = async () => {
   try {
+    const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) {
+        alert('Access token not found. Please login first.');
+        navigate('/');
+        return;
+      }
+
     const response = await axios.get("https://tlbc-platform-api.onrender.com/api/attendance/list/zone/");
     setZonalAttendanceList(response.data);
     setNoResults(response.data.results.length === 0);
@@ -112,6 +140,13 @@ const getZonalAttendanceList = async () => {
     // Get all attendance lists
     const getAllAttendanceLists = async () => {
       try {
+        const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) {
+        alert('Access token not found. Please login first.');
+        navigate('/');
+        return;
+      }
+
         const response = await axios.get("https://tlbc-platform-api.onrender.com/api/attendance/list/all/");
         setAllAttendanceList(response.data);
         setNoResults(response.data.results.length === 0);
@@ -130,6 +165,13 @@ const getZonalAttendanceList = async () => {
     // Get attendance details
     const getAttendanceDetails = async (refCode) => {
       try {
+        const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) {
+        alert('Access token not found. Please login first.');
+        navigate('/');
+        return;
+      }
+
         const response = await axios.get(
           `https://tlbc-platform-api.onrender.com/api/attendance/${refCode}/`
         );

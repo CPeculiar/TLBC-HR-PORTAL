@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ClickOutside from '../ClickOutside';
-
 import UserOne from '../../images/user/user-01.png';
 import UserTwo from '../../images/user/user-02.png';
 import UserThree from '../../images/user/user-03.png';
@@ -71,7 +70,7 @@ const DropdownMessage = () => {
                 <li key={index}>
                   <Link
                     className="flex gap-4.5 border-t border-stroke px-4.5 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4"
-                    to="/messages"
+                    to="#"
                   >
                     <div className="h-12.5 w-12.5 rounded-full">
                       <img src={user} alt="User" />

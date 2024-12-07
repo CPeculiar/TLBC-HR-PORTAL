@@ -50,12 +50,12 @@ function App() {
   }, []);
 
 
-  // Helper function to wrap components with DefaultLayout
+  // Helper function to wrap components with DefaultLayout and ProtectedRoute
   const withDefaultLayout = (component, title) => (
-    <>
+    <ProtectedRoute>
       <PageTitle title={`${title} | TLBC Portal`} />
       <DefaultLayout>{component}</DefaultLayout>
-    </>
+   </ProtectedRoute>
   );
 
   if (loading) {
@@ -67,7 +67,7 @@ function App() {
     <>
       <Routes>
 
-       {/* Auth Routes - Outside DefaultLayout */}
+       {/* Auth Routes - Outside DefaultLayout and ProtectedRoute */}
        <Route path="/signin" element={
           <>
             <PageTitle title="Signin | TLBC Portal" />
@@ -119,11 +119,11 @@ function App() {
       />
       
 
-       {/* Dashboard Routes - Inside DefaultLayout */}
-       <Route path="/dashboard" element=
-        //  <ProtectedRoute>
+       {/* Dashboard Routes - Inside DefaultLayout. THEY SHOULD ALL BE PROTECTED ROUTES */}
+       <Route path="/dashboard" element= {
+         <ProtectedRoute>
         {withDefaultLayout(<ECommerce />, "Dashboard")} 
-        // </ProtectedRoute>
+        </ProtectedRoute> }
        
         />
       <Route path="/calendar" element={withDefaultLayout(<Calendar />, "Calendar")} />

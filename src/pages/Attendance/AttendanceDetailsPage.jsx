@@ -20,11 +20,6 @@ const AttendanceDetailsPage = () => {
     const qrRef = useRef(null);
     const newcomerQrRef = useRef(null);
 
-    // const showAlert = (message, type) => {
-    //     setAlert({ show: true, message, type });
-    //     setTimeout(() => setAlert({ show: false, message: "", type: "" }), 3000);
-    //   };
-
     // New state for update form
     const [updateFields, setUpdateFields] = useState([
         { field: '', value: '' }
@@ -36,9 +31,19 @@ const AttendanceDetailsPage = () => {
     useEffect(() => {
         const fetchAttendanceDetails = async () => {
             try {
+                const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) {
+        alert('Access token not found. Please login first.');
+        navigate('/');
+        return;
+      }
+
                 setIsLoading(true);
                 const response = await axios.get(
-                    `https://tlbc-platform-api.onrender.com/api/attendance/${refCode}/`
+                    `https://tlbc-platform-api.onrender.com/api/attendance/${refCode}/`,
+                    {
+                        headers: { Authorization: `Bearer ${accessToken}` },
+                      }
                 );
                 setSelectedAttendance(response.data);
 
@@ -102,15 +107,6 @@ const AttendanceDetailsPage = () => {
         };
     }, [updateError]);
 
-
-    
-    // State for update attendance
-    // const [updateAttendanceParams, setUpdateAttendanceParams] = useState({
-    //   ref_code: "",
-    //   venue: "",
-    //   date: "",
-    //   active: true
-    // });
 
     // Updated field options to match backend
     const fieldOptions = [

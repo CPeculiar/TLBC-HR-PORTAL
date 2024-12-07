@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import authService from '../../js/services/authService';
 import TLBCFullLogo from '../../images/logo/tlbc-full-logo.svg';
 import Logo from '../../images/logo/logo.svg';
 import TLBCLogo from '../../assets/images/TLBC_LOGO_removebg.png';
+import PreventBackNavigation from './PreventBackNavigation';
 
 const SignIn = () => {
   const [formData, setFormData] = useState({ username: '', password: '' });
@@ -11,6 +12,21 @@ const SignIn = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Clear any stored tokens or session data
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('accessToken');
+    sessionStorage.removeItem('refreshToken');
+    sessionStorage.removeItem('refreshToken');
+    
+    // Ensure browser can't go back to previous authenticated pages
+    window.history.pushState(null, document.title, window.location.href);
+    window.addEventListener('popstate', () => {
+      window.history.pushState(null, document.title, window.location.href);
+    });
+  }, []);
+
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -78,6 +94,7 @@ const SignIn = () => {
 
   return (
     <>
+    <PreventBackNavigation />
       <div className="flex min-h-screen items-center justify-center p-4 sm:p-6 lg:p-8">
         <div className="w-full max-w-[1400px] rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
           <div className="flex flex-wrap items-center">

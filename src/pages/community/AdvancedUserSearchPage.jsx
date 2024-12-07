@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
-import { Eye, PlusCircle, Trash2 } from "lucide-react";
+import { Eye, PlusCircle, Trash2, Search, Filter } from "lucide-react";
 import User from '../../images/user/user-09.png';
 import UserProfileCard from './UserProfileCard';
 
@@ -26,6 +26,16 @@ const COUNTRIES = [
   "South Africa", "United States", "United Kingdom"
 ];
 
+const STATES = [
+    "Abia", "Adamawa", "Akwa Ibom", "Anambra", "Bauchi", "Bayelsa", 
+    "Benue", "Borno", "Cross River", "Delta", "Ebonyi", "Edo", 
+    "Ekiti", "Enugu", "FCT - Abuja", "Gombe", "Imo", "Jigawa", 
+    "Kaduna", "Kano", "Katsina", "Kebbi", "Kogi", "Kwara", 
+    "Lagos", "Nasarawa", "Niger", "Ogun", "Ondo", "Osun", 
+    "Oyo", "Plateau", "Rivers", "Sokoto", "Taraba", "Yobe", "Zamfara"
+  ];
+  
+
 const AdvancedUserSearchPage = () => {
     const [searchFields, setSearchFields] = useState([]);
     const [users, setUsers] = useState([]);
@@ -45,19 +55,19 @@ const AdvancedUserSearchPage = () => {
 
   // Available search field options
   const SEARCH_FIELDS = [
-    { key: 'birth_date_after', label: 'Birth Date After', type: 'date' },
-    { key: 'birth_date_before', label: 'Birth Date Before', type: 'date' },
+    { key: 'birth_date_after', label: 'DOB After', type: 'date' },
+    { key: 'birth_date_before', label: 'DOB Before', type: 'date' },
     { key: 'church', label: 'Church', type: 'select', options: CHURCHES },
     { key: 'city', label: 'City', type: 'text' },
     { key: 'country', label: 'Country', type: 'select', options: COUNTRIES },
-    { key: 'enrolled_in_wfs', label: 'Enrolled in WFS', type: 'boolean' },
+    { key: 'enrolled_in_wfs', label: 'Enrollment in Word Foundation Sschool', type: 'boolean' },
     { key: 'gender', label: 'Gender', type: 'select', options: ['Male', 'Female'] },
     { key: 'invited_by', label: 'Invited By', type: 'text' },
-    { key: 'origin_state', label: 'Origin State', type: 'text' },
-    { key: 's', label: 'Search Term', type: 'text' },
-    { key: 'state', label: 'State', type: 'text' },
-    { key: 'wfs_graduation_year_max', label: 'WFS Max Graduation Year', type: 'number' },
-    { key: 'wfs_graduation_year_min', label: 'WFS Min Graduation Year', type: 'number' },
+    { key: 'origin_state', label: 'State of Origin', type: 'select', options: STATES },
+    { key: 's', label: 'Name', type: 'text' },
+    { key: 'state', label: 'State of Residence', type: 'select', options: STATES },
+    { key: 'wfs_graduation_year_max', label: 'WFS Graduation Year (Max.)', type: 'number' },
+    { key: 'wfs_graduation_year_min', label: 'WFS Graduation Year (Min.)', type: 'number' },
     { key: 'zone', label: 'Zone', type: 'select', options: ZONES }
   ];
 
@@ -166,60 +176,89 @@ const AdvancedUserSearchPage = () => {
   // Render dynamic search fields
   const renderSearchField = (field, index) => {
     return (
-      <div key={index} className="flex items-center space-x-2 mb-2">
-        {/* Field Selection Dropdown */}
+      <div key={index} className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 mb-2">
+          {/* Field Selection Dropdown - Improved Responsiveness */}
+        <div className="w-full sm:w-1/3 relative">
         <select
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm w-1/3"
-          value={field.key}
+         className="w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-sm pr-8"
+         value={field.key}
           onChange={(e) => updateSearchField(index, e.target.value, '')}
         >
-          <option value="">Select Field</option>
+           <option value="" className="text-gray-500 w-8">Search by</option>
           {SEARCH_FIELDS.filter(
-            // Filter out already selected fields to prevent duplicate selection
             searchField => !searchFields.some(f => f.key === searchField.key)
           ).map((searchField) => (
-            <option key={searchField.key} value={searchField.key}>
+            <option key={searchField.key} value={searchField.key}  className="text-sm">
               {searchField.label}
             </option>
           ))}
         </select>
 
-        {/* Value Input based on selected field type */}
+{/* Custom dropdown chevron */}
+<div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+            <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+              <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+            </svg>
+          </div>
+        </div>
+
+        {/* Value Input - Responsive width */}
         {field.key && (() => {
           const fieldConfig = SEARCH_FIELDS.find(f => f.key === field.key);
           
           switch (fieldConfig.type) {
             case 'select':
               return (
+                <div className="w-full sm:flex-grow relative">
                 <select
-                  className="flex-grow rounded-md border border-gray-300 px-3 py-2 text-sm"
-                  value={field.value}
+                 className="w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-sm pr-8"
+                 value={field.value}
                   onChange={(e) => updateSearchField(index, field.key, e.target.value)}
                 >
-                  <option value="">Select {fieldConfig.label}</option>
+                 <option value="" className="text-gray-500">
+                      Select {fieldConfig.label}
+                    </option>
                   {fieldConfig.options.map((option) => (
-                    <option key={option} value={option}>{option}</option>
+                    <option key={option} value={option} className="text-sm">{option}</option>
                   ))}
                 </select>
+                {/* Custom dropdown chevron */}
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                    </svg>
+                  </div>
+                </div>
               );
             case 'boolean':
               return (
+                <div className="w-full sm:flex-grow relative">
                 <select
-                  className="flex-grow rounded-md border border-gray-300 px-3 py-2 text-sm"
-                  value={field.value}
-                  onChange={(e) => updateSearchField(index, field.key, e.target.value)}
+                //   className="w-full sm:flex-grow rounded-md border border-gray-300 px-3 py-2 text-sm"
+                className="w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-sm pr-8"
+                value={field.value}
+                onChange={(e) => updateSearchField(index, field.key, e.target.value)}
                 >
-                  <option value="">Select {fieldConfig.label}</option>
-                  <option value="true">True</option>
-                  <option value="false">False</option>
-                </select>
+                   <option value="" className="text-gray-500">
+                      Select {fieldConfig.label}
+                    </option>
+                    <option value="true" className="text-sm">True</option>
+                    <option value="false" className="text-sm">False</option>
+                  </select>
+                  {/* Custom dropdown chevron */}
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                    </svg>
+                  </div>
+                </div>
               );
             default:
               return (
                 <input
                   type={fieldConfig.type}
                   placeholder={fieldConfig.label}
-                  className="flex-grow rounded-md border border-gray-300 px-3 py-2 text-sm"
+                  className="w-full sm:flex-grow rounded-md border border-gray-300 px-3 py-2 text-sm"
                   value={field.value}
                   onChange={(e) => updateSearchField(index, field.key, e.target.value)}
                 />
@@ -227,10 +266,10 @@ const AdvancedUserSearchPage = () => {
           }
         })()}
 
-        {/* Remove Field Button */}
+        {/* Remove Field Button - Positioned consistently */}
         <button 
           onClick={() => removeSearchField(index)}
-          className="text-red-500 hover:text-red-700"
+          className="text-red-500 hover:text-red-700 self-end sm:self-center"
         >
           <Trash2 size={20} />
         </button>
@@ -245,136 +284,136 @@ const AdvancedUserSearchPage = () => {
     <>
       <Breadcrumb pageName="Advanced Member Search" />
 
-      <div
-        className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-6"
-        style={{ backgroundColor }}
-      >
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-6">
-          <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
-            <div className="flex-grow w-full">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-6">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 space-y-4">
+          <div className="space-y-4">
+            {/* Search Fields Container - Responsive Layout */}
+            <div className="space-y-2">
               {searchFields.map(renderSearchField)}
             </div>
-            <div className="flex space-x-2">
+
+            {/* Button Group - Responsive Alignment */}
+            <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2">
               <button
                 onClick={addSearchField}
-                className="rounded-md bg-primary text-white px-4 py-2 flex items-center hover:bg-opacity-90"
+                className="w-full sm:w-auto flex items-center justify-center rounded-md bg-primary text-white px-4 py-2 hover:bg-opacity-90 space-x-2"
               >
-                <PlusCircle size={20} className="mr-2" /> Add Field
+                <PlusCircle size={20} />
+                <span>Add Field</span>
               </button>
+              
               <button
                 onClick={handleSearch}
-                className="rounded-md bg-secondary text-white px-4 py-2 hover:bg-opacity-90"
+                className="w-full sm:w-auto flex items-center justify-center rounded-md bg-green-600 text-white px-4 py-2 hover:bg-opacity-90 space-x-2"
                 disabled={searchFields.length === 0}
               >
-                Search
+                <Search size={20} />
+                <span>Search</span>
               </button>
+              
               <button
                 onClick={handleGetAllUsers}
-                className="rounded-md bg-green-500 text-white px-4 py-2 hover:bg-opacity-90"
+                className="w-full sm:w-auto flex items-center justify-center rounded-md bg-secondary text-white px-4 py-2 hover:bg-opacity-90 space-x-2"
               >
-                Get All Users
+                <Filter size={20} />
+                <span>Get All Users</span>
               </button>
             </div>
           </div>
         </div>
 
-        {/* User Results Table */}
+        {/* User Results Table - Responsive */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 mt-6 overflow-x-auto">
           {isLoading ? (
             <div className="text-center py-4">Loading...</div>
           ) : (
-            <table className="w-full divide-y divide-gray-200">
-              <thead>
-                <tr>
-                  {['Profile', 'Name', 'Phone', 'Email', 'Gender', 'Church', 'Action'].map((header) => (
-                    <th
-                      key={header}
-                      className="px-4 py-3 bg-primary text-white text-left text-xs font-medium uppercase tracking-wider dark:text-white"
-                      style={{ backgroundColor: primaryColor }}
-                    >
-                      {header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {users.length === 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full divide-y divide-gray-200">
+                <thead>
                   <tr>
-                    <td
-                      colSpan={7}
-                      className="px-4 py-3 text-center text-red-500"
-                    >
-                      No results found
-                    </td>
+                    {['Profile', 'Name', 'Phone', 'Email', 'Gender', 'Church', 'Action'].map((header) => (
+                      <th
+                        key={header}
+                        className="px-2 sm:px-4 py-3 bg-primary text-white text-left text-xs font-medium uppercase tracking-wider"
+                      >
+                        {header}
+                      </th>
+                    ))}
                   </tr>
-                ) : (
-                  users.map((user, index) => (
-                    <tr
-                      key={index}
-                      className="hover:bg-gray-100 transition-colors duration-300"
-                      style={{ backgroundColor: 'white', color: textColor }}
-                    >
-                      <td className="px-4 py-3">
-                        <img
-                          src={user.profile_picture || User}
-                          alt="Profile"
-                          className="w-10 h-10 rounded-full object-cover"
-                        />
-                      </td>
-                      <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-base text-black dark:text-white">
-                        {user.first_name} {user.last_name}
-                      </td>
-                      <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-base text-black dark:text-white whitespace-nowrap">
-                        {user.phone_number || 'N/A'}
-                      </td>
-                      <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-base text-black dark:text-white">
-                        {user.email || 'N/A'}
-                      </td>
-                      <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-base text-black dark:text-white">
-                        {user.gender || 'N/A'}
-                      </td>
-                      <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-base text-black dark:text-white">
-                        {user.church || 'N/A'}
-                      </td>
-                      <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-base text-black dark:text-white">      
-                        <button
-                          onClick={() => setSelectedUser(user)}
-                          className="mt-4 flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
-                        >
-                          <Eye size={18} />
-                        </button>
+                </thead>
+                <tbody>
+                  {users.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={7}
+                        className="px-4 py-3 text-center text-red-500"
+                      >
+                        No results found
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    users.map((user, index) => (
+                      <tr
+                        key={index}
+                        className="hover:bg-gray-100 transition-colors duration-300"
+                      >
+                        <td className="px-2 sm:px-4 py-3">
+                          <img
+                            src={user.profile_picture || User}
+                            alt="Profile"
+                            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
+                          />
+                        </td>
+                        <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm">
+                          {user.first_name} {user.last_name}
+                        </td>
+                        <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm whitespace-nowrap">
+                          {user.phone_number || 'N/A'}
+                        </td>
+                        <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm">
+                          {user.email || 'N/A'}
+                        </td>
+                        <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm">
+                          {user.gender || 'N/A'}
+                        </td>
+                        <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm">
+                          {user.church || 'N/A'}
+                        </td>
+                        <td className="px-2 sm:px-4 py-3">      
+                          <button
+                            onClick={() => setSelectedUser(user)}
+                            className="flex justify-center rounded bg-primary p-2 sm:p-3 hover:bg-opacity-90"
+                          >
+                            <Eye size={16} sm:size={18} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
 
+        {/* Pagination - Responsive */}
         {users.length > 0 && (
-          <div className="flex justify-between items-center mt-4">
-            <span className="text-sm text-gray-600">
+          <div className="flex flex-col sm:flex-row justify-between items-center mt-4 space-y-2 sm:space-y-0">
+            <span className="text-xs sm:text-sm text-gray-600">
               Total Users: {users.length} of {`${totalPages * users.length}`}
             </span>
             <div className="flex space-x-2">
               <button
-                className={`rounded-md px-4 py-2 text-sm font-medium text-white hover:bg-secondary transition-colors duration-300 ${
-                  currentPage === 1 || isLoading ? 'bg-gray-400' : 'bg-primary'
-                }`}
+                className="rounded-md px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-primary hover:bg-opacity-90 disabled:bg-gray-400"
                 onClick={handlePrevPage}
                 disabled={currentPage === 1 || isLoading}
-                style={{ backgroundColor: currentPage === 1 || isLoading ? '#ccc' : primaryColor }}
               >
                 Previous
               </button>
               <button
-                className={`rounded-md px-4 py-2 text-sm font-medium text-white hover:bg-secondary transition-colors duration-300 ${
-                  currentPage === totalPages || isLoading ? 'bg-gray-400' : 'bg-primary'
-                }`}
+                className="rounded-md px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-primary hover:bg-opacity-90 disabled:bg-gray-400"
                 onClick={handleNextPage}
                 disabled={currentPage === totalPages || isLoading}
-                style={{ backgroundColor: currentPage === totalPages || isLoading ? '#ccc' : primaryColor }}
               >
                 Next
               </button>
@@ -386,10 +425,10 @@ const AdvancedUserSearchPage = () => {
       {selectedUser && (
         <UserProfileCard 
           user={selectedUser} 
-          onClose={() => setSelectedUser(null)}
-          />
-          )}
-        </>
+          onClose={() => setSelectedUser(null)} 
+        />
+      )}
+    </>
   );
 };
 

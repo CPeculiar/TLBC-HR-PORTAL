@@ -18,6 +18,8 @@ const DropdownUser = () => {
       const accessToken = localStorage.getItem("accessToken");
       if (!accessToken) {
         console.error("Access token not found");
+        alert("Access token not found");
+        navigate('/');
         return;
       }
 
@@ -112,7 +114,7 @@ const DropdownUser = () => {
           <span className="block text-sm font-medium text-black dark:text-white">
           {displayName}
           </span>
-          {/* <span className="block text-xs">{userInfo.role}</span> */}
+          <span className="block text-xs">{userInfo.church}</span>
           </span>
 
         <span className="h-12 w-12 rounded-full overflow-hidden border-2 border-primary">

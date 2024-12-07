@@ -9,11 +9,15 @@ const authService = {
     // Show initial loading toast and store its ID
     const loadingToastId = showToast.info('Logging in...');
 
-    try{
-    const response = await axios.post(`${API_URL}/login/`, { username, password });
+    try {
+      const response = await axios.post(`${API_URL}/login/`, { 
+        username, 
+        password 
+      });
     // showToast.info('Logging in...', { autoClose: 2000 });
 
-    if (response.data.access) { 
+    if (response.data.access && response.data.refresh) { 
+      // Store tokens securely
       localStorage.setItem('accessToken', response.data.access);
       localStorage.setItem('refreshToken', response.data.refresh);
 
@@ -27,9 +31,10 @@ const authService = {
       // Dismiss loading toast and show success
       showToast.dismiss(loadingToastId);
       showToast.success('Successfully logged in!');
-
+      
+      return response.data;
     }
-    return response.data;
+
 } catch (error) {
   // Dismiss loading toast before showing error
   showToast.dismiss(loadingToastId);
@@ -41,36 +46,46 @@ const authService = {
 },
 
 
-  logout: async (message) => {
+  logout: async () => {
     const refreshToken = localStorage.getItem('refreshToken');
     const loadingToastId = showToast.info('Logging out...');
     // showToast.info('Logging out...');
    
     try {
-      const response = await axios.post(`${API_URL}/logout/`, { refresh: refreshToken });
+      await axios.post(`${API_URL}/logout/`, { refresh: refreshToken });
+      
+      // if (response.data.detail === "Successfully logged out." || response.status === 200) {
 
-      if (response.data.detail === "Successfully logged out." || response.status === 200) {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('firstName');
         localStorage.removeItem('userRole');
-        delete axios.defaults.headers.common['Authorization'];
+        sessionStorage.removeItem('accessToken');
+        sessionStorage.removeItem('refreshToken');
+
+        // Remove authorization header
+      delete axios.defaults.headers.common['Authorization'];
         
          // Dismiss loading toast and show success
-        showToast.dismiss(loadingToastId);
-        showToast.success('Successfully logged out!');
+         showToast.dismiss(loadingToastId);
+         showToast.success('Successfully logged out!');
 
-        // Clear browser history
-        window.history.pushState(null, '', window.location.href);
-        window.onpopstate = function () {
-          window.history.pushState(null, '', window.location.href);
-        };
+       // Prevent back navigation after logout
+      window.history.pushState(null, '', '/');
+      window.onpopstate = function () {
+        window.history.pushState(null, '', '/');
+
+        // Optionally redirect to login page
+    window.location.href = '/';
+      };
+
+      // Redirect to login page
+      window.location.replace("/");
       
         // Redirect to home page after a short delay
       setTimeout(() => {
         window.location.replace("/");
-      }, 1000);
-    }
+      }, 1000); 
 
     } catch (error) {
       // Dismiss loading toast before showing error
@@ -127,9 +142,12 @@ const authService = {
     if (!accessToken) return false;
 
     try {
-      await axios.post(`${API_URL}/token/verify/`, { token: accessToken });
-      return true;
+      const response = await axios.post(`${API_URL}/token/verify/`, { 
+        token: accessToken 
+      });
+      return response.status === 200;
     } catch (error) {
+      console.log('Token validation error:', error);
       return false;
     }
   },
@@ -139,14 +157,23 @@ const authService = {
     if (!refreshToken) return false;
 
     try {
-      const response = await axios.post(`${API_URL}/token/refresh/`, { refresh: refreshToken });
-      localStorage.setItem('accessToken', response.data.access);
-      localStorage.setItem('refreshToken', response.data.refresh);
-      // Update the default authorization header
-      axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.access}`;
-      authService.setAuthHeader(response.data.access);
-      return true;
+      const response = await axios.post(`${API_URL}/token/refresh/`, { 
+        refresh: refreshToken 
+      });
+
+      if (response.data.access && response.data.refresh) {
+        // Update tokens in localStorage
+        localStorage.setItem('accessToken', response.data.access);
+        localStorage.setItem('refreshToken', response.data.refresh);
+
+        // Update axios default header
+        this.setAuthHeader(response.data.access);
+
+        return true;
+      }
+      return false;
     } catch (error) {
+      console.log('Token refresh error:', error);
       return false;
     }
   },
