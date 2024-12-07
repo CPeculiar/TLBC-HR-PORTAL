@@ -32,6 +32,7 @@ import FirstTimersFormCopy from './pages/Attendance/FirstTimersForm copy';
 import AttendanceDetailsPage from './pages/Attendance/AttendanceDetailsPage';
 import ReturningNewComers from './pages/Attendance/ReturningNewComers';
 import UserSearchPage from './pages/community/UserSearchPage';
+import UserProfileCard from './pages/community/UserProfileCard';
 
 
 
@@ -145,6 +146,7 @@ function App() {
       <Route path="/attendanceDetails/:refCode" element={withDefaultLayout(<AttendanceDetailsPage />, "Attendance Details Page")} />
       <Route path="/returningNewcomers/:refcode" element={withDefaultLayout(<ReturningNewComers />, "Returning NewComers")} />
       <Route path="/UserSearchPage" element={withDefaultLayout(<UserSearchPage />, "Search Members")} />
+      <Route path="/UserProfileCard" element={withDefaultLayout(<UserProfileCard />, "User Profile Card")} />
       
     </Routes>
    
