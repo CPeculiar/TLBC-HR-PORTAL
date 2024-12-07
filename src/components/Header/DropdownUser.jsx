@@ -155,7 +155,7 @@ const DropdownUser = () => {
         className="absolute right-0 mt-4 flex w-62.5 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
            <div className="px-4 py-3 border-b border-stroke dark:border-strokedark">
             <div className="text-sm font-medium text-black dark:text-white">{displayName}</div>
-            <div className="text-xs text-gray-500 dark:text-gray-400 italic">{userInfo.role}</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400 italic">{userInfo.church}</div>
           </div>
           
           <ul className="flex flex-col gap-5 border-b border-stroke px-6 py-7.5 dark:border-strokedark">

@@ -40,11 +40,6 @@ const UserSearchPage = () => {
       const response = await axios.get(
         `https://tlbc-platform-api.onrender.com/api/users/?page=${page}&s=${searchTerm}`,
         {
-          // headers: {
-          //   'Authorization': `Bearer ${token}`,
-          //   'Content-Type': 'application/json'
-          // }
-
           headers: { Authorization: `Bearer ${accessToken}` },
         }
       );
@@ -131,6 +126,7 @@ const UserSearchPage = () => {
       </div>
       <button
         className={`rounded-md px-4 py-2 text-sm font-medium text-white hover:bg-secondary transition-colors duration-300 bg-primary`}
+        onClick={() => navigate("/AdvancedUserSearchPage")}
       >
         Advanced Search
       </button>

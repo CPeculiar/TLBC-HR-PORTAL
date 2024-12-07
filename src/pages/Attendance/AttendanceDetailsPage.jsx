@@ -5,7 +5,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import jsPDF from 'jspdf'; 
 import 'jspdf-autotable';
-import { Alert } from '../../components/ui/alert';
+import { Alert, AlertDescription } from '../../components/ui/alert';
 
 const AttendanceDetailsPage = () => {
     const [selectedAttendance, setSelectedAttendance] = useState(null);
@@ -19,6 +19,19 @@ const AttendanceDetailsPage = () => {
     const [newcomerLink, setNewcomerLink] = useState(null);
     const qrRef = useRef(null);
     const newcomerQrRef = useRef(null);
+
+    // const showAlert = (message, type) => {
+    //     setAlert({ show: true, message, type });
+    //     setTimeout(() => setAlert({ show: false, message: "", type: "" }), 3000);
+    //   };
+
+    // New state for update form
+    const [updateFields, setUpdateFields] = useState([
+        { field: '', value: '' }
+    ]);
+    const [updateSuccess, setUpdateSuccess] = useState(null);
+    const [updateError, setUpdateError] = useState(null);
+
 
     useEffect(() => {
         const fetchAttendanceDetails = async () => {
@@ -53,6 +66,159 @@ const AttendanceDetailsPage = () => {
             fetchAttendanceDetails();
         }
     }, [refCode]);
+
+
+     // useEffect to handle success message timeout
+     useEffect(() => {
+        let timeoutId;
+        if (updateSuccess) {
+            timeoutId = setTimeout(() => {
+                setUpdateSuccess(null);
+            }, 5000); // 5 seconds
+        }
+
+        // Cleanup function to clear timeout
+        return () => {
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+        };
+    }, [updateSuccess]);
+
+    // Similarly, add timeout for error messages
+    useEffect(() => {
+        let timeoutId;
+        if (updateError) {
+            timeoutId = setTimeout(() => {
+                setUpdateError(null);
+            }, 5000); // 5 seconds
+        }
+
+        // Cleanup function to clear timeout
+        return () => {
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+        };
+    }, [updateError]);
+
+
+    
+    // State for update attendance
+    // const [updateAttendanceParams, setUpdateAttendanceParams] = useState({
+    //   ref_code: "",
+    //   venue: "",
+    //   date: "",
+    //   active: true
+    // });
+
+    // Updated field options to match backend
+    const fieldOptions = [
+        { value: 'venue', label: 'Venue' },
+        { value: 'date', label: 'Date' },
+        { value: 'active', label: 'Active Status' }
+    ];
+
+    // Handle adding a new field to update
+    const addUpdateField = () => {
+        setUpdateFields([...updateFields, { field: '', value: '' }]);
+    };
+
+    // Handle removing a field
+    const removeUpdateField = (indexToRemove) => {
+        setUpdateFields(updateFields.filter((_, index) => index !== indexToRemove));
+    };
+
+    // Update a specific field in the updateFields array
+    const updateFieldValue = (index, key, value) => {
+        const newFields = [...updateFields];
+        newFields[index][key] = value;
+        setUpdateFields(newFields);
+    };
+
+  
+    // Update attendance
+    const updateAttendance = async (e) => {
+      e.preventDefault();
+
+      // Reset previous messages
+      setUpdateSuccess(null);
+      setUpdateError(null);
+      
+      // Prepare form data
+      const formData = new FormData();
+      formData.append('ref_code', refCode);
+
+       // Add selected fields to formData
+       updateFields.forEach(field => {
+        if (field.field && field.value) {
+            // Special handling for active field to ensure boolean
+            if (field.field === 'active') {
+                formData.append(field.field, field.value === 'true');
+            }else if (field.field === 'date') {
+                    // Ensure date is in correct format
+                    formData.append(field.field, field.value);
+             } else {
+                formData.append(field.field, field.value);
+            }
+        }
+    });      
+
+      try {
+        const accessToken = localStorage.getItem("accessToken");
+        if (!accessToken) {
+          alert("Access token not found. Please login first.");
+          navigate("/");
+          return;
+        }
+
+        const response = await axios.put(
+            `https://tlbc-platform-api.onrender.com/api/attendance/${refCode}/update/`,
+            formData,
+            {
+                headers: { 
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'multipart/form-data' 
+                },
+              }
+        );
+
+        // Success handling
+        setUpdateSuccess("Attendance updated successfully");
+        setUpdateFields([{ field: '', value: '' }]);
+        alert('Attendance updated successfully')
+
+      } catch (error) {
+        // showAlert(error.response?.data?.message || "Error updating attendance", "error");
+
+        // Improved Error Handling
+        if (error.response && error.response.data) {
+            const errorData = error.response.data;
+            let errorMessage = '';
+
+            // Prioritize specific error scenarios
+            if (errorData.non_field_errors && errorData.non_field_errors.length > 0) {
+                errorMessage = errorData.non_field_errors[0];
+            } 
+            // Handle nested array errors like for 'active'
+            else if (Object.keys(errorData).length > 0) {
+                const firstKey = Object.keys(errorData)[0];
+                if (Array.isArray(errorData[firstKey]) && errorData[firstKey].length > 0) {
+                    errorMessage = errorData[firstKey][0];
+                }
+            }
+            
+            // Fallback error message
+            if (!errorMessage) {
+                errorMessage = "Error updating attendance";
+            }
+
+            setUpdateError(errorMessage);
+        } else {
+            setUpdateError("Error updating attendance");
+        }
+      }
+    };
 
     const handleDownloadQR = (qrRef, filename) => {
         if (qrRef.current) {
@@ -338,6 +504,113 @@ const AttendanceDetailsPage = () => {
                 </div>
             </div>
 
+
+   {/* Update Attendance Section */}
+   <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark mb-6">
+            <div className="border-b border-stroke py-4 px-4 sm:px-6.5 dark:border-strokedark">
+              <h3 className="font-medium text-base sm:text-lg text-black dark:text-white">
+                Update Attendance
+              </h3>
+            </div>
+
+                {/* Success Alert with Automatic Timeout */}
+                {updateSuccess && (
+                    <div className="p-4 transition-opacity duration-500 ease-in-out">
+                        <Alert variant="success">
+                            {updateSuccess}
+                        </Alert>
+                    </div>
+                )}
+                
+               {/* Error Alert with Automatic Timeout */}
+                {updateError && (
+                    <div className="p-4 transition-opacity duration-500 ease-in-out">
+                        <Alert variant="destructive">
+                            {updateError}
+                        </Alert>
+                    </div>
+                )}
+
+
+                <form onSubmit={updateAttendance} className="p-4 sm:p-6.5 space-y-3 sm:space-y-4">
+                    {updateFields.map((field, index) => (
+                        <div key={index} className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 items-center">
+                            {/* Field Selection Dropdown */}
+                            <select
+                                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-2 sm:py-3 px-3 sm:px-5 text-sm sm:text-base text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                value={field.field}
+                                onChange={(e) => updateFieldValue(index, 'field', e.target.value)}
+                            >
+                                <option value="">Select Field to Update</option>
+                                {fieldOptions.map(option => (
+                                    <option key={option.value} value={option.value}>
+                                        {option.label}
+                                    </option>
+                                ))}
+                            </select>
+
+                            {/* Value Input Field (Dynamic based on selected field) */}
+                            {field.field === 'active' ? (
+                                <select
+                                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-2 sm:py-3 px-3 sm:px-5 text-sm sm:text-base text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                    value={field.value}
+                                    onChange={(e) => updateFieldValue(index, 'value', e.target.value)}
+                                >
+                                    <option value="">Select Status</option>
+                                    <option value="true">Active</option>
+                                    <option value="false">Inactive</option>
+                                </select>
+                            ) : field.field === 'date' ? (
+                                <input
+                                    type="date"
+                                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-2 sm:py-3 px-3 sm:px-5 text-sm sm:text-base text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                    value={field.value}
+                                    onChange={(e) => updateFieldValue(index, 'value', e.target.value)}
+                                />
+                            ) : (
+                                <input
+                                    type={field.field === 'venue' ? 'text' : 'text'}
+                                    placeholder={`Enter ${field.field}`}
+                                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-2 sm:py-3 px-3 sm:px-5 text-sm sm:text-base text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                    value={field.value}
+                                    onChange={(e) => updateFieldValue(index, 'value', e.target.value)}
+                                />
+                            )}
+
+                            {/* Remove Field Button */}
+                            {updateFields.length > 1 && (
+                                <button
+                                    type="button"
+                                    onClick={() => removeUpdateField(index)}
+                                    className="text-red-500 hover:text-red-700"
+                                >
+                                    Remove
+                                </button>
+                            )}
+                        </div>
+                    ))}
+
+                    {/* Add Field Button */}
+                    <div className="flex justify-between items-center">
+                        <button
+                            type="button"
+                            onClick={addUpdateField}
+                            className="text-primary hover:text-primary-dark"
+                        >
+                            Add Another Field to Update
+                        </button>
+                    </div>
+
+                    {/* Submit Button */}
+                    <button
+                        type="submit"
+                        className="flex w-full justify-center rounded bg-primary p-2 sm:p-3 text-sm sm:text-base font-medium text-gray hover:bg-opacity-90"
+                    >
+                        Update Attendance
+                    </button>
+                </form>
+
+              </div>
 
 
   {/* QR Codes Section */}

@@ -21,14 +21,6 @@ const AttendanceReport = () => {
     // State for returning visitors
     const [returningVisitorParams, setReturningVisitorParams] = useState({ refCode: "", church: "" });
     
-    // State for update attendance
-    const [updateAttendanceParams, setUpdateAttendanceParams] = useState({
-      ref_code: "",
-      venue: "",
-      date: "",
-      active: true
-    });
-    
     // State for attendance lists
     const [attendanceList, setAttendanceList] = useState({ results: [], next: null, previous: null });
     const [allAttendanceList, setAllAttendanceList] = useState({ results: [], next: null, previous: null });
@@ -90,26 +82,6 @@ const AttendanceReport = () => {
         setReturningVisitorParams({ refCode: "", church: "" });
       } catch (error) {
         showAlert(error.response?.data?.message || "Error processing returning visitor", "error");
-      }
-    };
-  
-    // Update attendance
-    const updateAttendance = async (e) => {
-      e.preventDefault();
-      try {
-        const formData = new FormData();
-        Object.keys(updateAttendanceParams).forEach(key => {
-          formData.append(key, updateAttendanceParams[key]);
-        });
-        
-        const response = await axios.put(
-          `https://tlbc-platform-api.onrender.com/api/attendance/${updateAttendanceParams.ref_code}/update/`,
-          formData
-        );
-        showAlert(response.data.message, "success");
-        setUpdateAttendanceParams({ ref_code: "", venue: "", date: "", active: true });
-      } catch (error) {
-        showAlert(error.response?.data?.message || "Error updating attendance", "error");
       }
     };
   
@@ -203,94 +175,18 @@ const getZonalAttendanceList = async () => {
             </Alert>
           )}
 
-     
-             
-
-         {/* Update Attendance Section */}
-         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark mb-6">
-            <div className="border-b border-stroke py-4 px-4 sm:px-6.5 dark:border-strokedark">
-              <h3 className="font-medium text-base sm:text-lg text-black dark:text-white">
-                Update Attendance
-              </h3>
-            </div>
-            <form onSubmit={updateAttendance} className="p-4 sm:p-6.5 space-y-3 sm:space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                {/* Form fields with responsive sizing and spacing */}
-                <div>
-                  <label className="mb-2 sm:mb-2.5 block text-sm sm:text-base text-black dark:text-white">
-                    Ref Code
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-2 sm:py-3 px-3 sm:px-5 text-sm sm:text-base text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                      value={updateAttendanceParams.ref_code}
-                      onChange={(e) => setUpdateAttendanceParams({
-                        ...updateAttendanceParams,
-                        ref_code: e.target.value
-                      })}
-                    />
-                  </div>
-
-                  <div>
-                  <label className="mb-2 sm:mb-2.5 block text-sm sm:text-base text-black dark:text-white">
-                    Venue
-                  </label>
-                  <input
-                      type="text"
-                      className="w-full rounded border-[1.5px] border-stroke bg-transparent py-2 sm:py-3 px-3 sm:px-5 text-sm sm:text-base text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                      value={updateAttendanceParams.venue}
-                      onChange={(e) => setUpdateAttendanceParams({
-                        ...updateAttendanceParams,
-                        venue: e.target.value
-                      })}
-                    />
-                  </div>
-                  <div>
-                  <label className="mb-2 sm:mb-2.5 block text-sm sm:text-base text-black dark:text-white">
-                  Date
-                  </label>
-                  <input
-                      type="date"
-                      className="w-full rounded border-[1.5px] border-stroke bg-transparent py-2 sm:py-3 px-3 sm:px-5 text-sm sm:text-base text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                    value={updateAttendanceParams.date}
-                      onChange={(e) => setUpdateAttendanceParams({
-                        ...updateAttendanceParams,
-                        date: e.target.value
-                      })}
-                    />
-                  </div>
-                  <div>
-                  <label className="mb-2 sm:mb-2.5 block text-sm sm:text-base text-black dark:text-white">
-                  Active
-                  </label>
-                    <select
-                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-2 sm:py-3 px-3 sm:px-5 text-sm sm:text-base text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                      value={updateAttendanceParams.active}
-                      onChange={(e) => setUpdateAttendanceParams({
-                        ...updateAttendanceParams,
-                        active: e.target.value === "true"
-                      })}
-                    >
-                      <option value="true">Yes</option>
-                      <option value="false">No</option>
-                    </select>
-                  </div>
-                </div>
-                <button
-                  type="submit"
-                  className="flex w-full justify-center rounded bg-primary p-2 sm:p-3 text-sm sm:text-base font-medium text-gray hover:bg-opacity-90"
-                  >
-                  Update Attendance
-                </button>
-              </form>
-              </div>
-
-
    {/* Attendance Lists Sections */}
           <div className="grid grid-cols-1 gap-6">
            
             {/* Church Attendance List */}
             <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+              
+            <div className="border-b border-stroke py-4 px-4 sm:px-6.5 dark:border-strokedark">
+              <h3 className="font-medium text-base text-center sm:text-xl text-black dark:text-white">
+                Generate Attendance Reports
+              </h3>
+            </div>
+              
               <div className="border-b border-stroke py-4 px-4 sm:px-6.5 dark:border-strokedark flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <h3 className="font-medium text-base sm:text-lg text-black dark:text-white">
                   Church Attendance List

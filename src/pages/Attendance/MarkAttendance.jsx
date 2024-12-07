@@ -55,14 +55,6 @@ const AttendanceMarkerPage = () => {
         setSuccessMessage(response.data.message);
       } catch (err) {
         console.error("Error marking attendance:", err);
-        // if (err.response) {
-        //   setError(
-        //     `Error: ${err.response.status}\n${JSON.stringify(
-        //       err.response.data,
-        //       null,
-        //       2
-        //     )}`
-        //   );
         
         if (err.response && err.response.data.message) {
           // Check for specific attendance closed message
