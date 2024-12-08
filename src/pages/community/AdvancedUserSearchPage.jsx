@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
-import { Eye, PlusCircle, Trash2, Search, Filter } from "lucide-react";
+import { Eye, X, PlusCircle, Trash2, Search, Filter } from "lucide-react";
 import User from '../../images/user/user-09.png';
 import UserProfileCard from './UserProfileCard';
 
@@ -162,6 +162,15 @@ const AdvancedUserSearchPage = () => {
       handleSearch();
     }
   };
+
+      // Clear search results
+      const clearSearchResults = () => {
+        setSearchFields([]);
+        setUsers([]);
+        setCurrentPage(1);
+        setTotalPages(1);
+    };
+
 
   // Render error message
   if (error) {
@@ -403,6 +412,16 @@ const AdvancedUserSearchPage = () => {
               Total Users: {users.length} of {`${totalPages * users.length}`}
             </span>
             <div className="flex space-x-2">
+
+              {/* Clear button added */}
+              <button
+                            className="rounded-md px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 transition-colors duration-300 flex items-center"
+                            onClick={clearSearchResults}
+                            disabled={users.length === 0}
+                        >
+                            <X size={16} className="mr-2" /> Clear
+                        </button>
+                        
               <button
                 className="rounded-md px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-primary hover:bg-opacity-90 disabled:bg-gray-400"
                 onClick={handlePrevPage}
@@ -417,6 +436,7 @@ const AdvancedUserSearchPage = () => {
               >
                 Next
               </button>
+             
             </div>
           </div>
         )}

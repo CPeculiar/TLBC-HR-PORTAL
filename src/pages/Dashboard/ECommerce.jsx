@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import authService from '../../js/services/authService';
 import CardDataStats from '../../components/CardDataStats';
 import ChartOne from '../../components/Charts/ChartOne';
@@ -12,19 +13,82 @@ import TableOne from '../../components/Tables/TableOne';
 const ECommerce = () => {
   const navigate = useNavigate();
 
+  // State for dashboard statistics
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [totalZones, setTotalZones] = useState(0);
+  const [totalChurches, setTotalChurches] = useState(0);
+  const [maleUsers, setMaleUsers] = useState(0);
+  const [femaleUsers, setFemaleUsers] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
     const accessToken = localStorage.getItem('accessToken');
     if (!accessToken) {
       alert("Access token not found. Please login first.");
       navigate('/');
+      return;
     }
+
+// Function to fetch all dashboard data
+const fetchDashboardData = async () => {
+  try {
+    // Fetch total users
+    const usersResponse = await axios.get('https://tlbc-platform-api.onrender.com/api/users/', {
+      headers: { 'Authorization': `Bearer ${accessToken}` }
+    });
+    setTotalUsers(usersResponse.data.count);
+
+    // Fetch total zones
+    const zonesResponse = await axios.get('https://tlbc-platform-api.onrender.com/api/zones/', {
+      headers: { 'Authorization': `Bearer ${accessToken}` }
+    });
+    setTotalZones(zonesResponse.data.count);
+
+    // Fetch total churches
+    const churchesResponse = await axios.get('https://tlbc-platform-api.onrender.com/api/churches/', {
+      headers: { 'Authorization': `Bearer ${accessToken}` }
+    });
+    setTotalChurches(churchesResponse.data.count);
+
+    // Fetch male users
+    const maleUsersResponse = await axios.get('https://tlbc-platform-api.onrender.com/api/users/?gender=male', {
+      headers: { 'Authorization': `Bearer ${accessToken}` }
+    });
+    setMaleUsers(maleUsersResponse.data.count);
+
+    // Fetch female users
+    const femaleUsersResponse = await axios.get('https://tlbc-platform-api.onrender.com/api/users/?gender=female', {
+      headers: { 'Authorization': `Bearer ${accessToken}` }
+    });
+    setFemaleUsers(femaleUsersResponse.data.count);
+
+    setLoading(false);
+  } catch (err) {
+    console.error('Error fetching dashboard data:', err);
+    setError(err);
+    setLoading(false);
+  }
+};
+
+fetchDashboardData();
+
   }, [navigate]);
+
+  // Handle loading and error states
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error loading dashboard data. Please try again later.</div>;
+  }
 
   return (
     <>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-5 2xl:gap-7.5">
       {/* <CardDataStats title="Total Users" total="100" rate="2.35%" levelUp> */}
-      <CardDataStats title="Total Users" total="100"p>
+      <CardDataStats title="Total Users" total={totalUsers.toString()}>
           <svg
             className="fill-primary dark:fill-white"
             width="22"
@@ -48,7 +112,7 @@ const ECommerce = () => {
           </svg>
         </CardDataStats>
 
-        <CardDataStats title="Zones" total="04">
+        <CardDataStats title="Zones" total={totalZones.toString()}>
           <svg
             className="fill-primary dark:fill-white"
             width="22"
@@ -68,7 +132,7 @@ const ECommerce = () => {
           </svg>
         </CardDataStats>
 
-        <CardDataStats title="Churches" total="15" >
+        <CardDataStats title="Churches" total={totalChurches.toString()} >
           <svg
             className="fill-primary dark:fill-white"
             width="22"
@@ -92,7 +156,7 @@ const ECommerce = () => {
           </svg>
         </CardDataStats>
 
-        <CardDataStats title="No. of Males" total="42">
+        <CardDataStats title="No. of Males" total={maleUsers.toString()}>
           {/* <svg
             className="fill-primary dark:fill-white"
             width="22"
@@ -133,7 +197,7 @@ const ECommerce = () => {
           </svg>
         </CardDataStats>
 
-        <CardDataStats title="No. of Females" total="58">
+        <CardDataStats title="No. of Females" total={femaleUsers.toString()}>
           <svg
             className="fill-primary dark:fill-white"
             width="22"

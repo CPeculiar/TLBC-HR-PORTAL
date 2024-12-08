@@ -67,6 +67,11 @@ const DropdownUser = () => {
     fetchUserInfo();
   }, []);
 
+  const handleMenuItemClick = () => {
+    // Close dropdown when any menu item is clicked
+    setDropdownOpen(false);
+  };
+
   const handleViewProfile = () => {
     setDropdownOpen(false);
     navigate('/profile');
@@ -190,6 +195,7 @@ const DropdownUser = () => {
             <li>
               <Link
                 to="/UserSearchPage"
+                onClick={handleMenuItemClick}
                 className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
               >
                 <svg
@@ -211,6 +217,7 @@ const DropdownUser = () => {
             <li>
               <Link
                 to="/settings"
+                onClick={handleMenuItemClick}
                 className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
               >
                 <svg

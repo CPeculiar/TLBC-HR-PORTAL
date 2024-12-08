@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
-import { Eye, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Eye, X, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import User from '../../images/user/user-09.png'
 import UserProfileCard from './UserProfileCard';
 
@@ -76,6 +76,14 @@ const UserSearchPage = () => {
       setCurrentPage(currentPage + 1);
       fetchUsers(currentPage + 1);
     }
+  };
+
+  // New method to clear search results
+  const clearSearchResults = () => {
+    setSearchTerm('');
+    setUsers([]);
+    setCurrentPage(1);
+    setTotalPages(1);
   };
 
   const showProfileCard = () => {
@@ -225,6 +233,14 @@ const UserSearchPage = () => {
             Total Users: {users.length} of {`${totalPages * users.length}`}
           </span>
           <div className="flex space-x-2">
+          {/* Clear button added */}
+        <button
+          className="rounded-md px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 transition-colors duration-300 flex items-center"
+          onClick={clearSearchResults}
+        >
+          <X size={16} className="mr-2" /> Clear
+        </button>
+        
             <button
               className={`rounded-md px-4 py-2 text-sm font-medium text-white hover:bg-secondary transition-colors duration-300 ${
                 currentPage === 1 || isLoading ? 'bg-gray-400' : 'bg-primary'

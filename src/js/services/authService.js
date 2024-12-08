@@ -8,7 +8,7 @@ const authService = {
 
     // Show initial loading toast and store its ID
     const loadingToastId = showToast.info('Logging in...');
-
+    
     try {
       const response = await axios.post(`${API_URL}/login/`, { 
         username, 
@@ -27,6 +27,11 @@ const authService = {
 
       // Fetch user info
       await authService.getUserInfo(); // Fetch and save user info after successful login
+
+      // Start periodic token refresh
+      if (authService.startTokenRefresh) {
+        authService.startTokenRefresh();
+      }
      
       // Dismiss loading toast and show success
       showToast.dismiss(loadingToastId);
@@ -54,6 +59,11 @@ const authService = {
     try {
       await axios.post(`${API_URL}/logout/`, { refresh: refreshToken });
       
+        // Stop periodic token refresh
+        if (authService.stopTokenRefresh) {
+          authService.stopTokenRefresh();
+        }
+
       // if (response.data.detail === "Successfully logged out." || response.status === 200) {
 
         localStorage.removeItem('accessToken');
@@ -162,13 +172,14 @@ const authService = {
       });
 
       if (response.data.access && response.data.refresh) {
-        // Update tokens in localStorage
-        localStorage.setItem('accessToken', response.data.access);
-        localStorage.setItem('refreshToken', response.data.refresh);
+       // Update tokens in localStorage
+      localStorage.setItem('accessToken', response.data.access);
+      localStorage.setItem('refreshToken', response.data.refresh);
+
 
         // Update axios default header
-        this.setAuthHeader(response.data.access);
-
+        authService.setAuthHeader(response.data.access);
+      
         return true;
       }
       return false;
@@ -177,6 +188,11 @@ const authService = {
       return false;
     }
   },
+
+  // Placeholders for token refresh start/stop methods
+  // These will be replaced by the methods from setupAxiosInterceptors
+  startTokenRefresh: null,
+  stopTokenRefresh: null,
 
   setAuthHeader: (token) => {
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
