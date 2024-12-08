@@ -13,7 +13,7 @@ const ECommerce = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const accessToken = localStorage.getItem('accessToken');
     if (!accessToken) {
       alert("Access token not found. Please login first.");
       navigate('/');
