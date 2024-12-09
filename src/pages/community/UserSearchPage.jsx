@@ -238,7 +238,7 @@ const UserSearchPage = () => {
           className="rounded-md px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 transition-colors duration-300 flex items-center"
           onClick={clearSearchResults}
         >
-          <X size={16} className="mr-2" /> Clear
+         Close
         </button>
         
             <button

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Loader from '../../common/Loader';
 import authService from '../../js/services/authService';
 import CardDataStats from '../../components/CardDataStats';
 import ChartOne from '../../components/Charts/ChartOne';
@@ -76,9 +77,9 @@ fetchDashboardData();
   }, [navigate]);
 
   // Handle loading and error states
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  // if (loading) {
+  //   return <div><Loader/></div>;
+  // }
 
   if (error) {
     return <div>Error loading dashboard data. Please try again later.</div>;

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import authService from '../../js/services/authService';
+import Loader from '../../common/Loader';
 
 const ProtectedRoute = ({ children }) => {
   const navigate = useNavigate();
@@ -62,8 +63,7 @@ const ProtectedRoute = ({ children }) => {
   }, [navigate]);
 
   if (isLoading) {
-    // Optional: You can add a loader here
-    return <div>Loading...</div>;
+    return <div><Loader /></div>;
   }
 
   // If not authenticated, redirect to login

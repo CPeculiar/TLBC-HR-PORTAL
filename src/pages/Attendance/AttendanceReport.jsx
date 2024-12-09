@@ -408,7 +408,7 @@ const AttendanceReport = () => {
                         onClick={clearAttendanceList}
                         className="flex items-center justify-center rounded bg-red-500 px-3 sm:px-3 py-2 sm:py-2 text-white hover:bg-opacity-90 text-sm sm:text-base mr-2"
                       >
-                        <X size={16} className="mr-2" /> Clear
+                       Close
                       </button>
 
                       <div className="flex gap-2">
@@ -560,7 +560,7 @@ const AttendanceReport = () => {
                           onClick={clearZonalAttendanceList}
                           className="flex items-center justify-center rounded bg-red-500 px-3 sm:px-3 py-2 sm:py-2 text-white hover:bg-opacity-90 text-sm sm:text-base mr-2"
                         >
-                          <X size={16} className="mr-2" /> Clear
+                         Close
                         </button>
 
                         <div className="flex gap-2">
@@ -714,7 +714,7 @@ const AttendanceReport = () => {
               onClick={clearAllAttendanceList}
               className="flex items-center justify-center rounded bg-red-500 px-3 sm:px-3 py-2 sm:py-2 text-white hover:bg-opacity-90 text-sm sm:text-base mr-2"
             >
-              <X size={16} className="mr-2" /> Clear
+              Close
             </button>
 
 

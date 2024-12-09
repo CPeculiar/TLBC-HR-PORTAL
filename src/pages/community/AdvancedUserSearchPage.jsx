@@ -419,7 +419,7 @@ const AdvancedUserSearchPage = () => {
                             onClick={clearSearchResults}
                             disabled={users.length === 0}
                         >
-                            <X size={16} className="mr-2" /> Clear
+                           Close
                         </button>
                         
               <button
