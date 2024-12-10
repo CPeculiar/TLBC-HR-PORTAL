@@ -266,6 +266,16 @@ const AttendanceReport = () => {
     }
   };
 
+  // Function to format the date
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear();
+  
+  return `${day}/${month}/${year}`;
+};
+
   return (
     <>
       <Breadcrumb pageName="Attendance Report" />
@@ -336,10 +346,13 @@ const AttendanceReport = () => {
                             Venue
                           </th>
                           <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
-                            Date
+                           Attendance Date
                           </th>
                           <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
                             Church
+                          </th>
+                          <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
+                            Created on
                           </th>
                           <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
                             Status
@@ -369,6 +382,9 @@ const AttendanceReport = () => {
                             </td>
                             <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-black dark:text-white">
                               {attendance.church}
+                            </td>
+                            <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-black dark:text-white">
+                            {formatDate(attendance.created_at || 'N/A')}
                             </td>
                             <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-black dark:text-white">
                               <span
@@ -486,10 +502,13 @@ const AttendanceReport = () => {
                               Venue
                             </th>
                             <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
-                              Date
+                             Attendance Date
                             </th>
                             <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
                               Church
+                            </th>
+                            <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
+                              Created on
                             </th>
                             <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
                               Status
@@ -521,6 +540,9 @@ const AttendanceReport = () => {
                                 <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
                                   {attendance.church}
                                 </td>
+                                <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-black dark:text-white">
+                            {formatDate(attendance.created_at || 'N/A')}
+                            </td>
                                 <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
                                   <span
                                     className={`px-2 py-1 rounded-full text-xs text-black dark:text-white ${
@@ -640,10 +662,13 @@ const AttendanceReport = () => {
                               Venue
                             </th>
                             <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
-                              Date
+                             Attendance Date
                             </th>
                             <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
                               Church
+                            </th>
+                            <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
+                              Created on
                             </th>
                             <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
                               Status
@@ -675,6 +700,9 @@ const AttendanceReport = () => {
                                 <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
                                   {attendance.church}
                                 </td>
+                                <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-black dark:text-white">
+                            {formatDate(attendance.created_at || 'N/A')}
+                            </td>
                                 <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
                                   <span
                                     className={`px-2 py-1 rounded-full text-xs text-black dark:text-white ${
@@ -794,15 +822,21 @@ const AttendanceReport = () => {
                             </p>
                             <p>
                               <span className="font-medium sm:px-4 text-xs sm:text-sm text-black dark:text-white">
+                                Attendance Date:
+                              </span>{' '}
+                              {selectedAttendance.date}
+                            </p>
+                            <p>
+                              <span className="font-medium sm:px-4 text-xs sm:text-sm text-black dark:text-white">
                                 Venue:
                               </span>{' '}
                               {selectedAttendance.venue}
                             </p>
                             <p>
                               <span className="font-medium sm:px-4 text-xs sm:text-sm text-black dark:text-white">
-                                Date:
+                                Created on:
                               </span>{' '}
-                              {selectedAttendance.date}
+                              {selectedAttendance.created_at || 'N/A'}
                             </p>
                             <p>
                               <span className="font-medium sm:px-4 text-xs sm:text-sm text-black dark:text-white">

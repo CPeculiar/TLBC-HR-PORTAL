@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
+import { AuthProvider } from './js/services/AuthContext';
 
 import Loader from './common/Loader';
 import PageTitle from './components/PageTitle';
@@ -34,6 +35,8 @@ import ReturningNewComers from './pages/Attendance/ReturningNewComers';
 import UserSearchPage from './pages/community/UserSearchPage';
 import UserProfileCard from './pages/community/UserProfileCard';
 import AdvancedUserSearchPage from './pages/community/AdvancedUserSearchPage';
+import ZoneManagement from './pages/Management/ZoneManagement';
+import ChurchManagement from './pages/Management/ChurchManagement';
 
 
 
@@ -149,6 +152,8 @@ function App() {
       <Route path="/UserSearchPage" element={withDefaultLayout(<UserSearchPage />, "Search Members")} />
       <Route path="/UserProfileCard" element={withDefaultLayout(<UserProfileCard />, "User Profile Card")} />
       <Route path="/AdvancedUserSearchPage" element={withDefaultLayout(<AdvancedUserSearchPage />, "User Profile Card")} />
+      <Route path="/ZoneManagement" element={withDefaultLayout(<ZoneManagement />, "Zonal Manager")} />
+      <Route path="/ChurchManagement" element={withDefaultLayout(<ChurchManagement />, "Church Manager")} />
       
     </Routes>
    

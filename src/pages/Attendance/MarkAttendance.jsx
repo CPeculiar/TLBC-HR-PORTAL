@@ -62,12 +62,12 @@ const AttendanceMarkerPage = () => {
             setError("Sorry, this attendance is closed. Contact your Pastor.");
           } else {
             // Generic error handling for other types of errors
-            setError(err.response.data.message || "An error occurred while marking attendance.");
+            setError(err.response.data.message || "An error occurred while marking attendance. Please contact your Pastor");
           }
 
         } else {
           setError(
-            "An error occurred while marking attendance. Please try again."
+            "An error occurred while marking attendance. Please contact your Pastor."
           );
         }
       } finally {

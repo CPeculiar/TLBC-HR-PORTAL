@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import authService from '../../js/services/authService';
 import Loader from '../../common/Loader';
+import IdleTimerProvider from '../../components/idleTimer/IdleTimerProvider';
 
 const ProtectedRoute = ({ children }) => {
   const navigate = useNavigate();
@@ -71,8 +72,12 @@ const ProtectedRoute = ({ children }) => {
     return <Navigate to="/" replace />;
   }
 
-  // Render children if authenticated
-  return children;
+  // Wrap children with IdleTimerProvider only for authenticated routes
+  return (
+    <IdleTimerProvider>
+      {children}
+    </IdleTimerProvider>
+  );
 };
 
 export default ProtectedRoute;

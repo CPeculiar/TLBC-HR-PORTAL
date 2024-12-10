@@ -379,13 +379,21 @@ const FirstTimersForm = () => {
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                 >
                   <option value="" disabled>Select Department</option>
-                  <option value="CHOIR">Choir</option>
+                  <option value="MUSIC-TEAM">Music Team</option>
                   <option value="MEDIA">Media</option>
-                  <option value="PROTOCOL">Protocol</option>
+                  <option value="OGS">Decoration Team</option>
                   <option value="USHERING">Ushering</option>
+                  <option value="VENUE-MGT">Venue Management</option>
+                  <option value="TECHNICALS">Technical Team</option>
+                  <option value="WELFARE">Welfare</option>
+                  <option value="EQUIPMENT">Equipment Team</option>
+                  <option value="STAGE-MGT">Stage Management Team</option>
                   <option value="CHILDREN">Children Department</option>
-                  <option value="DRAMA">Drama</option>
-                  <option value="EVANGELISM">Evangelism</option>
+                  <option value="WELCOMING-TEAM">Welcoming Team</option>
+                  <option value="PROTOCOL">Protocol</option>
+                  <option value="SECURITY">Security Team</option>
+                  <option value="MEDICAL-TEAM">Medical Team</option>
+                  <option value="TRANSPORTATION">Transportation unit</option>
                 </select>
                 {errors.interested_department && (
                   <p className="mt-1 text-sm text-red-500">{errors.interested_department[0]}</p>

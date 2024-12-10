@@ -216,6 +216,16 @@ const AttendanceDetailsPage = () => {
       }
     };
 
+    // Function to format the date
+const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    
+    return `${year}-${month}-${day}`;
+  };
+
     const handleDownloadQR = (qrRef, filename) => {
         if (qrRef.current) {
             const img = qrRef.current;
@@ -255,6 +265,32 @@ const AttendanceDetailsPage = () => {
         const doc = new jsPDF();
         doc.setFontSize(14);
         
+        // Add header details
+    const headerDetails = [
+        { label: 'Program', value: selectedAttendance.program },
+        { label: 'Name', value: selectedAttendance.name },
+        { label: 'Church', value: selectedAttendance.church },
+        { label: 'Venue', value: selectedAttendance.venue },
+        { label: 'Attendance Date', value: selectedAttendance.date },
+        { label: 'Attendance Created on', value: formatDate(selectedAttendance.created_at || 'N/A') },
+        { label: 'Attendance Created by', value: selectedAttendance.created_by || 'N/A' },
+        { label: 'Status', value: selectedAttendance.active ? 'Active' : 'Inactive' }
+    ];
+
+    // Render header details
+    let yPosition = 20;
+    headerDetails.forEach((detail, index) => {
+        doc.setFontSize(10);
+        doc.setTextColor(100); // Gray color for labels
+        doc.text(`${detail.label}:`, 14, yPosition);
+        
+        doc.setFontSize(12);
+        doc.setTextColor(0); // Black color for values
+        doc.text(detail.value, 70, yPosition);
+        
+        yPosition += 7; // Increment Y position for next line
+    });
+
         const tableData = tableType === 'attendees' 
             ? selectedAttendance.attendees.data 
             : selectedAttendance.newcomers.data;
@@ -269,10 +305,13 @@ const AttendanceDetailsPage = () => {
                 : [item.first_name, item.last_name, item.email, item.gender, item.address, item.phone_number]
         );
 
-        doc.text(`${tableType === 'attendees' ? 'Attendees' : 'Newcomers'} List`, 14, 20);
+        doc.setFontSize(14);
+        // doc.text(`${tableType === 'attendees' ? 'Attendees' : 'Newcomers'} List`, 14, 20);
+        doc.text(`${tableType === 'attendees' ? 'Attendees' : 'Newcomers'} List`, 14, yPosition + 10);
+   
         
         doc.autoTable({
-            startY: 30,
+            startY: yPosition + 20,
             head: [columns],
             body: rows,
             theme: 'striped'
@@ -331,8 +370,16 @@ const AttendanceDetailsPage = () => {
                         <p className="font-semibold">{selectedAttendance.venue}</p>
                     </div>
                     <div className="flex flex-col">
-                        <p className="text-sm text-gray-500">Date</p>
+                        <p className="text-sm text-gray-500">Attendance Date</p>
                         <p className="font-semibold">{selectedAttendance.date}</p>
+                    </div>
+                    <div className="flex flex-col">
+                        <p className="text-sm text-gray-500">Attendance Created on</p>
+                        <p className="font-semibold">{formatDate(selectedAttendance.created_at || 'N/A')}</p>
+                    </div>
+                    <div className="flex flex-col">
+                        <p className="text-sm text-gray-500">Attendance Created by</p>
+                        <p className="font-semibold">{selectedAttendance.created_by || 'N/A'}</p>
                     </div>
                     <div className="flex flex-col">
                         <p className="text-sm text-gray-500">Status</p>
@@ -380,11 +427,11 @@ const AttendanceDetailsPage = () => {
                             <tbody>
                                 {selectedAttendance.attendees.data.map((attendee, index) => (
                                     <tr key={index} className="border-b">
-                                        <td className="px-2 py-2">{attendee.first_name}</td>
-                                        <td className="px-2 py-2">{attendee.last_name}</td>
-                                        <td className="px-2 py-2">{attendee.email}</td>
-                                        <td className="px-2 py-2">{attendee.gender}</td>
-                                        <td className="px-2 py-2">{attendee.phone_number}</td>
+                                        <td className="px-2 py-2">{attendee.first_name || 'N/A'}</td>
+                                        <td className="px-2 py-2">{attendee.last_name || 'N/A'}</td>
+                                        <td className="px-2 py-2">{attendee.email || 'N/A'}</td>
+                                        <td className="px-2 py-2">{attendee.gender || 'N/A'}</td>
+                                        <td className="px-2 py-2">{attendee.phone_number || 'N/A'}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -427,12 +474,12 @@ const AttendanceDetailsPage = () => {
                             <tbody>
                                 {selectedAttendance.newcomers.data.map((newcomer, index) => (
                                     <tr key={index} className="border-b">
-                                        <td className="px-2 py-2">{newcomer.first_name}</td>
-                                        <td className="px-2 py-2">{newcomer.last_name}</td>
-                                        <td className="px-2 py-2">{newcomer.email}</td>
-                                        <td className="px-2 py-2">{newcomer.gender}</td>
-                                        <td className="px-2 py-2">{newcomer.address}</td>
-                                        <td className="px-2 py-2">{newcomer.phone_number}</td>
+                                        <td className="px-2 py-2">{newcomer.first_name || 'N/A'}</td>
+                                        <td className="px-2 py-2">{newcomer.last_name || 'N/A'}</td>
+                                        <td className="px-2 py-2">{newcomer.email || 'N/A'}</td>
+                                        <td className="px-2 py-2">{newcomer.gender || 'N/A'}</td>
+                                        <td className="px-2 py-2">{newcomer.address || 'N/A'}</td>
+                                        <td className="px-2 py-2">{newcomer.phone_number || 'N/A'}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -454,7 +501,7 @@ const AttendanceDetailsPage = () => {
                         <div className="p-4 md:p-6.5 space-y-4">
                             <h2 className='font-bold text-black text-center text-xl md:text-2xl'>Welcome!</h2>
                             <p className='text-black text-center text-base md:text-xl'>
-                                Please select which category of individuals you want to add manually.
+                                Please select which category of individual you want to add manually.
                             </p>
                             <div className="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-4">
                                 <button
@@ -528,6 +575,8 @@ const AttendanceDetailsPage = () => {
                 )}
 
 
+
+                    {/* UPDATE ATTENDANCE Section */}
                 <form onSubmit={updateAttendance} className="p-4 sm:p-6.5 space-y-3 sm:space-y-4">
                     {updateFields.map((field, index) => (
                         <div key={index} className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 items-center">
@@ -609,8 +658,8 @@ const AttendanceDetailsPage = () => {
               </div>
 
 
-  {/* QR Codes Section */}
-  {(qrCode || newcomerQrCode) && (
+                     {/* QR Codes Section */}
+                {(qrCode || newcomerQrCode) && (
                 <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
                     {qrCode && (
                         <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">

@@ -46,7 +46,7 @@ const NewcomerForm = () => {
       navigate('/'); // Redirect to home page or a thank you page
     } catch (error) {
       console.error('Error submitting newcomer data:', error);
-      setError('An error occurred while submitting your information. Please try again.');
+      setError('An error occurred while submitting your information. Please contact your Pastor.');
     } finally {
       setIsLoading(false);
     }

@@ -65,7 +65,7 @@ const NewcomerForm2 = () => {
           );
         } else {
           setError(
-            "An error occurred while marking attendance. Please try again."
+            "An error occurred while marking attendance. Please contact your Pastor."
           );
         }
       } finally {

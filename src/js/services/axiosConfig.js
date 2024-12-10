@@ -106,7 +106,7 @@ const startTokenRefresh = () => {
       // If no tokens, stop the interval
       stopTokenRefresh();
     }
-  }, 2 * 60 * 1000); // Check every 3 minutes
+  }, 10 * 60 * 1000); // Check every 10 minutes
 };
 
 const stopTokenRefresh = () => {
