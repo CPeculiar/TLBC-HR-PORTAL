@@ -12,7 +12,8 @@ const ChurchManagement = () => {
 
   // Mobile Menu State
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState('add');
+  const [activeSection, setActiveSection] = useState(null);
+  const [initialLoad, setInitialLoad] = useState(true);
 
 
   // Success and Error Messages
@@ -48,6 +49,19 @@ const ChurchManagement = () => {
   // API Base URL
   const API_BASE_URL = 'https://tlbc-platform-api.onrender.com/api';
 
+   // Helper function to set and auto-clear success message
+   const setSuccessMessageWithTimeout = (message, setMessageFn) => {
+    setMessageFn(message);
+    
+    // Set a timeout to clear the message after 5 seconds
+    const timeoutId = setTimeout(() => {
+      setMessageFn(null);
+    }, 5000);
+
+    // Return the timeoutId in case you want to clear it manually
+    return timeoutId;
+  };
+  
   // Fetch Zones and Churches on Component Load
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -65,12 +79,21 @@ const ChurchManagement = () => {
           previous: churchesResponse.data.previous,
           currentPage: 1,
         });
+        setLoading(false);
       } catch (error) {
         console.error('Failed to fetch initial data:', error);
+        setLoading(false);
       }
     };
     fetchInitialData();
   }, []);
+
+  // Section Selection Handler
+  const handleSectionChange = (section) => {
+    setActiveSection(section);
+    setInitialLoad(false);
+    setIsMobileMenuOpen(false);
+  };
 
   // Add New Church
   const handleAddChurch = async (e) => {
@@ -93,7 +116,7 @@ const ChurchManagement = () => {
         zone: selectedZoneData.slug
       });
       
-      setAddChurchSuccessMessage('New church successfully added');
+      setSuccessMessageWithTimeout('New church successfully added', setAddChurchSuccessMessage);
       setChurchName('');
       setSelectedZone('');
       
@@ -136,7 +159,8 @@ const ChurchManagement = () => {
         zone: selectedZoneData.slug
       });
       
-      setEditChurchSuccessMessage('Church updated successfully');
+      // Use the new timeout function
+      setSuccessMessageWithTimeout('Church updated successfully', setEditChurchSuccessMessage);
       setSelectedChurch('');
       setEditChurchName('');
       setSelectedZone('');
@@ -186,7 +210,8 @@ const ChurchManagement = () => {
 
       await axios.delete(`${API_BASE_URL}/churches/${selectedChurchData.slug}/`);
       
-      setDeleteChurchSuccessMessage('Church deleted successfully');
+      // Use the new timeout function
+      setSuccessMessageWithTimeout('Church deleted successfully', setDeleteChurchSuccessMessage);
       setDeleteChurchSlug('');
       setShowDeleteConfirmModal(false);
       
@@ -235,16 +260,27 @@ const ChurchManagement = () => {
     }
   };
 
-  // Mobile Menu Toggle
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
   // Mobile Section Selection
   const handleMobileSectionChange = (section) => {
     setActiveSection(section);
     setIsMobileMenuOpen(false);
+    setInitialLoad(false);
   };
+
+   // Mobile Menu Toggle
+   const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  // Render loading state
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -322,7 +358,7 @@ const ChurchManagement = () => {
           <h3 className="text-lg font-semibold mb-4">Sections</h3>
           <div className="space-y-2">
             <button 
-              onClick={() => setActiveSection('add')}
+              onClick={() => handleSectionChange('add')}
               className={`w-full p-3 text-left rounded ${
                 activeSection === 'add' 
                   ? 'bg-primary text-white' 
@@ -332,7 +368,7 @@ const ChurchManagement = () => {
               Add New Church
             </button>
             <button 
-              onClick={() => setActiveSection('edit')}
+              onClick={() => handleSectionChange('edit')}
               className={`w-full p-3 text-left rounded ${
                 activeSection === 'edit' 
                   ? 'bg-primary text-white' 
@@ -342,7 +378,7 @@ const ChurchManagement = () => {
               Edit Church
             </button>
             <button 
-              onClick={() => setActiveSection('delete')}
+              onClick={() => handleSectionChange('delete')}
               className={`w-full p-3 text-left rounded ${
                 activeSection === 'delete' 
                   ? 'bg-primary text-white' 
@@ -352,7 +388,7 @@ const ChurchManagement = () => {
               Delete Church
             </button>
             <button 
-              onClick={() => setActiveSection('list')}
+              onClick={() => handleSectionChange('list')}
               className={`w-full p-3 text-left rounded ${
                 activeSection === 'list' 
                   ? 'bg-primary text-white' 
@@ -367,8 +403,8 @@ const ChurchManagement = () => {
         {/* Main Content Area */}
         <div className="col-span-full md:col-span-3">
           <div className="rounded-lg border border-gray-200 bg-white shadow-md dark:border-strokedark dark:bg-boxdark">
-            {/* Conditionally Render Sections for Mobile */}
-            {(activeSection === 'add' || isMobileMenuOpen === false) && (
+            {/* Conditionally Render Sections */}
+            {(initialLoad || activeSection === 'add') && (
               <div className="border-b border-stroke p-4 dark:border-strokedark">
                 <h3 className="font-medium text-black dark:text-white">Add New Church</h3>
                 {/* Add Church Form (same as before) */}
@@ -418,9 +454,8 @@ const ChurchManagement = () => {
         </div>
             )}
 
-        {/* Edit Church Section */}
          {/* Similar changes for Edit and Delete sections */}
-         {(activeSection === 'edit' || isMobileMenuOpen === false) && (
+         {(initialLoad || activeSection === 'edit') && (
               <div className="border-b border-stroke p-4 dark:border-strokedark">
                 <h3 className="font-medium text-black dark:text-white">Edit Church</h3>
           <form onSubmit={handleEditChurch} className="mt-4">
@@ -489,7 +524,7 @@ const ChurchManagement = () => {
          )}
 
         {/* Delete Church Section */}
-        {(activeSection === 'delete' || isMobileMenuOpen === false) && (
+        {(initialLoad || activeSection === 'delete') && (
               <div className="border-b border-stroke p-4 dark:border-strokedark">
                 <h3 className="font-medium text-black dark:text-white">Delete Church</h3>
           <div className="mt-4">
@@ -528,39 +563,51 @@ const ChurchManagement = () => {
 
         {/* Delete Confirmation Modal */}
         {showDeleteConfirmModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto">
-          <div className="relative w-11/12 max-w-sm mx-auto my-6">
-              <div className="relative flex flex-col w-full bg-white border-0 rounded-lg shadow-lg outline-none focus:outline-none dark:bg-boxdark">
-                <div className="flex items-center justify-center p-5 border-b border-solid rounded-t border-blueGray-200">
-                  <h3 className="text-xl font-semibold text-center">Confirm Delete</h3>
-                </div>
-                <div className="relative flex-auto p-6 text-center">
-                  <p>Are you sure you want to delete this church?</p>
-                </div>
-                <div className="flex items-center justify-center p-6 border-t border-solid rounded-b border-blueGray-200">
-                  <button
-                    className="px-6 py-2 mb-1 mr-1 text-sm font-bold text-white bg-red-500 rounded hover:bg-red-600"
-                    type="button"
-                    onClick={confirmDeleteChurch}
-                    disabled={loadingDeleteChurch}
-                  >
-                    {loadingDeleteChurch ? 'Deleting...' : 'Confirm Delete'}
-                  </button>
-                  <button
-                    className="px-6 py-2 mb-1 ml-1 text-sm font-bold text-gray-600 bg-gray-200 rounded hover:bg-gray-300"
-                    type="button"
-                    onClick={() => setShowDeleteConfirmModal(false)}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
+  <div className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto bg-black bg-opacity-50 p-4">
+    <div className="relative w-full max-w-md mx-auto">
+      <div className="relative flex flex-col w-full bg-white rounded-lg shadow-xl dark:bg-gray-800">
+        {/* Modal Header */}
+        <div className="flex items-center justify-center p-4 border-b dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Confirm Delete</h3>
+        </div>
+
+        {/* Modal Content */}
+        <div className="p-6 text-center">
+          <div className="mb-4">
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              Are you sure you want to delete this church?
+            </p>
+            <p className="text-xs text-gray-500 mt-2 dark:text-gray-400">
+              This action cannot be undone.
+            </p>
           </div>
-        )}
+        </div>
+
+        {/* Modal Actions */}
+        <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-2 p-4 border-t dark:border-gray-700">
+          <button
+            type="button"
+            onClick={confirmDeleteChurch}
+            disabled={loadingDeleteChurch}
+            className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-900"
+          >
+            {loadingDeleteChurch ? 'Deleting...' : 'Confirm Delete'}
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowDeleteConfirmModal(false)}
+            className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-gray-500 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 hover:text-gray-900 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
            {/* Church List Section (continued) */}
-           {(activeSection === 'list' || isMobileMenuOpen === false) && (
+           {(initialLoad || activeSection === 'list') && (
               <div className="border-b border-stroke p-4 dark:border-strokedark">
                 <h3 className="text-xl text-center font-semibold text-black dark:text-white">
                   List of Churches
@@ -619,38 +666,53 @@ const ChurchManagement = () => {
         </div>
       </div>
 
+       {/* Church Details Modal */}
+ {showChurchDetailsModal && selectedChurchDetails && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto bg-black bg-opacity-50 p-4">
+    <div className="relative w-full max-w-md mx-auto">
+      <div className="relative flex flex-col w-full bg-white rounded-lg shadow-xl dark:bg-gray-800 max-h-[90vh] overflow-y-auto">
+        {/* Modal Header */}
+        <div className="flex items-center justify-between p-4 border-b dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Church Details</h3>
+          <button
+            onClick={() => setShowChurchDetailsModal(false)}
+            className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-700 dark:hover:text-white"
+          >
+            <X size={20} />
+          </button>
+        </div>
 
-        {/* Church Details Modal */}
-        {showChurchDetailsModal && selectedChurchDetails && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto">
-          <div className="relative w-11/12 max-w-3xl mx-auto my-6">
-              <div className="relative flex flex-col w-full bg-white border-0 rounded-lg shadow-lg outline-none focus:outline-none dark:bg-boxdark">
-                <div className="flex items-start justify-between p-5 border-b border-solid rounded-t border-blueGray-200">
-                  <h3 className="text-xl font-semibold">Church Details</h3>
-                  <button
-                    className="float-right p-1 ml-auto text-3xl font-semibold leading-none text-black bg-transparent border-0 outline-none opacity-5 focus:outline-none"
-                    onClick={() => setShowChurchDetailsModal(false)}
-                  >
-                    <X size={24} />
-                  </button>
-                </div>
-                <div className="relative flex-auto p-6">
-                  <p><strong>Name:</strong> {selectedChurchDetails.name}</p>
-                  <p><strong>Zone:</strong> {selectedChurchDetails.zone}</p>
-                </div>
-                <div className="flex items-center justify-end p-6 border-t border-solid rounded-b border-blueGray-200">
-                  <button
-                    className="px-6 py-2 mb-1 mr-1 text-sm font-bold text-red-500 uppercase outline-none background-transparent focus:outline-none"
-                    type="button"
-                    onClick={() => setShowChurchDetailsModal(false)}
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
+        {/* Modal Content */}
+        <div className="p-4 space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Church Name</p>
+              <p className="text-base font-semibold text-gray-900 dark:text-white">
+                {selectedChurchDetails.name}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Zone</p>
+              <p className="text-base font-semibold text-gray-900 dark:text-white">
+                {selectedChurchDetails.zone}
+              </p>
             </div>
           </div>
-        )}
+        </div>
+
+        {/* Modal Footer */}
+        <div className="flex justify-end p-4 border-t dark:border-gray-700 space-x-2">
+          <button
+            onClick={() => setShowChurchDetailsModal(false)}
+            className="px-4 py-2 text-sm font-medium text-gray-500 bg-white rounded-lg text-red-500 border border-gray-200 hover:bg-red-500 hover:text-white focus:ring-4 focus:outline-none focus:ring-primary-300 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
       </div>
 
