@@ -37,6 +37,10 @@ import UserProfileCard from './pages/community/UserProfileCard';
 import AdvancedUserSearchPage from './pages/community/AdvancedUserSearchPage';
 import ZoneManagement from './pages/Management/ZoneManagement';
 import ChurchManagement from './pages/Management/ChurchManagement';
+import AccountCreationPage from './pages/finance/AccountCreationPage';
+import Transactions from './pages/finance/Transactions';
+import FinanceDashboard from './pages/finance/FinanceDashboard';
+import ExpensesManagement from './pages/finance/ExpensesManagement';
 
 
 
@@ -154,6 +158,12 @@ function App() {
       <Route path="/AdvancedUserSearchPage" element={withDefaultLayout(<AdvancedUserSearchPage />, "User Profile Card")} />
       <Route path="/ZoneManagement" element={withDefaultLayout(<ZoneManagement />, "Zonal Manager")} />
       <Route path="/ChurchManagement" element={withDefaultLayout(<ChurchManagement />, "Church Manager")} />
+      <Route path="/accountCreation" element={withDefaultLayout(<AccountCreationPage />, "Create Church Account")} />
+
+      <Route path="/financeDashboard" element={withDefaultLayout(<FinanceDashboard />, "Account Management")} />
+      <Route path="/expensesManagement" element={withDefaultLayout(<ExpensesManagement />, "Expenses Management")} />
+
+      <Route path="/transactions" element={withDefaultLayout(<Transactions />, "Create Church Account")} />
       
     </Routes>
    
