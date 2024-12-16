@@ -38,30 +38,6 @@ const FinanceDashboard = () => {
 const [isVerifyingAccount, setIsVerifyingAccount] = useState(false);
 const [isUpdatingAccount, setIsUpdatingAccount] = useState(false);
 
- // Add new state for verified account details
- const [verifiedAccountDetails, setVerifiedAccountDetails] = useState(null);
-//  const [isVerifyingAccount, setIsVerifyingAccount] = useState(false);
-
- // New function to verify account details
- const verifyDefaultAccountDetails = async () => {
-  if (!selectedDefaultAccount) {
-    showMessage('error', 'Please select an account first');
-    return;
-  }
-
-  setIsVerifyingAccount(true);
-  setVerifiedAccountDetails(null);
-
-  try {
-    const response = await axios.get(`https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedDefaultAccount}/`);
-    setVerifiedAccountDetails(response.data);
-  } catch (error) {
-    const errorMsg = handleErrorMessage(error);
-    showMessage('error', errorMsg);
-  } finally {
-    setIsVerifyingAccount(false);
-  }
-};
 
 // Modify error handling to capture specific errors
 const handleErrorMessage = (error) => {
@@ -430,17 +406,13 @@ const handleErrorMessage = (error) => {
           </div>
         </div>
 
-
         {/* Make Default Account Section */}
         <div className="border rounded-lg p-6">
           <h3 className="text-xl font-bold mb-4">Select Default Account</h3>
           <div className="space-y-4">
             <select 
               value={selectedDefaultAccount}
-              onChange={(e) => {
-          setSelectedDefaultAccount(e.target.value);
-          setVerifiedAccountDetails(null); // Reset verified details when account changes
-        }}
+              onChange={(e) => setSelectedDefaultAccount(e.target.value)}
               className="w-full rounded border border-blue-300 p-2"
             >
               <option value="" disabled>Select Account</option>
@@ -451,32 +423,20 @@ const handleErrorMessage = (error) => {
               ))}
             </select>
             <button 
-              onClick={verifyDefaultAccountDetails}
-              disabled={!selectedDefaultAccount || isVerifyingAccount}
+              onClick
+              disabled
               className="w-full bg-blue-500 text-white rounded p-2 disabled:opacity-50"
             >
-              {isVerifyingAccount ? 'Verifying...' : 'Verify Account Details'}
+              Verify details
             </button>
-
-            {verifiedAccountDetails && (
-        <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-          <h4 className="text-lg font-semibold mb-2">Account Details</h4>
-          <div className="space-y-2">
-            <p><strong>Account Name:</strong> {verifiedAccountDetails.account_name}</p>
-            <p><strong>Account Number:</strong> {verifiedAccountDetails.account_number}</p>
-            <p><strong>Bank:</strong> {verifiedAccountDetails.bank_name}</p>
-            <p><strong>Current Balance:</strong> ₦{verifiedAccountDetails.balance}</p>
-          </div>
-
             <button 
               onClick={handleMakeDefaultAccount}
-              // disabled={!selectedDefaultAccount}
+              disabled={!selectedDefaultAccount}
               className="w-full bg-blue-500 text-white rounded p-2 disabled:opacity-50"
             >
               Make Default Account
             </button>
           </div>
-            )}
         </div>
       </div>
 
@@ -595,7 +555,6 @@ const handleErrorMessage = (error) => {
         </ResponsiveContainer>
       </div>
 
-    </div>
     </div>
   );
 };

@@ -41,6 +41,7 @@ import AccountCreationPage from './pages/finance/AccountCreationPage';
 import Transactions from './pages/finance/Transactions';
 import FinanceDashboard from './pages/finance/FinanceDashboard';
 import ExpensesManagement from './pages/finance/ExpensesManagement';
+import FundManagement from './pages/finance/FundManagement';
 
 
 
@@ -162,6 +163,7 @@ function App() {
 
       <Route path="/financeDashboard" element={withDefaultLayout(<FinanceDashboard />, "Account Management")} />
       <Route path="/expensesManagement" element={withDefaultLayout(<ExpensesManagement />, "Expenses Management")} />
+      <Route path="/fundManagement" element={withDefaultLayout(<FundManagement />, "Fund Management")} />
 
       <Route path="/transactions" element={withDefaultLayout(<Transactions />, "Create Church Account")} />
       

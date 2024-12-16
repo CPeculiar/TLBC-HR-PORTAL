@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Menu, X, FileText, PlusCircle, CheckCircle, XCircle } from 'lucide-react';
+import { Menu, X, FileText, PlusCircle, CheckCircle, XCircle, Upload } from 'lucide-react';
 
 const ExpensesManagement = () => {
   // State variables
@@ -13,6 +13,7 @@ const ExpensesManagement = () => {
   const [expensesList, setExpensesList] = useState([]);
   const [approvalsList, setApprovalsList] = useState([]);
   const [updatesList, setUpdatesList] = useState([]);
+  const [updateFileReference, setUpdateFileReference] = useState(null);
   const [successModal, setSuccessModal] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -94,12 +95,13 @@ const ExpensesManagement = () => {
 
       setSuccessModal({
         message: response.data.message || 'Expense approved successfully',
-        details: { reference }
+        // details: { reference }
       });
     } catch (error) {
       setErrorMessage(error.response?.data?.message || 'Failed to approve expense');
     }
   };
+
 
   const handleDeclineExpense = async (reference) => {
     try {
@@ -111,32 +113,96 @@ const ExpensesManagement = () => {
 
       setSuccessModal({
         message: response.data.message || 'Expense declined successfully',
-        details: { reference }
+        // details: { reference }
       });
     } catch (error) {
       setErrorMessage(error.response?.data?.message || 'Failed to decline expense');
     }
   };
 
-  const handleUpdateExpenseFile = async (reference, file) => {
+
+ const handleUpdateExpenseFile = async () => {
     try {
-      const formData = new FormData();
-      formData.append('files', file);
 
-      const response = await axios.put(`https://tlbc-platform-api.onrender.com/api/finance/expense/${reference}/upload/`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
+       // Check if a file is selected
+       if (!updateFileReference || !updateFileReference.file) {
+        setErrorMessage('Please select a file to upload');
+        return;
+      }
+
+       const formData = new FormData();
+      formData.append('files', updateFileReference.file);
+
+
+      const response = await axios.put(
+        `https://tlbc-platform-api.onrender.com/api/finance/expense/${updateFileReference.reference}/upload/`, 
+        formData, 
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
         }
-      });
+      );
 
-      setSuccessModal({
-        message: 'File uploaded successfully',
-        details: { reference }
-      });
+     // Reset the file input and reference
+     setUpdateFileReference(null);
+
+     // Show success modal
+     setSuccessModal({
+       message: 'File uploaded successfully',
+       details: { reference: updateFileReference.reference }
+     });
+   // Refresh the updates list
+   const fetchUpdatedList = async () => {
+    try {
+      const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/expense/list/');
+      setUpdatesList(response.data.results);
     } catch (error) {
-      setErrorMessage('Failed to upload file');
+      setErrorMessage('Failed to refresh updates list');
     }
   };
+  fetchUpdatedList();
+
+} catch (error) {
+  setErrorMessage('Failed to upload file');
+}
+};
+
+const renderUpdates = () => (
+  <div className="space-y-4">
+    <h2 className="text-2xl font-bold text-blue-600 flex items-center">
+      <XCircle className="mr-2" /> Updates
+    </h2>
+    {renderTable(
+      updatesList, 
+      ['Account', 'Amount', 'Purpose', 'Status', 'Initiator', 'Auditor', 'Initiated_at', 'Approved_at', 'Files', 'View'],
+      (expense) => (
+        <td className="p-3">
+          <input 
+            type="file"
+            id={`file-upload-${expense.reference}`}
+            className="hidden"
+            onChange={(e) => {
+              if (e.target.files[0]) {
+                setUpdateFileReference({
+                  reference: expense.reference,
+                  file: e.target.files[0]
+                });
+              }
+            }}
+          />
+          <label 
+            htmlFor={`file-upload-${expense.reference}`}
+            className="cursor-pointer bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition-colors flex items-center justify-center"
+          >
+            <Upload className="mr-2" /> Update File
+          </label>
+        </td>
+      )
+    )}
+  </div>
+);
+
 
   // Render sections with improved responsiveness
   const renderCreateExpenses = () => (
@@ -192,6 +258,25 @@ const ExpensesManagement = () => {
     </div>
   );
 
+  // Helper function to extract name from email
+const extractName = (fullString) => {
+  if (!fullString) return 'N/A';
+  return fullString.split('(')[0].trim();
+};
+
+// Helper function to format date
+const formatDate = (dateString, prefix = '') => {
+  if (!dateString) return 'N/A';
+  const date = new Date(dateString);
+  const formattedDate = date.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+  return prefix ? `${prefix} on ${formattedDate}` : formattedDate;
+};
+
+
   // Render lists with responsive tables
   const renderTable = (data, columns, renderActions = null) => (
     <div className="w-full overflow-x-auto">
@@ -202,7 +287,7 @@ const ExpensesManagement = () => {
           <thead className="bg-blue-50">
             <tr>
               {columns.map(column => (
-                <th key={column} className="p-3 text-left text-xs font-medium text-blue-700 uppercase tracking-wider">
+                <th key={column} className="p-3 text-left text-xs font-medium text-blue-700 uppercase tracking-wider whitespace-nowrap">
                   {column}
                 </th>
               ))}
@@ -224,8 +309,20 @@ const ExpensesManagement = () => {
                       value = item.purpose || 'N/A';
                       break;
                     case 'status':
-                      value = item.approved_at ? 'Approved' : 'Pending';
+                      value = item.status || 'N/A';
                       break;
+                      case 'initiator':
+                    value = extractName(item.initiator);
+                    break;
+                  case 'auditor':
+                    value = extractName(item.auditor);
+                    break;
+                  case 'initiated_at':
+                    value = formatDate(item.initiated_at);
+                    break;
+                  case 'approved_at':
+                    value = formatDate(item.approved_at);
+                    break;
                     case 'files':
                       value = item.files ? `${item.files.length} file(s)` : 'No files';
                       break;
@@ -233,7 +330,7 @@ const ExpensesManagement = () => {
                       value = item[column.toLowerCase()] || 'N/A';
                   }
                   return (
-                    <td key={colIndex} className="p-3 text-sm">
+                    <td key={colIndex} className="p-3 text-sm whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
                       {value}
                     </td>
                   );
@@ -255,8 +352,8 @@ const ExpensesManagement = () => {
       </h2>
       {renderTable(
         expensesList, 
-        ['Account', 'Amount', 'Purpose', 'Status', 'Files']
-      )}
+        ['Account', 'Amount', 'Purpose', 'Status', 'Initiator', 'Auditor', 'Initiated_at', 'Approved_at', 'Files']
+    )}
     </div>
   );
 
@@ -372,6 +469,7 @@ const ExpensesManagement = () => {
           {activeSection === 'create-expenses' && renderCreateExpenses()}
           {activeSection === 'expenses-list' && renderExpensesList()}
           {activeSection === 'approvals' && renderApprovals()}
+          {activeSection === 'updates' && renderUpdates()}
         </div>
       </div>
 
@@ -379,11 +477,44 @@ const ExpensesManagement = () => {
       {errorMessage && (
         <div className="fixed bottom-4 right-4 bg-red-500 text-white p-4 rounded-lg shadow-lg z-50">
           {errorMessage}
+          <button 
+            onClick={() => setErrorMessage(null)}
+            className="ml-2 underline"
+          >
+            Dismiss
+          </button>
         </div>
       )}
 
       {/* Success Modal */}
       {renderSuccessModal()}
+
+       {/* File Upload Modal (if a file is selected) */}
+       {updateFileReference && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full">
+            <h2 className="text-xl font-bold mb-4 text-center">Confirm File Upload</h2>
+            <p className="text-center mb-4">
+              Upload file: {updateFileReference.file.name}
+            </p>
+            <div className="flex justify-between space-x-4">
+              <button 
+                onClick={handleUpdateExpenseFile}
+                className="flex-1 bg-blue-500 text-white p-3 rounded hover:bg-blue-600 transition-colors"
+              >
+                Upload
+              </button>
+              <button 
+                onClick={() => setUpdateFileReference(null)}
+                className="flex-1 bg-gray-300 text-gray-700 p-3 rounded hover:bg-gray-400 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
