@@ -911,7 +911,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                           </li>
                           <li>
                             <NavLink
-                              to="#"
+                              to="/topupManagement"
                               className={({ isActive }) =>
                                 'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
                                 (isActive && '!text-white')
@@ -944,7 +944,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                           </li>
                           <li>
                             <NavLink
-                              to="#"
+                              to="/remittanceManagement"
                               className={({ isActive }) =>
                                 'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
                                 (isActive && '!text-white')
@@ -953,7 +953,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                             Remittance Management
                             </NavLink>
                           </li>
-                          <li>
+                          {/* <li>
                             <NavLink
                               to="#"
                               className={({ isActive }) =>
@@ -963,8 +963,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                             >
                            Approvals
                             </NavLink>
-                          </li>
-                          <li>
+                          </li> */}
+                          {/* <li>
                             <NavLink
                               to="#"
                               className={({ isActive }) =>
@@ -974,7 +974,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                             >
                             Reports
                             </NavLink>
-                          </li>
+                          </li> */}
                         </ul>
                       </div>
                       {/* <!-- Dropdown Menu End --> */}
