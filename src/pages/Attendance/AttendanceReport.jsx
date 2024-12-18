@@ -278,7 +278,7 @@ const formatDate = (dateString) => {
 
   return (
     <>
-      <Breadcrumb pageName="Attendance Report" />
+      <Breadcrumb pageName="Attendance Report"  className="text-black dark:text-white"  />
 
       {/* <div className="p-4 md:p-6 2xl:p-10">
   <div className="mx-auto max-w-5xl"> */}

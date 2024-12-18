@@ -127,7 +127,7 @@ const ReturningNewComers = () => {
 
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-        <Breadcrumb pageName="Returning Members" />
+        <Breadcrumb pageName="Returning Members"  className="text-black dark:text-white"  />
         
         <div className="space-y-6">
             {/* Alert Section */}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card';
+import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 
 const FinanceDashboard = () => {
   // State for accounts
@@ -257,6 +258,9 @@ const handleErrorMessage = (error) => {
 
     
   return (
+    <>
+    <Breadcrumb pageName="Account Management"  className="text-black dark:text-white" />
+    
     <div className="container mx-auto px-4 py-6">
       {/* Message Handling */}
       {successMessage && (
@@ -597,6 +601,8 @@ const handleErrorMessage = (error) => {
 
     </div>
     </div>
+
+    </>
   );
 };
 
@@ -640,6 +646,8 @@ const Cards = ({ title, value, icon, bgColor }) => {
       </div>
       <p className="text-3xl font-bold">{value}</p>
     </div>
+
+    
   );
 };
 

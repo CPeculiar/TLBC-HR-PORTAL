@@ -349,57 +349,58 @@ const formatDate = (dateString) => {
     }
 
     return (
-        <div className="container mx-auto px-4 py-6 space-y-6">
-            {/* Attendance Details Card */}
-            <Card className="p-4 md:p-6 bg-white shadow-md rounded-lg">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex flex-col">
-                        <p className="text-sm text-gray-500">Program</p>
-                        <p className="font-semibold">{selectedAttendance.program}</p>
-                    </div>
-                    <div className="flex flex-col">
-                        <p className="text-sm text-gray-500">Name</p>
-                        <p className="font-semibold">{selectedAttendance.name}</p>
-                    </div>
-                    <div className="flex flex-col">
-                        <p className="text-sm text-gray-500">Church</p>
-                        <p className="font-semibold">{selectedAttendance.church}</p>
-                    </div>
-                    <div className="flex flex-col">
-                        <p className="text-sm text-gray-500">Venue</p>
-                        <p className="font-semibold">{selectedAttendance.venue}</p>
-                    </div>
-                    <div className="flex flex-col">
-                        <p className="text-sm text-gray-500">Attendance Date</p>
-                        <p className="font-semibold">{selectedAttendance.date}</p>
-                    </div>
-                    <div className="flex flex-col">
-                        <p className="text-sm text-gray-500">Attendance Created on</p>
-                        <p className="font-semibold">{formatDate(selectedAttendance.created_at || 'N/A')}</p>
-                    </div>
-                    <div className="flex flex-col">
-                        <p className="text-sm text-gray-500">Attendance Created by</p>
-                        <p className="font-semibold">{selectedAttendance.created_by || 'N/A'}</p>
-                    </div>
-                    <div className="flex flex-col">
-                        <p className="text-sm text-gray-500">Status</p>
-                        <span className={`inline-block px-2 py-1 rounded-full text-xs self-start ${
-                            selectedAttendance.active 
-                                ? 'bg-green-100 text-green-800' 
-                                : 'bg-red-100 text-red-800'
-                        }`}>
-                            {selectedAttendance.active ? 'Active' : 'Inactive'}
-                        </span>
-                    </div>
+        <div className="container mx-auto px-4 py-6 space-y-6 dark:bg-boxdark dark:text-white">
+        {/* Attendance Details Card */}
+        <Card className="p-4 md:p-6 bg-white shadow-md rounded-lg dark:bg-boxdark dark:border dark:border-strokedark">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex flex-col">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Program</p>
+                    <p className="font-semibold text-black dark:text-white">{selectedAttendance.program}</p>
                 </div>
-            </Card>
+                <div className="flex flex-col">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Name</p>
+                    <p className="font-semibold text-black dark:text-white">{selectedAttendance.name}</p>
+                </div>
+                <div className="flex flex-col">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Church</p>
+                    <p className="font-semibold text-black dark:text-white">{selectedAttendance.church}</p>
+                </div>
+                <div className="flex flex-col">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Venue</p>
+                    <p className="font-semibold text-black dark:text-white">{selectedAttendance.venue}</p>
+                </div>
+                <div className="flex flex-col">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Attendance Date</p>
+                    <p className="font-semibold text-black dark:text-white">{selectedAttendance.date}</p>
+                </div>
+                <div className="flex flex-col">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Attendance Created on</p>
+                    <p className="font-semibold text-black dark:text-white">{formatDate(selectedAttendance.created_at || 'N/A')}</p>
+                </div>
+                <div className="flex flex-col">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Attendance Created by</p>
+                    <p className="font-semibold text-black dark:text-white">{selectedAttendance.created_by || 'N/A'}</p>
+                </div>
+                <div className="flex flex-col">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Status</p>
+                    <span className={`inline-block px-2 py-1 rounded-full text-xs self-start ${
+                        selectedAttendance.active 
+                            ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' 
+                            : 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100'
+                    }`}>
+                        {selectedAttendance.active ? 'Active' : 'Inactive'}
+                    </span>
+                </div>
+            </div>
+        </Card>
+
 
             {/* Attendees Table */}
-            <div className="bg-white shadow-md rounded-lg p-4 md:p-6">
+             <div className="bg-white shadow-md rounded-lg p-4 md:p-6 dark:bg-boxdark dark:border dark:border-strokedark">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 space-y-2 md:space-y-0">
-                    <h2 className="text-lg md:text-xl font-semibold flex flex-col md:flex-row items-start md:items-center">
+                    <h2 className="text-lg md:text-xl font-semibold flex flex-col md:flex-row items-start md:items-center text-black dark:text-white">
                         Members' List 
-                        <span className="ml-0 md:ml-2 text-sm text-gray-500">
+                        <span className="ml-0 md:ml-2 text-sm text-gray-500 dark:text-gray-400">
                             (Total: {selectedAttendance.attendees.count})
                         </span>
                     </h2>
@@ -411,27 +412,27 @@ const formatDate = (dateString) => {
                     </button>
                 </div>
                 {selectedAttendance.attendees.count === 0 ? (
-                    <p className="text-center text-gray-500">No attendees recorded</p>
+                    <p className="text-center text-gray-500 dark:text-gray-400">No attendees recorded</p>
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full min-w-[600px]">
-                            <thead className="bg-gray-50">
+                            <thead className="bg-gray-50 dark:bg-gray-700">
                                 <tr>
-                                    <th className="px-2 py-2 text-left">First Name</th>
-                                    <th className="px-2 py-2 text-left">Last Name</th>
-                                    <th className="px-2 py-2 text-left">Email</th>
-                                    <th className="px-2 py-2 text-left">Gender</th>
-                                    <th className="px-2 py-2 text-left">Phone Number</th>
+                                    <th className="px-2 py-2 text-left text-gray-600 dark:text-gray-300">First Name</th>
+                                    <th className="px-2 py-2 text-left text-gray-600 dark:text-gray-300">Last Name</th>
+                                    <th className="px-2 py-2 text-left text-gray-600 dark:text-gray-300">Email</th>
+                                    <th className="px-2 py-2 text-left text-gray-600 dark:text-gray-300">Gender</th>
+                                    <th className="px-2 py-2 text-left text-gray-600 dark:text-gray-300">Phone Number</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {selectedAttendance.attendees.data.map((attendee, index) => (
-                                    <tr key={index} className="border-b">
-                                        <td className="px-2 py-2">{attendee.first_name || 'N/A'}</td>
-                                        <td className="px-2 py-2">{attendee.last_name || 'N/A'}</td>
-                                        <td className="px-2 py-2">{attendee.email || 'N/A'}</td>
-                                        <td className="px-2 py-2">{attendee.gender || 'N/A'}</td>
-                                        <td className="px-2 py-2">{attendee.phone_number || 'N/A'}</td>
+                                    <tr key={index} className="border-b dark:border-gray-700">
+                                        <td className="px-2 py-2 text-black dark:text-white">{attendee.first_name || 'N/A'}</td>
+                                        <td className="px-2 py-2 text-black dark:text-white">{attendee.last_name || 'N/A'}</td>
+                                        <td className="px-2 py-2 text-black dark:text-white">{attendee.email || 'N/A'}</td>
+                                        <td className="px-2 py-2 text-black dark:text-white">{attendee.gender || 'N/A'}</td>
+                                        <td className="px-2 py-2 text-black dark:text-white">{attendee.phone_number || 'N/A'}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -441,11 +442,11 @@ const formatDate = (dateString) => {
             </div>
 
             {/* Newcomers Table */}
-            <div className="bg-white shadow-md rounded-lg p-4 md:p-6">
+            <div className="bg-white shadow-md rounded-lg p-4 md:p-6 dark:bg-boxdark dark:border dark:border-strokedark">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 space-y-2 md:space-y-0">
-                    <h2 className="text-lg md:text-xl font-semibold flex flex-col md:flex-row items-start md:items-center">
+                    <h2 className="text-lg md:text-xl font-semibold flex flex-col md:flex-row items-start md:items-center text-black dark:text-white">
                         Newcomers' List 
-                        <span className="ml-0 md:ml-2 text-sm text-gray-500">
+                        <span className="ml-0 md:ml-2 text-sm text-gray-500 dark:text-gray-400">
                             (Total: {selectedAttendance.newcomers.count})
                         </span>
                     </h2>
@@ -457,29 +458,29 @@ const formatDate = (dateString) => {
                     </button>
                 </div>
                 {selectedAttendance.newcomers.count === 0 ? (
-                    <p className="text-center text-gray-500">No newcomers recorded</p>
+                    <p className="text-center text-gray-500 dark:text-gray-400">No newcomers recorded</p>
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full min-w-[700px]">
-                            <thead className="bg-gray-50">
+                            <thead className="bg-gray-50 dark:bg-gray-700">
                                 <tr>
-                                    <th className="px-2 py-2 text-left">First Name</th>
-                                    <th className="px-2 py-2 text-left">Last Name</th>
-                                    <th className="px-2 py-2 text-left">Email</th>
-                                    <th className="px-2 py-2 text-left">Gender</th>
-                                    <th className="px-2 py-2 text-left">Address</th>
-                                    <th className="px-2 py-2 text-left">Phone Number</th>
+                                    <th className="px-2 py-2 text-left text-gray-600 dark:text-gray-300">First Name</th>
+                                    <th className="px-2 py-2 text-left text-gray-600 dark:text-gray-300">Last Name</th>
+                                    <th className="px-2 py-2 text-left text-gray-600 dark:text-gray-300">Email</th>
+                                    <th className="px-2 py-2 text-left text-gray-600 dark:text-gray-300">Gender</th>
+                                    <th className="px-2 py-2 text-left text-gray-600 dark:text-gray-300">Address</th>
+                                    <th className="px-2 py-2 text-left text-gray-600 dark:text-gray-300">Phone Number</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {selectedAttendance.newcomers.data.map((newcomer, index) => (
-                                    <tr key={index} className="border-b">
-                                        <td className="px-2 py-2">{newcomer.first_name || 'N/A'}</td>
-                                        <td className="px-2 py-2">{newcomer.last_name || 'N/A'}</td>
-                                        <td className="px-2 py-2">{newcomer.email || 'N/A'}</td>
-                                        <td className="px-2 py-2">{newcomer.gender || 'N/A'}</td>
-                                        <td className="px-2 py-2">{newcomer.address || 'N/A'}</td>
-                                        <td className="px-2 py-2">{newcomer.phone_number || 'N/A'}</td>
+                                    <tr key={index} className="border-b dark:border-gray-700">
+                                        <td className="px-2 py-2 text-black dark:text-white">{newcomer.first_name || 'N/A'}</td>
+                                        <td className="px-2 py-2 text-black dark:text-white">{newcomer.last_name || 'N/A'}</td>
+                                        <td className="px-2 py-2 text-black dark:text-white">{newcomer.email || 'N/A'}</td>
+                                        <td className="px-2 py-2 text-black dark:text-white">{newcomer.gender || 'N/A'}</td>
+                                        <td className="px-2 py-2 text-black dark:text-white">{newcomer.address || 'N/A'}</td>
+                                        <td className="px-2 py-2 text-black dark:text-white">{newcomer.phone_number || 'N/A'}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -491,16 +492,16 @@ const formatDate = (dateString) => {
             {/* Attendance Options */}
             <div className="p-4 md:p-6">
                 <div className="mx-auto max-w-5xl">
-                    <div className="rounded-sm border border-stroke bg-white shadow-default">
-                        <div className="border-b border-stroke py-4 px-4 md:px-6.5">
-                            <h3 className="font-medium text-black">
+                    <div className="rounded-sm border border-stroke bg-white shadow-default dark:bg-boxdark dark:border-strokedark">
+                        <div className="border-b border-stroke py-4 px-4 md:px-6.5 dark:border-strokedark">
+                            <h3 className="font-medium text-black dark:text-white">
                                 Attendance Options
                             </h3>
                         </div>
         
                         <div className="p-4 md:p-6.5 space-y-4">
-                            <h2 className='font-bold text-black text-center text-xl md:text-2xl'>Welcome!</h2>
-                            <p className='text-black text-center text-base md:text-xl'>
+                            <h2 className='font-bold text-black dark:text-white text-center text-xl md:text-2xl'>Welcome!</h2>
+                            <p className='text-black dark:text-white text-center text-base md:text-xl'>
                                 Please select which category of individual you want to add manually.
                             </p>
                             <div className="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-4">
@@ -660,9 +661,9 @@ const formatDate = (dateString) => {
 
                      {/* QR Codes Section */}
                 {(qrCode || newcomerQrCode) && (
-                <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
                     {qrCode && (
-                        <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+                        <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:bg-boxdark dark:border-strokedark">
                             <h4 className="mb-4 text-xl font-semibold text-black dark:text-white">
                                 Attendance QR Code
                             </h4>

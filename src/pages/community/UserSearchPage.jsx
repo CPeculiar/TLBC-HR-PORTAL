@@ -104,22 +104,23 @@ const UserSearchPage = () => {
 
   return (
     <>
-    
-    <Breadcrumb pageName="Search Members" />
+    <Breadcrumb pageName="Search Members"  className="text-black dark:text-white" />
 
     <div
-      className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-6"
+     className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-6 bg-white dark:bg-boxdark"
       style={{ backgroundColor }}
     >
       {/* Search Container */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 space-y-4">
+      <div className="bg-white dark:bg-boxdark rounded-lg shadow-sm border border-gray-200 dark:border-strokedark p-4 sm:p-6 space-y-4">
         <div className="flex flex-col sm:flex-row items-stretch space-y-4 sm:space-y-0 sm:space-x-4">
-          {/* Search Input - Full width on mobile, flexible on larger screens */}
+           {/* Search Input - Full width on mobile, flexible on larger screens */}
           <div className="flex-grow w-full">
             <input
               type="text"
               placeholder="Search by name"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50"
+              className="w-full rounded-md border border-gray-300 dark:border-form-strokedark px-3 py-2 text-sm text-black dark:text-white 
+                focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50 
+                dark:bg-form-input dark:focus:border-primary"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{ 
@@ -133,7 +134,7 @@ const UserSearchPage = () => {
           {/* Search Button - Full width on mobile, auto on larger screens */}
           <div className="w-full sm:w-auto">
             <button
-              className={`w-full sm:w-auto rounded-md px-4 py-2 text-sm font-medium text-white hover:bg-secondary transition-colors duration-300 disabled:opacity-50 ${
+                className={`w-full sm:w-auto rounded-md px-4 py-2 text-sm font-medium text-white hover:bg-secondary transition-colors duration-300 disabled:opacity-50 ${
                 searchTerm.trim() === '' ? 'bg-gray-400' : 'bg-primary'
               }`}
               onClick={handleSearch}
@@ -151,7 +152,7 @@ const UserSearchPage = () => {
         {/* Advanced Search Button - Full width on mobile */}
         <div>
           <button
-            className="w-full rounded-md px-4 py-2 text-sm font-medium text-white hover:bg-secondary transition-colors duration-300 bg-primary"
+             className="w-full rounded-md px-4 py-2 text-sm font-medium text-white hover:bg-secondary transition-colors duration-300 bg-primary"
             onClick={() => navigate("/AdvancedUserSearchPage")}
           >
             Advanced Search
@@ -160,12 +161,12 @@ const UserSearchPage = () => {
       </div>
 
       {/* Results Table with Responsive Design */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 mt-6 overflow-x-auto">
+      <div className="bg-white dark:bg-boxdark rounded-lg shadow-sm border border-gray-200 dark:border-strokedark mt-6 overflow-x-auto">
         {isLoading ? (
-          <div className="text-center py-4">Loading...</div>
+          <div className="text-center py-4 text-black dark:text-white">Loading...</div>
         ) : (
           <div className="w-full overflow-x-auto">
-            <table className="w-full min-w-[800px] divide-y divide-gray-200">
+            <table className="w-full min-w-[800px] divide-y divide-gray-200 dark:divide-strokedark">
               <thead>
                 <tr>
                   {['Profile', 'Name', 'Phone', 'Email', 'Gender', 'Church', 'Action'].map((header) => (
@@ -194,7 +195,7 @@ const UserSearchPage = () => {
                   users.map((user, index) => (
                     <tr
                       key={index}
-                      className="hover:bg-gray-100 transition-colors duration-300"
+                      className="hover:bg-gray-100 dark:hover:bg-strokedark transition-colors duration-300"
                       style={{ backgroundColor: 'white', color: textColor }}
                     >
                       <td className="px-4 py-3">
@@ -229,15 +230,15 @@ const UserSearchPage = () => {
       {/* Pagination with Responsive Design */}
       {users.length > 0 && (
         <div className="flex flex-col sm:flex-row justify-between items-center mt-4 space-y-4 sm:space-y-0">
-          <span className="text-sm text-gray-600">
+          <span className="text-sm text-gray-600 dark:text-white">
             Total Users: {users.length} of {`${totalPages * users.length}`}
           </span>
           <div className="flex space-x-2">
           {/* Clear button added */}
-        <button
-          className="rounded-md px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 transition-colors duration-300 flex items-center"
-          onClick={clearSearchResults}
-        >
+          <button
+              className="rounded-md px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 transition-colors duration-300 flex items-center"
+              onClick={clearSearchResults}
+            >
          Close
         </button>
         
@@ -252,7 +253,7 @@ const UserSearchPage = () => {
               Previous
             </button>
             <button
-              className={`rounded-md px-4 py-2 text-sm font-medium text-white hover:bg-secondary transition-colors duration-300 ${
+               className={`rounded-md px-4 py-2 text-sm font-medium text-white hover:bg-secondary transition-colors duration-300 ${
                 currentPage === totalPages || isLoading ? 'bg-gray-400' : 'bg-primary'
               }`}
               onClick={handleNextPage}
@@ -263,7 +264,7 @@ const UserSearchPage = () => {
             </button>
           </div>
         </div>
-      )}
+      )} 
     </div>
 
     {selectedUser && (
