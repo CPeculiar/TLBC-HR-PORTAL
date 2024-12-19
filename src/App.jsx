@@ -35,8 +35,8 @@ import ReturningNewComers from './pages/Attendance/ReturningNewComers';
 import UserSearchPage from './pages/community/UserSearchPage';
 import UserProfileCard from './pages/community/UserProfileCard';
 import AdvancedUserSearchPage from './pages/community/AdvancedUserSearchPage';
-import ZoneManagement from './pages/Management/ZoneManagement';
-import ChurchManagement from './pages/Management/ChurchManagement';
+import ZoneManagement from './pages/Zone and Church Management/ZoneManagement';
+import ChurchManagement from './pages/Zone and Church Management/ChurchManagement';
 import AccountCreationPage from './pages/finance/AccountCreationPage';
 import Transactions from './pages/finance/Transactions';
 import FinanceDashboard from './pages/finance/FinanceDashboard';
@@ -44,6 +44,8 @@ import ExpensesManagement from './pages/finance/ExpensesManagement';
 import FundManagement from './pages/finance/FundManagement';
 import RemittanceManagement from './pages/finance/RemittanceManagement';
 import TopupManagement from './pages/finance/TopupManagement';
+import OnboardUser from './pages/User Management/OnboardUser';
+import DeleteUser from './pages/User Management/DeleteUser';
 
 
 
@@ -168,6 +170,11 @@ function App() {
       <Route path="/fundManagement" element={withDefaultLayout(<FundManagement />, "Fund Management")} />
       <Route path="/remittanceManagement" element={withDefaultLayout(<RemittanceManagement />, "Remittance Management")} />
       <Route path="/topupManagement" element={withDefaultLayout(<TopupManagement />, "Topup Management")} />
+
+      
+      <Route path="/onboardUser" element={withDefaultLayout(<OnboardUser />, "Onboard New User")} />
+      <Route path="/deleteUser" element={withDefaultLayout(<DeleteUser />, "Delete User")} />
+
 
       <Route path="/transactions" element={withDefaultLayout(<Transactions />, "Create Church Account")} />
       

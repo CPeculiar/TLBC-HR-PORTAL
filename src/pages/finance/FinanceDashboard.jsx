@@ -24,10 +24,8 @@ const FinanceDashboard = () => {
    const [selectedDefaultAccount, setSelectedDefaultAccount] = useState('');
 
   // State for dashboard data
-  const [expenses, setExpenses] = useState([
-    { amount: '1000' },
-    { amount: '500' }
-  ]);
+  const [expenses, setExpenses] = useState(0);
+
   const [pendingApprovals, setPendingApprovals] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -148,13 +146,19 @@ const handleErrorMessage = (error) => {
   // Fetch expenses
   const fetchExpenses = async () => {
     try {
-      const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/expenses/');
-      setExpenses(response.data.results);
-    } catch (error) {
-      const errorMsg = error.response?.data?.non_field_errors?.[0] || 'Error fetching expenses';
-      showMessage('error', errorMsg);
-    }
-  };
+       const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/expense/list/');
+    const transactions = response.data.results;
+    // Calculate total expenses from approved transactions only
+    const totalExpenses = transactions
+      .filter(transaction => transaction.status === 'APPROVED')
+      .reduce((sum, transaction) => sum + parseFloat(transaction.amount), 0);
+    
+    setExpenses(totalExpenses);
+  } catch (error) {
+    const errorMsg = error.response?.data?.non_field_errors?.[0] || 'Error fetching expenses';
+    showMessage('error', errorMsg);
+  }
+};
 
   // Fetch pending approvals
   const fetchPendingApprovals = async () => {
@@ -168,15 +172,16 @@ const handleErrorMessage = (error) => {
   };
 
    // Fetch transactions
-   const fetchTransactions = async () => {
-    try {
-      const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/transactions/');
-      setTransactions(response.data.results);
-    } catch (error) {
-      const errorMsg = error.response?.data?.non_field_errors?.[0] || 'Error fetching transactions';
-      showMessage('error', errorMsg);
-    }
-  };
+   // Update the fetch function
+const fetchTransactions = async () => {
+  try {
+    const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/expense/list/');
+    setTransactions(response.data.results);
+  } catch (error) {
+    const errorMsg = error.response?.data?.non_field_errors?.[0] || 'Error fetching transactions';
+    showMessage('error', errorMsg);
+  }
+};
 
   // Handle account selection
   const handleAccountSelect = (e) => {
@@ -296,7 +301,7 @@ const handleErrorMessage = (error) => {
 
       <div className="p-6 bg-blue-50 dark:bg-boxdark">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            <Cards title="Monthly Expenses" value={`₦${expenses.reduce((sum, exp) => sum + parseFloat(exp.amount || 0), 0).toFixed(2)} `|| '₦0.00'} bgColor="bg-gradient-to-r from-orange-300 to-red-400" onTimePeriodChange={(period) => handleTimePeriodChange(period, 'Expenses')} />
+            <Cards title="Monthly Expenses"  value={`₦${expenses.toFixed(2)}` || '₦0.00'}  bgColor="bg-gradient-to-r from-orange-300 to-red-400" onTimePeriodChange={(period) => handleTimePeriodChange(period, 'Expenses')}  />
             <Cards title="Monthly Income" value={`₦${accountDetails?.balance} `|| '₦0.00'} bgColor="bg-gradient-to-r from-blue-300 to-blue-500" onTimePeriodChange={(period) => handleTimePeriodChange(period, 'Income')} />
             <Cards title="Account Balance" value={`₦${accountDetails?.balance} `|| '₦0.00'} icon="💰" bgColor="bg-gradient-to-r from-green-300 to-teal-500" />
             <Cards title="Transaction History" value="0" icon="📜" bgColor="bg-gradient-to-r from-yellow-300 to-yellow-500" />
@@ -522,30 +527,48 @@ const handleErrorMessage = (error) => {
 
       {/* Recent Transactions Table */}
       <div className="mb-6">
-          <h3 className="text-xl font-bold mb-4 text-black dark:text-white">Recent Transactions</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-blue-100 dark:bg-boxdark">
-                  <th className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white hidden md:table-cell">Date</th>
-                  <th className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">Description</th>
-                  <th className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">Amount</th>
-                  <th className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white hidden md:table-cell">Type</th>
-                </tr>
-              </thead>
-              <tbody>
-                {transactions.slice(0, 5).map((transaction, index) => (
-                  <tr key={index} className="hover:bg-blue-50 dark:hover:bg-boxdark">
-                    <td className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white hidden md:table-cell">{transaction.date}</td>
-                    <td className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">{transaction.description}</td>
-                    <td className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">₦{transaction.amount}</td>
-                    <td className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white hidden md:table-cell">{transaction.type}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+  <h3 className="text-xl font-bold mb-4 text-black dark:text-white">Recent Transactions</h3>
+  <div className="overflow-x-auto">
+    <table className="w-full border-collapse">
+      <thead>
+        <tr className="bg-blue-100 dark:bg-boxdark">
+          <th className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">Date</th>
+          <th className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">Account Name</th>
+          <th className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">Amount</th>
+          <th className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">Purpose</th>
+          <th className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {transactions.map((transaction) => {
+          // Format the date
+          const date = new Date(transaction.initiated_at);
+          const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+          
+          return (
+            <tr key={transaction.reference} className="hover:bg-blue-50 dark:hover:bg-boxdark">
+              <td className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">{formattedDate}</td>
+              <td className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">{transaction.account.account_name}</td>
+              <td className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">₦{transaction.amount}</td>
+              <td className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">{transaction.purpose}</td>
+              <td className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">
+                <span 
+                  className={`px-2 py-1 rounded text-xs font-semibold ${
+                    transaction.status === 'APPROVED' ? 'bg-green-100 text-green-800' :
+                    transaction.status === 'DECLINED' ? 'bg-red-100 text-red-800' :
+                    'bg-yellow-100 text-yellow-800'
+                  }`}
+                >
+                  {transaction.status}
+                </span>
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  </div>
+</div>
 
 
        {/* Bar Chart */}

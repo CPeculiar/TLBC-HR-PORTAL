@@ -266,7 +266,7 @@ const AttendanceCreationPage = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90 disabled:bg-opacity-50"
+                className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90 disabled:bg-opacity-50 dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
               >
                 {isLoading ? "Creating..." : "Create Attendance"}
               </button>
