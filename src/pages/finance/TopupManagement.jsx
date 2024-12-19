@@ -131,7 +131,7 @@ const TopupManagement = () => {
           {details && (
             <div className="bg-gray-100 dark:bg-boxdark p-4 rounded-md mb-4">
             <p className="text-black dark:text-white"><strong>Account:</strong> {details.accountName}</p>
-            <p className="text-black dark:text-white"><strong>Amount:</strong> ${details.amount}</p>
+            <p className="text-black dark:text-white"><strong>Amount:</strong> ₦{details.amount}</p>
             <p className="text-black dark:text-white"><strong>Purpose:</strong> {details.purpose}</p>
             </div>
           )}
@@ -441,7 +441,7 @@ const TopupManagement = () => {
                 {topupList.map((item) => (
                   <tr key={item.reference} className="border-b hover:bg-gray-50 transition-colors">
                     <td className="p-3">{item.account.account_name}</td>
-                    <td className="p-3">${Number(item.amount).toFixed(2)}</td>
+                    <td className="p-3">₦{Number(item.amount).toFixed(2)}</td>
                     <td className="p-3">{item.purpose}</td>
                     <td className="p-3">{item.status}</td>
                     <td className="p-3">{formatDate(item.initiated_at)}</td>
@@ -530,7 +530,7 @@ const TopupManagement = () => {
             {topupList.map((item) => (
               <tr key={item.reference} className="border-b hover:bg-gray-50 transition-colors">
                 <td className="p-3">{item.account.account_name}</td>
-                <td className="p-3">${Number(item.amount).toFixed(2)}</td>
+                <td className="p-3">₦{Number(item.amount).toFixed(2)}</td>
                 <td className="p-3">{item.purpose}</td>
                 <td className="p-3">{item.status}</td>
                 <td className="p-3">{extractName(item.initiator)}</td>
@@ -630,7 +630,7 @@ const TopupManagement = () => {
             {approvedTopups.map((item) => (
               <tr key={item.reference} className="border-b hover:bg-gray-50 transition-colors">
                 <td className="p-3">{item.account.account_name}</td>
-                <td className="p-3">${Number(item.amount).toFixed(2)}</td>
+                <td className="p-3">₦{Number(item.amount).toFixed(2)}</td>
                 <td className="p-3">{item.purpose}</td>
                 <td className="p-3">{item.status}</td>
                 <td className="p-3">{extractName(item.initiator)}</td>
@@ -685,7 +685,7 @@ const TopupManagement = () => {
             {declinedTopups.map((item) => (
               <tr key={item.reference} className="border-b hover:bg-gray-50 transition-colors">
                 <td className="p-3">{item.account.account_name}</td>
-                <td className="p-3">${Number(item.amount).toFixed(2)}</td>
+                <td className="p-3">₦{Number(item.amount).toFixed(2)}</td>
                 <td className="p-3">{item.purpose}</td>
                 <td className="p-3">{item.status}</td>
                 <td className="p-3">{extractName(item.initiator)}</td>

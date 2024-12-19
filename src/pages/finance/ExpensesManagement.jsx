@@ -330,7 +330,7 @@ const formatDate = (dateString, prefix = '') => {
                       value = item.account?.account_name || item.account || 'N/A';
                       break;
                     case 'amount':
-                      value = item.amount ? `$${Number(item.amount).toFixed(2)}` : 'N/A';
+                      value = item.amount ? `₦${Number(item.amount).toFixed(2)}` : 'N/A';
                       break;
                     case 'purpose':
                       value = item.purpose || 'N/A';

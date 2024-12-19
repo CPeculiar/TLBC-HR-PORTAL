@@ -296,7 +296,7 @@ const FundManagement = () => {
                 <tr key={item.reference} className="border-b hover:bg-gray-50 transition-colors">
                   <td className="p-3">{type === 'incoming' ? item.benefactor : item.beneficiary}</td>
                   <td className="p-3">{type === 'incoming' ? item.beneficiary : item.benefactor}</td>
-                  <td className="p-3">${Number(item.amount).toFixed(2)}</td>
+                  <td className="p-3">₦{Number(item.amount).toFixed(2)}</td>
                   <td className="p-3">{item.purpose}</td>
                   <td className="p-3">{item.status}</td>
                   <td className="p-3">{extractName(item.initiator)}</td>
@@ -380,7 +380,7 @@ const FundManagement = () => {
             <div className="mt-4 bg-gray-100 p-3 rounded text-center">
               <p>Benefactor: {successModal.details.benefactor}</p>
               {/* Continue the previous code... */}
-          <p>Amount: ${successModal.details.amount}</p>
+          <p>Amount: ₦{successModal.details.amount}</p>
           <p>Purpose: {successModal.details.purpose}</p>
           <button 
             onClick={() => setSuccessModal(null)}

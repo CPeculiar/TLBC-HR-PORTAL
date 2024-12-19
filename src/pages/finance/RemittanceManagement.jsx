@@ -432,7 +432,7 @@ const RemittanceManagement = () => {
                 <tr key={item.reference} className="border-b border-stroke dark:border-strokedark hover:bg-gray-50 dark:hover:bg-blue-900/50 transition-colors">
                   <td className="p-3 text-black dark:text-white">{type === 'incoming' ? item.benefactor : item.beneficiary}</td>
                   <td className="p-3 text-black dark:text-white">{type === 'incoming' ? item.beneficiary : item.benefactor}</td>
-                  <td className="p-3 text-black dark:text-white">${Number(item.amount).toFixed(2)}</td>
+                  <td className="p-3 text-black dark:text-white">₦{Number(item.amount).toFixed(2)}</td>
                   <td className="p-3 text-black dark:text-white">{item.purpose}</td>
                   <td className="p-3 text-black dark:text-white">{item.status}</td>
                   <td className="p-3 text-black dark:text-white">{extractName(item.initiator)}</td>
@@ -579,7 +579,7 @@ const RemittanceManagement = () => {
                 <p className="text-black dark:text-white">Benefactor: {successModal.details.benefactor}</p>
               )}
               {successModal.details.amount && (
-                <p className="text-black dark:text-white">Amount: ${successModal.details.amount}</p>
+                <p className="text-black dark:text-white">Amount: ₦{successModal.details.amount}</p>
               )}
               {successModal.details.purpose && (
                 <p className="text-black dark:text-white">Purpose: {successModal.details.purpose}</p>
