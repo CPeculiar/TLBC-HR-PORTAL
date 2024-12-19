@@ -669,7 +669,7 @@ const handleNextPage = async () => {
          {(initialLoad || activeSection === 'list') && (
               <div className="border-b border-gray-200 border-stroke p-4 dark:border-strokedark">
                 <h3 className="text-xl text-center font-semibold text-black dark:text-white">
-                  List of Churches
+                  List of Zones
                 </h3>
                 <div className="mt-4 overflow-x-auto">
                   <table className="w-full table-auto">

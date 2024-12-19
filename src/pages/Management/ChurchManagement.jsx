@@ -286,10 +286,10 @@ const ChurchManagement = () => {
     <div className="container mx-auto px-4 py-6">
      {/* Mobile Menu Toggle */}
      <div className="md:hidden flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">Church Management</h2>
-        <button 
+     <h2 className="text-xl font-bold text-black dark:text-white">Church Management</h2>
+     <button 
           onClick={toggleMobileMenu} 
-          className="text-primary"
+          className="text-primary dark:text-white"
         >
           <Menu size={24} />
         </button>
@@ -297,22 +297,22 @@ const ChurchManagement = () => {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 bg-white z-50 overflow-y-auto">
+        <div className="md:hidden fixed inset-0 bg-white dark:bg-boxdark z-50 overflow-y-auto">
           <div className="p-4">
             <button 
               onClick={toggleMobileMenu} 
-              className="absolute top-4 right-4"
-            >
+              className="absolute top-4 right-4 text-black dark:text-white"
+              >
               <X size={24} />
             </button>
-            <h2 className="text-xl font-bold mb-6 mt-10">Sections</h2>
+            <h2 className="text-xl font-bold mb-6 mt-10 text-black dark:text-white">Sections</h2>
             <div className="space-y-4">
               <button 
                 onClick={() => handleMobileSectionChange('add')}
                 className={`w-full p-3 text-left rounded ${
                   activeSection === 'add' 
                     ? 'bg-primary text-white' 
-                    : 'bg-gray-100 text-black'
+                    : 'bg-gray-100 text-black dark:bg-meta-4 dark:text-white'
                 }`}
               >
                 Add New Church
@@ -320,9 +320,9 @@ const ChurchManagement = () => {
               <button 
                 onClick={() => handleMobileSectionChange('edit')}
                 className={`w-full p-3 text-left rounded ${
-                  activeSection === 'edit' 
+                  activeSection === 'add' 
                     ? 'bg-primary text-white' 
-                    : 'bg-gray-100 text-black'
+                    : 'bg-gray-100 text-black dark:bg-meta-4 dark:text-white'
                 }`}
               >
                 Edit Church
@@ -330,9 +330,9 @@ const ChurchManagement = () => {
               <button 
                 onClick={() => handleMobileSectionChange('delete')}
                 className={`w-full p-3 text-left rounded ${
-                  activeSection === 'delete' 
+                  activeSection === 'add' 
                     ? 'bg-primary text-white' 
-                    : 'bg-gray-100 text-black'
+                    : 'bg-gray-100 text-black dark:bg-meta-4 dark:text-white'
                 }`}
               >
                 Delete Church
@@ -340,9 +340,9 @@ const ChurchManagement = () => {
               <button 
                 onClick={() => handleMobileSectionChange('list')}
                 className={`w-full p-3 text-left rounded ${
-                  activeSection === 'list' 
+                  activeSection === 'add' 
                     ? 'bg-primary text-white' 
-                    : 'bg-gray-100 text-black'
+                    : 'bg-gray-100 text-black dark:bg-meta-4 dark:text-white'
                 }`}
               >
                 Church List
@@ -354,15 +354,15 @@ const ChurchManagement = () => {
 
       <div className="grid md:grid-cols-4 gap-6">
         {/* Sidebar for Desktop */}
-        <div className="hidden md:block col-span-1 bg-gray-100 p-4 rounded-lg h-fit">
-          <h3 className="text-lg font-semibold mb-4">Sections</h3>
+        <div className="hidden md:block col-span-1 bg-gray-100 dark:bg-meta-4 p-4 rounded-lg h-fit">
+          <h3 className="text-lg font-semibold mb-4 text-black dark:text-white">Sections</h3>
           <div className="space-y-2">
             <button 
               onClick={() => handleSectionChange('add')}
               className={`w-full p-3 text-left rounded ${
                 activeSection === 'add' 
                   ? 'bg-primary text-white' 
-                  : 'hover:bg-gray-200'
+                  : 'hover:bg-gray-200 dark:hover:bg-meta-4 text-black dark:text-white'
               }`}
             >
               Add New Church
@@ -370,9 +370,9 @@ const ChurchManagement = () => {
             <button 
               onClick={() => handleSectionChange('edit')}
               className={`w-full p-3 text-left rounded ${
-                activeSection === 'edit' 
+                activeSection === 'add' 
                   ? 'bg-primary text-white' 
-                  : 'hover:bg-gray-200'
+                  : 'hover:bg-gray-200 dark:hover:bg-meta-4 text-black dark:text-white'
               }`}
             >
               Edit Church
@@ -380,9 +380,9 @@ const ChurchManagement = () => {
             <button 
               onClick={() => handleSectionChange('delete')}
               className={`w-full p-3 text-left rounded ${
-                activeSection === 'delete' 
+                activeSection === 'add' 
                   ? 'bg-primary text-white' 
-                  : 'hover:bg-gray-200'
+                  : 'hover:bg-gray-200 dark:hover:bg-meta-4 text-black dark:text-white'
               }`}
             >
               Delete Church
@@ -390,9 +390,9 @@ const ChurchManagement = () => {
             <button 
               onClick={() => handleSectionChange('list')}
               className={`w-full p-3 text-left rounded ${
-                activeSection === 'list' 
+                activeSection === 'add' 
                   ? 'bg-primary text-white' 
-                  : 'hover:bg-gray-200'
+                  : 'hover:bg-gray-200 dark:hover:bg-meta-4 text-black dark:text-white'
               }`}
             >
               Church List
@@ -402,12 +402,12 @@ const ChurchManagement = () => {
 
         {/* Main Content Area */}
         <div className="col-span-full md:col-span-3">
-          <div className="rounded-lg border border-gray-200 bg-white shadow-md dark:border-strokedark dark:bg-boxdark">
-            {/* Conditionally Render Sections */}
+        <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+        {/* Conditionally Render Sections */}
             {(initialLoad || activeSection === 'add') && (
               <div className="border-b border-stroke p-4 dark:border-strokedark">
                 <h3 className="font-medium text-black dark:text-white">Add New Church</h3>
-                {/* Add Church Form (same as before) */}
+                       {/* Add Church Form (same as before) */}
                 <form onSubmit={handleAddChurch} className="mt-4">
                   {/* Form inputs remain the same */}
                   <div className="grid grid-cols-1 gap-4">
@@ -417,13 +417,13 @@ const ChurchManagement = () => {
                       onChange={(e) => setChurchName(e.target.value)}
                       placeholder="Enter Church Name"
                       required
-                      className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
-                    />
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      />
                     <select
                       value={selectedZone}
                       onChange={(e) => setSelectedZone(e.target.value)}
                       required
-                      className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     >
                       <option value="">Select Zone</option>
                       {zones.map((zone) => (
@@ -436,7 +436,7 @@ const ChurchManagement = () => {
                   <button
                     type="submit"
                     disabled={loadingAddChurch}
-                    className="mt-4 w-full flex justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90 disabled:bg-opacity-50"
+                    className="mt-4 w-full flex justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90 disabled:bg-opacity-50 dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   >
                     {loadingAddChurch ? 'Adding...' : 'Add Church'}
                   </button>
@@ -456,15 +456,15 @@ const ChurchManagement = () => {
 
          {/* Similar changes for Edit and Delete sections */}
          {(initialLoad || activeSection === 'edit') && (
-              <div className="border-b border-stroke p-4 dark:border-strokedark">
-                <h3 className="font-medium text-black dark:text-white">Edit Church</h3>
+          <div className="border-b border-stroke p-4 dark:border-strokedark">
+          <h3 className="font-medium text-black dark:text-white">Edit Church</h3>
           <form onSubmit={handleEditChurch} className="mt-4">
             <div className="mb-4">
               <select
                 value={selectedChurch}
                 onChange={(e) => setSelectedChurch(e.target.value)}
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
-              >
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                >
                 <option value="">Select Church</option>
                 {churches.map((church) => (
                   <option key={church.slug} value={church.name}>
@@ -482,16 +482,16 @@ const ChurchManagement = () => {
                     onChange={(e) => setEditChurchName(e.target.value)}
                     placeholder="Enter New Church Name"
                     required
-                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
-                  />
+                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      />
                 </div>
                 <div className="mb-4">
                   <select
                     value={selectedZone}
                     onChange={(e) => setSelectedZone(e.target.value)}
                     required
-                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
-                  >
+                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                    >
                     <option value="">Select Zone</option>
                     {zones.map((zone) => (
                       <option key={zone.slug} value={zone.name}>
@@ -505,7 +505,7 @@ const ChurchManagement = () => {
             <button
               type="submit"
               disabled={loadingEditChurch || !selectedChurch}
-              className="w-full flex justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90 disabled:bg-opacity-50"
+              className="w-full flex justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90 disabled:bg-opacity-50 dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
             >
               {loadingEditChurch ? 'Updating...' : 'Update Church'}
             </button>
@@ -525,14 +525,14 @@ const ChurchManagement = () => {
 
         {/* Delete Church Section */}
         {(initialLoad || activeSection === 'delete') && (
-              <div className="border-b border-stroke p-4 dark:border-strokedark">
-                <h3 className="font-medium text-black dark:text-white">Delete Church</h3>
+          <div className="border-b border-stroke p-4 dark:border-strokedark">
+          <h3 className="font-medium text-black dark:text-white">Delete Church</h3>
           <div className="mt-4">
             <select
               value={deleteChurchSlug}
               onChange={(e) => setDeleteChurchSlug(e.target.value)}
-              className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
-            >
+              className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+              >
               <option value="">Select Church to Delete</option>
               {churches.map((church) => (
                 <option key={church.slug} value={church.name}>
@@ -543,7 +543,7 @@ const ChurchManagement = () => {
             <button
               onClick={initiateDeleteChurch}
               disabled={!deleteChurchSlug}
-              className="mt-4 w-full flex justify-center items-center rounded bg-red-500 p-3 font-medium text-white hover:bg-red-600 disabled:bg-opacity-50"
+              className="mt-4 w-full flex justify-center items-center rounded bg-red-500 p-3 font-medium text-white hover:bg-red-600 disabled:bg-opacity-50 dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
             >
               <Trash2 className="mr-2" /> Delete Church
             </button>
@@ -563,10 +563,10 @@ const ChurchManagement = () => {
 
         {/* Delete Confirmation Modal */}
         {showDeleteConfirmModal && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto bg-black bg-opacity-50 p-4">
-    <div className="relative w-full max-w-md mx-auto">
-      <div className="relative flex flex-col w-full bg-white rounded-lg shadow-xl dark:bg-gray-800">
-        {/* Modal Header */}
+          <div className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto bg-black bg-opacity-50 p-4">
+          <div className="relative w-full max-w-md mx-auto">
+            <div className="relative flex flex-col w-full bg-white rounded-lg shadow-xl dark:bg-boxdark">
+             {/* Modal Header */}
         <div className="flex items-center justify-center p-4 border-b dark:border-gray-700">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Confirm Delete</h3>
         </div>
@@ -574,10 +574,10 @@ const ChurchManagement = () => {
         {/* Modal Content */}
         <div className="p-6 text-center">
           <div className="mb-4">
-            <p className="text-sm text-gray-600 dark:text-gray-300">
+            <p className="text-sm text-gray-600 dark:text-gray-300 dark:text-white">
               Are you sure you want to delete this church?
             </p>
-            <p className="text-xs text-gray-500 mt-2 dark:text-gray-400">
+            <p className="text-xs text-gray-500 mt-2 dark:text-gray-400 dark:text-white">
               This action cannot be undone.
             </p>
           </div>
@@ -608,7 +608,7 @@ const ChurchManagement = () => {
 
            {/* Church List Section (continued) */}
            {(initialLoad || activeSection === 'list') && (
-              <div className="border-b border-stroke p-4 dark:border-strokedark">
+            <div className="border-b border-stroke p-4 dark:border-strokedark">
                 <h3 className="text-xl text-center font-semibold text-black dark:text-white">
                   List of Churches
                 </h3>
@@ -616,17 +616,17 @@ const ChurchManagement = () => {
                   <table className="w-full table-auto text-sm">
                     <thead>
                       <tr className="bg-gray-100 text-left dark:bg-meta-4">
-                        <th className="p-2 sm:px-4 sm:py-2">Church Name</th>
-                        <th className="p-2 sm:px-4 sm:py-2">Zone</th>
-                        <th className="p-2 sm:px-4 sm:py-2">Action</th>
+                        <th className="p-2 sm:px-4 sm:py-2 text-black dark:text-white">Church Name</th>
+                        <th className="p-2 sm:px-4 sm:py-2 text-black dark:text-white">Zone</th>
+                        <th className="p-2 sm:px-4 sm:py-2 text-black dark:text-white">Action</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="text-black dark:text-white">
                       {churches.map((church) => (
                         <tr key={church.slug} className="border-b dark:border-strokedark">
-                          <td className="p-2 sm:px-4 sm:py-3">{church.name}</td>
-                          <td className="p-2 sm:px-4 sm:py-3">{church.zone}</td>
-                          <td className="p-2 sm:px-4 sm:py-3">
+                          <td className="p-2 sm:px-4 sm:py-3 text-black dark:text-white">{church.name}</td>
+                          <td className="p-2 sm:px-4 sm:py-3 text-black dark:text-white">{church.zone}</td>
+                          <td className="p-2 sm:px-4 sm:py-3 text-black dark:text-white">
                             <button 
                               onClick={() => handleViewChurchDetails(church.slug)} 
                               className="text-blue-500 hover:text-blue-700"
@@ -645,17 +645,17 @@ const ChurchManagement = () => {
                   <button 
                     onClick={handlePrevPage} 
                     disabled={!pagination.previous}
-                    className="px-4 py-2 bg-primary text-white rounded disabled:opacity-50 w-full sm:w-auto"
+                    className="px-4 py-2 bg-primary text-white rounded disabled:opacity-50 w-full sm:w-auto dark:text-white"
                   >
                     Previous
                   </button>
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-gray-600 dark:text-white">
                     Page {pagination.currentPage} of {Math.ceil(pagination.count / 10)}
                   </span>
                   <button 
                     onClick={handleNextPage} 
                     disabled={!pagination.next}
-                    className="px-4 py-2 bg-primary text-white rounded disabled:opacity-50 w-full sm:w-auto"
+                    className="px-4 py-2 bg-primary text-white rounded disabled:opacity-50 w-full sm:w-auto dark:text-white"
                   >
                     Next
                   </button>
@@ -669,9 +669,9 @@ const ChurchManagement = () => {
        {/* Church Details Modal */}
  {showChurchDetailsModal && selectedChurchDetails && (
   <div className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto bg-black bg-opacity-50 p-4">
-    <div className="relative w-full max-w-md mx-auto">
-      <div className="relative flex flex-col w-full bg-white rounded-lg shadow-xl dark:bg-gray-800 max-h-[90vh] overflow-y-auto">
-        {/* Modal Header */}
+          <div className="relative w-full max-w-md mx-auto">
+            <div className="relative flex flex-col w-full bg-white rounded-lg shadow-xl dark:bg-boxdark max-h-[90vh] overflow-y-auto">
+              {/* Modal Header */}
         <div className="flex items-center justify-between p-4 border-b dark:border-gray-700">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Church Details</h3>
           <button

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Menu, X, FileText, PlusCircle, CheckCircle, XCircle, Upload, FilePlus, DollarSign } from 'lucide-react';
+import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 
 const RemittanceManagement = () => {
   // State variables
@@ -301,8 +302,8 @@ const RemittanceManagement = () => {
       }}
       className={`w-full p-3 text-left flex items-center ${
         activeSection === section 
-          ? 'bg-blue-500 text-white' 
-          : 'hover:bg-blue-100 text-blue-700'
+          ? 'bg-blue-500 text-white dark:bg-blue-600' 
+          : 'hover:bg-blue-100 text-blue-700 dark:hover:bg-blue-800 dark:text-blue-200'
       }`}
     >
       <Icon className="mr-2" /> 
@@ -312,14 +313,14 @@ const RemittanceManagement = () => {
 
   // Render Create Remittance Section
   const renderCreateRemittance = () => (
-    <div className="w-full max-w-md mx-auto bg-white shadow-md rounded-lg p-6">
-      <h2 className="text-2xl mb-6 font-bold text-blue-600 text-center flex items-center justify-center">
+    <div className="w-full max-w-md mx-auto bg-white dark:bg-boxdark shadow-md rounded-lg p-6 border border-stroke dark:border-strokedark">
+      <h2 className="text-2xl mb-6 font-bold text-blue-600 dark:text-blue-400 text-center flex items-center justify-center">
         <PlusCircle className="mr-2" /> Create Remittance Request
       </h2>
       
       {/* Error Message Display */}
       {errorMessage && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+        <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded relative mb-4" role="alert">
           <span className="block sm:inline">{errorMessage}</span>
         </div>
       )}
@@ -331,8 +332,8 @@ const RemittanceManagement = () => {
             setSelectedBeneficiary(e.target.value);
             setErrorMessage(null); // Clear error when user starts selecting
           }}
-          className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500 transition-all"
-        >
+          className="w-full p-3 border rounded-md border-stroke bg-transparent text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+          >
           <option value="">Select Beneficiary Church</option>
           {churches.map(church => (
             <option key={church.slug} value={church.slug}>
@@ -347,7 +348,7 @@ const RemittanceManagement = () => {
             setSelectedBenefactor(e.target.value);
             setErrorMessage(null); // Clear error when user starts selecting
           }}
-          className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500 transition-all"
+          className="w-full p-3 border rounded-md border-stroke bg-transparent text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
         >
           <option value="">Select Benefactor Church</option>
           {churches.map(church => (
@@ -365,7 +366,7 @@ const RemittanceManagement = () => {
             setRemittanceAmount(e.target.value);
             setErrorMessage(null); // Clear error when user starts typing
           }}
-          className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500 transition-all"
+          className="w-full p-3 border rounded-md border-stroke bg-transparent text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
         />
 
         <input 
@@ -376,15 +377,15 @@ const RemittanceManagement = () => {
             setRemittancePurpose(e.target.value);
             setErrorMessage(null); // Clear error when user starts typing
           }}
-          className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500 transition-all"
-        />
+          className="w-full p-3 border rounded-md border-stroke bg-transparent text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+          />
 
         <div className="flex items-center space-x-4">
           <input 
             type="file" 
             onChange={(e) => setRemittanceFile(e.target.files[0])}
-            className="flex-grow file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-          />
+            className="flex-grow file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700 dark:file:bg-blue-900 dark:file:text-blue-200 hover:file:bg-blue-100 dark:hover:file:bg-blue-800"
+            />
         </div>
 
         <button 
@@ -392,8 +393,8 @@ const RemittanceManagement = () => {
           disabled={isLoading}
           className={`w-full text-white p-3 rounded-md transition-colors flex items-center justify-center ${
             isLoading 
-              ? 'bg-blue-300 cursor-not-allowed' 
-              : 'bg-blue-500 hover:bg-blue-600'
+              ? 'bg-blue-300 dark:bg-blue-700 cursor-not-allowed' 
+              : 'bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700'
           }`}
         >
           <PlusCircle className="mr-2" /> {isLoading ? 'Processing...' : 'Create Remittance Request'}
@@ -411,132 +412,134 @@ const RemittanceManagement = () => {
     ];
 
     return (
-        <div className="w-full overflow-x-auto">
-          {data.length === 0 ? (
-            <div className="text-center p-4 text-gray-500">No remittances found</div>
-          ) : (
-            <>
-              <table className="w-full bg-white shadow-md rounded-lg overflow-hidden">
-                <thead className="bg-blue-50">
-                  <tr>
-                    {columns.map(column => (
-                      <th key={column} className="p-3 text-left text-xs font-medium text-blue-700 uppercase tracking-wider whitespace-nowrap">
-                        {column}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.map((item) => (
-                    <tr key={item.reference} className="border-b hover:bg-gray-50 transition-colors">
-                      <td className="p-3">{type === 'incoming' ? item.benefactor : item.beneficiary}</td>
-                      <td className="p-3">{type === 'incoming' ? item.beneficiary : item.benefactor}</td>
-                      <td className="p-3">${Number(item.amount).toFixed(2)}</td>
-                      <td className="p-3">{item.purpose}</td>
-                      <td className="p-3">{item.status}</td>
-                      <td className="p-3">{extractName(item.initiator)}</td>
-                      <td className="p-3">{formatDate(item.initiated_at)}</td>
-                      <td className="p-3">{extractName(item.auditor)}</td>
-                      <td className="p-3">{formatDate(item.approved_at)}</td>
-                      <td className="p-3">
-                        {item.files && item.files.length > 0 ? (
-                          <a 
-                            href={`https://tlbc-platform-api.onrender.com${item.files[0]}`} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-blue-500 hover:underline flex items-center"
+      <div className="w-full overflow-x-auto">
+      {data.length === 0 ? (
+        <div className="text-center p-4 text-gray-500 dark:text-gray-400">No remittances found</div>
+      ) : (
+        <>
+          <table className="w-full bg-white dark:bg-boxdark shadow-md rounded-lg overflow-hidden">
+            <thead className="bg-blue-50 dark:bg-blue-900">
+              <tr>
+                {columns.map(column => (
+                  <th key={column} className="p-3 text-left text-xs font-medium text-blue-700 dark:text-blue-200 uppercase tracking-wider whitespace-nowrap">
+                    {column}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((item) => (
+                <tr key={item.reference} className="border-b border-stroke dark:border-strokedark hover:bg-gray-50 dark:hover:bg-blue-900/50 transition-colors">
+                  <td className="p-3 text-black dark:text-white">{type === 'incoming' ? item.benefactor : item.beneficiary}</td>
+                  <td className="p-3 text-black dark:text-white">{type === 'incoming' ? item.beneficiary : item.benefactor}</td>
+                  <td className="p-3 text-black dark:text-white">${Number(item.amount).toFixed(2)}</td>
+                  <td className="p-3 text-black dark:text-white">{item.purpose}</td>
+                  <td className="p-3 text-black dark:text-white">{item.status}</td>
+                  <td className="p-3 text-black dark:text-white">{extractName(item.initiator)}</td>
+                  <td className="p-3 text-black dark:text-white">{formatDate(item.initiated_at)}</td>
+                  <td className="p-3 text-black dark:text-white">{extractName(item.auditor)}</td>
+                  <td className="p-3 text-black dark:text-white">{formatDate(item.approved_at)}</td>
+                  <td className="p-3">
+                    {item.files && item.files.length > 0 ? (
+                      <a 
+                        href={`https://tlbc-platform-api.onrender.com${item.files[0]}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-500 dark:text-blue-400 hover:underline flex items-center"
+                      >
+                        <FileText className="mr-1" size={16} /> View
+                      </a>
+                    ) : (
+                      'N/A'
+                    )}
+                  </td>
+                  <td className="p-3">
+                    <div className="flex space-x-2">
+                      {type === 'incoming' && (
+                        <>
+                          <button 
+                            onClick={() => handleRemittanceProcessing(item.reference, 'confirm')}
+                            className="bg-green-500 dark:bg-green-600 text-white p-1 rounded hover:bg-green-600 dark:hover:bg-green-700 transition-colors flex items-center"
+                            disabled={isLoading}
                           >
-                            <FileText className="mr-1" size={16} /> View
-                          </a>
-                        ) : (
-                          'N/A'
-                        )}
-                      </td>
-                      <td className="p-3">
-                        <div className="flex space-x-2">
-                          {type === 'incoming' && (
-                            <>
-                              <button 
-                                onClick={() => handleRemittanceProcessing(item.reference, 'confirm')}
-                                className="bg-green-500 text-white p-1 rounded hover:bg-green-600 transition-colors flex items-center"
-                                disabled={isLoading}
-                              >
-                                <CheckCircle size={16} className="mr-1" /> Confirm
-                              </button>
-                              <button 
-                                onClick={() => handleRemittanceProcessing(item.reference, 'paid')}
-                                className="bg-blue-500 text-white p-1 rounded hover:bg-blue-600 transition-colors flex items-center"
-                                disabled={isLoading}
-                              >
-                                <DollarSign size={16} className="mr-1" /> Paid
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </td>
-                      <td className="p-3">
+                            <CheckCircle size={16} className="mr-1" /> Confirm
+                          </button>
+                          <button 
+                            onClick={() => handleRemittanceProcessing(item.reference, 'paid')}
+                            className="bg-blue-500 dark:bg-blue-600 text-white p-1 rounded hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors flex items-center"
+                            disabled={isLoading}
+                          >
+                            <DollarSign size={16} className="mr-1" /> Paid
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                  <td className="p-3">
+                    <button 
+                      onClick={() => {
+                        const fileInput = document.createElement('input');
+                        fileInput.type = 'file';
+                        fileInput.onchange = (e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            setUploadFileReference({
+                              reference: item.reference,
+                              file: file
+                            });
+                          }
+                        };
+                        fileInput.click();
+                      }}
+                      className="bg-yellow-500 dark:bg-yellow-600 text-white p-1 rounded hover:bg-yellow-600 dark:hover:bg-yellow-700 transition-colors flex items-center"
+                    >
+                      <Upload size={16} className="mr-1" /> Update
+                    </button>
+                    {uploadFileReference && uploadFileReference.reference === item.reference && (
+                      <div className="mt-2 flex items-center space-x-2">
+                        <span className="text-sm truncate max-w-[100px] text-black dark:text-white">
+                          {uploadFileReference.file.name}
+                        </span>
                         <button 
-                          onClick={() => {
-                            const fileInput = document.createElement('input');
-                            fileInput.type = 'file';
-                            fileInput.onchange = (e) => {
-                              const file = e.target.files[0];
-                              if (file) {
-                                setUploadFileReference({
-                                  reference: item.reference,
-                                  file: file
-                                });
-                              }
-                            };
-                            fileInput.click();
-                          }}
-                          className="bg-yellow-500 text-white p-1 rounded hover:bg-yellow-600 transition-colors flex items-center"
+                          onClick={handleFileUpload}
+                          className="bg-green-500 dark:bg-green-600 text-white p-1 rounded hover:bg-green-600 dark:hover:bg-green-700 transition-colors"
                         >
-                          <Upload size={16} className="mr-1" /> Update
+                          Upload
                         </button>
-                        {uploadFileReference && uploadFileReference.reference === item.reference && (
-                          <div className="mt-2 flex items-center space-x-2">
-                            <span className="text-sm truncate max-w-[100px]">{uploadFileReference.file.name}</span>
-                            <button 
-                              onClick={handleFileUpload}
-                              className="bg-green-500 text-white p-1 rounded hover:bg-green-600 transition-colors"
-                            >
-                              Upload
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {/* Pagination */}
-              <div className="flex justify-between items-center p-4 bg-blue-50">
-                <span className="text-sm text-blue-700">
-                  Total: {type === 'incoming' ? incomingPagination.count : outgoingPagination.count}
-                </span>
-                <div className="flex space-x-2">
-                  <button 
-                    onClick={() => handlePagination(type, 'previous')}
-                    disabled={type === 'incoming' ? !incomingPagination.previous : !outgoingPagination.previous}
-                    className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-blue-300"
-                  >
-                    Previous
-                  </button>
-                  <button 
-                    onClick={() => handlePagination(type, 'next')}
-                    disabled={type === 'incoming' ? !incomingPagination.next : !outgoingPagination.next}
-                    className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-blue-300"
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-      );
-    };
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="flex justify-between items-center p-4 bg-blue-50 dark:bg-blue-900">
+            <span className="text-sm text-blue-700 dark:text-blue-200">
+              Total: {type === 'incoming' ? incomingPagination.count : outgoingPagination.count}
+            </span>
+            <div className="flex space-x-2">
+              <button 
+                onClick={() => handlePagination(type, 'previous')}
+                disabled={type === 'incoming' ? !incomingPagination.previous : !outgoingPagination.previous}
+                className="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded disabled:bg-blue-300 dark:disabled:bg-blue-800"
+              >
+                Previous
+              </button>
+              <button 
+                onClick={() => handlePagination(type, 'next')}
+                disabled={type === 'incoming' ? !incomingPagination.next : !outgoingPagination.next}
+                className="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded disabled:bg-blue-300 dark:disabled:bg-blue-800"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
   
     // Render Incoming and Outgoing Remittance Sections
     const renderIncomingRemittance = () => (
@@ -563,47 +566,49 @@ const RemittanceManagement = () => {
   
       return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
-            <div className="flex items-center justify-center mb-4 text-green-500">
-              <CheckCircle size={48} />
-            </div>
-            <h2 className="text-2xl font-bold text-center mb-4 text-green-700">Success</h2>
-            <p className="text-center mb-4">{successModal.message}</p>
-            
-            {successModal.details && (
-              <div className="bg-gray-100 p-4 rounded-md mb-4">
-                {successModal.details.benefactor && (
-                  <p>Benefactor: {successModal.details.benefactor}</p>
-                )}
-                {successModal.details.amount && (
-                  <p>Amount: ${successModal.details.amount}</p>
-                )}
-                {successModal.details.purpose && (
-                  <p>Purpose: {successModal.details.purpose}</p>
-                )}
-              </div>
-            )}
-            
-            <button 
-              onClick={() => setSuccessModal(null)}
-              className="w-full bg-blue-500 text-white p-3 rounded-md hover:bg-blue-600 transition-colors"
-            >
-              Close
-            </button>
+        <div className="bg-white dark:bg-boxdark p-6 rounded-lg shadow-xl max-w-md w-full border border-stroke dark:border-strokedark">
+          <div className="flex items-center justify-center mb-4 text-green-500 dark:text-green-400">
+            <CheckCircle size={48} />
           </div>
+          <h2 className="text-2xl font-bold text-center mb-4 text-green-700 dark:text-green-400">Success</h2>
+          <p className="text-center mb-4 text-black dark:text-white">{successModal.message}</p>
+          
+          {successModal.details && (
+            <div className="bg-gray-100 dark:bg-blue-900 p-4 rounded-md mb-4">
+              {successModal.details.benefactor && (
+                <p className="text-black dark:text-white">Benefactor: {successModal.details.benefactor}</p>
+              )}
+              {successModal.details.amount && (
+                <p className="text-black dark:text-white">Amount: ${successModal.details.amount}</p>
+              )}
+              {successModal.details.purpose && (
+                <p className="text-black dark:text-white">Purpose: {successModal.details.purpose}</p>
+              )}
+            </div>
+          )}
+          
+          <button 
+            onClick={() => setSuccessModal(null)}
+            className="w-full bg-blue-500 dark:bg-blue-600 text-white p-3 rounded-md hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors"
+          >
+            Close
+          </button>
         </div>
+      </div>
       );
     };
   
      // Main Render - Update sidebar rendering
   return (
-    <div className="min-h-screen bg-gray-100 p-4 md:p-8 relative">
+    <>
+    <Breadcrumb pageName="Remittance Management"  className="text-black dark:text-white" />
+    <div className="min-h-screen bg-gray-100 dark:bg-boxdark p-4 md:p-8 relative">
       {/* Mobile Menu Toggle */}
       <div className="md:hidden flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold text-blue-700">Remittance Management</h1>
+        <h1 className="text-2xl font-bold text-blue-700 dark:text-blue-400">Remittance Management</h1>
         <button 
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="text-blue-700"
+          className="text-blue-700 dark:text-blue-400"
         >
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
@@ -614,13 +619,13 @@ const RemittanceManagement = () => {
         {isMobileMenuOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden" onClick={() => setIsMobileMenuOpen(false)}>
             <div 
-              className="absolute top-0 left-0 w-3/4 h-full bg-white shadow-lg"
-              onClick={(e) => e.stopPropagation()} // Prevent closing when clicking on sidebar
+              className="absolute top-0 left-0 w-3/4 h-full bg-white dark:bg-boxdark shadow-lg"
+              onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-8 border-b flex justify-between items-center">
-                <h2 className="text-xl font-bold text-blue-700">Menu</h2>
+              <div className="p-8 border-b border-stroke dark:border-strokedark flex justify-between items-center">
+                <h2 className="text-xl font-bold text-blue-700 dark:text-blue-400">Menu</h2>
                 <button onClick={() => setIsMobileMenuOpen(false)}>
-                  <X size={24} className="text-blue-700" />
+                  <X size={24} className="text-blue-700 dark:text-blue-400" />
                 </button>
               </div>
               <NavButton section="create-remittance" icon={PlusCircle} />
@@ -631,24 +636,38 @@ const RemittanceManagement = () => {
         )}
 
         {/* Desktop Sidebar */}
-        <div className="hidden md:block md:w-1/5 bg-white shadow-md rounded-lg mr-4">
+        <div className="hidden md:block md:w-1/5 bg-white dark:bg-boxdark shadow-md rounded-lg mr-4 border border-stroke dark:border-strokedark">
           <NavButton section="create-remittance" icon={PlusCircle} />
           <NavButton section="incoming-remittance" icon={FileText} />
           <NavButton section="outgoing-remittance" icon={FileText} />
         </div>
 
         {/* Main Content */}
-        <div className="w-full md:w-4/5 bg-white shadow-md rounded-lg p-6">
+        <div className="w-full md:w-4/5 bg-white dark:bg-boxdark shadow-md rounded-lg p-6 border border-stroke dark:border-strokedark">
           {activeSection === 'create-remittance' && renderCreateRemittance()}
-          {activeSection === 'incoming-remittance' && renderIncomingRemittance()}
-          {activeSection === 'outgoing-remittance' && renderOutgoingRemittance()}
+          {activeSection === 'incoming-remittance' && (
+            <div className="w-full">
+              <h2 className="text-2xl mb-6 font-bold text-blue-600 dark:text-blue-400 text-center flex items-center justify-center">
+                <FileText className="mr-2" /> Incoming Remittance
+              </h2>
+              {renderTable(incomingRemittances, 'incoming')}
+            </div>
+          )}
+          {activeSection === 'outgoing-remittance' && (
+            <div className="w-full">
+              <h2 className="text-2xl mb-6 font-bold text-blue-600 dark:text-blue-400 text-center flex items-center justify-center">
+                <FileText className="mr-2" /> Outgoing Remittance
+              </h2>
+              {renderTable(outgoingRemittances, 'outgoing')}
+            </div>
+          )}
         </div>
       </div>
   
         {/* Error Message */}
         {errorMessage && (
-          <div className="fixed top-4 right-4 bg-red-500 text-white p-4 rounded-lg shadow-xl flex items-center">
-            <XCircle className="mr-2" />
+          <div className="fixed top-4 right-4 bg-red-500 dark:bg-red-600 text-white p-4 rounded-lg shadow-xl flex items-center">
+          <XCircle className="mr-2" />
             {errorMessage}
           </div>
         )}
@@ -657,6 +676,7 @@ const RemittanceManagement = () => {
         <SuccessModal />
   
       </div>
+      </>
     );
   };
   

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Menu, X, FileText, PlusCircle, CheckCircle, XCircle, Upload } from 'lucide-react';
+import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 
 const ExpensesManagement = () => {
   // State variables
@@ -461,6 +462,8 @@ const formatDate = (dateString, prefix = '') => {
   };
 
   return (
+    <>
+    <Breadcrumb pageName="Expenses Management"  className="text-black dark:text-white" />
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-black dark:text-white">
     {/* Mobile Header */}
     <div className="md:hidden bg-white dark:bg-boxdark shadow-md p-4 flex justify-between items-center">
@@ -548,6 +551,8 @@ const formatDate = (dateString, prefix = '') => {
       )}
 
     </div>
+
+    </>
   );
 };
 

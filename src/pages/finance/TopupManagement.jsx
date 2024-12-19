@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Menu, X, FileText, PlusCircle, CheckCircle, XCircle, Upload, DollarSign } from 'lucide-react';
+import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 
 const TopupManagement = () => {
   // State Variables
@@ -110,8 +111,8 @@ const TopupManagement = () => {
       }}
       className={`w-full p-3 text-left flex items-center ${
         activeSection === section 
-          ? 'bg-blue-500 text-white' 
-          : 'hover:bg-blue-100 text-blue-700'
+          ? 'bg-blue-500 text-white dark:bg-blue-600' 
+          : 'hover:bg-blue-100 text-blue-700 dark:text-blue-400 dark:hover:bg-boxdark'
       }`}
     >
       <Icon className="mr-2" /> 
@@ -122,23 +123,23 @@ const TopupManagement = () => {
   // Success Modal Component
   const SuccessModal = ({ message, details, onClose }) => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
-        <div className="text-center">
+            <div className="bg-white dark:bg-boxdark p-6 rounded-lg shadow-xl max-w-md w-full">
+              <div className="text-center">
           <CheckCircle className="mx-auto mb-4 text-green-500" size={48} />
-          <h2 className="text-xl font-bold mb-4">{message}</h2>
+          <h2 className="text-xl font-bold mb-4 text-black dark:text-white">{message}</h2>
           
           {details && (
-            <div className="bg-gray-100 p-4 rounded-md mb-4">
-              <p><strong>Account:</strong> {details.accountName}</p>
-              <p><strong>Amount:</strong> ${details.amount}</p>
-              <p><strong>Purpose:</strong> {details.purpose}</p>
+            <div className="bg-gray-100 dark:bg-boxdark p-4 rounded-md mb-4">
+            <p className="text-black dark:text-white"><strong>Account:</strong> {details.accountName}</p>
+            <p className="text-black dark:text-white"><strong>Amount:</strong> ${details.amount}</p>
+            <p className="text-black dark:text-white"><strong>Purpose:</strong> {details.purpose}</p>
             </div>
           )}
           
           <button 
             onClick={onClose} 
-            className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-colors"
-          >
+            className="bg-blue-500 dark:bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors"
+                >
             Close
           </button>
         </div>
@@ -153,13 +154,13 @@ const TopupManagement = () => {
 
   // Render Create Topup Section
   const renderCreateTopup = () => (
-    <div className="w-full max-w-md mx-auto bg-white shadow-md rounded-lg p-6">
-      <h2 className="text-2xl mb-6 font-bold text-blue-600 text-center flex items-center justify-center">
-        <PlusCircle className="mr-2" /> Create Topup Request
-      </h2>
+    <div className="w-full max-w-md mx-auto bg-white dark:bg-boxdark shadow-md rounded-lg p-6">
+    <h2 className="text-2xl mb-6 font-bold text-blue-600 dark:text-blue-400 text-center flex items-center justify-center">
+      <PlusCircle className="mr-2" /> Create Topup Request
+    </h2>
       
       {errorMessage && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+        <div className="bg-red-100 dark:bg-red-900 border border-red-400 text-red-700 dark:text-red-300 px-4 py-3 rounded relative mb-4" role="alert">
           <span className="block sm:inline">{errorMessage}</span>
         </div>
       )}
@@ -171,8 +172,8 @@ const TopupManagement = () => {
             setSelectedAccount(e.target.value);
             setErrorMessage(null);
           }}
-          className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500 transition-all"
-        >
+          className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500 transition-all dark:bg-form-input dark:border-form-strokedark dark:text-white"
+          >
           <option value="">Select Account</option>
           {accounts.map(account => (
             <option key={account.code} value={account.code}>
@@ -191,7 +192,7 @@ const TopupManagement = () => {
             setTopupAmount(value);
             setErrorMessage(null);
           }}
-          className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500 transition-all"
+          className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500 transition-all dark:bg-form-input dark:border-form-strokedark dark:text-white"
         />
 
         <input 
@@ -202,15 +203,15 @@ const TopupManagement = () => {
             setTopupPurpose(e.target.value);
             setErrorMessage(null);
           }}
-          className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500 transition-all"
+          className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500 transition-all dark:bg-form-input dark:border-form-strokedark dark:text-white"
         />
 
         <div className="flex items-center space-x-4">
           <input 
             type="file" 
             onChange={(e) => setTopupFile(e.target.files[0])}
-            className="flex-grow file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-          />
+            className="flex-grow file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700 dark:file:bg-boxdark dark:file:text-blue-400 hover:file:bg-blue-100"
+            />
         </div>
 
         <button 
@@ -218,8 +219,8 @@ const TopupManagement = () => {
           disabled={isLoading}
           className={`w-full text-white p-3 rounded-md transition-colors flex items-center justify-center ${
             isLoading 
-              ? 'bg-blue-300 cursor-not-allowed' 
-              : 'bg-blue-500 hover:bg-blue-600'
+              ? 'bg-blue-300 dark:bg-blue-800 cursor-not-allowed' 
+              : 'bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700'
           }`}
         >
           <PlusCircle className="mr-2" /> {isLoading ? 'Processing...' : 'Create Topup Request'}
@@ -713,21 +714,39 @@ const TopupManagement = () => {
     </div>
   );
 
+
+  // Table components with dark mode
+  const TableHeader = ({ children }) => (
+    <th className="p-3 text-left text-xs font-medium text-blue-700 dark:text-blue-400 uppercase tracking-wider bg-blue-50 dark:bg-boxdark">
+      {children}
+    </th>
+  );
+
+  const TableCell = ({ children, className = "" }) => (
+    <td className={`p-3 dark:text-white ${className}`}>
+      {children}
+    </td>
+  );
+
+  const TableRow = ({ children }) => (
+    <tr className="border-b dark:border-strokedark hover:bg-gray-50 dark:hover:bg-boxdark transition-colors">
+      {children}
+    </tr>
+  );
   
 
   // Main Render
   return (
-    <div className="min-h-screen bg-gray-100 p-4 md:p-8 relative">
-      {/* Mobile Menu Toggle */}
-      <div className="md:hidden flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold text-blue-700">Topup Management</h1>
-          <button onClick={toggleMobileMenu} className="text-blue-700">
+    <>
+    <Breadcrumb pageName="Topup Management"  className="text-black dark:text-white" />
+    <div className="min-h-screen bg-gray-100 dark:bg-boxdark p-4 md:p-8 relative">
+        {/* Mobile Menu Toggle */}
+        <div className="md:hidden flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold text-blue-700 dark:text-blue-400">Topup Management</h1>
+          <button onClick={toggleMobileMenu} className="text-blue-700 dark:text-blue-400">
             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
-     
-
-
 
         <div className="flex">
         {/* Sidebar Navigation - Updated for overlay on mobile */}
@@ -768,7 +787,7 @@ const TopupManagement = () => {
         )}
 
         {/* Desktop Sidebar */}
-        <div className="hidden md:block md:w-1/5 bg-white shadow-md rounded-lg mr-4">
+        <div className="hidden md:block md:w-1/5 bg-white dark:bg-boxdark shadow-md rounded-lg mr-4">
         <NavButton 
             section="create-topup" 
             icon={PlusCircle} 
@@ -795,7 +814,7 @@ const TopupManagement = () => {
 
         {/* Main Content */}
          {/* Render Sections */}
-        <div className="w-full md:w-4/5 bg-white shadow-md rounded-lg p-6">  
+         <div className="w-full md:w-4/5 bg-white dark:bg-boxdark shadow-md rounded-lg p-6">
         {activeSection === 'create-topup' && renderCreateTopup()}
         {activeSection === 'topup-list' && renderTopupList()}
         {activeSection === 'approved-topup' && renderApprovedTopup()}
@@ -806,7 +825,7 @@ const TopupManagement = () => {
   
         {/* Error Message */}
         {errorMessage && (
-          <div className="fixed top-4 right-4 bg-red-500 text-white p-4 rounded-lg shadow-xl flex items-center">
+            <div className="fixed top-4 right-4 bg-red-500 dark:bg-red-600 text-white p-4 rounded-lg shadow-xl flex items-center">
             <XCircle className="mr-2" />
             {errorMessage}
           </div>
@@ -822,6 +841,8 @@ const TopupManagement = () => {
         )} 
   
       </div>
+
+      </>
   )
 }
 
