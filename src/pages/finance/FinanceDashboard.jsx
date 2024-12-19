@@ -23,6 +23,13 @@ const FinanceDashboard = () => {
    // State for default account
    const [selectedDefaultAccount, setSelectedDefaultAccount] = useState('');
 
+
+   const [fundPendingCount, setFundPendingCount] = useState(0);
+  const [remittancePendingCount, setRemittancePendingCount] = useState(0);
+  const [expensesPendingCount, setExpensesPendingCount] = useState(0);
+  const [topupPendingCount, setTopupPendingCount] = useState(0);
+
+
   // State for dashboard data
   const [expenses, setExpenses] = useState(0);
 
@@ -41,6 +48,136 @@ const [isUpdatingAccount, setIsUpdatingAccount] = useState(false);
  // Add new state for verified account details
  const [verifiedAccountDetails, setVerifiedAccountDetails] = useState(null);
 //  const [isVerifyingAccount, setIsVerifyingAccount] = useState(false);
+
+
+// Add new fetch functions for pending approvals
+const fetchFundPendingApprovals = async () => {
+  try {
+    const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/fund/outgoing/');
+    const pendingCount = response.data.results.filter(
+      item => item.status !== 'APPROVED' && item.status !== 'DECLINED'
+    ).length;
+    setFundPendingCount(pendingCount);
+  } catch (error) {
+    console.error('Error fetching fund pending approvals:', error);
+    setFundPendingCount(0);
+  }
+};
+
+const fetchRemittancePendingApprovals = async () => {
+  try {
+    const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/remittance/outgoing/');
+    const pendingCount = response.data.results.filter(
+      item => item.status !== 'APPROVED' && item.status !== 'DECLINED'
+    ).length;
+    setRemittancePendingCount(pendingCount);
+  } catch (error) {
+    console.error('Error fetching remittance pending approvals:', error);
+    setRemittancePendingCount(0);
+  }
+};
+
+const fetchExpensesPendingApprovals = async () => {
+  try {
+    const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/expense/list/');
+    const pendingCount = response.data.results.filter(
+      item => item.status !== 'APPROVED' && item.status !== 'DECLINED'
+    ).length;
+    setExpensesPendingCount(pendingCount);
+  } catch (error) {
+    console.error('Error fetching expenses pending approvals:', error);
+    setExpensesPendingCount(0);
+  }
+};
+
+const fetchTopupPendingApprovals = async () => {
+  try {
+    const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/topup/list/');
+    const pendingCount = response.data.results.filter(
+      item => item.status !== 'APPROVED' && item.status !== 'DECLINED'
+    ).length;
+    setTopupPendingCount(pendingCount);
+  } catch (error) {
+    console.error('Error fetching topup pending approvals:', error);
+    setTopupPendingCount(0);
+  }
+};
+
+// Define fetch functions
+const fetchAccounts = async () => {
+  try {
+    const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/');
+    setAccounts(response.data.results);
+    
+    // Set default account if exists
+    const defaultAccount = response.data.results.find(account => account.is_default);
+    if (defaultAccount) {
+      setSelectedAccount(defaultAccount);
+      setAccountDetails(defaultAccount);
+    }
+    return response.data.results;
+  } catch (error) {
+    console.error('Error fetching accounts:', error);
+    showMessage('error', 'Error fetching accounts');
+    return [];
+  }
+};
+
+const fetchBanks = async () => {
+  try {
+    const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/banks/');
+    setBanks(response.data.banks);
+  } catch (error) {
+    console.error('Error fetching banks:', error);
+    showMessage('error', 'Error fetching banks');
+  }
+};
+
+
+
+// Modify useEffect to include new fetch calls
+useEffect(() => {
+  const fetchAllData = async () => {
+    setIsLoading(true);
+    try {
+
+      // First fetch accounts to get initial data
+      await fetchAccounts();
+
+        // First fetch accounts to get initial data
+        const accountsResponse = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/');
+        setAccounts(accountsResponse.data.results);
+        
+        // Set default account if exists
+        const defaultAccount = accountsResponse.data.results.find(account => account.is_default);
+        if (defaultAccount) {
+          setSelectedAccount(defaultAccount);
+          // Set initial balance for the cards
+          setAccountDetails(defaultAccount);
+        }
+
+        // Fetch other data in parallel
+        await Promise.all([
+          fetchAccounts(),
+          fetchBanks(),
+          fetchExpenses(),
+          fetchTransactions(),
+          fetchFundPendingApprovals(),
+          fetchRemittancePendingApprovals(),
+          fetchExpensesPendingApprovals(),
+          fetchTopupPendingApprovals()
+        ]);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        showMessage('error', 'Error loading dashboard data');
+      } finally {
+        setIsLoading(false); // Set loading to false after all fetches complete
+      }
+    };
+    
+  fetchAllData();
+}, []);
+
 
  // New function to verify account details
  const verifyDefaultAccountDetails = async () => {
@@ -128,7 +265,6 @@ const handleErrorMessage = (error) => {
     fetchAccounts();
     fetchBanks();
     fetchExpenses();
-    fetchPendingApprovals();
     fetchTransactions();
   }, []);
 
@@ -160,16 +296,6 @@ const handleErrorMessage = (error) => {
   }
 };
 
-  // Fetch pending approvals
-  const fetchPendingApprovals = async () => {
-    try {
-      const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/approvals/');
-      setPendingApprovals(response.data.results);
-    } catch (error) {
-      const errorMsg = error.response?.data?.non_field_errors?.[0] || 'Error fetching pending approvals';
-      showMessage('error', errorMsg);
-    }
-  };
 
    // Fetch transactions
    // Update the fetch function
@@ -184,11 +310,20 @@ const fetchTransactions = async () => {
 };
 
   // Handle account selection
-  const handleAccountSelect = (e) => {
+  const handleAccountSelect = async (e) => {
     const selectedCode = e.target.value;
-    const account = accounts.find(acc => acc.code === selectedCode);
-    setSelectedAccount(account);
-    fetchAccountDetails(selectedCode);
+    try {
+      setIsLoading(true);
+      const response = await axios.get(`https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedCode}/`);
+      const account = response.data;
+      setSelectedAccount(account);
+      setAccountDetails(account);
+    } catch (error) {
+      console.error('Error fetching account details:', error);
+      showMessage('error', 'Error fetching account details');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Verify account details for update
@@ -267,6 +402,17 @@ const fetchTransactions = async () => {
     <>
     <Breadcrumb pageName="Account Management"  className="text-black dark:text-white" />
     
+     {/* Loading Overlay - Modified for better visibility */}
+     {isLoading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-boxdark p-6 rounded-lg shadow-xl">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            <p className="mt-4 text-black dark:text-white">Loading...</p>
+          </div>
+        </div>
+      )}
+
+
     <div className="container mx-auto px-4 py-6">
       {/* Message Handling */}
       {successMessage && (
@@ -288,27 +434,28 @@ const fetchTransactions = async () => {
           </h2>
           <select 
             onChange={handleAccountSelect}
+            value={selectedAccount?.code || ''}
             className="w-full rounded border border-stroke bg-white dark:border-strokedark dark:bg-boxdark p-2 mt-2 text-black dark:text-white"
-          >
-          <option value="" disabled selected>Select Account</option>
-          {accounts.map(account => (
-            <option key={account.code} value={account.code}>
-              {account.account_name} - {account.bank_name}
-            </option>
-          ))}
-        </select>
-      </div>
+            >
+            <option value="" disabled>Select Account</option>
+            {accounts.map(account => (
+              <option key={account.code} value={account.code}>
+                {account.account_name} - {account.bank_name}
+              </option>
+            ))}
+          </select>
+        </div>
 
       <div className="p-6 bg-blue-50 dark:bg-boxdark">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            <Cards title="Monthly Expenses"  value={`₦${expenses.toFixed(2)}` || '₦0.00'}  bgColor="bg-gradient-to-r from-orange-300 to-red-400" onTimePeriodChange={(period) => handleTimePeriodChange(period, 'Expenses')}  />
-            <Cards title="Monthly Income" value={`₦${accountDetails?.balance} `|| '₦0.00'} bgColor="bg-gradient-to-r from-blue-300 to-blue-500" onTimePeriodChange={(period) => handleTimePeriodChange(period, 'Income')} />
-            <Cards title="Account Balance" value={`₦${accountDetails?.balance} `|| '₦0.00'} icon="💰" bgColor="bg-gradient-to-r from-green-300 to-teal-500" />
-            <Cards title="Transaction History" value="0" icon="📜" bgColor="bg-gradient-to-r from-yellow-300 to-yellow-500" />
-            <Cards title="Fund Pending Approvals" value="0" icon="⏳" bgColor="bg-gradient-to-r from-pink-300 to-purple-400" />
-            <Cards title="Remittance Pending Approvals" value="0" icon="⏳" bgColor="bg-gradient-to-r from-cyan-300 to-sky-400" />
-            <Cards title="Expenses Pending Approvals" value="0" icon="⏳" bgColor="bg-gradient-to-r from-lime-300 to-green-400" />
-            <Cards title="TopUp Pending Approvals" value="0" icon="⏳" bgColor="bg-gradient-to-r from-amber-300 to-orange-400" />
+           <Cards title="Monthly Expenses" value={`₦${expenses.toFixed(2)}` || '₦0.00'} bgColor="bg-gradient-to-r from-orange-300 to-red-400" onTimePeriodChange={(period) => handleTimePeriodChange(period, 'Expenses')} />
+            <Cards title="Monthly Income" value={`₦${accountDetails?.balance || '0.00'}`} bgColor="bg-gradient-to-r from-blue-300 to-blue-500" onTimePeriodChange={(period) => handleTimePeriodChange(period, 'Income')} />
+            <Cards title="Account Balance" value={`₦${accountDetails?.balance || '0.00'}`} icon="💰" bgColor="bg-gradient-to-r from-green-300 to-teal-500" />
+            <Cards title="Transaction History" value={transactions.length.toString()} icon="📜" bgColor="bg-gradient-to-r from-yellow-300 to-yellow-500" />
+            <Cards title="Fund Pending Approvals" value={fundPendingCount.toString()} icon="⏳" bgColor="bg-gradient-to-r from-pink-300 to-purple-400" />
+            <Cards title="Remittance Pending Approvals" value={remittancePendingCount.toString()} icon="⏳" bgColor="bg-gradient-to-r from-cyan-300 to-sky-400" />
+            <Cards title="Expenses Pending Approvals" value={expensesPendingCount.toString()} icon="⏳" bgColor="bg-gradient-to-r from-lime-300 to-green-400" />
+            <Cards title="TopUp Pending Approvals" value={topupPendingCount.toString()} icon="⏳" bgColor="bg-gradient-to-r from-amber-300 to-orange-400" />
           </div>
         </div>
 

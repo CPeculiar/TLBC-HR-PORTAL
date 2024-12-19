@@ -46,6 +46,8 @@ import RemittanceManagement from './pages/finance/RemittanceManagement';
 import TopupManagement from './pages/finance/TopupManagement';
 import OnboardUser from './pages/User Management/OnboardUser';
 import DeleteUser from './pages/User Management/DeleteUser';
+import UserPermissions from './pages/User Management/UserPermissions';
+import UserSearchAdmin from './pages/User Management/UserSearchAdmin';
 
 
 
@@ -174,6 +176,8 @@ function App() {
       
       <Route path="/onboardUser" element={withDefaultLayout(<OnboardUser />, "Onboard New User")} />
       <Route path="/deleteUser" element={withDefaultLayout(<DeleteUser />, "Delete User")} />
+      <Route path="/userPermissions" element={withDefaultLayout(<UserPermissions />, "User Permissions")} />
+      <Route path="/userSearchAdmin" element={withDefaultLayout(<UserSearchAdmin />, "Admin User Search")} />
 
 
       <Route path="/transactions" element={withDefaultLayout(<Transactions />, "Create Church Account")} />

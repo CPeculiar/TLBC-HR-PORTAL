@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
-import { Eye, X, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Eye, X, Search, ChevronLeft, ChevronRight, Edit } from "lucide-react";
 import User from '../../images/user/user-09.png'
-import UserProfileCard from './UserProfileCard';
+import UserProfileCard from '../community/UserProfileCard';
 
-const UserSearchPage = () => {
+const UserSearchAdmin = ({  deleteUser }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
   const [users, setUsers] = useState([]);
@@ -14,6 +14,12 @@ const UserSearchPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);  // Track modal visibility
+  const [deleting, setDeleting] = useState(false); // State to track deleting status
+  const [deletionMessage, setDeletionMessage] = useState(''); // State to track success or error message
+  const [messageType, setMessageType] = useState(''); // 'success' or 'error'
+  const [userToDelete, setUserToDelete] = useState(null); // State to track which user is being deleted
+ 
   const navigate = useNavigate();
 
   const primaryColor = '#3c50e0';
@@ -92,6 +98,48 @@ const UserSearchPage = () => {
     showProfileCard
   };
 
+  const handleDelete = async () => {
+    setDeleting(true); // Set deleting state to true
+    setDeletionMessage('');
+
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+      const response = await axios.delete(
+        `https://tlbc-platform-api.onrender.com/api/users/${userToDelete.email}/`,
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
+
+     setMessageType('success');
+      setDeletionMessage('User deleted successfully');
+      setDeleteSuccess(true);
+      
+      // Set timeout to close modal and refresh data
+      setTimeout(() => {
+        setConfirmDelete(false);
+        setDeletionMessage('');
+        setDeleteSuccess(false);
+        fetchUsers(currentPage);
+      }, 2000);
+
+    } catch (error) {
+      setMessageType('error');
+      if (error.response?.data?.detail) {
+        setDeletionMessage(error.response.data.detail);
+      } else {
+        setDeletionMessage('An error occurred while deleting the user');
+      }
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleEdit = (user) => {
+    // Edit action is just a placeholder for now
+    console.log('Edit user:', user);
+  };
+  
    // Render error message if fetch fails
    if (error) {
     return (
@@ -104,7 +152,7 @@ const UserSearchPage = () => {
 
   return (
     <>
-    <Breadcrumb pageName="Search Members"  className="text-black dark:text-white" />
+    <Breadcrumb pageName="Admin User Search"  className="text-black dark:text-white" />
 
     <div
      className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-6 bg-white dark:bg-boxdark"
@@ -150,14 +198,14 @@ const UserSearchPage = () => {
         </div>
 
         {/* Advanced Search Button - Full width on mobile */}
-        {/* <div>
+        <div>
           <button
              className="w-full rounded-md px-4 py-2 text-sm font-medium text-white hover:bg-secondary transition-colors duration-300 bg-primary"
             onClick={() => navigate("/AdvancedUserSearchPage")}
           >
             Advanced Search
           </button>
-        </div> */}
+        </div>
       </div>
 
       {/* Results Table with Responsive Design */}
@@ -169,7 +217,7 @@ const UserSearchPage = () => {
             <table className="w-full min-w-[800px] divide-y divide-gray-200 dark:divide-strokedark">
               <thead>
                 <tr>
-                  {['Profile', 'Name', 'Phone', 'Email', 'Gender', 'Church', 'Action'].map((header) => (
+                  {['Profile', 'Name', 'Phone', 'Email', 'Gender', 'Church', 'View', 'Edit', 'Delete'].map((header) => (
                     <th
                       key={header}
                       className="px-4 py-3 bg-primary text-white text-left text-xs font-medium uppercase tracking-wider dark:text-white"
@@ -184,7 +232,7 @@ const UserSearchPage = () => {
                 {users.length === 0 && searchTerm.trim() !== '' ? (
                   <tr>
                     <td
-                      colSpan={7}
+                      colSpan={9}
                       className="px-4 py-3 text-center text-red-500"
                       style={{ color: 'red' }}
                     >
@@ -218,6 +266,26 @@ const UserSearchPage = () => {
                           <Eye size={18} />
                         </button>
                       </td>
+                      <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-base text-black dark:text-white">
+                          <a
+                            href="#"
+                            onClick={() => handleEdit(user)}
+                            className="text-sm text-primary hover:text-secondary transition-all"
+                            >
+                            <Edit size={18} />
+                          </a>
+                        </td>
+                        <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-base text-black dark:text-white">
+                          <button
+                            onClick={() => {
+                              setUserToDelete(user);
+                              setConfirmDelete(true);
+                            }}
+                            className="text-white bg-red-500 hover:bg-red-800 px-4 py-2 rounded"
+                          >
+                            Delete
+                          </button>
+                        </td>
                     </tr>
                   ))
                 )}
@@ -250,6 +318,7 @@ const UserSearchPage = () => {
               disabled={currentPage === 1 || isLoading}
               style={{ backgroundColor: currentPage === 1 || isLoading ? '#ccc' : primaryColor }}
             >
+            <ChevronLeft size={18} />
               Previous
             </button>
             <button
@@ -261,12 +330,78 @@ const UserSearchPage = () => {
               style={{ backgroundColor: currentPage === totalPages || isLoading ? '#ccc' : primaryColor }}
             >
               Next
+              <ChevronRight size={18} />
             </button>
           </div>
         </div>
       )} 
     </div>
 
+    {/* Confirm Delete Modal */}
+    {confirmDelete && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+            {!deleteSuccess && (
+              <button
+                onClick={() => {
+                  setConfirmDelete(false);
+                  setDeletionMessage('');
+                }}
+                className="absolute top-2 right-2 text-gray-500 hover:text-black"
+              >
+                <X size={18} />
+              </button>
+            )}
+            
+            {!deleteSuccess && !deleting && (
+              <>
+                <h3 className="text-xl font-semibold">Confirm Deletion</h3>
+                <p className="my-4">Are you sure you want to delete this user?</p>
+                <div className="flex justify-end space-x-4">
+                  <button
+                    onClick={() => {
+                      setConfirmDelete(false);
+                      setDeletionMessage('');
+                    }}
+                    className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleDelete}
+                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </>
+            )}
+
+            {deleting && (
+              <div className="text-center">
+                <h3 className="text-xl font-semibold mb-4">Deleting User</h3>
+                <div className="text-center text-sm text-gray-500">Deleting...</div>
+              </div>
+            )}
+
+            {deleteSuccess && (
+              <div className="text-center">
+                <h3 className="text-xl font-semibold mb-4">Success</h3>
+                <div className="text-green-600">
+                  {deletionMessage}
+                </div>
+              </div>
+            )}
+
+            {!deleteSuccess && !deleting && messageType === 'error' && deletionMessage && (
+              <div className="mt-4 text-center text-sm text-red-600">
+                {deletionMessage}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+      
     {selectedUser && (
       <UserProfileCard user={selectedUser} onClose={() => setSelectedUser(null)} />
     )}
@@ -274,4 +409,4 @@ const UserSearchPage = () => {
   );
 };
 
-export default UserSearchPage;
+export default UserSearchAdmin;

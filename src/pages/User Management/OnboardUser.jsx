@@ -24,9 +24,6 @@ const OnboardUser = () => {
   const navigate = useNavigate();
 
 
-
-  const [error, setError] = useState('');  //remove later
-
    // Effect to check password match in real-time
    useEffect(() => {
     if (formData.password || formData.retypepassword) {
@@ -163,11 +160,28 @@ const OnboardUser = () => {
       }
     } catch (error) {
       console.error("Error details:", error);
-      setErrors({ submit: "Failed to add user. Please try again." });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Handle API validation errors
+  if (error.response && error.response.data) {
+    const apiErrors = error.response.data;
+    const formattedErrors = {};
+    
+    // Format API errors for each field
+    Object.keys(apiErrors).forEach(field => {
+      if (Array.isArray(apiErrors[field])) {
+        formattedErrors[field] = apiErrors[field][0]; // Take first error message
+      } else {
+        formattedErrors[field] = apiErrors[field];
+      }
+    });
+    
+    setErrors(formattedErrors);
+  } else {
+    setErrors({ submit: "Failed to add user. Please try again." });
+  }
+} finally {
+  setIsLoading(false);
+}
+};
   
   const validatePhone = (phone) => {
     const re = /^\d{11}$/;
