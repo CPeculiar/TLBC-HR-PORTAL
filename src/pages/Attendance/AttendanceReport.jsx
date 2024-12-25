@@ -276,6 +276,21 @@ const formatDate = (dateString) => {
   return `${day}/${month}/${year}`;
 };
 
+
+ // Modified Status Cell Component for better dark mode visibility
+ const StatusCell = ({ active }) => (
+  <span
+    className={`px-2 py-1 rounded-full text-xs ${
+      active
+        ? 'bg-green-200 text-green-800 dark:bg-green-900 dark:text-green-300'
+        : 'bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-300'
+    }`}
+  >
+    {active ? 'Active' : 'Inactive'}
+  </span>
+);
+
+
   return (
     <>
       <Breadcrumb pageName="Attendance Report"  className="text-black dark:text-white"  />
@@ -386,16 +401,8 @@ const formatDate = (dateString) => {
                             <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-black dark:text-white">
                             {formatDate(attendance.created_at || 'N/A')}
                             </td>
-                            <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-black dark:text-white">
-                              <span
-                                className={`px-2 py-1 rounded-full text-xs  text-black dark:text-white ${
-                                  attendance.active
-                                    ? 'bg-green-100 text-green-800 dark:text-white'
-                                    : 'bg-red-100 text-red-800 dark:text-white'
-                                }`}
-                              >
-                                {attendance.active ? 'Active' : 'Inactive'}
-                              </span>
+                            <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm">
+                                <StatusCell active={attendance.active} />
                             </td>
                             <td className="px-4 py-2 text-center  text-black dark:text-white">
                               <button
@@ -404,10 +411,8 @@ const formatDate = (dateString) => {
                                     'Captured ref_code:',
                                     attendance.ref_code,
                                   );
-                                  // getAttendanceDetails(attendance.ref_code)
                                   handleAttendanceDetails(attendance.ref_code);
                                 }}
-                                // className="text-blue-600 hover:text-blue-800"
                                 className="mt-4 flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
                               >
                                 <Eye size={18} />
@@ -543,17 +548,9 @@ const formatDate = (dateString) => {
                                 <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-black dark:text-white">
                             {formatDate(attendance.created_at || 'N/A')}
                             </td>
-                                <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
-                                  <span
-                                    className={`px-2 py-1 rounded-full text-xs text-black dark:text-white ${
-                                      attendance.active
-                                        ? 'bg-green-100 text-green-800 dark:text-white'
-                                        : 'bg-red-100 text-red-800 dark:text-white'
-                                    }`}
-                                  >
-                                    {attendance.active ? 'Active' : 'Inactive'}
-                                  </span>
-                                </td>
+                            <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm">
+                                <StatusCell active={attendance.active} />
+                            </td>
                                 <td className="px-4 py-2 text-center text-black dark:text-white">
                                   <button
                                     onClick={() => {
@@ -703,17 +700,9 @@ const formatDate = (dateString) => {
                                 <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-black dark:text-white">
                             {formatDate(attendance.created_at || 'N/A')}
                             </td>
-                                <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
-                                  <span
-                                    className={`px-2 py-1 rounded-full text-xs text-black dark:text-white ${
-                                      attendance.active
-                                        ? 'bg-green-100 text-green-800 dark:text-white'
-                                        : 'bg-red-100 text-red-800 dark:text-white'
-                                    }`}
-                                  >
-                                    {attendance.active ? 'Active' : 'Inactive'}
-                                  </span>
-                                </td>
+                            <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm">
+                                <StatusCell active={attendance.active} />
+                            </td>
                                 <td className="px-4 py-2 text-center text-black dark:text-white">
                                   <button
                                     onClick={() => {

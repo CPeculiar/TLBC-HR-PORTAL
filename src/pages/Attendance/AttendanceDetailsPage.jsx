@@ -348,6 +348,19 @@ const formatDate = (dateString) => {
         );
     }
 
+    // Modified Status Cell Component for better dark mode visibility
+ const StatusCell = ({ active }) => (
+    <span
+      className={`inline-block px-2 py-1 rounded-full text-xs self-start ${
+        active
+          ? 'bg-green-200 text-green-800 dark:bg-green-900 dark:text-green-300'
+          : 'bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-300'
+      }`}
+    >
+      {active ? 'Active' : 'Inactive'}
+    </span>
+  );
+
     return (
         <div className="container mx-auto px-4 py-6 space-y-6 dark:bg-boxdark dark:text-white">
         {/* Attendance Details Card */}
@@ -383,13 +396,11 @@ const formatDate = (dateString) => {
                 </div>
                 <div className="flex flex-col">
                     <p className="text-sm text-gray-500 dark:text-gray-400">Status</p>
-                    <span className={`inline-block px-2 py-1 rounded-full text-xs self-start ${
-                        selectedAttendance.active 
-                            ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' 
-                            : 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100'
-                    }`}>
-                        {selectedAttendance.active ? 'Active' : 'Inactive'}
-                    </span>
+                    
+
+                    <p className="font-semibold text-black">
+                                <StatusCell active={selectedAttendance.active} />
+                            </p>
                 </div>
             </div>
         </Card>
