@@ -500,6 +500,54 @@ const formatDate = (dateString) => {
                 )}
             </div>
 
+             {/* Returning Visitors Table */}
+             <div className="bg-white shadow-md rounded-lg p-4 md:p-6 dark:bg-boxdark dark:border dark:border-strokedark">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 space-y-2 md:space-y-0">
+                    <h2 className="text-lg md:text-xl font-semibold flex flex-col md:flex-row items-start md:items-center text-black dark:text-white">
+                        Returning Visitors' List 
+                        <span className="ml-0 md:ml-2 text-sm text-gray-500 dark:text-gray-400">
+                            (Total: {selectedAttendance.returnees.count})
+                        </span>
+                    </h2>
+                    <button 
+                        onClick={() => downloadTableAsPDF('newcomers')}
+                        className="flex items-center bg-primary text-white px-3 py-2 rounded hover:bg-opacity-90 self-start md:self-auto"
+                    >
+                        <Download className="mr-2 h-4 w-4" /> Download PDF
+                    </button>
+                </div>
+                {selectedAttendance.returnees.count === 0 ? (
+                    <p className="text-center text-gray-500 dark:text-gray-400">No Returning Newcomer recorded</p>
+                ) : (
+                    <div className="overflow-x-auto">
+                        <table className="w-full min-w-[700px]">
+                            <thead className="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th className="px-2 py-2 text-left text-gray-600 dark:text-gray-300">First Name</th>
+                                    <th className="px-2 py-2 text-left text-gray-600 dark:text-gray-300">Last Name</th>
+                                    <th className="px-2 py-2 text-left text-gray-600 dark:text-gray-300">Email</th>
+                                    <th className="px-2 py-2 text-left text-gray-600 dark:text-gray-300">Gender</th>
+                                    <th className="px-2 py-2 text-left text-gray-600 dark:text-gray-300">Address</th>
+                                    <th className="px-2 py-2 text-left text-gray-600 dark:text-gray-300">Phone Number</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {selectedAttendance.returnees.data.map((returnees, index) => (
+                                    <tr key={index} className="border-b dark:border-gray-700">
+                                        <td className="px-2 py-2 text-black dark:text-white">{returnees.first_name || 'N/A'}</td>
+                                        <td className="px-2 py-2 text-black dark:text-white">{returnees.last_name || 'N/A'}</td>
+                                        <td className="px-2 py-2 text-black dark:text-white">{returnees.email || 'N/A'}</td>
+                                        <td className="px-2 py-2 text-black dark:text-white">{returnees.gender || 'N/A'}</td>
+                                        <td className="px-2 py-2 text-black dark:text-white">{returnees.address || 'N/A'}</td>
+                                        <td className="px-2 py-2 text-black dark:text-white">{returnees.phone_number || 'N/A'}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </div>
+
             {/* Attendance Options */}
             <div className="p-4 md:p-6">
                 <div className="mx-auto max-w-5xl">
@@ -570,7 +618,7 @@ const formatDate = (dateString) => {
 
                 {/* Success Alert with Automatic Timeout */}
                 {updateSuccess && (
-                    <div className="p-4 transition-opacity duration-500 ease-in-out">
+                    <div className="p-4 transition-opacity duration-500 ease-in-out text-green-500">
                         <Alert variant="success">
                             {updateSuccess}
                         </Alert>
@@ -579,7 +627,7 @@ const formatDate = (dateString) => {
                 
                {/* Error Alert with Automatic Timeout */}
                 {updateError && (
-                    <div className="p-4 transition-opacity duration-500 ease-in-out">
+                    <div className="p-4 transition-opacity duration-500 ease-in-out text-red-600">
                         <Alert variant="destructive">
                             {updateError}
                         </Alert>

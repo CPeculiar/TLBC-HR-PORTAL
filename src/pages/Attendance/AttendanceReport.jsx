@@ -44,6 +44,11 @@ const AttendanceReport = () => {
     next: null,
     previous: null,
   });
+  const [centralAttendanceList, setCentralAttendanceList] = useState({
+    results: [],
+    next: null,
+    previous: null,
+  });
   const [selectedAttendance, setSelectedAttendance] = useState(null);
 
   const churchOptions = {
@@ -80,6 +85,11 @@ const AttendanceReport = () => {
 
   const clearZonalAttendanceList = () => {
     setZonalAttendanceList({ results: [], next: null, previous: null });
+    setNoResults(false);
+  };
+
+  const clearCentralAttendanceList = () => {
+    setCentralAttendanceList({ results: [], next: null, previous: null });
     setNoResults(false);
   };
 
@@ -182,6 +192,30 @@ const AttendanceReport = () => {
     } catch (error) {
       showAlert(
         error.response?.data?.message || 'Error fetching zonal attendance list',
+        'error',
+      );
+      setNoResults(false);
+    }
+  };
+
+  // Get Central attendance lists
+  const getCentralAttendanceList = async () => {
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) {
+        alert('Access token not found. Please login first.');
+        navigate('/');
+        return;
+      }
+
+      const response = await axios.get(
+        'https://tlbc-platform-api.onrender.com/api/attendance/list/all/?church=central',
+      );
+      setCentralAttendanceList(response.data);
+      setNoResults(response.data.results.length === 0);
+    } catch (error) {
+      showAlert(
+        error.response?.data?.message || 'Error fetching all attendance lists',
         'error',
       );
       setNoResults(false);
@@ -615,6 +649,158 @@ const formatDate = (dateString) => {
                   </>
                 )}
               </div>
+
+              {/* Central Attendance Lists */}
+              <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+                <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                  <h3 className="font-medium text-base sm:text-lg text-black dark:text-white">
+                    Central Attendance Lists
+                  </h3>
+                  <button
+                    onClick={getCentralAttendanceList}
+                    className="w-full sm:w-auto flex justify-center items-center rounded bg-primary px-3 sm:px-4 py-2 sm:py-3 text-white hover:bg-opacity-90 text-sm sm:text-base"
+                  >
+                    Get Central Attendance
+                  </button>
+                </div>
+
+                {noResults && (
+                  <div className="mt-4 sm:mt-6 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-4 sm:p-6.5">
+                    <p className="text-[red] dark:text-white">
+                      No central attendance records found
+                    </p>
+                  </div>
+                )}
+
+                {centralAttendanceList.results.length === 0 ? (
+                  <div className="mt-6 px-4 py-1 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+                    No central attendance records found
+                  </div>
+                ) : (
+                  <>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm sm:text-base">
+                        <thead>
+                          <tr className="bg-gray-50 dark:bg-meta-4 border-b border-stroke dark:border-strokedark">
+                            <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
+                              Program
+                            </th>
+                            <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
+                              Name
+                            </th>
+                            <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
+                              Venue
+                            </th>
+                            <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
+                             Attendance Date
+                            </th>
+                            <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
+                              Church
+                            </th>
+                            <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
+                              Created on
+                            </th>
+                            <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
+                              Status
+                            </th>
+                            <th className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
+                              Action
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {centralAttendanceList.results.map(
+                            (attendance, index) => (
+                              <tr
+                                key={index}
+                                className="border-b border-stroke dark:border-strokedark"
+                              >
+                                <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
+                                  {attendance.program}
+                                </td>
+                                <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
+                                  {attendance.name}
+                                </td>
+                                <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
+                                  {attendance.venue}
+                                </td>
+                                <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
+                                  {attendance.date}
+                                </td>
+                                <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-sm text-black dark:text-white">
+                                  {attendance.church}
+                                </td>
+                                <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-black dark:text-white">
+                            {formatDate(attendance.created_at || 'N/A')}
+                            </td>
+                            <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm">
+                                <StatusCell active={attendance.active} />
+                            </td>
+                                <td className="px-4 py-2 text-center text-black dark:text-white">
+                                  <button
+                                    onClick={() => {
+                                      console.log(
+                                        'Captured ref_code:',
+                                        attendance.ref_code,
+                                      );
+                                      handleAttendanceDetails(
+                                        attendance.ref_code,
+                                      );
+                                    }}
+                                    className="mt-4 flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
+                                  >
+                                    <Eye size={18} />
+                                  </button>
+                                </td>
+                              </tr>
+                            ),
+                          )}
+                        </tbody>
+                      </table>
+
+                      {/* Modify this section to put Clear and Pagination buttons on the same row */}
+                      <div className="flex justify-end gap-2 mt-4 mr-4 mb-4 items-center">
+                        <button
+                          onClick={clearCentralAttendanceList}
+                          className="flex items-center justify-center rounded bg-red-500 px-3 sm:px-3 py-2 sm:py-2 text-white hover:bg-opacity-90 text-sm sm:text-base mr-2"
+                        >
+                         Close
+                        </button>
+
+                        <div className="flex gap-2">
+                          {centralAttendanceList.previous && (
+                            <button
+                              onClick={() =>
+                                handleAttendancePagination(
+                                  centralAttendanceList.previous,
+                                  setCentralAttendanceList,
+                                )
+                              }
+                              className="px-3 py-1 border rounded flex items-center gap-1 hover:bg-gray-50"
+                            >
+                              <ChevronLeft size={16} /> Previous
+                            </button>
+                          )}
+                          {centralAttendanceList.next && (
+                            <button
+                              onClick={() =>
+                                handleAttendancePagination(
+                                  centralAttendanceList.next,
+                                  setCentralAttendanceList,
+                                )
+                              }
+                              className="px-3 py-1 border rounded flex items-center gap-1 hover:bg-gray-50"
+                            >
+                              Next <ChevronRight size={16} />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+
 
               {/* All Attendance Lists */}
               <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
