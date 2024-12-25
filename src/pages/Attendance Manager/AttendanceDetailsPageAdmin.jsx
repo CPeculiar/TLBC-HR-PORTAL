@@ -7,7 +7,7 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { Alert, AlertDescription } from '../../components/ui/alert';
 
-const AttendanceDetailsPage = () => {
+const AttendanceDetailsPageAdmin = () => {
     const [selectedAttendance, setSelectedAttendance] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -567,6 +567,20 @@ const formatDate = (dateString) => {
                                 <button
                                     onClick={() => {
                                         if (refCode) {
+                                            navigate(`/addmembers/${refCode}`, { state: { refCode } });
+                                        } else {
+                                            console.error('No reference code found');
+                                            alert('No reference code found');
+                                        }
+                                    }}
+                                    className="flex items-center justify-center rounded bg-primary p-3 font-medium text-white hover:bg-opacity-90"
+                                >
+                                    Add a Member
+                                </button>
+
+                                <button
+                                    onClick={() => {
+                                        if (refCode) {
                                             navigate(`/form/${refCode}`, { state: { refCode } });
                                         } else {
                                             console.error('No reference code found');
@@ -587,9 +601,23 @@ const formatDate = (dateString) => {
                                             alert('No reference code found');
                                         }
                                     }}
-                                    className="flex items-center justify-center rounded bg-secondary p-3 font-medium text-white hover:bg-opacity-90"
+                                    className="flex items-center justify-center rounded bg-primary p-3 font-medium text-white hover:bg-opacity-90"
                                 >
                                     Add a returning First Timer
+                                </button>
+
+                                <button
+                                    onClick={() => {
+                                        if (refCode) {
+                                            navigate(`/newcomerscount/${refCode}`, { state: { refCode } });
+                                        } else {
+                                            console.error('No reference code found');
+                                            alert('No reference code found');
+                                        }
+                                    }}
+                                    className="flex items-center justify-center rounded bg-primary p-3 font-medium text-white hover:bg-opacity-90"
+                                >
+                                    NewComers Attendance Count
                                 </button>
                             </div>
 
@@ -618,7 +646,7 @@ const formatDate = (dateString) => {
 
                 {/* Success Alert with Automatic Timeout */}
                 {updateSuccess && (
-                    <div className="p-4 transition-opacity duration-500 ease-in-out text-green-800 dark:bg-green-900 dark:text-green-300">
+                    <div className="p-4 transition-opacity duration-500 ease-in-out text-green-500">
                         <Alert variant="success">
                             {updateSuccess}
                         </Alert>
@@ -783,9 +811,8 @@ const formatDate = (dateString) => {
             )}
 
 
-
         </div>
     );
 };
 
-export default AttendanceDetailsPage;
+export default AttendanceDetailsPageAdmin;

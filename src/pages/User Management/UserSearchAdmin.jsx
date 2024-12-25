@@ -16,10 +16,11 @@ const UserSearchAdmin = ({  deleteUser }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);  // Track modal visibility
   const [deleting, setDeleting] = useState(false); // State to track deleting status
+  const [deleteSuccess, setDeleteSuccess] = useState(false); 
   const [deletionMessage, setDeletionMessage] = useState(''); // State to track success or error message
   const [messageType, setMessageType] = useState(''); // 'success' or 'error'
   const [userToDelete, setUserToDelete] = useState(null); // State to track which user is being deleted
- 
+  
   const navigate = useNavigate();
 
   const primaryColor = '#3c50e0';
@@ -172,7 +173,7 @@ const UserSearchAdmin = ({  deleteUser }) => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{ 
-                color: textColor, 
+                color: 'white', 
                 borderColor, 
                 minHeight: '42px' // Ensure adequate touch target on mobile
               }}
@@ -217,7 +218,7 @@ const UserSearchAdmin = ({  deleteUser }) => {
             <table className="w-full min-w-[800px] divide-y divide-gray-200 dark:divide-strokedark">
               <thead>
                 <tr>
-                  {['Profile', 'Name', 'Phone', 'Email', 'Gender', 'Church', 'View', 'Edit', 'Delete'].map((header) => (
+                  {['Profile', 'Username', 'Name', 'Phone', 'Email', 'Gender', 'Church', 'View', 'Edit', 'Delete'].map((header) => (
                     <th
                       key={header}
                       className="px-4 py-3 bg-primary text-white text-left text-xs font-medium uppercase tracking-wider dark:text-white"
@@ -253,17 +254,18 @@ const UserSearchAdmin = ({  deleteUser }) => {
                           className="w-10 h-10 rounded-full object-cover"
                         />
                       </td>
-                      <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-base text-black dark:text-white">{user.first_name} {user.last_name}</td>
-                      <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-base text-black dark:text-white whitespace-nowrap">{user.phone_number}</td>
-                      <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-base text-black dark:text-white">{user.email}</td>
-                      <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-base text-black dark:text-white">{user.gender}</td>
-                      <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-base text-black dark:text-white">{user.church || 'N/A'}</td>
-                      <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-base text-black dark:text-white">      
+                      <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-base text-black dark:text-black">{user.username}</td>
+                      <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-base text-black dark:text-black">{user.first_name} {user.last_name}</td>
+                      <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-base text-black dark:text-black whitespace-nowrap">{user.phone_number}</td>
+                      <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-base text-black dark:text-black">{user.email}</td>
+                      <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-base text-black dark:text-black">{user.gender}</td>
+                      <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-base text-black dark:text-black">{user.church || 'N/A'}</td>
+                      <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-base text-black dark:text-black">      
                         <button
                           onClick={() => setSelectedUser(user)}
-                          className="mt-4 flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
+                          className="mt-4 flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-blue-900"
                         >
-                          <Eye size={18} />
+                          <Eye size={18}/>
                         </button>
                       </td>
                       <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-base text-black dark:text-white">
@@ -281,7 +283,7 @@ const UserSearchAdmin = ({  deleteUser }) => {
                               setUserToDelete(user);
                               setConfirmDelete(true);
                             }}
-                            className="text-white bg-red-500 hover:bg-red-800 px-4 py-2 rounded"
+                            className="text-white bg-red-500 hover:bg-red-900 px-4 py-2 rounded"
                           >
                             Delete
                           </button>
@@ -304,7 +306,7 @@ const UserSearchAdmin = ({  deleteUser }) => {
           <div className="flex space-x-2">
           {/* Clear button added */}
           <button
-              className="rounded-md px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 transition-colors duration-300 flex items-center"
+              className="rounded-md px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-900 transition-colors duration-300 flex items-center"
               onClick={clearSearchResults}
             >
          Close
@@ -318,7 +320,7 @@ const UserSearchAdmin = ({  deleteUser }) => {
               disabled={currentPage === 1 || isLoading}
               style={{ backgroundColor: currentPage === 1 || isLoading ? '#ccc' : primaryColor }}
             >
-            <ChevronLeft size={18} />
+            {/* <ChevronLeft size={18} /> */}
               Previous
             </button>
             <button
@@ -330,7 +332,6 @@ const UserSearchAdmin = ({  deleteUser }) => {
               style={{ backgroundColor: currentPage === totalPages || isLoading ? '#ccc' : primaryColor }}
             >
               Next
-              <ChevronRight size={18} />
             </button>
           </div>
         </div>
@@ -363,13 +364,13 @@ const UserSearchAdmin = ({  deleteUser }) => {
                       setConfirmDelete(false);
                       setDeletionMessage('');
                     }}
-                    className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                    className="bg-gray-500 text-white bg-blue-500 px-4 py-2 rounded hover:bg-blue-900"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleDelete}
-                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-900"
                   >
                     Delete
                   </button>

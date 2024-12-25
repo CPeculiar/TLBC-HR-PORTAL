@@ -83,33 +83,24 @@ const ReturningNewComers = () => {
         return (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
                 <Card className="w-full max-w-md relative mx-auto my-auto">
-
-                {/* Alert Section */}
-            {alert.show && (
-                <Alert className={`w-full ${alert.type === "success" ? "bg-green-500" : "bg-red-200 text-red-900"}`}>
-                    <AlertDescription className="text-sm sm:text-base">
-                        {alert.message}
-                    </AlertDescription>
-                </Alert>
-            )}
                     <button 
                         onClick={() => setSelectedProfile(null)}
                         className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
                     >
-                        <X className="h-6 w-6 text-black" />
+                        <X className="h-6 w-6" />
                     </button>
                     <CardHeader>
-                    <CardTitle className="text-xl text-center sm:text-left dark:text-black">
+                    <CardTitle className="text-xl text-center sm:text-left">
                             {`${newcomer.first_name} ${newcomer.last_name}`}
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 dark:text-black">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="text-center sm:text-left">
                                 <p className="text-sm text-gray-500">Email</p>
                                 <p className="font-medium break-words">{newcomer.email}</p>
                             </div>
-                            <div className="text-center sm:text-left dark:text-black">
+                            <div className="text-center sm:text-left">
                                 <p className="text-sm text-gray-500">Phone Number</p>
                                 <p className="font-medium">{newcomer.phone_number}</p>
                             </div>
@@ -120,7 +111,7 @@ const ReturningNewComers = () => {
                             className={`
                                 w-full inline-flex items-center justify-center rounded-md px-4 py-2 text-sm 
                                 ${newcomer.attendance_taken 
-                                    ? 'bg-gray-200 text-gray-500 cursor-not-allowed dark:text-green-500' 
+                                    ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
                                     : 'bg-blue-500 text-white hover:bg-blue-600'
                                 }
                             `}
@@ -141,7 +132,7 @@ const ReturningNewComers = () => {
         <div className="space-y-6">
             {/* Alert Section */}
             {alert.show && (
-                <Alert className={`w-full ${alert.type === "success" ? "bg-green-500" : "bg-red-200 text-red-900"}`}>
+                <Alert className={`w-full ${alert.type === "success" ? "bg-green-50" : "bg-red-50"}`}>
                     <AlertDescription className="text-sm sm:text-base">
                         {alert.message}
                     </AlertDescription>
@@ -165,7 +156,7 @@ const ReturningNewComers = () => {
                                 <input
                                     type="text"
                                     placeholder="Search by name"
-                                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50 dark:border-gray-600 dark:bg-gray-700 dark:text-black"
+                                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                                     value={searchParams.name}
                                     onChange={(e) => setSearchParams({ name: e.target.value })}
                                 />
@@ -196,7 +187,7 @@ const ReturningNewComers = () => {
                                             {['Name', 'Email', 'Phone', 'Profile'].map((header) => (
                                                 <th 
                                                     key={header}
-                                                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-black"
+                                                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300"
                                                 >
                                                     {header}
                                                 </th>
@@ -206,13 +197,13 @@ const ReturningNewComers = () => {
                                     <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
                                         {newcomersList.results.map((newcomer, index) => (
                                             <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                                                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-black">
+                                                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                                                     {`${newcomer.first_name} ${newcomer.last_name}`}
                                                 </td>
-                                                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-black">
+                                                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                                                     {newcomer.email}
                                                 </td>
-                                                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-black">
+                                                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                                                     {newcomer.phone_number}
                                                 </td>
                                                 <td className="px-4 py-4 whitespace-nowrap text-sm">

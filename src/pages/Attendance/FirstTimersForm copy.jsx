@@ -83,15 +83,23 @@ const FirstTimersForm = () => {
             Authorization: `Bearer ${accessToken}`, 
           },
           
-        }
+        } 
       );
+
+      setSuccessMessage(response.data.message);
+      alert(response.data.message);
+
+      // Clear the success message after 5 seconds
+    setTimeout(() => {
+      setSuccessMessage('');
+    }, 5000);
 
       // Extract date from response message
       const match = response.data.message.match(/for '(.*?)'/);
       const dateString = match ? match[1] : 'this service';
       
-      setSuccessMessage(`You have successfully marked your Attendance for ${dateString}`);
-      alert("You have successfully marked your Attendance for this service");
+      // setSuccessMessage(`You have successfully marked your Attendance for ${dateString}`);
+      // alert("You have successfully marked your Attendance for this service");
     
       setFormData({
         first_name: '',
@@ -109,15 +117,23 @@ const FirstTimersForm = () => {
         interested_department: ''
       });
     } catch (error) {
-      if (error.response && error.response.data) {
-        setErrors(error.response.data);
+      if (error.response) {
+        if (error.response.data.detail) {
+          setErrors({ message: error.response.data.detail });
+        } else if (error.response.data) {
+          setErrors(error.response.data);
+        }
       } else {
         setErrors({ message: 'An unexpected error occurred. Please try again.' });
       }
+    
+      setTimeout(() => {
+        setErrors({});
+      }, 10000);
     } finally {
       setIsLoading(false);
     }
-  };
+    };
 
   return (
     <div className="p-4 md:p-6 2xl:p-10">

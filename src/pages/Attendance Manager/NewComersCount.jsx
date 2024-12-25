@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Alert, AlertDescription } from "../../components/ui/alert";
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 
-const ReturningNewComers = () => {
+const NewComersCount = () => {
     const location = useLocation();
     const refCode = location.state?.refCode || location.pathname.split('/returningNewcomers/')[1];
   
@@ -14,6 +14,7 @@ const ReturningNewComers = () => {
     const [alert, setAlert] = useState({ show: false, message: "", type: "" });
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
+    const [detailedProfile, setDetailedProfile] = useState(null);
   
     // State for newcomers search
     const [searchParams, setSearchParams] = useState({ name: "" });
@@ -31,6 +32,19 @@ const ReturningNewComers = () => {
       setTimeout(() => setAlert({ show: false, message: "", type: "" }), 3000);
     };
   
+    const fetchDetailedProfile = async (newcomer) => {
+        try {
+            const response = await axios.get(
+                `https://tlbc-platform-api.onrender.com/api/attendance/${refCode}/newcomers/${newcomer.slug}/admin/`
+            );
+            setDetailedProfile(response.data);
+            setSelectedProfile(newcomer);
+        } catch (error) {
+            showAlert(error.response?.data?.message || "Error fetching profile details", "error");
+        }
+    };
+
+
     // Newcomers search
     const searchNewcomers = async () => {
       try {
@@ -53,36 +67,14 @@ const ReturningNewComers = () => {
         setIsLoading(false);
       }
     };
-    
-    const markAttendance = async (newcomer) => {
-        try {
-          const response = await axios.put(
-            `https://tlbc-platform-api.onrender.com/api/attendance/${refCode}/newcomers/${newcomer.slug}/`
-          );
-          
-          // Update the local state to mark attendance as taken
-          setNewcomersList(prevState => ({
-            ...prevState,
-            results: prevState.results.map(item => 
-              item.slug === newcomer.slug 
-                ? { ...item, attendance_taken: true } 
-                : item
-            )
-          }));
-    
-          showAlert("Attendance successfully taken for this service", "success");
-          
-          // Close the profile view after marking attendance
-          setSelectedProfile(null);
-        } catch (error) {
-          showAlert(error.response?.data?.message || "Error marking attendance", "error");
-        }
-    };
 
     const ProfileModal = ({ newcomer }) => {
+        if (!detailedProfile) return null;
+
+
         return (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-                <Card className="w-full max-w-md relative mx-auto my-auto">
+                <Card className="w-full max-w-4xl relative mx-auto my-auto">
 
                 {/* Alert Section */}
             {alert.show && (
@@ -92,51 +84,89 @@ const ReturningNewComers = () => {
                     </AlertDescription>
                 </Alert>
             )}
-                    <button 
-                        onClick={() => setSelectedProfile(null)}
+                   <button 
+                        onClick={() => {
+                            setSelectedProfile(null);
+                            setDetailedProfile(null);
+                        }}
                         className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
                     >
-                        <X className="h-6 w-6 text-black" />
+                        <X className="h-6 w-6" />
                     </button>
+
                     <CardHeader>
-                    <CardTitle className="text-xl text-center sm:text-left dark:text-black">
-                            {`${newcomer.first_name} ${newcomer.last_name}`}
+                        <CardTitle className="text-xl">
+                            {`${detailedProfile.first_name} ${detailedProfile.last_name}'s Profile`}
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 dark:text-black">
-                            <div className="text-center sm:text-left">
-                                <p className="text-sm text-gray-500">Email</p>
-                                <p className="font-medium break-words">{newcomer.email}</p>
+
+                    <CardContent className="space-y-6">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="space-y-2">
+                                <h3 className="font-semibold text-gray-600">Contact Details</h3>
+                                <p className="text-sm">Email: {detailedProfile.email}</p>
+                                <p className="text-sm">Phone: {detailedProfile.phone_number}</p>
+                                <p className="text-sm">Address: {detailedProfile.address}</p>
                             </div>
-                            <div className="text-center sm:text-left dark:text-black">
-                                <p className="text-sm text-gray-500">Phone Number</p>
-                                <p className="font-medium">{newcomer.phone_number}</p>
+
+                            <div className="space-y-2">
+                                <h3 className="font-semibold text-gray-600">Personal Info</h3>
+                                <p className="text-sm">Gender: {detailedProfile.gender}</p>
+                                <p className="text-sm">Birth Date: {detailedProfile.birth_date}</p>
+                                <p className="text-sm">Marital Status: {detailedProfile.marital_status}</p>
+                            </div>
+
+                            <div className="space-y-2">
+                                <h3 className="font-semibold text-gray-600">Church Info</h3>
+                                <p className="text-sm">First Visit: {detailedProfile.first_visit_date}</p>
+                                <p className="text-sm">Invited By: {detailedProfile.invited_by}</p>
+                                <p className="text-sm">Want to be Member: {detailedProfile.want_to_be_member ? 'Yes' : 'No'}</p>
+                                <p className="text-sm">Department Interest: {detailedProfile.interested_department}</p>
                             </div>
                         </div>
-                        <button
-                            onClick={() => markAttendance(newcomer)}
-                            disabled={newcomer.attendance_taken}
-                            className={`
-                                w-full inline-flex items-center justify-center rounded-md px-4 py-2 text-sm 
-                                ${newcomer.attendance_taken 
-                                    ? 'bg-gray-200 text-gray-500 cursor-not-allowed dark:text-green-500' 
-                                    : 'bg-blue-500 text-white hover:bg-blue-600'
-                                }
-                            `}
-                        >
-                            <CheckCircle className="mr-2 h-4 w-4" />
-                            {newcomer.attendance_taken ? 'Attendance Taken' : 'Take Attendance'}
-                        </button>
+
+                        {/* Attendance Events Table */}
+                        <div className="mt-6">
+                            <h3 className="font-semibold text-gray-600 mb-3">
+                                Attendance History ({detailedProfile.attendances.count} events)
+                            </h3>
+                            <div className="overflow-x-auto">
+                                <table className="w-full divide-y divide-gray-200">
+                                    <thead className="bg-gray-50">
+                                        <tr>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Program</th>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Venue</th>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-white divide-y divide-gray-200">
+                                        {detailedProfile.attendances.events.map((event, index) => (
+                                            <tr key={index}>
+                                                <td className="px-4 py-2 text-sm">{event.program}</td>
+                                                <td className="px-4 py-2 text-sm">{event.name}</td>
+                                                <td className="px-4 py-2 text-sm">{event.venue}</td>
+                                                <td className="px-4 py-2 text-sm">{event.date}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </CardContent>
                 </Card>
             </div>
         );
     };
 
+    // Modify the eye icon click handler in the results table
+    const handleProfileClick = (newcomer) => {
+        fetchDetailedProfile(newcomer);
+    };
+
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-        <Breadcrumb pageName="Returning Members"  className="text-black dark:text-white"  />
+        <Breadcrumb pageName="New Comers"  className="text-black dark:text-white"  />
         
         <div className="space-y-6">
             {/* Alert Section */}
@@ -217,7 +247,7 @@ const ReturningNewComers = () => {
                                                 </td>
                                                 <td className="px-4 py-4 whitespace-nowrap text-sm">
                                                     <button 
-                                                        onClick={() => setSelectedProfile(newcomer)}
+                                                        onClick={() => handleProfileClick(newcomer)}
                                                         className="text-blue-500 hover:text-blue-700"
                                                     >
                                                         <Eye className="h-5 w-5" />
@@ -234,10 +264,10 @@ const ReturningNewComers = () => {
             </div>
         </div>
 
-        {/* Profile Modal */}
-        {selectedProfile && <ProfileModal newcomer={selectedProfile} />}
-      </div>
+       {/* Profile Modal */}
+       {selectedProfile && detailedProfile && <ProfileModal newcomer={selectedProfile} />}
+        </div>
     );
 };
 
-export default ReturningNewComers;
+export default NewComersCount;

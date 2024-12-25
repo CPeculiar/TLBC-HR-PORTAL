@@ -48,6 +48,10 @@ import OnboardUser from './pages/User Management/OnboardUser';
 import DeleteUser from './pages/User Management/DeleteUser';
 import UserPermissions from './pages/User Management/UserPermissions';
 import UserSearchAdmin from './pages/User Management/UserSearchAdmin';
+import AttendanceReportAdmin from './pages/Attendance Manager/AttendanceReportAdmin';
+import AttendanceDetailsPageAdmin from './pages/Attendance Manager/AttendanceDetailsPageAdmin';
+import AddMembersForm from './pages/Attendance Manager/AddMembersForm';
+import NewComersCount from './pages/Attendance Manager/NewComersCount';
 
 
 
@@ -178,6 +182,12 @@ function App() {
       <Route path="/deleteUser" element={withDefaultLayout(<DeleteUser />, "Delete User")} />
       <Route path="/userPermissions" element={withDefaultLayout(<UserPermissions />, "User Permissions")} />
       <Route path="/userSearchAdmin" element={withDefaultLayout(<UserSearchAdmin />, "Admin User Search")} />
+      
+      
+      <Route path="/attendancereportadmin" element={withDefaultLayout(<AttendanceReportAdmin />, "Attendance Admin Report")} />
+      <Route path="/attendancedetailspageadmin/:refCode" element={withDefaultLayout(<AttendanceDetailsPageAdmin />, "Attendance Details Admin")} />
+      <Route path="/addmembers/:refcode" element={withDefaultLayout(<AddMembersForm />, "Add Members")} />
+      <Route path="/newcomerscount/:refcode" element={withDefaultLayout(<NewComersCount />, "NewComers Attendance Count")} />
 
 
       <Route path="/transactions" element={withDefaultLayout(<Transactions />, "Create Church Account")} />
