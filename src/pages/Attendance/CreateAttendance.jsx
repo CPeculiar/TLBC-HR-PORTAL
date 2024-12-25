@@ -12,6 +12,7 @@ const AttendanceCreationPage = () => {
   const [newcomerQrCode, setNewcomerQrCode] = useState(null);
   const [newcomerLink, setNewcomerLink] = useState(null);
   const [successMessage, setSuccessMessage] = useState("");
+  const [selectedType, setSelectedType] = useState(null);
   const qrRef = useRef(null);
   const newcomerQrRef = useRef(null);
 
@@ -44,14 +45,26 @@ const AttendanceCreationPage = () => {
         navigate("/");
         return;
       }
- 
+
+      const endpoint = selectedType === 'central' 
+        ? "https://tlbc-platform-api.onrender.com/api/attendance/create/central/"
+        : "https://tlbc-platform-api.onrender.com/api/attendance/create/";
+
       const response = await axios.post(
-        "https://tlbc-platform-api.onrender.com/api/attendance/create/",
+        endpoint,
         attendanceData,
         {
           headers: { Authorization: `Bearer ${accessToken}` },
         }
       );
+      
+      // const response = await axios.post(
+      //   "https://tlbc-platform-api.onrender.com/api/attendance/create/",
+      //   attendanceData,
+      //   {
+      //     headers: { Authorization: `Bearer ${accessToken}` },
+      //   }
+      // );
 
       const { ref_code, qrcode, message } = response.data;
 
@@ -141,15 +154,52 @@ const AttendanceCreationPage = () => {
     <div className="p-4 md:p-6 2xl:p-10">
     <div className="mx-auto max-w-5xl">
 
+ {/* Selection Buttons */}
+ {!selectedType && (
+            <div className="flex flex-col gap-4 mb-6">
+              <button
+                onClick={() => setSelectedType('local')}
+                className="w-full py-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                Local Church Attendance
+              </button>
+              <button
+                onClick={() => setSelectedType('central')}
+                className="w-full py-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                Central Meeting Attendance
+              </button>
+            </div>
+          )}
+
+          {/* Back Button */}
+          {selectedType && (
+            <button
+              onClick={() => setSelectedType(null)}
+              className="mb-4 px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+            >
+              ← Back to Selection
+            </button>
+          )}
+
 
         {/* Main Form Card */}
-        <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+        {/* <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
           <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
             <h3 className="font-medium text-black dark:text-white">
               Create Attendance form
             </h3>
-          </div>
+          </div> */}
 
+ {/* Form Section */}
+ {selectedType && (
+            <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+              <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
+                <h3 className="font-medium text-black dark:text-white">
+                  Create {selectedType === 'central' ? 'Central Meeting' : 'Local Church'} Attendance
+                </h3>
+              </div>
+              
                 <form onSubmit={handleSubmit}>
                   <div className="p-6.5">
               <div className="mb-4.5">
@@ -273,7 +323,8 @@ const AttendanceCreationPage = () => {
             </div>
           </form>
         </div>
-
+ )}
+ 
                   {/* QR Codes Section */}
         {(qrCode || newcomerQrCode) && (
           <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
