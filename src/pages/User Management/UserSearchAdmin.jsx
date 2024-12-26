@@ -173,7 +173,7 @@ const UserSearchAdmin = ({  deleteUser }) => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{ 
-                color: 'white', 
+                
                 borderColor, 
                 minHeight: '42px' // Ensure adequate touch target on mobile
               }}
