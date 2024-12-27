@@ -52,6 +52,8 @@ import AttendanceReportAdmin from './pages/Attendance Manager/AttendanceReportAd
 import AttendanceDetailsPageAdmin from './pages/Attendance Manager/AttendanceDetailsPageAdmin';
 import AddMembersForm from './pages/Attendance Manager/AddMembersForm';
 import NewComersCount from './pages/Attendance Manager/NewComersCount';
+import FirstTimersFormAdmin from './pages/Attendance Manager/FirstTimersFormAdmin';
+import AddReturningAdmin from './pages/Attendance Manager/AddReturningAdmin';
 
 
 
@@ -188,6 +190,8 @@ function App() {
       <Route path="/attendancedetailspageadmin/:refCode" element={withDefaultLayout(<AttendanceDetailsPageAdmin />, "Attendance Details Admin")} />
       <Route path="/addmembers/:refcode" element={withDefaultLayout(<AddMembersForm />, "Add Members")} />
       <Route path="/newcomerscount/:refcode" element={withDefaultLayout(<NewComersCount />, "NewComers Attendance Count")} />
+      <Route path="/firsttimersformadmin/:ref_code" element={withDefaultLayout(<FirstTimersFormAdmin />, "First Timer's form Admin")} />
+      <Route path="/addreturningadmin/:ref_code" element={withDefaultLayout(<AddReturningAdmin />, "Add Returning Visitors form Admin")} />
 
 
       <Route path="/transactions" element={withDefaultLayout(<Transactions />, "Create Church Account")} />

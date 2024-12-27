@@ -15,16 +15,19 @@ const ReturningNewComers = () => {
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
   
+
     // State for newcomers search
     const [searchParams, setSearchParams] = useState({ name: "" });
     const [noResults, setNoResults] = useState(false);
     const [selectedProfile, setSelectedProfile] = useState(null);
 
-    const [newcomersList, setNewcomersList] = useState({ 
-        results: [], 
-        next: null, 
-        previous: null 
-    });
+        const [newcomersList, setNewcomersList] = useState({ 
+            results: [], 
+            next: null, 
+            previous: null,
+            count: 0,
+            limit: 10
+        });
     
     const showAlert = (message, type) => {
       setAlert({ show: true, message, type });
@@ -78,6 +81,23 @@ const ReturningNewComers = () => {
           showAlert(error.response?.data?.message || "Error marking attendance", "error");
         }
     };
+
+    // Function to handle pagination
+    const handlePagination = async (url) => {
+        if (!url) return;
+        
+        try {
+            setIsLoading(true);
+            const response = await axios.get(url);
+            setNewcomersList(response.data);
+            setNoResults(response.data.results.length === 0);
+        } catch (error) {
+            showAlert(error.response?.data?.message || "Error fetching data", "error");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
 
     const ProfileModal = ({ newcomer }) => {
         return (
@@ -151,7 +171,7 @@ const ReturningNewComers = () => {
             {/* Newcomers Search Section */}
             <div className="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <div className="border-b border-gray-200 px-4 py-4 dark:border-gray-700">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-black">
                         Search
                     </h3>
                 </div>
@@ -230,6 +250,27 @@ const ReturningNewComers = () => {
                             </div>
                         )}
                     </div>
+
+                      {/* Pagination Controls */}
+                      <div className="mt-4 flex justify-between items-center">
+                            <button
+                                onClick={() => handlePagination(newcomersList.previous)}
+                                disabled={!newcomersList.previous || isLoading}
+                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Previous
+                            </button>
+                            <div className="text-sm text-gray-500">
+                                Showing {newcomersList.results.length} of {newcomersList.count} results
+                            </div>
+                            <button
+                                onClick={() => handlePagination(newcomersList.next)}
+                                disabled={!newcomersList.next || isLoading}
+                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Next
+                            </button>
+                        </div>
                 </div>
             </div>
         </div>

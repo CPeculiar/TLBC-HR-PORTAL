@@ -6,6 +6,7 @@ import axios from 'axios';
 import jsPDF from 'jspdf'; 
 import 'jspdf-autotable';
 import { Alert, AlertDescription } from '../../components/ui/alert';
+import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 
 const AttendanceDetailsPageAdmin = () => {
     const [selectedAttendance, setSelectedAttendance] = useState(null);
@@ -362,6 +363,9 @@ const formatDate = (dateString) => {
   );
 
     return (
+        <>
+        <Breadcrumb pageName="Attendance Details for Admin"  className="text-black dark:text-white"  />
+
         <div className="container mx-auto px-4 py-6 space-y-6 dark:bg-boxdark dark:text-white">
         {/* Attendance Details Card */}
         <Card className="p-4 md:p-6 bg-white shadow-md rounded-lg dark:bg-boxdark dark:border dark:border-strokedark">
@@ -581,7 +585,7 @@ const formatDate = (dateString) => {
                                 <button
                                     onClick={() => {
                                         if (refCode) {
-                                            navigate(`/form/${refCode}`, { state: { refCode } });
+                                            navigate(`/firsttimersformadmin/${refCode}`, { state: { refCode } });
                                         } else {
                                             console.error('No reference code found');
                                             alert('No reference code found');
@@ -594,8 +598,8 @@ const formatDate = (dateString) => {
                                 
                                 <button
                                     onClick={() => {
-                                        if (refCode) {
-                                            navigate(`/returningNewcomers/${refCode}`, { state: { refCode } });
+                                        if (refCode) {  
+                                            navigate(`/addreturningadmin/${refCode}`, { state: { refCode } });
                                         } else {
                                             console.error('No reference code found');
                                             alert('No reference code found');
@@ -609,6 +613,24 @@ const formatDate = (dateString) => {
                                 <button
                                     onClick={() => {
                                         if (refCode) {
+                                            navigate(`/returningNewcomers/${refCode}`, { state: { refCode } });
+                                        } else {
+                                            console.error('No reference code found');
+                                            alert('No reference code found');
+                                        }
+                                    }}
+                                    className="flex items-center justify-center rounded bg-primary p-3 font-medium text-white hover:bg-opacity-90"
+                                >
+                                    Mark Attendance for Returnee
+                                </button>
+                            </div>
+
+                            {/* Back Button */}
+                            <div className="flex flex-col justify-center mt-6 md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+
+                            <button
+                                    onClick={() => {
+                                        if (refCode) {
                                             navigate(`/newcomerscount/${refCode}`, { state: { refCode } });
                                         } else {
                                             console.error('No reference code found');
@@ -617,12 +639,9 @@ const formatDate = (dateString) => {
                                     }}
                                     className="flex items-center justify-center rounded bg-primary p-3 font-medium text-white hover:bg-opacity-90"
                                 >
-                                    NewComers Attendance Count
+                                    NewComers Management
                                 </button>
-                            </div>
 
-                            {/* Back Button */}
-                            <div className="flex justify-center mt-6">
                                 <button
                                     onClick={() => navigate("/dashboard")}
                                     className="flex items-center rounded bg-primary p-3 font-medium text-white hover:bg-opacity-90"
@@ -812,6 +831,8 @@ const formatDate = (dateString) => {
 
 
         </div>
+
+        </>
     );
 };
 

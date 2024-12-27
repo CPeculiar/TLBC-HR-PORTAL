@@ -4,24 +4,25 @@ import axios from 'axios';
 import { Download } from 'lucide-react';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 
-const FirstTimersForm = () => {
+const FirstTimersFormAdmin = () => {
   const location = useLocation();
   const refCode = location.state?.refCode || location.pathname.split('/form/')[1];
   
   const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
-    phone_number: '',
-    email: '',
-    gender: '',
-    birth_date: '',
-    address: '',
-    profile_picture: null,
-    occupation: '',
-    invited_by: '',
-    want_to_be_member: true,
-    marital_status: '',
-    interested_department: ''
+    first_name: "",
+    last_name: "",
+    phone_number: "",
+    email: "",
+    gender: "",
+    birth_date: "",
+    address: "",
+    occupation: "",
+    invited_by: "",
+    want_to_be_member: "",
+    marital_status: "",
+    interested_department: "",
+    first_visit_date: "",
+    first_time: true
   });
 
   const [errors, setErrors] = useState({});
@@ -31,12 +32,23 @@ const FirstTimersForm = () => {
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target;
     
-    if (type === 'file') {
+   if (name === 'first_time') {
+      // Convert the string value to boolean
+      const boolValue = value === 'true';
       setFormData(prev => ({
         ...prev,
-        profile_picture: files[0]
+        [name]: boolValue,
+        // Clear first_visit_date if first_time is true
+        first_visit_date: boolValue ? '' : prev.first_visit_date
       }));
-    } else {
+    } else if (name === 'want_to_be_member') {
+      // Convert the string value to boolean for want_to_be_member
+      setFormData(prev => ({
+        ...prev,
+        [name]: value === 'true'
+      }));
+    
+  } else {
       setFormData(prev => ({
         ...prev,
         [name]: value
@@ -56,14 +68,27 @@ const FirstTimersForm = () => {
     return;
   }
 
-    const formDataToSubmit = new FormData();
+  // Create a copy of formData for submission
+  const submissionData = { ...formData };
     
-    // Append all form fields to FormData
-  Object.keys(formData).forEach(key => {
-    if (formData[key] !== null && formData[key] !== undefined) {
-      formDataToSubmit.append(key, formData[key]);
-    }
-  });
+  // If first_time is true, remove first_visit_date from submission
+  if (submissionData.first_time === true) {
+    delete submissionData.first_visit_date;
+  }
+
+  // Format the data according to the backend's expected structure
+  const formattedData = {
+    newcomers: [submissionData]
+  };
+
+  //   const formDataToSubmit = new FormData();
+    
+  //   // Append all form fields to FormData
+  // Object.keys(formData).forEach(key => {
+  //   if (formData[key] !== null && formData[key] !== undefined) {
+  //     formDataToSubmit.append(key, formData[key]);
+  //   }
+  // });
 
 
   try {
@@ -74,20 +99,20 @@ const FirstTimersForm = () => {
       return;
     }
 
-      const response = await axios.patch(
-        `https://tlbc-platform-api.onrender.com/api/attendance/${refCode}/newcomers/`,
-        formDataToSubmit,
+      const response = await axios.put(
+        `https://tlbc-platform-api.onrender.com/api/attendance/${refCode}/newcomers/admin/`,
+        formattedData,
         {
           params: { ref_code: refCode }, 
           headers: { 
-            "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${accessToken}`, 
+            'Content-Type': 'application/json',
           },
           
         } 
       );
 
-      setSuccessMessage(response.data.message);
+      setSuccessMessage(response.data.message || 'Successfully submitted!');
       alert(response.data.message);
 
       // Clear the success message after 5 seconds
@@ -95,12 +120,7 @@ const FirstTimersForm = () => {
       setSuccessMessage('');
     }, 5000);
 
-      // Extract date from response message
-      const match = response.data.message.match(/for '(.*?)'/);
-      const dateString = match ? match[1] : 'this service';
       
-      // setSuccessMessage(`You have successfully marked your Attendance for ${dateString}`);
-      // alert("You have successfully marked your Attendance for this service");
     
       setFormData({
         first_name: '',
@@ -113,9 +133,11 @@ const FirstTimersForm = () => {
         profile_picture: null,
         occupation: '',
         invited_by: '',
-        want_to_be_member: true,
+        want_to_be_member: '',
         marital_status: '',
-        interested_department: ''
+        interested_department: '',
+        first_visit_date: '',
+        first_time: true
       });
     } catch (error) {
       if (error.response) {
@@ -137,8 +159,9 @@ const FirstTimersForm = () => {
     };
 
   return (
+    <>
+    <Breadcrumb pageName="First Timers Form for Admin"  className="text-black dark:text-white"  />
     <div className="p-4 md:p-6 2xl:p-10">
-    <Breadcrumb pageName="First Timer's Form"  className="text-black dark:text-white"  />
 
       <div className="mx-auto max-w-5xl">
         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
@@ -150,6 +173,52 @@ const FirstTimersForm = () => {
 
           <form onSubmit={handleSubmit}>
             <div className="p-6.5">
+
+              {/* First Time - Moved to top */}
+              <div className="mb-4.5">
+                <label className="mb-2.5 block text-black dark:text-white">
+                  Are you a First Timer? <span className="text-red-500">*</span>
+                </label>
+                <select
+                  id="first_time"
+                  name="first_time"
+                  value={formData.first_time.toString()}
+                  onChange={handleInputChange}
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  required
+                >
+                  <option value="" disabled>Select</option>
+                  <option value="true">Yes</option>
+                  <option value="false">No</option>
+                </select>
+                {errors.first_time && (
+                  <p className="mt-1 text-sm text-red-500">{errors.first_time[0]}</p>
+                )}
+              </div>
+
+              {/* First Visit Date - Conditionally rendered */}
+              {formData.first_time === false && (
+                <div className="mb-4.5">
+                  <label className="mb-2.5 block text-black dark:text-white">
+                    First Visit Date <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="first_visit_date"
+                    type="date"
+                    name="first_visit_date"
+                    value={formData.first_visit_date}
+                    onChange={handleInputChange}
+                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                    required
+                  />
+                  {errors.first_visit_date && (
+                    <p className="mt-1 text-sm text-red-500">{errors.first_visit_date[0]}</p>
+                  )}
+                </div>
+              )}
+
+
+
               {/* First Name */}
               <div className="mb-4.5">
                 <label className="mb-2.5 block text-black dark:text-white">
@@ -286,24 +355,6 @@ const FirstTimersForm = () => {
                 )}
               </div>
 
-              {/* Profile Picture */}
-              <div className="mb-4.5">
-                <label className="mb-2.5 block text-black dark:text-white">
-                  Profile Picture
-                </label>
-                <input
-                  id="profile_picture"
-                  type="file"
-                  name="profile_picture"
-                  onChange={handleInputChange}
-                  accept="image/*"
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                />
-                {errors.profile_picture && (
-                  <p className="mt-1 text-sm text-red-500">{errors.profile_picture[0]}</p>
-                )}
-              </div>
-
               {/* Occupation */}
               <div className="mb-4.5">
                 <label className="mb-2.5 block text-black dark:text-white">
@@ -353,6 +404,7 @@ const FirstTimersForm = () => {
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   required
                 >
+                <option value="" selected  disabled>Select</option>
                   <option value={true}>Yes</option>
                   <option value={false}>No</option>
                 </select>
@@ -417,7 +469,7 @@ const FirstTimersForm = () => {
                 {errors.interested_department && (
                   <p className="mt-1 text-sm text-red-500">{errors.interested_department[0]}</p>
                 )}
-              </div>
+              </div> 
 
               {/* Global Error Message */}
               {errors.message && (
@@ -443,16 +495,19 @@ const FirstTimersForm = () => {
               </button> */}
               <button
               type="submit"
+              disabled={isLoading}
               className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90 disabled:bg-opacity-50"
               >
-                submit
+               {isLoading ? "Submitting..." : "Submit"}
               </button>
             </div>
           </form>
         </div>
       </div>
     </div>
+
+    </>
   );
 };
 
-export default FirstTimersForm;
+export default FirstTimersFormAdmin;

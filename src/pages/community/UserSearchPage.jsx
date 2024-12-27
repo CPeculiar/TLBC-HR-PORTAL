@@ -124,7 +124,6 @@ const UserSearchPage = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{ 
-                color: textColor, 
                 borderColor, 
                 minHeight: '42px' // Ensure adequate touch target on mobile
               }}
@@ -195,8 +194,8 @@ const UserSearchPage = () => {
                   users.map((user, index) => (
                     <tr
                       key={index}
-                      className="hover:bg-gray-100 dark:hover:bg-strokedark transition-colors duration-300"
-                      style={{ backgroundColor: 'white', color: textColor }}
+                      className="hover:bg-gray-100 dark:hover:bg-strokedark transition-colors duration-300 dark:bg-black"
+                      // style={{ backgroundColor: 'white', color: textColor }}
                     >
                       <td className="px-4 py-3">
                         <img

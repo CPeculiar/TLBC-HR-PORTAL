@@ -142,7 +142,7 @@ const ReturningNewComers = () => {
             {/* Newcomers Search Section */}
             <div className="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <div className="border-b border-gray-200 px-4 py-4 dark:border-gray-700">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-black">
                         Search
                     </h3>
                 </div>
