@@ -3,6 +3,7 @@ import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
+import AccountStatement from './AccountStatement';
 
 const FinanceDashboard = () => {
   // State for accounts
@@ -22,6 +23,10 @@ const FinanceDashboard = () => {
 
    // State for default account
    const [selectedDefaultAccount, setSelectedDefaultAccount] = useState('');
+
+   // Add this state in FinanceDashboard component
+const [showStatement, setShowStatement] = useState(false);
+
 
 
    const [fundPendingCount, setFundPendingCount] = useState(0);
@@ -714,9 +719,28 @@ const fetchTransactions = async () => {
         })}
       </tbody>
     </table>
-  </div>
+    {/* Account */}
+  
+       {/* Add this button after the Recent Transactions section */}
+       
+<div className="mt-4 mb-6">
+  <button
+    onClick={() => setShowStatement(true)}
+    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+  >
+    Generate Account Statement
+  </button>
 </div>
 
+{showStatement && (
+  <AccountStatement
+   selectedAccount={selectedAccount}
+  isOpen={showStatement}
+  onClose={() => setShowStatement(false)}
+  />
+)}
+  </div>
+</div>
 
        {/* Bar Chart */}
        <div className="h-80 mb-6">

@@ -54,6 +54,7 @@ import AddMembersForm from './pages/Attendance Manager/AddMembersForm';
 import NewComersCount from './pages/Attendance Manager/NewComersCount';
 import FirstTimersFormAdmin from './pages/Attendance Manager/FirstTimersFormAdmin';
 import AddReturningAdmin from './pages/Attendance Manager/AddReturningAdmin';
+import AccountStatement from './pages/finance/AccountStatement';
 
 
 
@@ -178,6 +179,7 @@ function App() {
       <Route path="/fundManagement" element={withDefaultLayout(<FundManagement />, "Fund Management")} />
       <Route path="/remittanceManagement" element={withDefaultLayout(<RemittanceManagement />, "Remittance Management")} />
       <Route path="/topupManagement" element={withDefaultLayout(<TopupManagement />, "Topup Management")} />
+      <Route path="/accountstatement" element={withDefaultLayout(<AccountStatement />, "Account Statement")} />
 
       
       <Route path="/onboardUser" element={withDefaultLayout(<OnboardUser />, "Onboard New User")} />
