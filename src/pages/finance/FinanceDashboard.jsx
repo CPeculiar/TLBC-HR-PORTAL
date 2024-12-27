@@ -24,10 +24,47 @@ const FinanceDashboard = () => {
    // State for default account
    const [selectedDefaultAccount, setSelectedDefaultAccount] = useState('');
 
+   // Add new states for default account selections
+const [accountSelections, setAccountSelections] = useState([
+  { id: 1, selection: '' }
+]);
+  // Options for account types with their corresponding form field names and values
+  const accountTypeOptions = [
+    { 
+      label: 'make default account for giving',
+      field: 'for_giving',
+      value: true
+    },
+    { 
+      label: 'make default account for fund',
+      field: 'for_fund',
+      value: true
+    },
+    { 
+      label: 'make default account for remittance',
+      field: 'for_remittance',
+      value: true
+    },
+    { 
+      label: 'remove as default account for giving',
+      field: 'for_giving',
+      value: false
+    },
+    { 
+      label: 'remove as default account for fund',
+      field: 'for_fund',
+      value: false
+    },
+    { 
+      label: 'remove as default account for remittance',
+      field: 'for_remittance',
+      value: false
+    }
+  ];
+
+
    // Add this state in FinanceDashboard component
 const [showStatement, setShowStatement] = useState(false);
-
-
 
    const [fundPendingCount, setFundPendingCount] = useState(0);
   const [remittancePendingCount, setRemittancePendingCount] = useState(0);
@@ -53,7 +90,6 @@ const [isUpdatingAccount, setIsUpdatingAccount] = useState(false);
  // Add new state for verified account details
  const [verifiedAccountDetails, setVerifiedAccountDetails] = useState(null);
 //  const [isVerifyingAccount, setIsVerifyingAccount] = useState(false);
-
 
 // Add new fetch functions for pending approvals
 const fetchFundPendingApprovals = async () => {
@@ -185,25 +221,25 @@ useEffect(() => {
 
 
  // New function to verify account details
- const verifyDefaultAccountDetails = async () => {
-  if (!selectedDefaultAccount) {
-    showMessage('error', 'Please select an account first');
-    return;
-  }
+//  const verifyDefaultAccountDetails = async () => {
+//   if (!selectedDefaultAccount) {
+//     showMessage('error', 'Please select an account first');
+//     return;
+//   }
 
-  setIsVerifyingAccount(true);
-  setVerifiedAccountDetails(null);
+//   setIsVerifyingAccount(true);
+//   setVerifiedAccountDetails(null);
 
-  try {
-    const response = await axios.get(`https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedDefaultAccount}/`);
-    setVerifiedAccountDetails(response.data);
-  } catch (error) {
-    const errorMsg = handleErrorMessage(error);
-    showMessage('error', errorMsg);
-  } finally {
-    setIsVerifyingAccount(false);
-  }
-};
+//   try {
+//     const response = await axios.get(`https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedDefaultAccount}/`);
+//     setVerifiedAccountDetails(response.data);
+//   } catch (error) {
+//     const errorMsg = handleErrorMessage(error);
+//     showMessage('error', errorMsg);
+//   } finally {
+//     setIsVerifyingAccount(false);
+//   }
+// };
 
 // Modify error handling to capture specific errors
 const handleErrorMessage = (error) => {
@@ -315,21 +351,21 @@ const fetchTransactions = async () => {
 };
 
   // Handle account selection
-  const handleAccountSelect = async (e) => {
-    const selectedCode = e.target.value;
-    try {
-      setIsLoading(true);
-      const response = await axios.get(`https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedCode}/`);
-      const account = response.data;
-      setSelectedAccount(account);
-      setAccountDetails(account);
-    } catch (error) {
-      console.error('Error fetching account details:', error);
-      showMessage('error', 'Error fetching account details');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // const handleAccountSelect = async (e) => {
+  //   const selectedCode = e.target.value;
+  //   try {
+  //     setIsLoading(true);
+  //     const response = await axios.get(`https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedCode}/`);
+  //     const account = response.data;
+  //     setSelectedAccount(account);
+  //     setAccountDetails(account);
+  //   } catch (error) {
+  //     console.error('Error fetching account details:', error);
+  //     showMessage('error', 'Error fetching account details');
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   // Verify account details for update
   const verifyAccountDetails = async () => {
@@ -397,6 +433,153 @@ const fetchTransactions = async () => {
       }
     };
 
+    // Handle adding new selection field
+  const addAccountSelection = () => {
+    setAccountSelections([
+      ...accountSelections,
+      { id: accountSelections.length + 1, selection: '' }
+    ]);
+  };
+
+    // Handle removing selection field
+  const removeAccountSelection = (id) => {
+    setAccountSelections(accountSelections.filter(selection => selection.id !== id));
+  };
+
+  // Handle selection change
+  const handleSelectionChange = (id, value) => {
+    setAccountSelections(accountSelections.map(selection => 
+      selection.id === id ? { ...selection, selection: value } : selection
+    ));
+  };
+
+  // Handle submit for default account settings
+  const handleSubmitDefaultSettings = async () => {
+    if (!selectedDefaultAccount) {
+      showMessage('error', 'Please select an account first');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+
+      // Get all selected account types
+      const updates = accountSelections.reduce((acc, selection) => {
+        if (selection.selection) {
+          const option = accountTypeOptions.find(opt => opt.label === selection.selection);
+          if (option) {
+            acc[option.field] = option.value;
+          }
+        }
+        return acc;
+      }, {});
+
+      // Initialize request body
+      // let requestBody = {
+      //   for_giving: null,
+      //   for_fund: null,
+      //   for_remittance: null
+      // };
+
+      // Process selections
+      // accountSelections.forEach(selection => {
+      //   if (selection.selection) {
+      //     const option = accountTypeOptions.find(opt => opt.label === selection.selection);
+      //     if (option) {
+      //       requestBody[option.field] = option.value;
+      //     }
+      //   }
+      // });
+
+      // console.log('Making API call with:', requestBody); // For debugging
+
+      // Only include fields that were explicitly selected
+      // Object.entries(requestBody).forEach(([key, value]) => {
+      //   if (value !== null) {
+      //     formData.append(key, value);
+      //   }
+      // });
+
+      const response = await axios.patch(
+        `https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedDefaultAccount}/`,
+        updates,
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.status === 200) {
+        showMessage('success', 'Account settings updated successfully');
+        
+        // Reset selections
+        setAccountSelections([{ id: 1, selection: '' }]);
+        
+        // Refresh accounts list
+        await fetchAccounts();
+        
+        // Refresh account details
+        if (selectedDefaultAccount) {
+          await verifyDefaultAccountDetails();
+        }
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      const errorMsg = error.response?.data?.message || 
+                      error.response?.data?.detail ||
+                      'Failed to update account settings';
+      showMessage('error', errorMsg);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+   // Add debugging for verification
+   const verifyDefaultAccountDetails = async () => {
+    if (!selectedDefaultAccount) {
+      showMessage('error', 'Please select an account first');
+      return;
+    }
+
+    setIsVerifyingAccount(true);
+    setVerifiedAccountDetails(null);
+
+    try {
+      console.log('Verifying account:', selectedDefaultAccount); // For debugging
+      const response = await axios.get(`https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedDefaultAccount}/`);
+      console.log('Verification response:', response.data); // For debugging
+      setVerifiedAccountDetails(response.data);
+    } catch (error) {
+      console.error('Verification error:', error); // For debugging
+      const errorMsg = handleErrorMessage(error);
+      showMessage('error', errorMsg);
+    } finally {
+      setIsVerifyingAccount(false);
+    }
+  };
+
+  // Update account selection to store the code
+  const handleAccountSelect = async (e) => {
+    const selectedCode = e.target.value;
+    setSelectedDefaultAccount(selectedCode);
+    
+    try {
+      setIsLoading(true);
+      console.log('Selected account code:', selectedCode); // For debugging
+      const response = await axios.get(`https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedCode}/`);
+      const account = response.data;
+      setSelectedAccount(account);
+      setAccountDetails(account);
+    } catch (error) {
+      console.error('Error fetching account details:', error);
+      showMessage('error', 'Error fetching account details');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
     const handleTimePeriodChange = (period, cardType) => {
       // You can add logic here to fetch data based on the selected time period
       console.log(`${cardType} time period changed to: ${period}`);
@@ -405,55 +588,57 @@ const fetchTransactions = async () => {
     
   return (
     <>
-    <Breadcrumb pageName="Account Management"  className="text-black dark:text-white" />
+ <Breadcrumb pageName="Account Management" className="text-black dark:text-white px-4 sm:px-6 lg:px-8" />
     
-     {/* Loading Overlay - Modified for better visibility */}
-     {isLoading && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-boxdark p-6 rounded-lg shadow-xl">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-            <p className="mt-4 text-black dark:text-white">Loading...</p>
-          </div>
+    {/* Loading Overlay */}
+    {isLoading && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white dark:bg-boxdark p-6 rounded-lg shadow-xl m-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-black dark:text-white text-center">Loading...</p>
         </div>
-      )}
+      </div>
+    )}
 
-
-    <div className="container mx-auto px-4 py-6">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Message Handling */}
-      {successMessage && (
-        <div className="fixed top-4 right-4 z-50 bg-green-500 text-white p-4 rounded shadow-lg">
+      <div className="fixed top-4 right-4 z-50 space-y-2 w-full max-w-sm">
+        {successMessage && (
+          <div className="bg-green-500 text-white p-4 rounded shadow-lg">
             {successMessage}
           </div>
         )}
         {errorMessage && (
-          <div className="fixed top-4 right-4 z-50 bg-red-500 text-white p-4 rounded shadow-lg">
+          <div className="bg-red-500 text-white p-4 rounded shadow-lg">
             {errorMessage}
-        </div>
-      )}
+          </div>
+        )}
+      </div>
 
 
       {/* Account Selection */}
       <div className="mb-6">
-      <h2 className="text-2xl font-bold text-center text-black dark:text-white">
-            {selectedAccount ? `Hello, ${selectedAccount.account_name}` : 'Select an Account'}
-          </h2>
-          <select 
-            onChange={handleAccountSelect}
-            value={selectedAccount?.code || ''}
-            className="w-full rounded border border-stroke bg-white dark:border-strokedark dark:bg-boxdark p-2 mt-2 text-black dark:text-white"
-            >
-            <option value="" disabled>Select Account</option>
-            {accounts.map(account => (
-              <option key={account.code} value={account.code}>
-                {account.account_name} - {account.bank_name}
-              </option>
-            ))}
-          </select>
-        </div>
+        <h2 className="text-xl sm:text-2xl font-bold text-center text-black dark:text-white mb-4">
+          {selectedAccount ? `Hello, ${selectedAccount.account_name}` : 'Select an Account'}
+        </h2>
+        <select 
+          onChange={handleAccountSelect}
+          value={selectedAccount?.code || ''}
+          className="w-full rounded border border-stroke bg-white dark:border-strokedark dark:bg-boxdark p-3 text-black dark:text-white"
+        >
+          <option value="" disabled>Select Account</option>
+          {accounts.map(account => (
+            <option key={account.code} value={account.code}>
+              {account.account_name} - {account.bank_name}
+            </option>
+          ))}
+        </select>
+      </div>
 
-      <div className="p-6 bg-blue-50 dark:bg-boxdark">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-           <Cards title="Monthly Expenses" value={`₦${expenses.toFixed(2)}` || '₦0.00'} bgColor="bg-gradient-to-r from-orange-300 to-red-400" onTimePeriodChange={(period) => handleTimePeriodChange(period, 'Expenses')} />
+
+      <div className="p-4 sm:p-6 bg-blue-50 dark:bg-boxdark rounded-lg">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              <Cards title="Monthly Expenses" value={`₦${expenses.toFixed(2)}` || '₦0.00'} bgColor="bg-gradient-to-r from-orange-300 to-red-400" onTimePeriodChange={(period) => handleTimePeriodChange(period, 'Expenses')} />
             <Cards title="Monthly Income" value={`₦${accountDetails?.balance || '0.00'}`} bgColor="bg-gradient-to-r from-blue-300 to-blue-500" onTimePeriodChange={(period) => handleTimePeriodChange(period, 'Income')} />
             <Cards title="Account Balance" value={`₦${accountDetails?.balance || '0.00'}`} icon="💰" bgColor="bg-gradient-to-r from-green-300 to-teal-500" />
             <Cards title="Transaction History" value={transactions.length.toString()} icon="📜" bgColor="bg-gradient-to-r from-yellow-300 to-yellow-500" />
@@ -466,7 +651,7 @@ const fetchTransactions = async () => {
 
 
       {/* Update and Make Default Accounts */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         {/* Update Account Section */}
         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-6">
             <h3 className="text-xl font-bold mb-4 text-black dark:text-white">Update Account</h3>
@@ -516,7 +701,7 @@ const fetchTransactions = async () => {
             <button 
               onClick={verifyAccountDetails}
               disabled={isVerifyingAccount}
-              className="w-full bg-blue-500 text-white rounded p-2 disabled:opacity-50 dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+              className="w-full bg-blue-500 text-white rounded p-2 disabled:opacity-50 dark:border-form-strokedark dark:bg-blue-500 dark:hover:bg-blue-800   dark:text-white dark:focus:border-primary"
             >
               {isVerifyingAccount ? 'Verifying...' : 'Verify Account'}
             </button>
@@ -534,7 +719,7 @@ const fetchTransactions = async () => {
             <button 
               onClick={handleUpdateAccount}
               disabled={isUpdateButtonDisabled || isUpdatingAccount}
-              className="w-full bg-blue-500 text-white rounded p-2 disabled:opacity-50 dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+              className="w-full bg-blue-500 text-white rounded p-2 disabled:opacity-50 dark:border-form-strokedark dark:bg-blue-500 dark:hover:bg-blue-800 dark:text-white dark:focus:border-primary"
             >
                {isUpdatingAccount ? 'Updating...' : 'Update Account'}
             </button>
@@ -556,53 +741,116 @@ const fetchTransactions = async () => {
 
 
         {/* Make Default Account Section */}
-        <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-6">
-            <h3 className="text-xl font-bold mb-4 text-black dark:text-white">Select Default Account</h3>
-           <div className="space-y-4">
-            <select 
-              value={selectedDefaultAccount}
-              onChange={(e) => {
-          setSelectedDefaultAccount(e.target.value);
-          setVerifiedAccountDetails(null); // Reset verified details when account changes
-        }}
-        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-        >
-              <option value="" disabled>Select Account</option>
-              {accounts.map(account => (
-                <option key={account.code} value={account.code}>
-                  {account.account_name} - {account.bank_name}
-                </option>
-              ))}
-            </select>
-            <button 
-              onClick={verifyDefaultAccountDetails}
-              disabled={!selectedDefaultAccount || isVerifyingAccount}
-              className="w-full bg-blue-500 text-white rounded p-2 disabled:opacity-50 dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-            >
-              {isVerifyingAccount ? 'Verifying...' : 'Verify Account Details'}
-            </button>
-
-            {verifiedAccountDetails && (
-        <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-          <h4 className="text-lg font-semibold mb-2 dark:text-white">Account Details</h4>
-          <div className="space-y-2">
-            <p className='text-black dark:text-white'><strong>Account Name:</strong> {verifiedAccountDetails.account_name}</p>
-            <p className='text-black dark:text-white'><strong>Account Number:</strong> {verifiedAccountDetails.account_number}</p>
-            <p className='text-black dark:text-white'><strong>Bank:</strong> {verifiedAccountDetails.bank_name}</p>
-            <p className='text-black dark:text-white'><strong>Current Balance:</strong> ₦{verifiedAccountDetails.balance}</p>
-          </div>
-
-            <button 
-              onClick={handleMakeDefaultAccount}
-              // disabled={!selectedDefaultAccount}
-              className="w-full bg-blue-500 text-white rounded p-2 disabled:opacity-50 dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+        <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-4 sm:p-6">
+          <h3 className="text-lg sm:text-xl font-bold mb-4 text-black dark:text-white">Select Default Account</h3>
+          <div className="space-y-4">
+            {/* Account Selection Dropdown */}
+            <div className="flex flex-col space-y-2">
+              <select 
+                value={selectedDefaultAccount}
+                onChange={(e) => {
+                  setSelectedDefaultAccount(e.target.value);
+                  setVerifiedAccountDetails(null);
+                }}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-4 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
               >
-              Make Default Account
-            </button>
-          </div>
+                <option value="" disabled>Select Account</option>
+                {accounts.map(account => (
+                  <option key={account.code} value={account.code}>
+                    {account.account_name} - {account.bank_name}
+                  </option>
+                ))}
+              </select>
+
+              <button 
+                onClick={verifyDefaultAccountDetails}
+                disabled={!selectedDefaultAccount || isVerifyingAccount}
+                className="w-full bg-blue-500 text-white rounded p-3 disabled:opacity-50 hover:bg-blue-600 transition-colors duration-200 dark:border-form-strokedark dark:bg-blue-500 dark:hover:bg-blue-800 dark:text-white dark:focus:border-primary"
+              >
+                {isVerifyingAccount ? 'Verifying...' : 'Verify Account Details'}
+              </button>
+            </div>
+
+            {/* Verified Account Details */}
+            {verifiedAccountDetails && (
+              <div className="mt-4 p-4 bg-blue-50 dark:bg-boxdark rounded-lg">
+                <h4 className="text-lg font-semibold mb-3 text-black dark:text-white">Account Details</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                  <div className="p-2 bg-white dark:bg-gray-800 rounded">
+                    <p className="text-sm text-black dark:text-black">
+                      <strong>Account Name:</strong><br />
+                      {verifiedAccountDetails.account_name}
+                    </p>
+                  </div>
+                  <div className="p-2 bg-white dark:bg-gray-800 rounded">
+                    <p className="text-sm text-black dark:text-black">
+                      <strong>Account Number:</strong><br />
+                      {verifiedAccountDetails.account_number}
+                    </p>
+                  </div>
+                  <div className="p-2 bg-white dark:bg-gray-800 rounded">
+                    <p className="text-sm text-black dark:text-black">
+                      <strong>Bank:</strong><br />
+                      {verifiedAccountDetails.bank_name}
+                    </p>
+                  </div>
+                  <div className="p-2 bg-white dark:bg-gray-800 rounded">
+                    <p className="text-sm text-black dark:text-black">
+                      <strong>Current Balance:</strong><br />
+                      ₦{verifiedAccountDetails.balance}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Account Type Selections */}
+                <div className="space-y-3">
+                  {accountSelections.map((selection) => (
+                    <div key={selection.id} className="flex flex-col sm:flex-row gap-2">
+                      <select
+                        value={selection.selection}
+                        onChange={(e) => handleSelectionChange(selection.id, e.target.value)}
+                        className="flex-1 rounded border-[1.5px] border-stroke bg-transparent py-2 px-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      >
+                        <option value="">Select Account Type</option>
+                        {accountTypeOptions.map((option) => (
+                          <option key={option.label} value={option.label}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      {accountSelections.length > 1 && (
+                        <button
+                          onClick={() => removeAccountSelection(selection.id)}
+                          className="sm:w-auto w-full px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors duration-200"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="mt-4 space-y-3">
+                  <button 
+                    onClick={addAccountSelection}
+                    className="w-full bg-green-500 text-white rounded p-3 hover:bg-green-600 transition-colors duration-200"
+                  >
+                    Add Another Field
+                  </button>
+
+                  <button 
+      onClick={handleSubmitDefaultSettings}
+      disabled={!selectedDefaultAccount || accountSelections.every(s => !s.selection)}
+      className="w-full bg-blue-500 text-white rounded p-3 hover:bg-blue-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      Update Default Settings
+    </button>
+                </div>
+              </div>
             )}
+          </div>
         </div>
-      </div>
 
       {/* Update Account Section */}
       {/* <div className="mt-6 p-6 border rounded-lg">
@@ -745,7 +993,7 @@ const fetchTransactions = async () => {
        {/* Bar Chart */}
        <div className="h-80 mb-6">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData}>
+            <BarChart data={chartData} >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" />
               <YAxis />

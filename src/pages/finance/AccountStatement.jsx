@@ -107,7 +107,7 @@ const AccountStatement = ({ selectedAccount, onClose, isOpen }) => {
 
             <div className="space-y-2">
               <h3 className="font-bold text-orange-500 text-lg">YOUR ACCOUNT STATEMENT</h3>
-              <div className="grid grid-cols-2 text-sm sm:text-base gap-2">
+              <div className="grid grid-cols-2 text-sm sm:text-base gap-2 dark:text-white text-black">
                 <p>Period: {new Date().toLocaleDateString()} TO {new Date().toLocaleDateString()}</p>
                 <p>Account Number: {selectedAccount?.account_number}</p>
                 <p>Account Name: {selectedAccount?.account_name}</p>
@@ -117,9 +117,9 @@ const AccountStatement = ({ selectedAccount, onClose, isOpen }) => {
               </div>
             </div>
 
-            <div className="border p-3 sm:p-4 rounded overflow-x-auto">
+            <div className="border p-3 sm:p-4 rounded overflow-x-auto dark:text-white text-black">
               <h4 className="font-bold mb-3 text-sm sm:text-base">ACCOUNTS SUMMARY</h4>
-              <table className="w-full text-sm sm:text-base whitespace-nowrap">
+              <table className="w-full text-sm sm:text-base whitespace-nowrap dark:text-white text-black">
                 <thead>
                   <tr className="bg-gray-100">
                     <th className="border p-2 text-left">Account No</th>
@@ -145,7 +145,7 @@ const AccountStatement = ({ selectedAccount, onClose, isOpen }) => {
               </table>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 dark:text-white text-black">
               <div className="border p-3 sm:p-4 rounded overflow-x-auto">
                 <h4 className="font-bold mb-3 sm:mb-4 text-sm sm:text-base">CHANNEL INTERACTION</h4>
                 <table className="w-full text-sm sm:text-base whitespace-nowrap">
@@ -184,7 +184,7 @@ const AccountStatement = ({ selectedAccount, onClose, isOpen }) => {
                 </table>
               </div>
 
-              <div className="border p-3 sm:p-4 rounded">
+              <div className="border p-3 sm:p-4 rounded dark:text-white text-black">
                 <h4 className="font-bold mb-3 sm:mb-4 text-sm sm:text-base">CHANNEL USAGE FREQUENCY</h4>
                 <div className="h-48 flex justify-center items-center">
                   <PieChart width={200} height={200}>
@@ -218,7 +218,7 @@ const AccountStatement = ({ selectedAccount, onClose, isOpen }) => {
               </div>
             </div>
 
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto dark:text-white text-black">
               <table className="w-full border-collapse text-sm sm:text-base whitespace-nowrap">
                 <thead className="bg-gray-100 dark:bg-boxdark">
                   <tr>
