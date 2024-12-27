@@ -23,6 +23,7 @@
     "apexcharts": "^3.41.0",
     "axios": "^1.7.8",
     "caniuse-lite": "^1.0.30001660",
+    "date-fns": "^4.1.0",
     "flatpickr": "^4.6.13",
     "headlessui": "^0.0.0",
     "jspdf": "^2.5.2",

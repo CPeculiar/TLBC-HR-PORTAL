@@ -1303,13 +1303,13 @@ const formatDate = (dateString) => {
                  <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
                 <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                   <h3 className="font-medium text-base sm:text-lg text-black dark:text-white">
-                    All Attendance created by Me
+                    My Attendance history
                   </h3>
                   <button
                     onClick={getMyAttendanceLists}
                     className="w-full sm:w-auto flex justify-center items-center rounded bg-primary px-3 sm:px-4 py-2 sm:py-3 text-white hover:bg-opacity-90 text-sm sm:text-base"
                   >
-                    Get All Attendance created by me
+                    Get my Attendance history
                   </button>
                 </div>
 
@@ -1317,7 +1317,7 @@ const formatDate = (dateString) => {
                   <div className="mt-4 sm:mt-6 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-4 sm:p-6.5">
                     <p className="text-[red] dark:text-white">
                       {' '}
-                      No attendance records found for your search
+                      No attendance records found for you
                     </p>
                   </div>
                 )}
