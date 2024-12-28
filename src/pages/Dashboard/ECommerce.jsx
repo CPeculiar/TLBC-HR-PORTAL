@@ -35,10 +35,10 @@ const ECommerce = () => {
 const fetchDashboardData = async () => {
   try {
     // Fetch total users
-    const usersResponse = await axios.get('https://tlbc-platform-api.onrender.com/api/users/', {
+    const usersResponse = await axios.get('https://tlbc-platform-api.onrender.com/api/users/count/', {
       headers: { 'Authorization': `Bearer ${accessToken}` }
     });
-    setTotalUsers(usersResponse.data.count);
+    setTotalUsers(usersResponse.data.total);
 
     // Fetch total zones
     const zonesResponse = await axios.get('https://tlbc-platform-api.onrender.com/api/zones/', {
@@ -53,16 +53,16 @@ const fetchDashboardData = async () => {
     setTotalChurches(churchesResponse.data.count);
 
     // Fetch male users
-    const maleUsersResponse = await axios.get('https://tlbc-platform-api.onrender.com/api/users/?gender=male', {
+    const maleUsersResponse = await axios.get('https://tlbc-platform-api.onrender.com/api/users/count/', {
       headers: { 'Authorization': `Bearer ${accessToken}` }
     });
-    setMaleUsers(maleUsersResponse.data.count);
+    setMaleUsers(maleUsersResponse.data.male);
 
     // Fetch female users
-    const femaleUsersResponse = await axios.get('https://tlbc-platform-api.onrender.com/api/users/?gender=female', {
+    const femaleUsersResponse = await axios.get('https://tlbc-platform-api.onrender.com/api/users/count/', {
       headers: { 'Authorization': `Bearer ${accessToken}` }
     });
-    setFemaleUsers(femaleUsersResponse.data.count);
+    setFemaleUsers(femaleUsersResponse.data.female);
 
     setLoading(false);
   } catch (err) {

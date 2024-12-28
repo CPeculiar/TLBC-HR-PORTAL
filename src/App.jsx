@@ -55,6 +55,7 @@ import NewComersCount from './pages/Attendance Manager/NewComersCount';
 import FirstTimersFormAdmin from './pages/Attendance Manager/FirstTimersFormAdmin';
 import AddReturningAdmin from './pages/Attendance Manager/AddReturningAdmin';
 import AccountStatement from './pages/finance/AccountStatement';
+import EditUserDetailsForm from './pages/User Management/EditUserDetailsForm';
 
 
 
@@ -186,6 +187,7 @@ function App() {
       <Route path="/deleteUser" element={withDefaultLayout(<DeleteUser />, "Delete User")} />
       <Route path="/userPermissions" element={withDefaultLayout(<UserPermissions />, "User Permissions")} />
       <Route path="/userSearchAdmin" element={withDefaultLayout(<UserSearchAdmin />, "Admin User Search")} />
+      <Route path="/edituserdetailsform" element={withDefaultLayout(<EditUserDetailsForm />, "Edit User's Details Form")} />
       
       
       <Route path="/attendancereportadmin" element={withDefaultLayout(<AttendanceReportAdmin />, "Attendance Admin Report")} />

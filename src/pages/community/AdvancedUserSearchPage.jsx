@@ -5,6 +5,7 @@ import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import { Eye, X, PlusCircle, Trash2, Search, Filter } from "lucide-react";
 import User from '../../images/user/user-09.png';
 import UserProfileCard from './UserProfileCard';
+import UserProfileCardAdmin from '../User Management/UserProfileCardAdmin';
 
 // Predefined lists for dropdowns
 const CHURCHES = [
@@ -44,7 +45,9 @@ const AdvancedUserSearchPage = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [isUsernameSearch, setIsUsernameSearch] = useState(false);
     const navigate = useNavigate();
+
 
   // Color constants
   const primaryColor = '#3c50e0';
@@ -55,27 +58,28 @@ const AdvancedUserSearchPage = () => {
 
   // Available search field options
   const SEARCH_FIELDS = [
-    { key: 'birth_date_after', label: 'DOB After', type: 'date' },
-    { key: 'birth_date_before', label: 'DOB Before', type: 'date' },
+    { key: 'username', label: 'Username', type: 'username' }, 
     { key: 'church', label: 'Church', type: 'select', options: CHURCHES },
-    { key: 'city', label: 'City', type: 'text' },
-    { key: 'country', label: 'Country', type: 'select', options: COUNTRIES },
-    { key: 'enrolled_in_wfs', label: 'Enrollment in Word Foundation Sschool', type: 'boolean' },
+    { key: 'zone', label: 'Zone', type: 'select', options: ZONES },
     { key: 'gender', label: 'Gender', type: 'select', options: ['Male', 'Female'] },
     { key: 'invited_by', label: 'Invited By', type: 'text' },
     { key: 'origin_state', label: 'State of Origin', type: 'select', options: STATES },
-    { key: 's', label: 'Name', type: 'text' },
+    { key: 'city', label: 'City', type: 'text' },
     { key: 'state', label: 'State of Residence', type: 'select', options: STATES },
+    { key: 'country', label: 'Country', type: 'select', options: COUNTRIES },
+    { key: 'birth_date_after', label: 'DOB After', type: 'date' },
+    { key: 'birth_date_before', label: 'DOB Before', type: 'date' },
+    { key: 'enrolled_in_wfs', label: 'Enrollment in Word Foundation Sschool', type: 'boolean' },
+    { key: 's', label: 'Name', type: 'text' },
     { key: 'wfs_graduation_year_max', label: 'WFS Graduation Year (Max.)', type: 'number' },
-    { key: 'wfs_graduation_year_min', label: 'WFS Graduation Year (Min.)', type: 'number' },
-    { key: 'zone', label: 'Zone', type: 'select', options: ZONES }
+    { key: 'wfs_graduation_year_min', label: 'WFS Graduation Year (Min.)', type: 'number' }
   ];
 
   // Fetch users based on search parameters
-  const fetchUsers = async (page = 1, params = {}) => {
-    setError(null);
-    setIsLoading(true);
-
+   const fetchUsers = async (page = 1, params = {}) => {
+        setError(null);
+        setIsLoading(true);
+        setIsUsernameSearch(false); 
     try {
       const accessToken = localStorage.getItem("accessToken");
       if (!accessToken) {
@@ -84,6 +88,23 @@ const AdvancedUserSearchPage = () => {
         return;
       }
 
+       // Check if we're searching by username
+       const usernameField = searchFields.find(field => field.key === 'username');
+       if (usernameField && usernameField.value) {
+        setIsUsernameSearch(true);
+           // Make the specific username API call
+           const response = await axios.get(
+               `https://tlbc-platform-api.onrender.com/api/users/${usernameField.value}/`,
+               {
+                   headers: { Authorization: `Bearer ${accessToken}` }
+               }
+           );
+           setUsers([response.data]); // Set as array with single user
+           setTotalPages(1);
+           // Automatically show the profile card for username search
+           setSelectedUser(response.data);
+       } else {
+           // Make the regular search API call
       const response = await axios.get(
         `https://tlbc-platform-api.onrender.com/api/users/`,
         {
@@ -95,10 +116,18 @@ const AdvancedUserSearchPage = () => {
       const data = response.data;
       setUsers(data.results || []);
       setTotalPages(data.count ? Math.ceil(data.count / data.limit) : 1);
+    }
       setIsLoading(false);
     } catch (error) {
       console.error('Error fetching users:', error);
-      setError(error.message);
+      
+      // Extract backend error message
+      if (error.response && error.response.data && error.response.data.detail) {
+        setError(error.response.data.detail);
+    } else {
+        setError(error.message || "An unknown error occurred.");
+    }
+
       setUsers([]);
       setTotalPages(1);
       setIsLoading(false);
@@ -171,13 +200,23 @@ const AdvancedUserSearchPage = () => {
         setTotalPages(1);
     };
 
+    // Handler for viewing user details
+    const handleViewUser = (user) => {
+        setSelectedUser(user);
+    };
+
+    // Handler for closing profile cards
+    const handleCloseProfile = () => {
+        setSelectedUser(null);
+        setIsUsernameSearch(false);
+    };
 
   // Render error message
   if (error) {
     return (
       <div className="container mx-auto px-4 py-6 text-center">
         <p className="text-red-500">Error: {error}</p>
-        <p>Please contact the system administrator</p>
+        <p>Please contact your Pastor.</p>
       </div>
     );
   }
@@ -185,23 +224,23 @@ const AdvancedUserSearchPage = () => {
   // Render dynamic search fields
   const renderSearchField = (field, index) => {
     return (
-      <div key={index} className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 mb-2 text-black dark:text-white">
-          {/* Field Selection Dropdown - Improved Responsiveness */}
-        <div className="w-full sm:w-1/3 relative">
-        <select
-         className="w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-sm pr-8 text-black dark:text-white"
-         value={field.key}
-          onChange={(e) => updateSearchField(index, e.target.value, '')}
-        >
-           <option value="" className="text-gray-500 w-8 dark:text-white">Search by</option>
-          {SEARCH_FIELDS.filter(
-            searchField => !searchFields.some(f => f.key === searchField.key)
-          ).map((searchField) => (
-            <option key={searchField.key} value={searchField.key}  className="text-sm dark:text-white">
-              {searchField.label}
-            </option>
-          ))}
-        </select>
+      <div key={index} className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 mb-2 text-black dark:text-black">
+      {/* Field Selection Dropdown - Improved Responsiveness */}
+      <div className="w-full sm:w-1/3 relative">
+          <select
+              className="w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-sm pr-8 text-black dark:text-black"
+              value={field.key}
+              onChange={(e) => updateSearchField(index, e.target.value, '')}
+          >
+              <option value="" className="text-gray-500 w-8 dark:text-black">Search by</option>
+              {SEARCH_FIELDS.filter(
+                  searchField => !searchFields.some(f => f.key === searchField.key)
+              ).map((searchField) => (
+                  <option key={searchField.key} value={searchField.key} className="text-sm dark:text-black">
+                      {searchField.label}
+                  </option>
+              ))}
+          </select>
 
 {/* Custom dropdown chevron */}
 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
@@ -216,6 +255,16 @@ const AdvancedUserSearchPage = () => {
           const fieldConfig = SEARCH_FIELDS.find(f => f.key === field.key);
           
           switch (fieldConfig.type) {
+            case 'username':
+                        return (
+                            <input
+                                type="text"
+                                placeholder="Enter username"
+                                className="w-full sm:flex-grow rounded-md border border-gray-300 px-3 py-2 text-sm dark:text-black"
+                                value={field.value}
+                                onChange={(e) => updateSearchField(index, field.key, e.target.value)}
+                            />
+                        );
             case 'select':
               return (
                 <div className="w-full sm:flex-grow relative">
@@ -248,7 +297,7 @@ const AdvancedUserSearchPage = () => {
                 value={field.value}
                 onChange={(e) => updateSearchField(index, field.key, e.target.value)}
                 >
-                   <option value="" className="text-gray-500 dark:text-white">
+                   <option value="" className="text-gray-500 dark:text-black">
                       Select {fieldConfig.label}
                     </option>
                     <option value="true" className="text-sm dark:text-white">True</option>
@@ -390,7 +439,7 @@ const AdvancedUserSearchPage = () => {
                       </td>
                       <td className="px-2 sm:px-4 py-3">      
                         <button
-                          onClick={() => setSelectedUser(user)}
+                          onClick={() => handleViewUser(user)}
                           className="flex justify-center rounded bg-primary text-white p-2 sm:p-3 hover:bg-opacity-90"
                         >
                           <Eye size={16} sm:size={18} />
@@ -442,12 +491,20 @@ const AdvancedUserSearchPage = () => {
         )}
       </div>
 
-      {selectedUser && (
+      {selectedUser && !isUsernameSearch && (
         <UserProfileCard 
           user={selectedUser} 
-          onClose={() => setSelectedUser(null)} 
+          // onClose={() => setSelectedUser(null)} 
+          onClose={handleCloseProfile}
         />
       )}
+
+            {selectedUser && isUsernameSearch && (
+                <UserProfileCardAdmin 
+                    user={selectedUser} 
+                    onClose={handleCloseProfile}
+                />
+            )}
     </>
   );
 };
