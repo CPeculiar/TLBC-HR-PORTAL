@@ -21,6 +21,15 @@ const FinanceDashboard = () => {
   const [updateError, setUpdateError] = useState(null);
   const [isUpdateButtonDisabled, setIsUpdateButtonDisabled] = useState(true);
 
+   // Add new state for transfer form
+   const [transferAmount, setTransferAmount] = useState('');
+   const [transferPurpose, setTransferPurpose] = useState('');
+   const [beneficiaryAccount, setBeneficiaryAccount] = useState('');
+   const [isTransferring, setIsTransferring] = useState(false);
+   const [showTransferSuccess, setShowTransferSuccess] = useState(false);
+   const [transferSuccessDetails, setTransferSuccessDetails] = useState('');
+   const [transferError, setTransferError] = useState('');
+
    // State for default account
    const [selectedDefaultAccount, setSelectedDefaultAccount] = useState('');
 
@@ -82,6 +91,11 @@ const [showStatement, setShowStatement] = useState(false);
   // State for messages
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+
+    // Add state for success message visibility
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successDetails, setSuccessDetails] = useState('');
+
 
   // Add new states for loading
 const [isVerifyingAccount, setIsVerifyingAccount] = useState(false);
@@ -474,32 +488,6 @@ const fetchTransactions = async () => {
         return acc;
       }, {});
 
-      // Initialize request body
-      // let requestBody = {
-      //   for_giving: null,
-      //   for_fund: null,
-      //   for_remittance: null
-      // };
-
-      // Process selections
-      // accountSelections.forEach(selection => {
-      //   if (selection.selection) {
-      //     const option = accountTypeOptions.find(opt => opt.label === selection.selection);
-      //     if (option) {
-      //       requestBody[option.field] = option.value;
-      //     }
-      //   }
-      // });
-
-      // console.log('Making API call with:', requestBody); // For debugging
-
-      // Only include fields that were explicitly selected
-      // Object.entries(requestBody).forEach(([key, value]) => {
-      //   if (value !== null) {
-      //     formData.append(key, value);
-      //   }
-      // });
-
       const response = await axios.patch(
         `https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedDefaultAccount}/`,
         updates,
@@ -512,6 +500,9 @@ const fetchTransactions = async () => {
 
       if (response.status === 200) {
         showMessage('success', 'Account settings updated successfully');
+        const successMessage = generateSuccessMessage(updates);
+        setSuccessDetails(successMessage);
+        setShowSuccessModal(true);
         
         // Reset selections
         setAccountSelections([{ id: 1, selection: '' }]);
@@ -523,6 +514,12 @@ const fetchTransactions = async () => {
         if (selectedDefaultAccount) {
           await verifyDefaultAccountDetails();
         }
+
+         // Auto-hide success modal after 5 seconds
+         setTimeout(() => {
+          setShowSuccessModal(false);
+          setSuccessDetails('');
+        }, 5000);
       }
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -585,6 +582,85 @@ const fetchTransactions = async () => {
       console.log(`${cardType} time period changed to: ${period}`);
     };
 
+
+    // Handle transfer submission
+  const handleTransfer = async () => {
+    if (!selectedDefaultAccount || !beneficiaryAccount || !transferAmount || !transferPurpose) {
+      setTransferError('Please fill in all required fields');
+      return;
+    }
+
+    setIsTransferring(true);
+    setTransferError('');
+
+    try {
+      const response = await axios.post(
+        'https://tlbc-platform-api.onrender.com/api/finance/accounts/transfer/',
+        {
+          from_account: selectedDefaultAccount,
+          to_account: beneficiaryAccount,
+          amount: transferAmount,
+          purpose: transferPurpose
+        }
+      );
+
+      // Set success details
+      setTransferSuccessDetails({
+        fromAccount: accounts.find(acc => acc.code === selectedDefaultAccount)?.account_name,
+        toAccount: accounts.find(acc => acc.code === beneficiaryAccount)?.account_name,
+        amount: transferAmount,
+        purpose: transferPurpose
+      });
+      
+      // Show success modal
+      setShowTransferSuccess(true);
+      
+      // Reset form
+      setTransferAmount('');
+      setTransferPurpose('');
+      setBeneficiaryAccount('');
+      
+      // Refresh account details
+      await fetchAccounts();
+      if (selectedDefaultAccount) {
+        await verifyDefaultAccountDetails();
+      }
+    } catch (error) {
+      const errorMsg = error.response?.data?.message || 
+                      error.response?.data?.detail ||
+                      'Transfer failed. Please try again.';
+      setTransferError(errorMsg);
+    } finally {
+      setIsTransferring(false);
+    }
+  };
+
+
+     // Helper function to generate success message
+  const generateSuccessMessage = (updates) => {
+    const messages = [];
+    
+    if (updates.for_giving !== undefined) {
+      messages.push(updates.for_giving ? 
+        '✓ Set as default account for giving' : 
+        '✓ Removed as default account for giving');
+    }
+    
+    if (updates.for_fund !== undefined) {
+      messages.push(updates.for_fund ? 
+        '✓ Set as default account for fund' : 
+        '✓ Removed as default account for fund');
+    }
+    
+    if (updates.for_remittance !== undefined) {
+      messages.push(updates.for_remittance ? 
+        '✓ Set as default account for remittance' : 
+        '✓ Removed as default account for remittance');
+    }
+    
+    return messages.join('\n');
+  };
+
     
   return (
     <>
@@ -599,6 +675,43 @@ const fetchTransactions = async () => {
         </div>
       </div>
     )}
+
+{/* Success Modal */}
+{showSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+          <div className="relative bg-white dark:bg-boxdark rounded-lg p-6 max-w-md w-full shadow-xl transform transition-all">
+            <div className="text-center">
+              {/* Success Icon */}
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+                <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+              
+              {/* Success Title */}
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                Settings Updated Successfully!
+              </h3>
+              
+              {/* Success Details */}
+              <div className="mt-4 text-left">
+                <pre className="whitespace-pre-line text-sm text-gray-500 dark:text-gray-300">
+                  {successDetails}
+                </pre>
+              </div>
+
+              {/* Close Button */}
+              <button
+                onClick={() => setShowSuccessModal(false)}
+                className="mt-6 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors duration-200"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Message Handling */}
@@ -851,6 +964,168 @@ const fetchTransactions = async () => {
             )}
           </div>
         </div>
+
+         {/* Funds Transfer Section */}
+         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-4 sm:p-6">
+          <h3 className="text-lg sm:text-xl font-bold mb-4 text-black dark:text-white">Funds Transfer</h3>
+          
+          {/* From Account Selection */}
+    <div className="space-y-4">
+      <div className="flex flex-col space-y-2">
+        <label className="text-black dark:text-white">From Account</label>
+        <select 
+          value={selectedDefaultAccount}
+          onChange={(e) => {
+            setSelectedDefaultAccount(e.target.value);
+            setVerifiedAccountDetails(null);
+          }}
+          className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-4 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+        >
+          <option value="">Select Sending Account</option>
+          {accounts.map(account => (
+            <option key={account.code} value={account.code}>
+              {account.account_name} - {account.bank_name}
+            </option>
+          ))}
+        </select>
+
+        <button 
+          onClick={verifyDefaultAccountDetails}
+          disabled={!selectedDefaultAccount || isVerifyingAccount}
+          className="w-full bg-blue-500 text-white rounded p-3 disabled:opacity-50 hover:bg-blue-600 transition-colors duration-200"
+        >
+          {isVerifyingAccount ? 'Verifying...' : 'Verify Sending Account'}
+        </button>
+      </div>
+
+      {/* Verified Account Details */}
+      {verifiedAccountDetails && (
+        <div className="mt-4 p-4 bg-blue-50 dark:bg-boxdark rounded-lg">
+          <h4 className="text-lg font-semibold mb-3 text-black dark:text-white">Sending Account Details</h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+            <div className="p-2 bg-white dark:bg-gray-800 rounded">
+              <p className="text-sm text-black dark:text-black">
+                <strong>Account Name:</strong><br />
+                {verifiedAccountDetails.account_name}
+              </p>
+            </div>
+            <div className="p-2 bg-white dark:bg-gray-800 rounded">
+              <p className="text-sm text-black dark:text-black">
+                <strong>Account Number:</strong><br />
+                {verifiedAccountDetails.account_number}
+              </p>
+            </div>
+            <div className="p-2 bg-white dark:bg-gray-800 rounded">
+              <p className="text-sm text-black dark:text-black">
+                <strong>Bank:</strong><br />
+                {verifiedAccountDetails.bank_name}
+              </p>
+            </div>
+            <div className="p-2 bg-white dark:bg-gray-800 rounded">
+              <p className="text-sm text-black dark:text-black">
+                <strong>Available Balance:</strong><br />
+                ₦{verifiedAccountDetails.balance}
+              </p>
+            </div>
+          </div>
+
+          {/* Transfer Form */}
+          <div className="space-y-4 mt-6">
+            <div>
+              <label className="text-black dark:text-white block mb-2">To Account</label>
+              <select
+                value={beneficiaryAccount}
+                onChange={(e) => setBeneficiaryAccount(e.target.value)}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-4 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+              >
+                <option value="">Select Receiving Account</option>
+                {accounts
+                  .filter(account => account.code !== selectedDefaultAccount)
+                  .map(account => (
+                    <option key={account.code} value={account.code}>
+                      {account.account_name} - {account.bank_name}
+                    </option>
+                  ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="text-black dark:text-white block mb-2">Amount (₦)</label>
+              <input
+                type="number"
+                value={transferAmount}
+                onChange={(e) => setTransferAmount(e.target.value)}
+                placeholder="Enter amount"
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-4 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+              />
+            </div>
+
+            <div>
+              <label className="text-black dark:text-white block mb-2">Purpose</label>
+              <input
+                type="text"
+                value={transferPurpose}
+                onChange={(e) => setTransferPurpose(e.target.value)}
+                placeholder="Enter transfer purpose"
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-4 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+              />
+            </div>
+
+            {transferError && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+                {transferError}
+              </div>
+            )}
+
+            <button
+              onClick={handleTransfer}
+              disabled={isTransferring || !selectedDefaultAccount || !beneficiaryAccount || !transferAmount || !transferPurpose}
+              className="w-full bg-blue-500 text-white rounded p-3 hover:bg-blue-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isTransferring ? 'Processing Transfer...' : 'Transfer Funds'}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+
+  {/* Transfer Success Modal */}
+  {showTransferSuccess && (
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+      <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+      <div className="relative bg-white dark:bg-boxdark rounded-lg p-6 max-w-md w-full shadow-xl">
+        <div className="text-center">
+          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+            <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+          
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            Transfer Successful!
+          </h3>
+          
+          <div className="mt-4 text-left">
+            <p className="text-sm text-gray-500 dark:text-gray-300">
+              From: {transferSuccessDetails.fromAccount}<br />
+              To: {transferSuccessDetails.toAccount}<br />
+              Amount: ₦{transferSuccessDetails.amount}<br />
+              Purpose: {transferSuccessDetails.purpose}
+            </p>
+          </div>
+
+          <button
+            onClick={() => setShowTransferSuccess(false)}
+            className="mt-6 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors duration-200"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  )}
+
 
       {/* Update Account Section */}
       {/* <div className="mt-6 p-6 border rounded-lg">

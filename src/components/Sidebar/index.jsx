@@ -960,7 +960,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                             fill="white"
                           />
                         </svg>
-                        Finance Management
+                        Finance Management 
                         <svg
                           className={`absolute right-4 top-1/2 -translate-y-1/2 fill-current ${
                             open && 'rotate-180'
@@ -1205,7 +1205,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
               {/* <!-- Menu Item Zone Management ends --> */}
 
 
-{/* <!-- Menu Item Zone Manager Starts --> */}
+{/* <!-- Menu Item User Management Starts --> */}
 <SidebarLinkGroup
                 activeCondition={
                   pathname === '/forms' || pathname.includes('forms')
@@ -1334,7 +1334,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                   );
                 }}
               </SidebarLinkGroup>
-              {/* <!-- Menu Item Zone Manager ends --> */}
+              {/* <!-- Menu Item User Management ends --> */}
 
 
 
