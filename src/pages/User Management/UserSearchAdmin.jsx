@@ -246,7 +246,7 @@ const UserSearchAdmin = ({  deleteUser }) => {
                       key={index}
                       className="hover:bg-gray-100 dark:hover:bg-strokedark transition-colors duration-300"
                       style={{ backgroundColor: 'white', color: textColor }}
-                    >
+                    > 
                       <td className="px-4 py-3">
                         <img
                           src={user.profile_picture || User}

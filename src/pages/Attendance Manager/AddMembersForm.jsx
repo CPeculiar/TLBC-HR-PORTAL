@@ -101,7 +101,7 @@ const AddMembersForm = () => {
       <div className="mx-auto max-w-5xl">
         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
           <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
-            <h3 className="font-medium text-black dark:text-white">
+            <h3 className="font-medium text-black dark:text-white text-xl">
               Membership Manual Attendance Form
             </h3>
           </div>

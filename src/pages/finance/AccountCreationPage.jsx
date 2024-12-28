@@ -18,7 +18,7 @@ const AccountCreationPage = () => {
     all: false
   });
   const navigate = useNavigate();
-
+ 
   useEffect(() => {
     fetchBanks();
   }, []);
@@ -85,7 +85,7 @@ const AccountCreationPage = () => {
       setIsCreateButtonDisabled(true);
     }
   };
-
+ 
   const handleCreateAccount = async () => {
     try {
       const bankCode = document.getElementById('bank-dropdown').value;

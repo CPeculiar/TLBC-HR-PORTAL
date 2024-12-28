@@ -117,6 +117,7 @@ export default function EditUserPage() {
         {
           method: 'PATCH',
           headers: {
+            'Content-Type': 'multipart/form-data',
             Authorization: `Bearer ${accessToken}`,
           },
           body: formData,
@@ -141,10 +142,16 @@ export default function EditUserPage() {
 
   return (
     <>
-      <Breadcrumb pageName="Edit User" />
+      <Breadcrumb pageName="Edit User Details Form" />
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-6">
         <div className="bg-white dark:bg-boxdark rounded-xl shadow-md border border-stroke dark:border-strokedark p-6 sm:p-8">
+        <div className="py-2 px-2.5 mb-4 dark:border-strokedark">
+            <h3 className="font-medium text-black dark:text-white text-xl">
+            Edit User Details Form
+            </h3>
+          </div>
+          
           {error && (
             <Alert className="mb-6 border-red-500 bg-red-50 text-red-800">
               <AlertDescription>{error}</AlertDescription>

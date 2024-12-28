@@ -258,7 +258,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                               Take Attendance
                             </NavLink>
                           </li>
-                          <li>
+                          {/* <li>
                             <NavLink
                               to="/attendancereport"
                               className={({ isActive }) =>
@@ -268,7 +268,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                             >
                               Attendance Report
                             </NavLink>
-                          </li>
+                          </li> */}
                         </ul>
                       </div>
                       {/* <!-- Dropdown Menu End --> */}

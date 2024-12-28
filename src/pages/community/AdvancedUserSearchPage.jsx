@@ -389,12 +389,12 @@ const AdvancedUserSearchPage = () => {
             <table className="w-full divide-y divide-gray-200 dark:divide-form-strokedark">
               <thead>
                 <tr>
-                  {['Profile', 'Name', 'Phone', 'Email', 'Gender', 'Church', 'Action'].map((header) => (
+                  {['Profile', 'Username', 'Name', 'Phone', 'Email', 'Gender', 'Church', 'Action'].map((header) => (
                     <th
                       key={header}
                       className="px-2 sm:px-4 py-3 bg-primary text-white text-left text-xs font-medium uppercase tracking-wider"
                     >
-                      {header}
+                      {header} 
                     </th>
                   ))}
                 </tr>
@@ -421,6 +421,9 @@ const AdvancedUserSearchPage = () => {
                           alt="Profile"
                           className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
                         />
+                      </td>
+                      <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-black dark:text-white">
+                        {user.username}
                       </td>
                       <td className="px-2 sm:px-4 py-3 text-xs sm:text-sm text-black dark:text-white">
                         {user.first_name} {user.last_name}
