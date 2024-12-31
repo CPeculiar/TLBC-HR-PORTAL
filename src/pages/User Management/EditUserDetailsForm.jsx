@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Trash2, Plus } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
+import axios from "axios";
 import { Alert, AlertDescription } from '../../components/ui/alert';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 
@@ -111,34 +112,50 @@ export default function EditUserPage() {
     });
 
     try {
-      const accessToken = localStorage.getItem('accessToken');
-      const response = await fetch(
+      const accessToken = localStorage.getItem("accessToken");
+      if (!accessToken) {
+        alert("Access token not found. Please login first.");
+        navigate("/");
+        return;
+      }
+
+
+      const response = await axios.patch(
         `https://tlbc-platform-api.onrender.com/api/users/${username}/`,
+        formData,
         {
-          method: 'PATCH',
           headers: {
-            'Content-Type': 'multipart/form-data',
             Authorization: `Bearer ${accessToken}`,
-          },
-          body: formData,
-        }
+            "Content-Type": "multipart/form-data",
+            },  
+          } 
       );
 
-      const data = await response.json();
+      const data = await response.data;
 
-      if (!response.ok) {
-        throw new Error(data.detail || 'Failed to update user');
+      if (response.ok) {
+        setSuccess('User updated successfully');
+        // throw new Error(data.detail || 'Failed to update user');
       }
 
       setSuccess('User updated successfully');
       setFields([{ key: '', value: '' }]);
     } catch (err) {
+      if (error.response.data.detail) {
+        setError({ message: error.response.data.detail });
+      } else if (!response.ok) {
+        throw new Error(data.detail || 'Failed to update user');
+      } else if (error.response.data) {
+        setError(error.response.data);
+      }
+      else {
       setError(err.message);
+      }
     } finally {
       setIsLoading(false);
     }
   };
-
+   
 
   return (
     <>

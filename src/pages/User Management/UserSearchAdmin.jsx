@@ -270,7 +270,6 @@ const UserSearchAdmin = ({  deleteUser }) => {
                       </td>
                       <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-base text-black dark:text-white">
                           <a
-                            href="#"
                             onClick={() => navigate("/edituserdetailsform")}
                             className="text-sm text-primary hover:text-secondary transition-all"
                             >
