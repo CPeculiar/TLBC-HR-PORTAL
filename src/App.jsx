@@ -61,6 +61,13 @@ import AboutTLBC from './pages/community/AboutTLBC';
 import LOLD from './pages/community/LOLD';
 import Giving from './pages/Giving/Giving';
 import EventsPage from './pages/Events/EventsPage';
+import CentralAccountDashboard from './pages/Central Finance/CentralAccountDashboard';
+import CentralAccountCreationPage from './pages/Central Finance/CentralAccountCreationPage';
+import CentralAccountStatement from './pages/Central Finance/CentralAccountStatement';
+import CentralTopupManagement from './pages/Central Finance/CentralTopupManagement';
+import CentralFundManagement from './pages/Central Finance/CentralFundManagement';
+import CentralExpensesManagement from './pages/Central Finance/CentralExpensesManagement';
+import CentralRemittanceManagement from './pages/Central Finance/CentralRemittanceManagement';
 
 
 
@@ -200,6 +207,16 @@ function App() {
       <Route path="/remittanceManagement" element={withDefaultLayout(<RemittanceManagement />, "Remittance Management")} />
       <Route path="/topupManagement" element={withDefaultLayout(<TopupManagement />, "Topup Management")} />
       <Route path="/accountstatement" element={withDefaultLayout(<AccountStatement />, "Account Statement")} />
+
+
+      <Route path="/centralfinanceDashboard" element={withDefaultLayout(<CentralAccountDashboard />, "Central Finance Dashboard")} />
+      <Route path="/centralaccountCreation" element={withDefaultLayout(<CentralAccountCreationPage/>, "Create Central Account")} />
+
+      <Route path="/centralexpensesManagement" element={withDefaultLayout(<CentralExpensesManagement />, "Central Expenses Management")} />
+      <Route path="/centralfundManagement" element={withDefaultLayout(<CentralFundManagement />, "Central Fund Management")} />
+      <Route path="/centralremittanceManagement" element={withDefaultLayout(<CentralRemittanceManagement />, "Central Remittance Management")} />
+      <Route path="/centraltopupManagement" element={withDefaultLayout(<CentralTopupManagement />, "Central Topup Management")} />
+      <Route path="/centralaccountstatement" element={withDefaultLayout(<CentralAccountStatement />, "Central Account Statement")} />
 
 
       <Route path="/giving" element={withDefaultLayout(<Giving />, "Giving")} />

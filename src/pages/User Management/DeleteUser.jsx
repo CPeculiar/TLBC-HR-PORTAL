@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from "axios";
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
-
+ 
 const DeleteUser = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({

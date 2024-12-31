@@ -119,7 +119,6 @@ export default function EditUserPage() {
         return;
       }
 
-
       const response = await axios.patch(
         `https://tlbc-platform-api.onrender.com/api/users/${username}/`,
         formData,

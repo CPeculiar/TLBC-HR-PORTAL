@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 
 const Giving = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [userRole, setUserRole] = useState('');
   const [formData, setFormData] = useState({
     name: "",
     church: "",
@@ -15,6 +17,26 @@ const Giving = () => {
     currency: "NGN",
     callback_url: `${window.location.origin}/PaymentStatus`,
   });
+
+   // Get user role on component mount
+   useEffect(() => {
+    try {
+      const userInfo = JSON.parse(localStorage.getItem('userInfo')) || {};
+      setUserRole(userInfo.role || '');
+    } catch (error) {
+      console.error('Error parsing user info:', error);
+      setUserRole('');
+    }
+  }, []);
+
+  // Function to handle navigation based on user role
+  const handleDashboardNavigation = () => {
+    if (userRole === 'admin' || userRole === 'superadmin') {
+      navigate('/admindashboard');
+    } else {
+      navigate('/dashboard');
+    }
+  };
 
   const churchOptions = {
     'TLBC Awka': 'tlbc-awka',
@@ -46,11 +68,19 @@ const Giving = () => {
     setErrors(prev => ({ ...prev, [name]: "" }));
   };
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
+      const accessToken = localStorage.getItem("accessToken");
+      if (!accessToken) {
+        alert("Access token not found. Please login first.");
+        navigate("/");
+        return;
+      }
+
       const response = await fetch(
         "https://lord-s-brethren-payment.onrender.com/api/partner/",
         {
@@ -221,7 +251,7 @@ const Giving = () => {
 
                   <button
                     type="button"
-                    onClick={() => navigate("/dashboard")} 
+                    onClick={handleDashboardNavigation}
                     className="flex items-center justify-center rounded bg-secondary hover:bg-blue-300 py-3 px-6 font-medium text-gray hover:bg-opacity-90"
                   >
                     Back to Dashboard

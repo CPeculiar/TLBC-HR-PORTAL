@@ -5,7 +5,7 @@ import html2pdf from 'html2pdf.js';
 import { X } from 'lucide-react';
 import Logo from '../../../public/android-chrome-192x192.png';
 
-const AccountStatement = ({ selectedAccount, onClose, isOpen }) => {
+const CentralAccountStatement = ({ selectedAccount, onClose, isOpen }) => {
   const [transactions, setTransactions] = useState([]);
   const [openingBalance, setOpeningBalance] = useState('0.00');
   const [closingBalance, setClosingBalance] = useState('0.00');
@@ -24,7 +24,7 @@ const AccountStatement = ({ selectedAccount, onClose, isOpen }) => {
 
   const fetchTransactions = async (code) => {
     try {
-      const response = await axios.get(`https://tlbc-platform-api.onrender.com/api/finance/accounts/${code}/transactions/`);
+      const response = await axios.get(`https://tlbc-platform-api.onrender.com/api/finance/central/accounts/${code}/transactions/`);
       const { results } = response.data;
       setTransactions(results.transactions || []);
       setOpeningBalance(results.opening);
@@ -106,7 +106,7 @@ const AccountStatement = ({ selectedAccount, onClose, isOpen }) => {
             </div>
 
             <div className="space-y-2">
-              <h3 className="font-bold text-orange-500 text-lg">ACCOUNT STATEMENT for {selectedAccount?.church} </h3>
+              <h3 className="font-bold text-orange-500 text-lg">ACCOUNT STATEMENT for {selectedAccount?.church} Account </h3>
               <div className="grid grid-cols-2 text-sm sm:text-base gap-2 dark:text-white text-black">
                 <p>Period: {new Date().toLocaleDateString()} TO {new Date().toLocaleDateString()}</p>
                 <p>Account Number: {selectedAccount?.account_number}</p>
@@ -255,4 +255,4 @@ const AccountStatement = ({ selectedAccount, onClose, isOpen }) => {
   );
 };
 
-export default AccountStatement;
+export default CentralAccountStatement;
