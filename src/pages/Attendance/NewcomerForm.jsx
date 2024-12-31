@@ -39,8 +39,7 @@ const NewcomerForm = () => {
     try {
       const response = await axios.post(
         `https://tlbc-platform-api.onrender.com/api/attendance/${ref_code}/newcomers/`,
-        formData
-      );
+        formData      );
       console.log('Newcomer data submitted:', response.data);
       alert('Thank you for submitting your information!');
       navigate('/'); // Redirect to home page or a thank you page

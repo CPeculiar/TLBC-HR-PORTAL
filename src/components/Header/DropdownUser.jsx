@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import authService from '../../js/services/authService';
 import ClickOutside from '../ClickOutside';
 import UserOne from '../../images/user/user-01.png';
-import axios from 'axios';
+import axios from 'axios'; 
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);

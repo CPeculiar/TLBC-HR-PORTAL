@@ -73,7 +73,7 @@ const SignIn = () => {
       const userInfo = await authService.getUserInfo();
 
       if (userInfo.role === 'admin' || userInfo.role === 'superadmin') {
-        navigate('/dashboard');
+        navigate('/admindashboard');
       } else {
         navigate('/dashboard');
       }

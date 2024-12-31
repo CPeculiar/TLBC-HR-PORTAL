@@ -30,30 +30,6 @@ const chatData = [
     textCount: 0,
     color: '#10B981',
   },
-  {
-    avatar: UserFive,
-    name: 'Bro. Chibueze Arthur',
-    text: 'This is great 👍',
-    time: 32,
-    textCount: 2,
-    color: '#FFBA00',
-  },
-  {
-    avatar: UserOne,
-    name: 'Bro. Ebere Chukwuemeka',
-    text: 'How are you, brother?',
-    time: 32,
-    textCount: 0,
-    color: '#10B981',
-  },
-  {
-    avatar: UserThree,
-    name: 'Bro. Divine Gift',
-    text: 'Are you coming to meeting?',
-    time: 32,
-    textCount: 3,
-    color: '#FFBA00',
-  },
 ];
 
 const ChatCard = () => {

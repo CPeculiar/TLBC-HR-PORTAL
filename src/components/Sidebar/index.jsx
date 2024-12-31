@@ -1,15 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import authService from '../../js/services/authService';
 import SidebarLinkGroup from './SidebarLinkGroup';
 import TLBCFullLogo from '../../images/logo/tlbc-full-logo.svg'; 
+
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const location = useLocation();
   const { pathname } = location;
-
+  const [userRole, setUserRole] = useState('');
   const trigger = useRef(null);
   const sidebar = useRef(null);
-
+  const navigate = useNavigate();
   const storedSidebarExpanded = localStorage.getItem('sidebar-expanded');
   const [sidebarExpanded, setSidebarExpanded] = useState(
     storedSidebarExpanded === null ? false : storedSidebarExpanded === 'true'
@@ -51,6 +53,45 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
     }
   }, [sidebarExpanded]);
 
+   // Get user role from localStorage on component mount
+   useEffect(() => {
+    // const userInfo = authService.getUserInfo();
+
+    try {
+      const userInfo = JSON.parse(localStorage.getItem('userInfo')) || {};
+      // Make sure we're getting the role correctly
+      setUserRole(userInfo.role || '');
+    } catch (error) {
+      console.error('Error parsing user info:', error);
+      setUserRole('');
+    }
+
+  }, []);
+
+  // In the Sidebar component
+// useEffect(() => {
+//   const userInfo = authService.getUserInfo();
+//   console.log('User Info:', userInfo);
+//   console.log('User Role:', userRole);
+//   console.log('Is Admin:', isAdmin());
+// }, [userRole]);
+
+
+   // Function to check if user has admin access
+   const isAdmin = () => {
+    // Parse the stored role since localStorage stores strings
+    const storedRole = JSON.parse(localStorage.getItem('role'));
+    return storedRole === 'admin' || storedRole === 'superadmin';
+  };
+
+  //  const isAdmin = () => userRole === 'admin' || userRole === 'superadmin';
+
+  //  const isAdmin = () => ['admin', 'superadmin'].includes(userRole);
+
+
+  
+
+
 
   return (
     <aside
@@ -62,7 +103,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
       {/* <!-- SIDEBAR HEADER --> */}
       <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
-        <NavLink to="/dashboard">
+      <NavLink to={isAdmin() ? "/admindashboard" : "/dashboard"}>
           <img src={TLBCFullLogo} alt="Logo" 
             width={100} 
             className='p-0 m-0'
@@ -105,12 +146,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
             <ul className="mb-6 flex flex-col gap-1.5">
 
-
               {/* <!-- Menu Item - Dashboard STARTS --> */}
-
               <li>
                 <NavLink
-                  to="/dashboard"
+                to={isAdmin() ? "/admindashboard" : "/dashboard"}
                   className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
                     pathname.includes('dashboard') &&
                     'bg-graydark dark:bg-meta-4'
@@ -148,6 +187,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
               
 
   {/* <!-- Menu Item Attendance Starts --> */}
+  
   <SidebarLinkGroup
                 activeCondition={
                   pathname === '/forms' || pathname.includes('forms')
@@ -157,7 +197,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                   return (
                     <React.Fragment>
                       <NavLink
-                        to="#"
+                        to={isAdmin() ? "/admindashboard" : "/dashboard"}
                         className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
                           (pathname === '/forms' ||
                             pathname.includes('forms')) &&
@@ -225,6 +265,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                         }`}
                       >
                         <ul className="mt-4 mb-5.5 flex flex-col gap-2.5 pl-6">
+                        {isAdmin() && (
                           <li>
                             <NavLink
                               to="/createattendance"
@@ -236,6 +277,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                               Create Attendance
                             </NavLink>
                           </li>
+                        )}
                           {/* <li>
                             <NavLink
                               to="/forms"
@@ -276,6 +318,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                   );
                 }}
               </SidebarLinkGroup>
+  
               {/* <!-- Menu Item Attendance ends --> */}
         
 
@@ -381,35 +424,24 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                           </li>
                           <li>
                             <NavLink
-                              to="#"
+                              to="/AboutTLBC"
                               className={({ isActive }) =>
                                 'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
                                 (isActive && '!text-white')
                               }
                             >
-                             TLBC Locations
+                             About TLBC 
                             </NavLink>
                           </li>
                           <li>
                             <NavLink
-                              to="#"
+                              to="/comingsoon"
                               className={({ isActive }) =>
                                 'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
                                 (isActive && '!text-white')
                               }
                             >
                               LOLD
-                            </NavLink>
-                          </li>
-                          <li>
-                            <NavLink
-                              to="#"
-                              className={({ isActive }) =>
-                                'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
-                                (isActive && '!text-white')
-                              }
-                            >
-                              {/* Take Attendance */}
                             </NavLink>
                           </li>
                         </ul>
@@ -502,7 +534,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                         <ul className="mt-4 mb-5.5 flex flex-col gap-2.5 pl-6">
                           <li>
                             <NavLink
-                              to="#"
+                              to="/giving"
                               className={({ isActive }) =>
                                 'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
                                 (isActive && '!text-white')
@@ -511,9 +543,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                              To Give
                             </NavLink>
                           </li>
+                          {isAdmin() && (
                           <li>
                             <NavLink
-                              to="#"
+                              to="/comingsoon"
                               className={({ isActive }) =>
                                 'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
                                 (isActive && '!text-white')
@@ -522,6 +555,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                                Reports
                             </NavLink>
                           </li>
+                          )}
                         </ul>
                       </div>
                       {/* <!-- Dropdown Menu End --> */}
@@ -612,7 +646,18 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                         <ul className="mt-4 mb-5.5 flex flex-col gap-2.5 pl-6">
                           <li>
                             <NavLink
-                              to="#"
+                              to="/comingsoon"
+                              className={({ isActive }) =>
+                                'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
+                                (isActive && '!text-white')
+                              }
+                            >
+                            Submit your Report
+                            </NavLink>
+                          </li>
+                          <li>
+                            <NavLink
+                              to="/comingsoon"
                               className={({ isActive }) =>
                                 'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
                                 (isActive && '!text-white')
@@ -621,18 +666,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                               Read Reports
                             </NavLink>
                           </li>
-                          <li>
-                            <NavLink
-                              to="#"
-                              className={({ isActive }) =>
-                                'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
-                                (isActive && '!text-white')
-                              }
-                            >
-                              Upload a Report
-                            </NavLink>
-                          </li>
-                          <li>
+                          {/* <li>
                             <NavLink
                               to="#"
                               className={({ isActive }) =>
@@ -642,7 +676,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                             >
                               Report Management
                             </NavLink>
-                          </li>
+                          </li> */}
                         </ul>
                       </div>
                       {/* <!-- Dropdown Menu End --> */}
@@ -657,7 +691,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
               {/* <!-- Menu Item Events --> */}
               <li>
                 <NavLink
-                  to="/calendar"
+                  to="/events"
                   className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
                     pathname.includes('calendar') &&
                     'bg-graydark dark:bg-meta-4'
@@ -798,7 +832,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
             </ul>
           </div>
 
+          
+
           {/* <!-- Others Group --> */}
+          {isAdmin() && (
           <div>
             <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">
               ADMIN
@@ -1397,6 +1434,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
             
             </ul>
           </div>
+          )}
+
         </nav>
         {/* <!-- Sidebar Menu --> */}
       </div>

@@ -271,7 +271,7 @@ const UserSearchAdmin = ({  deleteUser }) => {
                       <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-base text-black dark:text-white">
                           <a
                             href="#"
-                            onClick={() => handleEdit(user)}
+                            onClick={() => navigate("/edituserdetailsform")}
                             className="text-sm text-primary hover:text-secondary transition-all"
                             >
                             <Edit size={18} />
@@ -279,10 +279,11 @@ const UserSearchAdmin = ({  deleteUser }) => {
                         </td>
                         <td className="px-2 sm:px-4 py-3 text-left text-xs sm:text-base text-black dark:text-white">
                           <button
-                            onClick={() => {
-                              setUserToDelete(user);
-                              setConfirmDelete(true);
-                            }}
+                            // onClick={() => {
+                            //   setUserToDelete(user);
+                            //   setConfirmDelete(true);
+                            // }}
+                            onClick={() => navigate("/deleteUser")}
                             className="text-white bg-red-500 hover:bg-red-900 px-4 py-2 rounded"
                           >
                             Delete

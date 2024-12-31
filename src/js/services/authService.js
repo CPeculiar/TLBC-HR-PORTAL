@@ -109,6 +109,10 @@ const authService = {
     try {
     const response = await axios.get(`${API_URL}/user/`);
     const userData = response.data;
+    const userData2 = response.data;
+
+    // Store the complete user info object
+    localStorage.setItem('userInfo', JSON.stringify(userData2));
 
      // Save non-null values to localStorage
      Object.entries(userData).forEach(([key, value]) => {
@@ -116,6 +120,12 @@ const authService = {
         localStorage.setItem(key, JSON.stringify(value));
       }
     });
+
+    
+    // Also store individual fields if needed
+    if (userData.role) {
+      localStorage.setItem('role', JSON.stringify(userData.role));
+    }
 
     return userData;
     } catch (error) {

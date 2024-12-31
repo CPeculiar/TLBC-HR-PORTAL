@@ -148,7 +148,7 @@ export default function EditUserPage() {
         <div className="bg-white dark:bg-boxdark rounded-xl shadow-md border border-stroke dark:border-strokedark p-6 sm:p-8">
         <div className="py-2 px-2.5 mb-4 dark:border-strokedark">
             <h3 className="font-medium text-black dark:text-white text-xl">
-            Edit User Details Form
+            Edit Members Information Form
             </h3>
           </div>
           
@@ -167,14 +167,14 @@ export default function EditUserPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="flex flex-col space-y-2">
               <label className="text-sm font-medium text-black dark:text-white">
-                Username
+                Member's Username
               </label>
               <input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                placeholder="Enter username"
+                placeholder="Enter username of the member"
                 required
               />
             {/* Forgot Username Link */}
@@ -200,7 +200,7 @@ export default function EditUserPage() {
                     value={field.key}
                     onChange={(e) => updateField(index, e.target.value, '')}
                   >
-                    <option value="">Select field</option>
+                    <option value="" disabled>Select field to edit</option>
                     {Object.entries(FORM_FIELDS).map(([key, { label }]) => (
                       <option key={key} value={key}>
                         {label}

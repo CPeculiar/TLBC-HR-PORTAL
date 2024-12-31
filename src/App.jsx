@@ -56,6 +56,11 @@ import FirstTimersFormAdmin from './pages/Attendance Manager/FirstTimersFormAdmi
 import AddReturningAdmin from './pages/Attendance Manager/AddReturningAdmin';
 import AccountStatement from './pages/finance/AccountStatement';
 import EditUserDetailsForm from './pages/User Management/EditUserDetailsForm';
+import UserDashboard from './pages/Dashboard/UserDashboard';
+import AboutTLBC from './pages/community/AboutTLBC';
+import LOLD from './pages/community/LOLD';
+import Giving from './pages/Giving/Giving';
+import EventsPage from './pages/Events/EventsPage';
 
 
 
@@ -80,6 +85,7 @@ function App() {
    </ProtectedRoute>
   );
 
+  
   if (loading) {
     return <Loader />;
   }
@@ -142,9 +148,16 @@ function App() {
       
 
        {/* Dashboard Routes - Inside DefaultLayout. THEY SHOULD ALL BE PROTECTED ROUTES */}
-       <Route path="/dashboard" element= {
+       <Route path="/admindashboard" element= {
+         <ProtectedRoute requiredRoles={['admin', 'superadmin']}>
+        {withDefaultLayout(<ECommerce />, "Admin Dashboard")} 
+        </ProtectedRoute> }
+       
+        />
+
+<Route path="/dashboard" element= {
          <ProtectedRoute>
-        {withDefaultLayout(<ECommerce />, "Dashboard")} 
+        {withDefaultLayout(<UserDashboard />, "User Dashboard")} 
         </ProtectedRoute> }
        
         />
@@ -168,9 +181,15 @@ function App() {
       <Route path="/form/:ref_code" element={withDefaultLayout(<FirstTimersFormCopy />, "First Timer's form copy")} />
       <Route path="/attendanceDetails/:refCode" element={withDefaultLayout(<AttendanceDetailsPage />, "Attendance Details Page")} />
       <Route path="/returningNewcomers/:refcode" element={withDefaultLayout(<ReturningNewComers />, "Returning NewComers")} />
+      
+      
       <Route path="/UserSearchPage" element={withDefaultLayout(<UserSearchPage />, "Search Members")} />
       <Route path="/UserProfileCard" element={withDefaultLayout(<UserProfileCard />, "User Profile Card")} />
       <Route path="/AdvancedUserSearchPage" element={withDefaultLayout(<AdvancedUserSearchPage />, "User Profile Card")} />
+      <Route path="/AboutTLBC" element={withDefaultLayout(<AboutTLBC />, "About TLBC")} />
+      <Route path="/comingsoon" element={withDefaultLayout(<LOLD />, "Coming soon")} />
+
+      
       <Route path="/ZoneManagement" element={withDefaultLayout(<ZoneManagement />, "Zonal Manager")} />
       <Route path="/ChurchManagement" element={withDefaultLayout(<ChurchManagement />, "Church Manager")} />
       <Route path="/accountCreation" element={withDefaultLayout(<AccountCreationPage />, "Create Church Account")} />
@@ -182,7 +201,13 @@ function App() {
       <Route path="/topupManagement" element={withDefaultLayout(<TopupManagement />, "Topup Management")} />
       <Route path="/accountstatement" element={withDefaultLayout(<AccountStatement />, "Account Statement")} />
 
-      
+
+      <Route path="/giving" element={withDefaultLayout(<Giving />, "Giving")} />
+
+
+      <Route path="/events" element={withDefaultLayout(<EventsPage />, "Events")} />
+
+
       <Route path="/onboardUser" element={withDefaultLayout(<OnboardUser />, "Onboard New User")} />
       <Route path="/deleteUser" element={withDefaultLayout(<DeleteUser />, "Delete User")} />
       <Route path="/userPermissions" element={withDefaultLayout(<UserPermissions />, "User Permissions")} />

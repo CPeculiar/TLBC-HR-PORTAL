@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 // import userThree from '../images/user/user-03.png';
 import userThree from '../images/user/user-03.png';
 import axios from 'axios';
 import { X } from 'lucide-react';
-import ChangePassword from '../pages/Authentication/ChangePassword';
+import ChangePassword from './Authentication/ChangePassword';
 import authService from '../js/services/authService';
 import { Camera, Loader } from 'lucide-react';
 import DatePicker from 'react-datepicker';
@@ -35,7 +35,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
     last_name: '',
     role: '',
     groups: [],
-    birth_date: null,
+    birth_date: '',
     gender: '',
     phone_number: '',
     origin_state: '',
@@ -45,14 +45,14 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
     state: '',
     country: '',
     church: '',
-    joined_at: null,
+    joined_at: '',
     invited_by: '',
     first_min_arm: '',
     current_min_arm: '',
     current_offices: '',
     previous_offices: '',
     suspension_record: '',
-    wfs_graduation_year: null,
+    wfs_graduation_year: '',
     enrolled_in_wfs: false,
     bio: '',
   });
@@ -93,8 +93,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
         setProfileData(data);
         setFormData({
           ...data,
-          birth_date: data.birth_date ? new Date(data.birth_date) : null,
-          joined_at: data.joined_at ? new Date(data.joined_at) : null,
+        
         });
       } catch (error) {
         console.error('Error fetching profile data:', error);
@@ -103,6 +102,10 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
       }
     };
     fetchProfileData();
+
+          //birth_date: data.birth_date ? new Date(data.birth_date) : null,
+          // joined_at: data.joined_at ? new Date(data.joined_at) : null,
+
 
     // Add event listener to close image options when clicking outside
     document.addEventListener('mousedown', handleClickOutside);
@@ -120,6 +123,19 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
     }
   };
 
+  const formatDateToDDMMYYYY = (dateString) => {
+    if (!dateString) return '';
+    const [year, month, day] = dateString.split('-');
+    return `${day}/${month}/${year}`;
+  };
+  
+  const parseDDMMYYYYToISO = (dateString) => {
+    if (!dateString) return '';
+    const [day, month, year] = dateString.split('/');
+    return `${year}-${month}-${day}`;
+  };
+  
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === 'church') {
@@ -128,13 +144,19 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
         ...prev,
         [name]: churchOptions[value] || value,
       }));
+    // } else if (name === 'birth_date') {
+    //   setFormData((prev) => ({ 
+    //     ...prev, 
+    //     [name]: value ? new Date(value) : null 
+    //   }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
-  const handleDateChange = (date) => {
-    setFormData((prev) => ({ ...prev, birth_date: date }));
+  const handleDateChange = (date, key) => {
+    const formattedDate = date ? date.toISOString().split('T')[0] : null;
+    setFormData((prev) => ({ ...prev, [key]: formattedDate }));
   };
 
   // const handleFileChange = (e) => {
@@ -149,11 +171,101 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+       // Validate file type and size
+       const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+       const maxSize = 5 * 1024 * 1024; // 5MB
+
+       
+      if (!validTypes.includes(file.type)) {
+        alert('Please upload a valid image file (JPEG, PNG, or GIF)');
+        return;
+      }
+
+      if (file.size > maxSize) {
+        alert('File size should be less than 5MB');
+        return;
+      }
+
       // onFileSelect(file);
       setProfilePicture(file);
-      handleSubmit(null, file);
+      // handleSubmit(null, file);
+      uploadProfilePicture(file);
     }
   };
+
+  const handleCancel = () => {
+    navigate('/settings');
+  }
+
+
+  const uploadProfilePicture = async (file) => {
+    setUpdating(true);
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+      if (!accessToken) {
+        alert("Access token not found. Please login first.");
+        navigate("/");
+        return;
+      }
+
+      const formDataToSend = new FormData();
+      formDataToSend.append("profile_picture", file);
+
+      const response = await axios.patch(
+        "https://tlbc-platform-api.onrender.com/api/user/",
+        formDataToSend,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          withCredentials: true,
+        }
+      );
+
+      // Update profile data with new profile picture
+      const updatedProfileData = {
+        ...profileData,
+        profile_picture: response.data.profile_picture || profileData.profile_picture
+      };
+
+      setProfileData(updatedProfileData);
+      
+      // Force a re-render of the profile picture
+      const timestamp = new Date().getTime();
+      setProfileData(prev => ({
+        ...prev,
+        profile_picture: `${prev.profile_picture}?t=${timestamp}`
+      }));
+
+      alert("Profile picture updated successfully");
+    } catch (error) {
+      console.error("Error uploading profile picture:", error);
+      
+      // Log more detailed error information
+      if (error.response) {
+        console.error("Error response data:", error.response.data);
+        console.error("Error response status:", error.response.status);
+        console.error("Error response headers:", error.response.headers);
+        
+        // More specific error handling
+        if (error.response.data.profile_picture) {
+          alert(error.response.data.profile_picture[0]);
+        } else {
+          alert("Failed to upload profile picture");
+        }
+      } else if (error.request) {
+        console.error("No response received:", error.request);
+        alert("No response from server. Please check your connection.");
+      } else {
+        console.error("Error setting up request:", error.message);
+        alert("An error occurred while uploading profile picture");
+      }
+    } finally {
+      setUpdating(false);
+    }
+  };
+
 
   const handleSubmit = async (e, newProfilePicture = null) => {
     if (e) e.preventDefault();
@@ -178,10 +290,16 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
 
       Object.keys(formData).forEach((key) => {
         if (formData[key] !== profileData[key] && formData[key] !== '') {
-          if (key === 'birth_date' || key === 'joined_at') {
+          if ((key === 'birth_date' || key === 'joined_at') && formData[key]) {
+
+            // Ensure it's a Date object before calling toISOString
+          const dateValue = formData[key] instanceof Date 
+          ? formData[key] 
+          : new Date(formData[key]);
+
             formDataToSend.append(
               key,
-              formData[key] ? formData[key].toISOString().split('T')[0] : '',
+              dateValue.toISOString().split('T')[0]
             );
           } else {
             formDataToSend.append(key, formData[key]);
@@ -287,14 +405,14 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
     if (key === 'birth_date' || key === 'joined_at') {
       return (
         <div key={key}>
-          <label className="block mb-2 text-sm font-medium text-gray-700">
-            {label}:
-          </label>
+          <label className="block mb-2 text-sm font-medium text-gray-700">{label}:</label>
           <DatePicker
-            selected={formData[key]}
+            selected={formData[key] ? new Date(formData[key]) : null}
             onChange={(date) => handleDateChange(date, key)}
-            dateFormat="yyyy-MM-dd"
+            dateFormat="dd/MM/yyyy"
             className="w-full p-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+            isClearable
+            placeholderText="Select date"
           />
         </div>
       );
@@ -1144,12 +1262,14 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                     <button
                       className="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
                       type="submit"
+                      onClick={handleCancel}
                     >
                       Cancel
                     </button>
                     <button
                       className="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90"
                       type="submit"
+                      onClick={handleSubmit}
                     >
                       Save
                     </button>
@@ -1169,7 +1289,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                 </h3>
               </div>
               <div className="p-7">
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={uploadProfilePicture}>
                   <div className="mb-4 flex items-center gap-3">
                     <div
                       className="relative h-24 w-24 cursor-pointer rounded-full overflow-hidden border-2 border-primary"
@@ -1191,27 +1311,27 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                         Edit your photo
                       </span>
                       <span className="flex gap-2.5">
-                        <button className="text-sm hover:text-primary">
-                          Delete
-                        </button>
-                        <button
+                        <Link className="text-sm hover:text-primary"
+                        onClick={handleViewImage}>
+                          View Photo
+                        </Link>
+                        <Link
                           className="text-sm hover:text-primary"
-                          onClick="#"
-                          // onClick={() => fileInputRef.current?.click()}
+                          onClick={() => fileInputRef.current?.click()}
                         >
                           Update
-                        </button>
+                        </Link>
                       </span>
                     </div>
                   </div>
 
-                  {/* <input
+                  <input
                     type="file"
                     ref={fileInputRef}
                     className="hidden"
-                    accept="image/*"
+                    accept="image/jpeg,image/png,image/gif"
                     onChange={handleFileChange}
-                  /> */}
+                  />
 
                   {showModal && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -1295,6 +1415,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                     <button
                       className="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
                       type="submit"
+                      onClick={handleCancel}
                     >
                       Cancel
                     </button>

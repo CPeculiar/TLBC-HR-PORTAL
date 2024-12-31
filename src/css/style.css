@@ -8,6 +8,10 @@
   }
 }
 
+.Header-colour{
+background-color: rgb(36 48 63 / var(--tw-bg-opacity));
+}
+
 @layer components {
 }
 

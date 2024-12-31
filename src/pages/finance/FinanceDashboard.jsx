@@ -748,7 +748,7 @@ const fetchTransactions = async () => {
         </select>
       </div>
 
-
+            {/* Cards */}
       <div className="p-4 sm:p-6 bg-blue-50 dark:bg-boxdark rounded-lg">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               <Cards title="Monthly Expenses" value={`₦${expenses.toFixed(2)}` || '₦0.00'} bgColor="bg-gradient-to-r from-orange-300 to-red-400" onTimePeriodChange={(period) => handleTimePeriodChange(period, 'Expenses')} />
@@ -1338,5 +1338,5 @@ const Cards = ({ title, value, icon, bgColor }) => {
   </div>
 );
 };
-
+ 
 export default FinanceDashboard;

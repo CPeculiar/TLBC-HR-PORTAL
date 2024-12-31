@@ -1,30 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
-// import userThree from '../images/user/user-03.png';
 import userThree from '../images/user/user-03.png';
 import axios from 'axios';
-import { X } from 'lucide-react';
-import ChangePassword from '../pages/Authentication/ChangePassword';
+import { X, Edit2  } from 'lucide-react';
 import authService from '../js/services/authService';
 import { Camera, Loader } from 'lucide-react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { nigerianStates } from '../utils/nigerianStates';
-import LogoIcon from '../images/logo/logo-icon.svg';
-import LogoBG from '../assets/images/TLBC_LOGO_removebg.png';
 import ProfilePicture from './ProfilePicture';
-// import { userThree } from '../images/user/user-03.png';
 
 const Settings = ({ onUpdateSuccess, onFileSelect }) => {
-  const location = useLocation();
-  // const [profileData, setProfileData] = useState({});
-  const [showChangePassword, setShowChangePassword] = useState(false);
-  // const [formData, setFormData] = useState({});;
-  const [profilePicture, setProfilePicture] = useState(null);
-  const [showImageOptions, setShowImageOptions] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [updating, setUpdating] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const fileInputRef = useRef(null);
+  const location = useLocation();
+  const [profilePicture, setProfilePicture] = useState(null);
+  const [showImageOptions, setShowImageOptions] = useState(false);
   const profilePictureRef = useRef(null);
 
   const [profileData, setProfileData] = useState({
@@ -36,16 +31,16 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
     role: '',
     groups: [],
     birth_date: '',
+    joined_at: '',
     gender: '',
     phone_number: '',
+    church: '',
     origin_state: '',
     address: '',
     perm_address: '',
     city: '',
     state: '',
     country: '',
-    church: '',
-    joined_at: '',
     invited_by: '',
     first_min_arm: '',
     current_min_arm: '',
@@ -57,11 +52,8 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
     bio: '',
   });
 
-  const [formData, setFormData] = useState({
-    ...profileData,
-  });
-  const [loading, setLoading] = useState(false);
-  const [updating, setUpdating] = useState(false);
+  const [formData, setFormData] = useState({ ...profileData });
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
   const churchOptions = {
@@ -86,33 +78,41 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
   };
 
   useEffect(() => {
+    fetchProfileData();
+  }, []);
+
+  
     const fetchProfileData = async () => {
       try {
+        const accessToken = localStorage.getItem("accessToken");
+        if (!accessToken) {
+          setError("Access token not found. Please login first.");
+          navigate("/");
+          return;
+        }
         setLoading(true);
-        const data = await authService.getUserInfo();
-        setProfileData(data);
-        setFormData({
-          ...data,
-        
-        });
+
+      const response = await axios.get('https://tlbc-platform-api.onrender.com/api/user/', {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+
+      const data = response.data;
+      setProfileData(data);
+      setFormData(data);
       } catch (error) {
         console.error('Error fetching profile data:', error);
       } finally {
         setLoading(false);
       }
     };
-    fetchProfileData();
-
-          //birth_date: data.birth_date ? new Date(data.birth_date) : null,
-          // joined_at: data.joined_at ? new Date(data.joined_at) : null,
-
 
     // Add event listener to close image options when clicking outside
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+    // document.addEventListener('mousedown', handleClickOutside);
+    // return () => {
+    //   document.removeEventListener('mousedown', handleClickOutside);
+    // };
+  
+
 
   const handleClickOutside = (event) => {
     if (
@@ -154,48 +154,42 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
     }
   };
 
-  const handleDateChange = (date, key) => {
-    const formattedDate = date ? date.toISOString().split('T')[0] : null;
-    setFormData((prev) => ({ ...prev, [key]: formattedDate }));
-  };
-
-  // const handleFileChange = (e) => {
-  //   // setProfilePicture(e.target.files[0]);
-  //   const file = e.target.files[0];
-  //   if (file) {
-  //     setProfilePicture(file);
-  //     handleSubmit(null, file);
-  //   }
+  // const handleDateChange = (date, key) => {
+  //   const formattedDate = date ? date.toISOString().split('T')[0] : null;
+  //   setFormData((prev) => ({ ...prev, [key]: formattedDate }));
   // };
+
+  const handleDateChange = (date, fieldName) => {
+    if (date) {
+      // Format date as YYYY-MM-DD for API
+      const formattedDate = date.toISOString().split('T')[0];
+      setFormData(prev => ({ ...prev, [fieldName]: formattedDate }));
+    } else {
+      setFormData(prev => ({ ...prev, [fieldName]: null }));
+    }
+  };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
        // Validate file type and size
        const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
-       const maxSize = 5 * 1024 * 1024; // 5MB
+      const maxSize = 5 * 1024 * 1024; // 5MB
 
-       
       if (!validTypes.includes(file.type)) {
-        alert('Please upload a valid image file (JPEG, PNG, or GIF)');
+        setErrorMessage('Please upload a valid image file (JPEG, PNG, or GIF)');
         return;
       }
 
       if (file.size > maxSize) {
-        alert('File size should be less than 5MB');
+        setErrorMessage('File size should be less than 5MB');
         return;
       }
 
-      // onFileSelect(file);
       setProfilePicture(file);
-      // handleSubmit(null, file);
-      uploadProfilePicture(file);
+      // uploadProfilePicture(file);
     }
   };
-
-  const handleCancel = () => {
-    navigate('/settings');
-  }
 
 
   const uploadProfilePicture = async (file) => {
@@ -242,13 +236,13 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
     } catch (error) {
       console.error("Error uploading profile picture:", error);
       
-      // Log more detailed error information
+      
       if (error.response) {
         console.error("Error response data:", error.response.data);
         console.error("Error response status:", error.response.status);
         console.error("Error response headers:", error.response.headers);
         
-        // More specific error handling
+      
         if (error.response.data.profile_picture) {
           alert(error.response.data.profile_picture[0]);
         } else {
@@ -267,9 +261,11 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
   };
 
 
-  const handleSubmit = async (e, newProfilePicture = null) => {
-    if (e) e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setUpdating(true);
+    setErrorMessage('');
+
     try {
       const accessToken = localStorage.getItem('accessToken');
       if (!accessToken) {
@@ -288,75 +284,60 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
 
       const formDataToSend = new FormData();
 
-      Object.keys(formData).forEach((key) => {
-        if (formData[key] !== profileData[key] && formData[key] !== '') {
-          if ((key === 'birth_date' || key === 'joined_at') && formData[key]) {
-
-            // Ensure it's a Date object before calling toISOString
-          const dateValue = formData[key] instanceof Date 
-          ? formData[key] 
-          : new Date(formData[key]);
-
-            formDataToSend.append(
-              key,
-              dateValue.toISOString().split('T')[0]
-            );
-          } else {
-            formDataToSend.append(key, formData[key]);
-          }
+      // Add changed fields to formData
+      Object.keys(formData).forEach(key => {
+        if (formData[key] !== profileData[key]) {
+          formDataToSend.append(key, formData[key]);
         }
       });
 
-      if (newProfilePicture || profilePicture) {
-        formDataToSend.append(
-          'profile_picture',
-          newProfilePicture || profilePicture,
-        );
+       // Add profile picture if changed
+       if (profilePicture) {
+        formDataToSend.append('profile_picture', profilePicture);
       }
+
 
       const response = await axios.patch(
         'https://tlbc-platform-api.onrender.com/api/user/',
         formDataToSend,
         {
           headers: {
-            'Content-Type': 'multipart/form-data',
             Authorization: `Bearer ${accessToken}`,
-          },
-          withCredentials: true, // This will send cookies with the request
-        },
+            'Content-Type': 'multipart/form-data',
+          }
+        }
       );
 
       alert('Profile updated successfully');
-      // setProfileData(response.data);
-      const updatedProfileData = {
-        ...response.data,
-        profile_picture:
-          response.data.profile_picture || profileData.profile_picture,
-        birth_date: response.data.birth_date
-          ? new Date(response.data.birth_date)
-          : null,
-        joined_at: response.data.joined_at
-          ? new Date(response.data.joined_at)
-          : null,
-      };
-
-      setProfileData(updatedProfileData);
-      setFormData(updatedProfileData);
-
-      // Force a re-render of the profile picture
-      const timestamp = new Date().getTime();
-      setProfileData((prev) => ({
-        ...prev,
-        profile_picture: `${prev.profile_picture}?t=${timestamp}`,
-      }));
+      setProfileData(response.data);
+      setFormData(response.data);
+      setIsEditMode(false);
+      setErrorMessage('Profile updated successfully');
     } catch (error) {
-      console.error('Error updating profile:', error);
-      alert('Failed to update profile');
+      if (error.response?.data) {
+        // Extract error message from the first error found
+        const firstErrorKey = Object.keys(error.response.data)[0];
+        const errorMessage = error.response.data[firstErrorKey][0];
+        setErrorMessage(errorMessage);
+      } else {
+        setErrorMessage('Failed to update profile');
+      }
     } finally {
       setUpdating(false);
     }
   };
 
+  const handleCancel = () => {
+    setFormData({ ...profileData });
+    setIsEditMode(false);
+    setErrorMessage('');
+    setProfilePicture(null);
+  };
+
+  const handleEdit = () => {
+    setIsEditMode(true);
+  };
+  
   const handleImageClick = () => {
     setShowImageOptions(true);
   };
@@ -402,21 +383,21 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
   }
 
   const renderField = (key, label, type = 'text') => {
-    if (key === 'birth_date' || key === 'joined_at') {
-      return (
-        <div key={key}>
-          <label className="block mb-2 text-sm font-medium text-gray-700">{label}:</label>
-          <DatePicker
-            selected={formData[key] ? new Date(formData[key]) : null}
-            onChange={(date) => handleDateChange(date, key)}
-            dateFormat="dd/MM/yyyy"
-            className="w-full p-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-            isClearable
-            placeholderText="Select date"
-          />
-        </div>
-      );
-    }
+    // if (key === 'birth_date' || key === 'joined_at') {
+    //   return (
+    //     <div key={key}>
+    //       <label className="block mb-2 text-sm font-medium text-gray-700">{label}:</label>
+    //       <DatePicker
+    //         selected={formData[key] ? new Date(formData[key]) : null}
+    //         onChange={(date) => handleDateChange(date, key)}
+    //         dateFormat="dd/MM/yyyy"
+    //         className="w-full p-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+    //         isClearable
+    //         placeholderText="Select date"
+    //       />
+    //     </div>
+    //   );
+    // }
 
     return (
       <div key={key}>
@@ -439,6 +420,14 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
       <div className="mx-auto max-w-270">
         <Breadcrumb pageName="Settings" />
 
+        {errorMessage && (
+          <div className={`mb-4 p-4 rounded ${
+            errorMessage.includes('success') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+          }`}>
+            {errorMessage}
+          </div>
+        )}
+
         <div className="grid grid-cols-5 gap-8">
           <div className="col-span-5 xl:col-span-3">
             <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
@@ -448,7 +437,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                 </h3>
               </div>
               <div className="p-7">
-                <form action="#">
+              <form onSubmit={handleSubmit}>
                   <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
                     <div className="w-full sm:w-1/2">
                       <label
@@ -484,11 +473,8 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                           </svg>
                         </span>
                         <input
-                          className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+ l                         className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                           type="text"
-                          id="fullName"
-                          name="first_name"
-                          placeholder="Full Name"
                           value={`${profileData.first_name} ${profileData.last_name}`.trim()}
                           readOnly
                         />
@@ -505,9 +491,6 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                       <input
                         className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                         type="text"
-                        id="username"
-                        name="username"
-                        placeholder="Username"
                         value={profileData.username}
                         readOnly
                       />
@@ -551,9 +534,6 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                         <input
                           className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                           type="email"
-                          id="email"
-                          name="email"
-                          placeholder="Email"
                           value={profileData.email}
                           readOnly
                         />
@@ -570,9 +550,6 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                       <input
                         className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                         type="tel"
-                        id="phone_number"
-                        name="phone_number"
-                        placeholder="Phone number"
                         value={profileData.phone_number}
                         readOnly
                       />
@@ -658,6 +635,70 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                       </select>
                     </div>
                   </div>
+
+
+                  <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
+                    <div className="w-full sm:w-1/2">
+                      <label
+                        className="mb-3 block text-sm font-medium text-black dark:text-white"
+                        htmlFor="birth_date"
+                      >
+                        Date of Birth
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-4.5 top-4">
+                          <svg
+                            className="fill-current"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 20 20"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <g opacity="0.8">
+                              <path
+                                fillRule="evenodd"
+                                clipRule="evenodd"
+                                d="M3.72039 12.887C4.50179 12.1056 5.5616 11.6666 6.66667 11.6666H13.3333C14.4384 11.6666 15.4982 12.1056 16.2796 12.887C17.061 13.6684 17.5 14.7282 17.5 15.8333V17.5C17.5 17.9602 17.1269 18.3333 16.6667 18.3333C16.2064 18.3333 15.8333 17.9602 15.8333 17.5V15.8333C15.8333 15.1703 15.5699 14.5344 15.1011 14.0655C14.6323 13.5967 13.9964 13.3333 13.3333 13.3333H6.66667C6.00363 13.3333 5.36774 13.5967 4.8989 14.0655C4.43006 14.5344 4.16667 15.1703 4.16667 15.8333V17.5C4.16667 17.9602 3.79357 18.3333 3.33333 18.3333C2.8731 18.3333 2.5 17.9602 2.5 17.5V15.8333C2.5 14.7282 2.93899 13.6684 3.72039 12.887Z"
+                                fill=""
+                              />
+                              <path
+                                fillRule="evenodd"
+                                clipRule="evenodd"
+                                d="M9.99967 3.33329C8.61896 3.33329 7.49967 4.45258 7.49967 5.83329C7.49967 7.214 8.61896 8.33329 9.99967 8.33329C11.3804 8.33329 12.4997 7.214 12.4997 5.83329C12.4997 4.45258 11.3804 3.33329 9.99967 3.33329ZM5.83301 5.83329C5.83301 3.53211 7.69849 1.66663 9.99967 1.66663C12.3009 1.66663 14.1663 3.53211 14.1663 5.83329C14.1663 8.13448 12.3009 9.99996 9.99967 9.99996C7.69849 9.99996 5.83301 8.13448 5.83301 5.83329Z"
+                                fill=""
+                              />
+                            </g>
+                          </svg>
+                        </span>
+                        <DatePicker
+                        selected={formData.birth_date ? new Date(formData.birth_date) : null}
+                        onChange={(date) => handleDateChange(date, 'birth_date')}
+                        dateFormat="yyyy-MM-dd"
+                        className="w-full rounded border border-stroke bg-gray py-3 px-4.5"
+                        disabled={!isEditMode}
+                      />
+                      </div>
+                    </div>
+
+                    <div className="w-full sm:w-1/2">
+                      <label
+                        className="mb-3 block text-sm font-medium text-black dark:text-white"
+                        htmlFor="joined_at"
+                      >
+                        When did you join the Ministry?
+                      </label>
+                      <DatePicker
+                        selected={formData.joined_at ? new Date(formData.joined_at) : null}
+                        onChange={(date) => handleDateChange(date, 'joined_at')}
+                        dateFormat="yyyy-MM-dd"
+                        // className="w-full rounded border border-stroke bg-gray py-3 px-4.5"
+                        className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                        disabled={!isEditMode}
+                      />
+                    </div>
+                  </div>
+
 
                   <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
                     <div className="w-full sm:w-1/2">
@@ -868,7 +909,8 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                     </div>
                   </div>
 
-                  <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
+                  {/* Date of Birth */}
+                  {/* <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
                     <div className="w-full sm:w-1/2">
                       <label
                         className="mb-3 block text-sm font-medium text-black dark:text-white"
@@ -932,7 +974,8 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                         onChange={handleChange}
                       />
                     </div>
-                  </div>
+                  </div> */}
+
 
                   <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
                     <div className="w-full sm:w-1/2">
@@ -1258,10 +1301,13 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                     </div>
                   </div>
 
+                    {/* Action buttons */}
                   <div className="flex justify-end gap-4.5">
+                  {isEditMode ? (
+                    <>
                     <button
                       className="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
-                      type="submit"
+                      type="button"
                       onClick={handleCancel}
                     >
                       Cancel
@@ -1269,10 +1315,21 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                     <button
                       className="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90"
                       type="submit"
-                      onClick={handleSubmit}
+                      disabled={updating}
                     >
-                      Save
+                      {updating ? 'Saving...' : 'Save'}
                     </button>
+                    </>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleEdit}
+                        className="flex items-center justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90"
+                      >
+                        <Edit2 className="w-4 h-4 mr-2" />
+                        Edit Profile
+                      </button>
+                    )}
                   </div>
                 </form>
               </div>
