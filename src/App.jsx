@@ -46,7 +46,7 @@ import RemittanceManagement from './pages/finance/RemittanceManagement';
 import TopupManagement from './pages/finance/TopupManagement';
 import OnboardUser from './pages/User Management/OnboardUser';
 import DeleteUser from './pages/User Management/DeleteUser';
-import UserPermissions from './pages/User Management/UserPermissions';
+import UserPermissions from './pages/User Permissions/UserPermissions';
 import UserSearchAdmin from './pages/User Management/UserSearchAdmin';
 import AttendanceReportAdmin from './pages/Attendance Manager/AttendanceReportAdmin';
 import AttendanceDetailsPageAdmin from './pages/Attendance Manager/AttendanceDetailsPageAdmin';
@@ -68,6 +68,10 @@ import CentralTopupManagement from './pages/Central Finance/CentralTopupManageme
 import CentralFundManagement from './pages/Central Finance/CentralFundManagement';
 import CentralExpensesManagement from './pages/Central Finance/CentralExpensesManagement';
 import CentralRemittanceManagement from './pages/Central Finance/CentralRemittanceManagement';
+import AddUserToGroup from './pages/User Permissions/AddUserToGroup';
+import RemoveUserFromGroup from './pages/User Permissions/RemoveUserFromGroup';
+import CreatePermissionGroup from './pages/User Permissions/CreatePermissionGroup';
+import GroupsManagement from './pages/User Permissions/GroupsManagement';
 
 
 
@@ -211,7 +215,6 @@ function App() {
 
       <Route path="/centralfinanceDashboard" element={withDefaultLayout(<CentralAccountDashboard />, "Central Finance Dashboard")} />
       <Route path="/centralaccountCreation" element={withDefaultLayout(<CentralAccountCreationPage/>, "Create Central Account")} />
-
       <Route path="/centralexpensesManagement" element={withDefaultLayout(<CentralExpensesManagement />, "Central Expenses Management")} />
       <Route path="/centralfundManagement" element={withDefaultLayout(<CentralFundManagement />, "Central Fund Management")} />
       <Route path="/centralremittanceManagement" element={withDefaultLayout(<CentralRemittanceManagement />, "Central Remittance Management")} />
@@ -231,6 +234,15 @@ function App() {
       <Route path="/userSearchAdmin" element={withDefaultLayout(<UserSearchAdmin />, "Admin User Search")} />
       <Route path="/edituserdetailsform" element={withDefaultLayout(<EditUserDetailsForm />, "Edit User's Details Form")} />
       
+
+      AddUserToGroup
+
+      <Route path="/addusertogroup" element={withDefaultLayout(<AddUserToGroup />, "Add User to Group")} />
+      <Route path="/removeuserfromgroup" element={withDefaultLayout(<RemoveUserFromGroup />, "Remove User from Group")} />
+      <Route path="/createpermissiongroup" element={withDefaultLayout(<CreatePermissionGroup />, "Create Permission Group")} />
+      <Route path="/groupsmanagement" element={withDefaultLayout(<GroupsManagement />, "Groups Management")} />
+
+
       
       <Route path="/attendancereportadmin" element={withDefaultLayout(<AttendanceReportAdmin />, "Attendance Admin Report")} />
       <Route path="/attendancedetailspageadmin/:refCode" element={withDefaultLayout(<AttendanceDetailsPageAdmin />, "Attendance Details Admin")} />
