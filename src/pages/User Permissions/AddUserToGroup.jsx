@@ -86,7 +86,7 @@ const AddUserToGroup = () => {
         }
       );
 
-      setSuccessMessage('Permission assigned successfully');
+      setSuccessMessage('User successfully added to group');
       setFormData({ selectedPermission: '', username: '' });
       setShowUsernameField(false);
       setTimeout(() => setSuccessMessage(''), 5000);

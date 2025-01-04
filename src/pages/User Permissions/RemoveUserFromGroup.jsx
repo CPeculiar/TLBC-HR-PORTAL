@@ -86,7 +86,7 @@ const RemoveUserFromGroup = () => {
         }
       );
 
-      setSuccessMessage('Permission removed successfully');
+      setSuccessMessage('User removed successfully');
       setFormData({ selectedPermission: '', username: '' });
       setShowUsernameField(false);
       setTimeout(() => setSuccessMessage(''), 5000);

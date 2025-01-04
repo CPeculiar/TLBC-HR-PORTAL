@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Eye, Trash2, X } from 'lucide-react';
+import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 
 const GroupsManagement = () => {
   const [groups, setGroups] = useState([]);
@@ -63,6 +64,9 @@ const GroupsManagement = () => {
   };
 
   return (
+    <>
+    <Breadcrumb pageName="Group Management" className="text-black dark:text-white" />
+
     <div className="p-4 md:p-6 2xl:p-10">
       <div className="mx-auto max-w-7xl">
         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
@@ -228,6 +232,8 @@ const GroupsManagement = () => {
         </div>
       )}
     </div>
+
+    </>
   );
 };
 

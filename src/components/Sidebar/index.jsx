@@ -1684,6 +1684,28 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                               Manage Groups
                             </NavLink>
                           </li>
+                          <li>
+                            <NavLink
+                              to="/permissionmanagement"
+                              className={({ isActive }) =>
+                                'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
+                                (isActive && '!text-white')
+                              }
+                            >
+                              Permissions Management
+                            </NavLink>
+                          </li>
+                          <li>
+                            <NavLink
+                              to="/viewpermissions"
+                              className={({ isActive }) =>
+                                'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
+                                (isActive && '!text-white')
+                              }
+                            >
+                              View Permissions
+                            </NavLink>
+                          </li>
                         </ul>
                       </div>
                       {/* <!-- Dropdown Menu End --> */}

@@ -72,6 +72,8 @@ import AddUserToGroup from './pages/User Permissions/AddUserToGroup';
 import RemoveUserFromGroup from './pages/User Permissions/RemoveUserFromGroup';
 import CreatePermissionGroup from './pages/User Permissions/CreatePermissionGroup';
 import GroupsManagement from './pages/User Permissions/GroupsManagement';
+import AssignPermissions from './pages/User Permissions/AssignPermissions';
+import ViewPermissions from './pages/User Permissions/ViewPermissions';
 
 
 
@@ -235,12 +237,14 @@ function App() {
       <Route path="/edituserdetailsform" element={withDefaultLayout(<EditUserDetailsForm />, "Edit User's Details Form")} />
       
 
-      AddUserToGroup
+      
 
       <Route path="/addusertogroup" element={withDefaultLayout(<AddUserToGroup />, "Add User to Group")} />
       <Route path="/removeuserfromgroup" element={withDefaultLayout(<RemoveUserFromGroup />, "Remove User from Group")} />
       <Route path="/createpermissiongroup" element={withDefaultLayout(<CreatePermissionGroup />, "Create Permission Group")} />
       <Route path="/groupsmanagement" element={withDefaultLayout(<GroupsManagement />, "Groups Management")} />
+      <Route path="/permissionmanagement" element={withDefaultLayout(<AssignPermissions />, "Permissions Management")} />
+      <Route path="/viewpermissions" element={withDefaultLayout(<ViewPermissions />, "View Permissions")} />
 
 
       

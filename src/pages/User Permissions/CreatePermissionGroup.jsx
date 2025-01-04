@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
+
 
 const CreatePermissionGroup = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [groupName, setGroupName] = useState('');
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
 
   const handleInputChange = (e) => {
@@ -13,11 +15,12 @@ const CreatePermissionGroup = () => {
   };
 
   const validateForm = () => {
+    const newErrors = {};
     if (!groupName.trim()) {
-      setError('Group name is required');
-      return false;
+      newErrors.name = 'Group name is required';
     }
-    return true;
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
@@ -41,13 +44,34 @@ const CreatePermissionGroup = () => {
       setGroupName('');
       setTimeout(() => setSuccessMessage(''), 5000);
     } catch (error) {
-      setError(error.response?.data?.message || 'Failed to create group. Please try again.');
+      const errorData = error.response?.data;
+      
+      // Handle field-specific validation errors
+      if (typeof errorData === 'object') {
+        const formattedErrors = {};
+        Object.entries(errorData).forEach(([field, errorMessages]) => {
+          // Handle both array and string error messages
+          formattedErrors[field] = Array.isArray(errorMessages) 
+            ? errorMessages[0] 
+            : errorMessages;
+        });
+        setErrors(formattedErrors);
+      } else {
+         // Handle generic error message
+         setErrors({ 
+          general: errorData?.message || 'Failed to create group. Please try again.' 
+        });
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
+
   return (
+    <>
+    <Breadcrumb pageName="Create Permission Group" className="text-black dark:text-white" />
+
     <div className="p-4 md:p-6 2xl:p-10">
       <div className="mx-auto max-w-5xl">
         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
@@ -63,6 +87,13 @@ const CreatePermissionGroup = () => {
             </div>
           )}
 
+          {errors.general && (
+              <div className="p-4 mb-4 text-red-700 bg-red-100 rounded-md mx-6.5">
+                {errors.general}
+              </div>
+            )}
+
+
           <form className="space-y-6 mb-8" onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 gap-6 p-6.5">
               <div className="relative">
@@ -74,10 +105,16 @@ const CreatePermissionGroup = () => {
                   value={groupName}
                   onChange={handleInputChange}
                   placeholder="Enter group name"
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                />
-                {error && <span className="text-red-500 text-xs">{error}</span>}
-              </div>
+                  className={`w-full rounded border-[1.5px] ${
+                      errors.name ? 'border-red-500' : 'border-stroke'
+                    } bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary`}
+                  />
+                  {errors.name && (
+                    <span className="text-red-500 text-sm mt-1 block">
+                      {errors.name}
+                    </span>
+                  )}
+                  </div>
             </div>
 
             <div className="px-6.5">
@@ -85,15 +122,17 @@ const CreatePermissionGroup = () => {
                 type="submit"
                 disabled={isLoading}
                 className={`w-full text-white bg-blue-600 hover:bg-blue-800 py-2 rounded-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary
-                  ${isLoading ? "bg-gray-400 cursor-not-allowed" : ""}`}
-              >
-                {isLoading ? "Creating..." : "Create Group"}
-              </button>
+                    ${isLoading ? "bg-gray-400 cursor-not-allowed" : ""}`}
+                >
+                  {isLoading ? "Creating..." : "Create Group"}
+                </button>
             </div>
           </form>
         </div>
       </div>
     </div>
+
+    </>
   );
 };
 

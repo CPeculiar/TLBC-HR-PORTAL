@@ -355,8 +355,9 @@ const Profile = () => {
                 Follow me on
               </h4>
               <div className="flex items-center justify-center gap-3.5">
+              {profileData.facebook_link && (
                 <Link
-                  to="https://web.facebook.com/thelordsbrethrenchurchintl"
+                  to={profileData.facebook_link}
                   target="_blank"
                   className="hover:text-primary"
                   aria-label="social-icon facebook"
@@ -382,8 +383,10 @@ const Profile = () => {
                     </defs>
                   </svg>
                 </Link>
-                <Link
-                  to="https://x.com/ElochukwuTLBC"
+              )}
+    {profileData.twitter_link && (
+      <Link
+        to={profileData.twitter_link}
                   target="_blank"
                   className="hover:text-primary"
                   aria-label="social-icon twitter"
@@ -414,8 +417,10 @@ const Profile = () => {
                     </defs>
                   </svg>
                 </Link>
-                <Link
-                  to="https://www.instagram.com/thelordsbrethrenchurchintl"
+              )}
+    {profileData.instagram_link && (
+      <Link
+        to={profileData.instagram_link}
                   target="_blank"
                   className="hover:text-primary"
                   aria-label="social-icon instagram"
@@ -462,8 +467,10 @@ const Profile = () => {
                     </defs>
                   </svg>
                 </Link>
-                <Link
-                  to="https://www.youtube.com/@thelordsbrethrenchurchintl"
+              )}
+    {profileData.youtube_link && (
+      <Link
+        to={profileData.youtube_link}
                   target="_blank"
                   className="hover:text-primary"
                   aria-label="social-icon youtube"
@@ -484,8 +491,10 @@ const Profile = () => {
                     />
                   </svg>
                 </Link>
-                <Link
-                  to="https://www.tiktok.com/@elochukwutlbc?_t=8s0IAvnfm0T&_r=1"
+              )}
+    {profileData.tiktok_link && (
+      <Link
+        to={profileData.tiktok_link}
                   target="_blank"
                   className="hover:text-primary"
                   aria-label="social-icon tiktok"
@@ -516,6 +525,7 @@ const Profile = () => {
                     </defs>
                   </svg>
                 </Link>
+              )}
               </div>
             </div>
           </div>
