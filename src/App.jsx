@@ -162,7 +162,7 @@ function App() {
 
        {/* Dashboard Routes - Inside DefaultLayout. THEY SHOULD ALL BE PROTECTED ROUTES */}
        <Route path="/admindashboard" element= {
-         <ProtectedRoute requiredRoles={['admin', 'superadmin']}>
+         <ProtectedRoute requiredRoles={['superadmin']}>
         {withDefaultLayout(<ECommerce />, "Admin Dashboard")} 
         </ProtectedRoute> }
        

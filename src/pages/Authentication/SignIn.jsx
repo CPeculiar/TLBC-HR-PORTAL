@@ -72,7 +72,7 @@ const SignIn = () => {
       // After successful login, getUserInfo will use the saved token
       const userInfo = await authService.getUserInfo();
 
-      if (userInfo.role === 'admin' || userInfo.role === 'superadmin') {
+      if (userInfo.role === 'superadmin') {
         navigate('/admindashboard');
       } else {
         navigate('/dashboard');

@@ -174,8 +174,9 @@ const handleSubmit = async (e) => {
     const userInfo = await authService.getUserInfo();
 
     // Navigate based on user role
-    if (userInfo.role === "admin" || userInfo.role === "superadmin") {
-      navigate("/dashboard");
+    // if (userInfo.role === "admin" || userInfo.role === "superadmin") {
+      if (userInfo.role === "superadmin") {
+      navigate("/admindashboard");
     } else {
       navigate("/dashboard");
     }

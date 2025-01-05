@@ -131,7 +131,7 @@ const AddUserToGroup = () => {
                   onChange={handleInputChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                 >
-                  <option value="">Select Permission</option>
+                  <option value="" disabled>Select Permission</option>
                   {permissions.map((permission) => (
                     <option key={permission.name} value={permission.name}>
                       {permission.name}
