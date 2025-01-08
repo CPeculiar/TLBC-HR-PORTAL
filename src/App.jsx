@@ -74,6 +74,7 @@ import CreatePermissionGroup from './pages/User Permissions/CreatePermissionGrou
 import GroupsManagement from './pages/User Permissions/GroupsManagement';
 import AssignPermissions from './pages/User Permissions/AssignPermissions';
 import ViewPermissions from './pages/User Permissions/ViewPermissions';
+import PaymentSuccess from './pages/Giving/PaymentSuccess';
 
 
 
@@ -225,6 +226,7 @@ function App() {
 
 
       <Route path="/giving" element={withDefaultLayout(<Giving />, "Giving")} />
+      <Route path="/PaymentSuccess" element={withDefaultLayout(<PaymentSuccess />, "Payment Successful")} />
 
 
       <Route path="/events" element={withDefaultLayout(<EventsPage />, "Events")} />

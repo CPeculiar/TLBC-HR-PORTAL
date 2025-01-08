@@ -19,6 +19,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@heroicons/react": "^2.1.5",
+    "@paystack/inline-js": "^2.22.1",
     "antd": "^5.22.3",
     "apexcharts": "^3.41.0",
     "axios": "^1.7.8",

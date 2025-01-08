@@ -2,87 +2,61 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card';
-import Paystack from '@paystack/inline-js';
+// import Paystack from '@paystack/inline-js';
 
 const Giving = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [churches, setChurches] = useState([]);
-  const [nextPage, setNextPage] = useState(null);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [formData, setFormData] = useState({
     type: 'TITHE',
     amount: '',
     church: '',
-    // callback_url: handlePaymentCompletion
+    callback_url: `${window.location.origin}/PaymentSuccess`
   });
-
-  const popup = new Paystack()
+  // const popup = new Paystack()
 
   useEffect(() => {
-    fetchChurches();
+    // Load Paystack script
+    const script = document.createElement('script');
+    script.src = 'https://js.paystack.co/v1/inline.js';
+    script.async = true;
+    script.onload = () => {
+      console.log('Paystack script loaded successfully');
+    };
+    script.onerror = () => {
+      console.error('Failed to load Paystack script');
+      setError('Payment system initialization failed');
+    };
+    document.body.appendChild(script);
+
+    return () => {
+      // Cleanup script when component unmounts
+      document.body.removeChild(script);
+    };
   }, []);
 
-  const fetchChurches = async (url = 'https://tlbc-platform-api.onrender.com/api/churches/') => {
-    try {
-      const accessToken = localStorage.getItem("accessToken");
-      if (!accessToken) {
-        throw new Error("Access token not found");
-      }
-
-      const response = await axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        }
-      });
-
-      if (url === 'https://tlbc-platform-api.onrender.com/api/churches/') {
-        setChurches(response.data.results);
-      } else {
-        setChurches(prev => [...prev, ...response.data.results]);
-      }
-      
-      setNextPage(response.data.next);
-    } catch (error) {
-      setError('Failed to fetch churches. Please try again.');
-      console.error('Error fetching churches:', error);
-    }
+  
+  const churchOptions = {
+    'TLBC Awka': 'tlbc-awka',
+    'TLBC Ekwulobia': 'tlbc-ekwulobia',
+    'TLBC Ihiala': 'tlbc-ihiala',
+    'TLBC Nnewi': 'tlbc-nnewi',
+    'TLBC Onitsha': 'tlbc-onitsha',
+    'TLBCM Agulu': 'tlbcm-agulu',
+    'TLBCM FUTO': 'tlbcm-futo',
+    'TLBCM Igbariam': 'tlbcm-coou-igbariam',
+    'TLBCM Mbaukwu': 'tlbcm-mbaukwu',
+    'TLBCM Mgbakwu': 'tlbcm-mgbakwu',
+    'TLBCM NAU': 'tlbcm-nau',
+    'TLBCM Nekede': 'tlbcm-nekede',
+    'TLBCM Oko': 'tlbcm-oko',
+    'TLBCM Okofia': 'tlbcm-okofia',
+    'TLBCM Uli': 'tlbcm-coou-uli',
+    'TLBCM UNILAG': 'tlbcm-unilag',
+    'TLTN Awka': 'tltn-awka',
+    'TLTN Agulu': 'tltn-agulu',
   };
-
-  const loadMoreChurches = async () => {
-    if (nextPage && !isLoadingMore) {
-      setIsLoadingMore(true);
-      await fetchChurches(nextPage);
-      setIsLoadingMore(false);
-    }
-  };
-
-  const handlePaymentCompletion = (response) => {
-    if (response.status === 'success') {
-      // Navigate to success page with success status
-      const params = new URLSearchParams({
-        status: 'success',
-        reference: response.reference
-      });
-      navigate(`/PaymentSuccess?${params.toString()}`);
-    } else {
-      // If payment failed, navigate back to giving page
-      setError('Payment failed. Please try again.');
-      navigate('/giving');
-    }
-  };
-
-  const handleDashboardNavigation = () => {
-    const userRole = localStorage.getItem('userRole'); // Ensure you're storing user role in localStorage
-    if (userRole === 'superadmin') {
-      navigate('/admindashboard');
-    } else {
-      navigate('/dashboard');
-    }
-  };
-
-
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -92,7 +66,36 @@ const Giving = () => {
     }));
     setError('');
   };
-     
+
+  const initializePayment = async (paymentData) => {
+    try {
+      if (typeof window.PaystackPop === 'undefined') {
+        throw new Error('Paystack script not loaded');
+      }
+
+      const handler = window.PaystackPop.setup({
+        key: 'pk_live_b9495327ded35c2603d7afa7399c2cb8cba2cb61',
+        email: paymentData.email || 'chukwudipeculiar@gmail.com',
+        amount: Number(formData.amount) * 100, // Convert to kobo
+        currency: 'NGN',
+        ref: paymentData.reference,
+        access_code: paymentData.access_code,
+        onClose: () => {
+          setIsLoading(false);
+          console.log('Payment window closed');
+          navigate('/giving');
+        },
+      //  callback: handlePaymentCompletion
+      });
+      
+      handler.openIframe();
+    } catch (error) {
+      console.error('Payment initialization error:', error);
+      setError('Failed to initialize payment: ' + error.message);
+      setIsLoading(false);
+      navigate('/giving');
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -120,11 +123,8 @@ const Giving = () => {
       );
 
       if (response.status === 201 && response.data) {
-        
-        // const popup = new Paystack()
-        popup.resumeTransaction(response.data.access_code)
-
-
+        // Initialize Paystack payment with the received data
+        await initializePayment(response.data);
       } else {
         throw new Error('Invalid response from server');
       }
@@ -137,7 +137,27 @@ const Giving = () => {
     }
   };
 
- 
+  const handlePaymentCompletion = (response) => {
+    if (response.status === 'success') {
+      // Navigate to success page with success status
+      const params = new URLSearchParams({
+        status: 'success',
+        reference: response.reference
+      });
+      navigate(`/PaymentSuccess?${params.toString()}`);
+    } else {
+      // If payment failed, navigate back to giving page
+      navigate('/giving');
+    }
+  };
+
+  const handleDashboardNavigation = () => {
+    if (userRole === 'admin' || userRole === 'superadmin') {
+      navigate('/admindashboard');
+    } else {
+      navigate('/dashboard');
+    }
+  };
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -178,24 +198,13 @@ const Giving = () => {
               required
             >
             <option value="" disabled>Select a church</option>
-             {churches.map((church) => (
-                <option key={church.slug} value={church.slug}>
-                  {church.name}
+              {Object.entries(churchOptions).map(([label, value]) => (
+                <option key={value} value={value}>
+                  {label}
                 </option>
               ))}
             </select>
-            {nextPage && (
-              <button
-                type="button"
-                onClick={loadMoreChurches}
-                className="mt-2 text-sm text-primary hover:text-primary/90"
-                disabled={isLoadingMore}
-              >
-                {isLoadingMore ? 'Loading more...' : 'Load more churches'}
-              </button>
-            )}
           </div>
-
 
           <div>
             <label className="block text-sm font-medium mb-1">Amount (₦)</label>
