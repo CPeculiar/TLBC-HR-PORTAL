@@ -75,6 +75,8 @@ import GroupsManagement from './pages/User Permissions/GroupsManagement';
 import AssignPermissions from './pages/User Permissions/AssignPermissions';
 import ViewPermissions from './pages/User Permissions/ViewPermissions';
 import PaymentSuccess from './pages/Giving/PaymentSuccess';
+import GiveOffline from './pages/Giving/GiveOffline'
+import GivingRecords from './pages/Giving/GivingRecords';
 
 
 
@@ -226,8 +228,11 @@ function App() {
 
 
       <Route path="/giving" element={withDefaultLayout(<Giving />, "Giving")} />
+      <Route path="/giveoffline" element={withDefaultLayout(<GiveOffline />, "Giving Record")} />
+      <Route path="/givingrecords" element={withDefaultLayout(<GivingRecords />, "Giving Record")} />
       <Route path="/PaymentSuccess" element={withDefaultLayout(<PaymentSuccess />, "Payment Successful")} />
 
+      
 
       <Route path="/events" element={withDefaultLayout(<EventsPage />, "Events")} />
 

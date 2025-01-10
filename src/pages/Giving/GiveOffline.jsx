@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card';
-import Paystack from '@paystack/inline-js';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 
-const Giving = () => {
+const GiveOffline = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [fileError, setFileError] = useState('');
   const [churches, setChurches] = useState([]);
   const [nextPage, setNextPage] = useState(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -16,12 +16,10 @@ const Giving = () => {
     type: 'TITHE',
     amount: '',
     church: '',
-    // callback_url: handlePaymentCompletion
+    files: []
   };
-   const [formData, setFormData] = useState(initialFormState);
- 
+  const [formData, setFormData] = useState(initialFormState);
 
-  const popup = new Paystack()
 
   useEffect(() => {
     fetchChurches();
@@ -68,21 +66,6 @@ const Giving = () => {
     }
   };
 
-  const handlePaymentCompletion = (response) => {
-    if (response.status === 'success') {
-      // Navigate to success page with success status
-      const params = new URLSearchParams({
-        status: 'success',
-        reference: response.reference
-      });
-      navigate(`/PaymentSuccess?${params.toString()}`);
-    } else {
-      // If payment failed, navigate back to giving page
-      setError('Payment failed. Please try again.');
-      navigate('/giving');
-    }
-  };
-
   const handleDashboardNavigation = () => {
     const userRole = localStorage.getItem('userRole'); // Ensure you're storing user role in localStorage
     if (userRole === 'superadmin') {
@@ -92,8 +75,6 @@ const Giving = () => {
     }
   };
 
-
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -101,6 +82,36 @@ const Giving = () => {
       [name]: value
     }));
     setError('');
+  };
+
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    setFileError('');
+
+    const invalidFiles = files.filter(file => {
+      const isValidType = [
+        'image/jpeg',
+        'image/png',
+        'image/gif',
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      ].includes(file.type);
+      
+      const isValidSize = file.size <= 3 * 1024 * 1024; // 3MB
+      return !isValidType || !isValidSize;
+    });
+
+    if (invalidFiles.length > 0) {
+      setFileError('Invalid file(s). Please upload images, PDF, or Word documents under 3MB.');
+      e.target.value = '';
+      return;
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      files: files
+    }));
   };
      
 
@@ -117,24 +128,30 @@ const Giving = () => {
         return;
       }
 
+      const formDataToSend = new FormData();
+      formDataToSend.append('type', formData.type);
+      formDataToSend.append('amount', formData.amount);
+      formDataToSend.append('church', formData.church);
+      formData.files.forEach(file => {
+        formDataToSend.append('files', file);
+      });
+
+
       // Initialize payment on your server
       const response = await axios.post(
-        'https://tlbc-platform-api.onrender.com/api/finance/giving/payment/',
-        formData,
+        'https://tlbc-platform-api.onrender.com/api/finance/giving/',
+        formDataToSend,
         {
           headers: { 
             Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
+           'Content-Type': 'multipart/form-data'
           }
         }
       );
 
       if (response.status === 201 && response.data) {
-        
-        // const popup = new Paystack()
-        popup.resumeTransaction(response.data.access_code)
+        alert('Transaction submitted successfully');
         resetForm();
-
       } else {
         throw new Error('Invalid response from server');
       }
@@ -157,7 +174,6 @@ const Giving = () => {
         }
       } else {
         setError(error.message || 'An error occurred while processing your request.');
-        navigate('/giving');
       }
     } finally {
       setIsLoading(false);
@@ -168,11 +184,11 @@ const Giving = () => {
  
   return (
     <>
-     <Breadcrumb pageName="Online Giving" />
+    <Breadcrumb pageName="Giving" />
 
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-center">Give Online</CardTitle>
+        <CardTitle className="text-2xl font-bold text-center">Record your Giving Here</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -240,13 +256,31 @@ const Giving = () => {
             />
           </div>
 
+          <div>
+            <label className="block text-sm font-medium mb-1">Upload Files</label>
+            <input
+              type="file"
+              onChange={handleFileChange}
+              className="w-full p-2 border rounded"
+              accept=".pdf,.doc,.docx,image/*"
+              multiple
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Accepted formats: Images, PDF, Word documents (Max 3MB)
+            </p>
+            {fileError && (
+              <p className="text-xs text-red-500 mt-1">{fileError}</p>
+            )}
+          </div>
+
+
           <div className="flex flex-col md:flex-row justify-center gap-4 mt-8">
           <button
             type="submit"
             disabled={isLoading}
             className="w-full bg-primary text-white p-2 rounded hover:bg-blue-400 hover:font-bold disabled:opacity-50"
           >
-            {isLoading ? 'Processing...' : 'Proceed to Give'}
+            {isLoading ? 'Submitting...' : 'Submit'}
           </button>
 
           <button
@@ -258,11 +292,7 @@ const Giving = () => {
             </button>
           </div>
           
-          <div className='text-justify'>
-
-           NB: If you have already transferred this money to the Church's account, please click <span className='text-blue-500 hover:underline hover:text-blue-300'> <Link to="/giveoffline">HERE</Link> </span> to upload 
-           your receipt as proof of payment and also have the transaction recorded for you.  
-          </div>
+          
         </form>
       </CardContent>
     </Card>
@@ -270,4 +300,4 @@ const Giving = () => {
   );
 };
 
-export default Giving;
+export default GiveOffline;
