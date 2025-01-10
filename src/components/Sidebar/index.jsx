@@ -574,7 +574,17 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                              Give Online
                             </NavLink>
                           </li>
-                          {isSuperAdmin() && (
+                          <li>
+                            <NavLink
+                              to="/giveoffline"
+                              className={({ isActive }) =>
+                                'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
+                                (isActive && '!text-white')
+                              }
+                            >
+                             Give Offline
+                            </NavLink>
+                          </li>
                           <li>
                             <NavLink
                               to="/givingrecords"
@@ -586,7 +596,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                               My Records
                             </NavLink>
                           </li>
-                          )}
+                          
                         </ul>
                       </div>
                       {/* <!-- Dropdown Menu End --> */}
@@ -983,7 +993,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
 
    {/* <!-- Menu Item Finance Management Starts --> */}
-   {shouldShowSidebarItem('finance') && (
+   {shouldShowSidebarItem('finance') || isSuperAdmin() && (
    <SidebarLinkGroup
                 activeCondition={
                   pathname === '/forms' || pathname.includes('forms')
@@ -1127,6 +1137,17 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                             Remittance Management
                             </NavLink>
                           </li>
+                          <li>
+                            <NavLink
+                              to="/givinglist"
+                              className={({ isActive }) =>
+                                'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
+                                (isActive && '!text-white')
+                              }
+                            >
+                            Giving Records
+                            </NavLink>
+                          </li>
                           {/* <li>
                             <NavLink
                               to="#"
@@ -1162,7 +1183,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
              
              
                {/* <!-- Menu Item Central Finance Starts --> */}
-               {shouldShowSidebarItem('centralFinance') && (
+               {shouldShowSidebarItem('centralFinance') || isSuperAdmin() && (
    <SidebarLinkGroup
                 activeCondition={
                   pathname === '/forms' || pathname.includes('forms')
@@ -1304,6 +1325,17 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                               }
                             >
                             Remittance Management
+                            </NavLink>
+                          </li>
+                          <li>
+                            <NavLink
+                              to="/centralgivinglist"
+                              className={({ isActive }) =>
+                                'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
+                                (isActive && '!text-white')
+                              }
+                            >
+                           Central Givings
                             </NavLink>
                           </li>
                           {/* <li>

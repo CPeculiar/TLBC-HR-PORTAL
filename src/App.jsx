@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { AuthProvider } from './js/services/AuthContext';
 
 import Loader from './common/Loader';
@@ -77,16 +77,18 @@ import ViewPermissions from './pages/User Permissions/ViewPermissions';
 import PaymentSuccess from './pages/Giving/PaymentSuccess';
 import GiveOffline from './pages/Giving/GiveOffline'
 import GivingRecords from './pages/Giving/GivingRecords';
+import CentralGivingList from './pages/Central Finance/CentralGivingList';
+import GivingList from './pages/finance/GivingList';
 
 
 
 function App() {
   const [loading, setLoading] = useState(true); 
-  const { pathname } = useLocation();
+  // const { pathname } = useLocation();
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
+  // useEffect(() => {
+  //   window.scrollTo(0, 0);
+  // }, [pathname]);
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 1000);
@@ -108,6 +110,7 @@ function App() {
 
 
   return (
+    <BrowserRouter>
     <>
       <Routes>
 
@@ -216,6 +219,7 @@ function App() {
       <Route path="/remittanceManagement" element={withDefaultLayout(<RemittanceManagement />, "Remittance Management")} />
       <Route path="/topupManagement" element={withDefaultLayout(<TopupManagement />, "Topup Management")} />
       <Route path="/accountstatement" element={withDefaultLayout(<AccountStatement />, "Account Statement")} />
+      <Route path="/givinglist" element={withDefaultLayout(<GivingList />, "Church Givings")} />
 
 
       <Route path="/centralfinanceDashboard" element={withDefaultLayout(<CentralAccountDashboard />, "Central Finance Dashboard")} />
@@ -225,6 +229,7 @@ function App() {
       <Route path="/centralremittanceManagement" element={withDefaultLayout(<CentralRemittanceManagement />, "Central Remittance Management")} />
       <Route path="/centraltopupManagement" element={withDefaultLayout(<CentralTopupManagement />, "Central Topup Management")} />
       <Route path="/centralaccountstatement" element={withDefaultLayout(<CentralAccountStatement />, "Central Account Statement")} />
+      <Route path="/centralgivinglist" element={withDefaultLayout(<CentralGivingList />, "Central Givings")} />
 
 
       <Route path="/giving" element={withDefaultLayout(<Giving />, "Giving")} />
@@ -268,6 +273,7 @@ function App() {
     </Routes>
    
     </>
+    </BrowserRouter>
   );
 }
 

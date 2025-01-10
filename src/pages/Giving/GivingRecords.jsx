@@ -16,7 +16,7 @@ const GivingRecords = () => {
     const [uploadError, setUploadError] = useState('');
     const [uploadSuccess, setUploadSuccess] = useState('');
 
-  const fetchRecords = async (url = 'https://tlbc-platform-api.onrender.com/api/finance/giving/list/') => {
+  const fetchRecords = async (url = 'https://tlbc-platform-api.onrender.com/api/finance/giving/list/?limit=20') => {
     setIsLoading(true);
     try {
       const response = await axios.get(url, { withCredentials: true });
@@ -46,6 +46,7 @@ const GivingRecords = () => {
     e.preventDefault();
     setUploadError('');
     setUploadSuccess('');
+    setIsLoading(true);
 
     if (!selectedFile) {
       setUploadError('Please select a file');
@@ -85,7 +86,9 @@ const GivingRecords = () => {
           } else {
             setUploadError('Failed to upload file');
           }
-        }
+        } finally {
+            setIsLoading(false);
+          }
       };
 
   const formatDateTime = (dateString) => {
@@ -125,7 +128,7 @@ const GivingRecords = () => {
                   <thead>
                     <tr className="bg-gray-100 dark:bg-gray-700">
                       <th className="px-4 py-3 text-left">Type</th>
-                      <th className="px-4 py-3 text-left">Amount</th>
+                      <th className="px-4 py-3 text-left">Amount (₦)</th>
                       <th className="px-4 py-3 text-left">Church</th>
                       <th className="px-4 py-3 text-center">Confirmed</th>
                       <th className="px-4 py-3 text-center">Upload</th>
@@ -248,8 +251,9 @@ const GivingRecords = () => {
                 <button
                   type="submit"
                   className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-400"
+                  disabled={isLoading}
                 >
-                  Upload
+                  {isLoading ? 'Uploading...' : 'Upload'}
                 </button>
               </div>
             </form>

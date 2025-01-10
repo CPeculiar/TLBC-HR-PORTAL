@@ -56,7 +56,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
     enrolled_in_wfs: false,
     bio: '',
   });
-
+ 
   const [formData, setFormData] = useState({
     ...profileData,
   });

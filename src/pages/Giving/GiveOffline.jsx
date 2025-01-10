@@ -32,25 +32,20 @@ const GiveOffline = () => {
     if (fileInput) fileInput.value = '';
   };
 
-  const fetchChurches = async (url = 'https://tlbc-platform-api.onrender.com/api/churches/') => {
+  const fetchChurches = async () => {
     try {
       const accessToken = localStorage.getItem("accessToken");
       if (!accessToken) {
         throw new Error("Access token not found");
       }
 
-      const response = await axios.get(url, {
+       const response = await axios.get('https://tlbc-platform-api.onrender.com/api/churches/?limit=100', {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         }
       });
 
-      if (url === 'https://tlbc-platform-api.onrender.com/api/churches/') {
-        setChurches(response.data.results);
-      } else {
-        setChurches(prev => [...prev, ...response.data.results]);
-      }
-      
+      setChurches(response.data.results);
       setNextPage(response.data.next);
     } catch (error) {
       setError('Failed to fetch churches. Please try again.');
@@ -224,24 +219,13 @@ const GiveOffline = () => {
               required
             >
             <option value="" disabled>Select a church</option>
-             {churches.map((church) => (
+            {churches.map((church) => (
                 <option key={church.slug} value={church.slug}>
                   {church.name}
                 </option>
               ))}
             </select>
-            {nextPage && (
-              <button
-                type="button"
-                onClick={loadMoreChurches}
-                className="mt-2 text-sm text-primary hover:text-primary/90"
-                disabled={isLoadingMore}
-              >
-                {isLoadingMore ? 'Loading more...' : 'Load more churches'}
-              </button>
-            )}
           </div>
-
 
           <div>
             <label className="block text-sm font-medium mb-1">Amount (₦)</label>

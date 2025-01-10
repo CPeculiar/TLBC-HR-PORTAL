@@ -34,37 +34,24 @@ const Giving = () => {
     if (fileInput) fileInput.value = '';
   };
 
-  const fetchChurches = async (url = 'https://tlbc-platform-api.onrender.com/api/churches/') => {
+  const fetchChurches = async () => {
     try {
       const accessToken = localStorage.getItem("accessToken");
       if (!accessToken) {
         throw new Error("Access token not found");
       }
 
-      const response = await axios.get(url, {
+      const response = await axios.get('https://tlbc-platform-api.onrender.com/api/churches/?limit=100', {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         }
       });
-
-      if (url === 'https://tlbc-platform-api.onrender.com/api/churches/') {
-        setChurches(response.data.results);
-      } else {
-        setChurches(prev => [...prev, ...response.data.results]);
-      }
       
+      setChurches(response.data.results);
       setNextPage(response.data.next);
     } catch (error) {
       setError('Failed to fetch churches. Please try again.');
       console.error('Error fetching churches:', error);
-    }
-  };
-
-  const loadMoreChurches = async () => {
-    if (nextPage && !isLoadingMore) {
-      setIsLoadingMore(true);
-      await fetchChurches(nextPage);
-      setIsLoadingMore(false);
     }
   };
 
@@ -84,15 +71,13 @@ const Giving = () => {
   };
 
   const handleDashboardNavigation = () => {
-    const userRole = localStorage.getItem('userRole'); // Ensure you're storing user role in localStorage
+    const userRole = localStorage.getItem('userRole');
     if (userRole === 'superadmin') {
       navigate('/admindashboard');
     } else {
       navigate('/dashboard');
     }
   };
-
-
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -172,10 +157,10 @@ const Giving = () => {
 
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-center">Give Online</CardTitle>
+        <CardTitle className="text-2xl font-bold text-center dark:text-black">Give Online</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 dark:text-black">
           {error && (
             <div className="p-3 text-sm text-red-500 bg-red-100 rounded">
               {error}
@@ -214,16 +199,6 @@ const Giving = () => {
                 </option>
               ))}
             </select>
-            {nextPage && (
-              <button
-                type="button"
-                onClick={loadMoreChurches}
-                className="mt-2 text-sm text-primary hover:text-primary/90"
-                disabled={isLoadingMore}
-              >
-                {isLoadingMore ? 'Loading more...' : 'Load more churches'}
-              </button>
-            )}
           </div>
 
 

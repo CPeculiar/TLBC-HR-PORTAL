@@ -21,6 +21,8 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
   const [profilePicture, setProfilePicture] = useState(null);
   const [showImageOptions, setShowImageOptions] = useState(false);
   const profilePictureRef = useRef(null);
+  const [churches, setChurches] = useState([]);
+  const [selectedChurch, setSelectedChurch] = useState('');
 
   const [profileData, setProfileData] = useState({
     profile_picture: '',
@@ -61,33 +63,50 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
-  const churchOptions = {
-    'Central': 'central',
-    'TLBC Awka': 'tlbc-awka',
-    'TLBC Ekwulobia': 'tlbc-ekwulobia',
-    'TLBC Ihiala': 'tlbc-ihiala',
-    'TLBC Nnewi': 'tlbc-nnewi',
-    'TLBC Onitsha': 'tlbc-onitsha',
-    'TLBCM Agulu': 'tlbcm-agulu',
-    'TLBCM COOU Igbariam': 'tlbcm-coou-igbariam',
-    'TLBCM COOU Uli': 'tlbcm-coou-uli',
-    'TLBCM FUTO': 'tlbcm-futo',
-    'TLBCM IMSU': 'tlbcm-imsu',
-    'TLBCM Mbaukwu': 'tlbcm-mbaukwu',
-    'TLBCM Mgbakwu': 'tlbcm-mgbakwu',
-    'TLBCM NAU': 'tlbcm-nau',
-    'TLBCM Nekede': 'tlbcm-nekede',
-    'TLBCM Oko': 'tlbcm-oko',
-    'TLBCM Okofia': 'tlbcm-okofia',
-    'TLBCM UNILAG': 'tlbcm-unilag',
-    'TLTN Awka': 'tltn-awka',
-    'TLTN Agulu': 'tltn-agulu',
-  };
+  // const churchOptions = {
+  //   'TLBC Awka': 'tlbc-awka',
+  //   'TLBC Ekwulobia': 'tlbc-ekwulobia',
+  //   'TLBC Ihiala': 'tlbc-ihiala',
+  //   'TLBC Nnewi': 'tlbc-nnewi',
+  //   'TLBC Onitsha': 'tlbc-onitsha',
+  //   'TLBCM Agulu': 'tlbcm-agulu',
+  //   'TLBCM FUTO': 'tlbcm-futo',
+  //   'TLBCM Igbariam': 'tlbcm-coou-igbariam',
+  //   'TLBCM Mbaukwu': 'tlbcm-mbaukwu',
+  //   'TLBCM Mgbakwu': 'tlbcm-mgbakwu',
+  //   'TLBCM NAU': 'tlbcm-nau',
+  //   'TLBCM Nekede': 'tlbcm-nekede',
+  //   'TLBCM Oko': 'tlbcm-oko',
+  //   'TLBCM Okofia': 'tlbcm-okofia',
+  //   'TLBCM Uli': 'tlbcm-coou-uli',
+  //   'TLBCM UNILAG': 'tlbcm-unilag',
+  //   'TLTN Awka': 'tltn-awka',
+  //   'TLTN Agulu': 'tltn-agulu',
+  // };
+
+  // useEffect(() => {
+  //   Promise.all([fetchProfileData(), fetchChurches()]);
+  // }, []);
 
   useEffect(() => {
     fetchProfileData();
+    fetchChurches();
   }, []);
 
+  // Add a new useEffect to handle initial church display
+  useEffect(() => {
+    if (churches.length > 0 && formData.church) {
+      // Find the church object that matches the name from profile data
+      const matchingChurch = churches.find(c => c.name === formData.church);
+      if (matchingChurch) {
+        setFormData(prev => ({
+          ...prev,
+          church: matchingChurch.slug, // Store the slug
+          church_display: matchingChurch.name // Store the name for display
+        }));
+      }
+    }
+  }, [churches]);
   
     const fetchProfileData = async () => {
       try {
@@ -105,7 +124,13 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
 
       const data = response.data;
       setProfileData(data);
-      setFormData(data);
+      setFormData({
+        ...data,
+        church_display: data.church // Store the initial church name
+      });
+
+       // Set the initial selected church
+       setSelectedChurch(data.church);
       } catch (error) {
         console.error('Error fetching profile data:', error);
       } finally {
@@ -113,6 +138,26 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
       }
     };
 
+    const fetchChurches = async () => {
+      try {
+        const accessToken = localStorage.getItem("accessToken");
+        if (!accessToken) {
+          throw new Error("Access token not found");
+        }
+  
+        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/churches/?limit=100', {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          }
+        });
+  
+        setChurches(response.data.results);
+      } catch (error) {
+        console.error('Error fetching churches:', error);
+        setErrorMessage('Failed to fetch churches. Please try again.');
+      }
+    };
+    
     // Add event listener to close image options when clicking outside
     // document.addEventListener('mousedown', handleClickOutside);
     // return () => {
@@ -143,23 +188,86 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
   };
   
 
+  // const handleChange = (e) => {
+  //   const { name, value } = e.target;
+  //   if (name === 'church') {
+  //     // For church, we store the slug value
+  //     setFormData((prev) => ({
+  //       ...prev,
+  //       [name]: churchOptions[value] || value,
+  //     }));
+  //   // } else if (name === 'birth_date') {
+  //   //   setFormData((prev) => ({ 
+  //   //     ...prev, 
+  //   //     [name]: value ? new Date(value) : null 
+  //   //   }));
+  //   } else {
+  //     setFormData((prev) => ({ ...prev, [name]: value }));
+  //   }
+  // };
+
+
+// Modified handleChange for church field
+// const handleChange = (e) => {
+//   const { name, value } = e.target;
+//   if (name === 'church') {
+//     const selectedChurchObj = churches.find(church => church.slug === value);
+//     setSelectedChurch(value);
+//     setFormData(prev => ({
+//       ...prev,
+//       [name]: value  // Store the slug
+//     }));
+//   } else {
+//     setFormData(prev => ({
+//       ...prev,
+//       [name]: value
+//     }));
+//   }
+// };
+
+  // Modified handleChange for church field
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === 'church') {
-      // For church, we store the slug value
-      setFormData((prev) => ({
-        ...prev,
-        [name]: churchOptions[value] || value,
-      }));
-    // } else if (name === 'birth_date') {
-    //   setFormData((prev) => ({ 
-    //     ...prev, 
-    //     [name]: value ? new Date(value) : null 
-    //   }));
+      const selectedChurch = churches.find(c => c.slug === value);
+      if (selectedChurch) {
+        setFormData(prev => ({
+          ...prev,
+          church: selectedChurch.slug,
+          church_display: selectedChurch.name
+        }));
+      }
     } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
     }
   };
+  
+ // Modified handleChange for church field
+//  const handleChange = (e) => {
+//   const { name, value } = e.target;
+//   if (name === 'church') {
+//     // Store the slug value directly
+//     setFormData(prev => ({
+//       ...prev,
+//       [name]: value 
+//     }));
+//   } else {
+//     setFormData(prev => ({
+//       ...prev,
+//       [name]: value
+//     }));
+//   }
+// };
+
+// Function to find matching church slug
+const getCurrentChurchSlug = (slug) => {
+  const currentChurch = churches.find(church => church.name === formData.church);
+  return currentChurch ? currentChurch.slug : '';
+
+};
 
   // const handleDateChange = (date, key) => {
   //   const formattedDate = date ? date.toISOString().split('T')[0] : null;
@@ -281,6 +389,14 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
         return;
       }
 
+       // Create formDataToSend without church_display
+       const formDataToSend = new FormData();
+       Object.keys(formData).forEach(key => {
+         if (key !== 'church_display' && formData[key] !== profileData[key]) {
+           formDataToSend.append(key, formData[key]);
+         }
+       });
+
       // Phone validation
       const phoneRegex = /^\+?[0-9\s\-()]+$/;
       if (formData.phone && !phoneRegex.test(formData.phone)) {
@@ -289,14 +405,14 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
         return;
       }
 
-      const formDataToSend = new FormData();
+      // const formDataToSend = new FormData();
 
-      // Add changed fields to formData
-      Object.keys(formData).forEach(key => {
-        if (formData[key] !== profileData[key]) {
-          formDataToSend.append(key, formData[key]);
-        }
-      });
+      // // Add changed fields to formData
+      // Object.keys(formData).forEach(key => {
+      //   if (formData[key] !== profileData[key]) {
+      //     formDataToSend.append(key, formData[key]);
+      //   }
+      // });
 
        // Add profile picture if changed
        if (profilePicture) {
@@ -615,32 +731,35 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                       </div>
                     </div>
 
+                    
+                   
                     <div className="w-full sm:w-1/2">
-                      <label
-                        className="mb-3 block text-sm font-medium text-black dark:text-white"
-                        htmlFor="church"
-                      >
-                        Church
-                      </label>
-                      <select
-                        className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                        type="text"
-                        id="church"
-                        name="church"
-                        placeholder="Church"
-                        value={getChurchDisplayName(formData.church)}
-                        onChange={handleChange}
-                      >
-                        <option value="" disabled>
-                          Select a church
-                        </option>
-                        {Object.keys(churchOptions).map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+    <label
+      className="mb-3 block text-sm font-medium text-black dark:text-white"
+      htmlFor="church"
+    >
+      Church
+    </label>
+    <select
+      className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+      id="church"
+      name="church"
+      value={formData.church_display || formData.church || ''} // Show display name or fallback to church value
+      onChange={handleChange}
+    >
+      <option value="" disabled>
+        Select a church
+      </option>
+      {churches.map((church) => (
+        <option 
+          key={church.slug} 
+          value={church.name}
+        >
+          {church.name}
+        </option>
+      ))}
+    </select>
+  </div>
                   </div>
 
 
