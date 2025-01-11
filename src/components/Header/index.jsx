@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import DropdownMessage from './DropdownMessage';
 import DropdownNotification from './DropdownNotification';
@@ -7,6 +8,23 @@ import LogoBG from '../../assets/images/TLBC_LOGO_removebg.png';
 import DarkModeSwitcher from './DarkModeSwitcher';
 
 const Header = (props) => {
+  const [userRole, setUserRole] = useState('');
+
+ // Get user role from localStorage
+   useEffect(() => {
+    try {
+      const userInfo = JSON.parse(localStorage.getItem('userInfo')) || {};
+      setUserRole(userInfo.role || '');
+    } catch (error) {
+      console.error('Error parsing user info:', error);
+      setUserRole('');
+    }
+  }, []);
+
+  // Role checking functions
+  const isAdmin = () => userRole === 'admin';
+  const isSuperAdmin = () => userRole === 'superadmin';
+
   return (
     <header className="sticky top-0 z-999 flex w-full bg-white drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none">
       <div className="flex flex-grow items-center justify-between px-4 py-4 shadow-2 md:px-6 2xl:px-11">
@@ -54,7 +72,7 @@ const Header = (props) => {
           </button>
           {/* Hamburger Toggle BTN */}
 
-          <Link className="block flex-shrink-0 lg:hidden" to="/">
+          <Link className="block flex-shrink-0 lg:hidden"  to={isSuperAdmin() ? "/admindashboard" : "/dashboard"}>
             <img src={LogoBG} alt="Logo" width={42} />
           </Link>
         </div>

@@ -8,7 +8,7 @@ import SignIn from './pages/Authentication/SignIn';
 import SignUp from './pages/Authentication/SignUp';
 import Calendar from './pages/Calendar';
 import Chart from './pages/Chart';
-import ECommerce from './pages/Dashboard/ECommerce';
+import AdminDashboard from './pages/Dashboard/AdminDashboard';
 import FormElements from './pages/Form/FormElements';
 import FormLayout from './pages/Form/FormLayout';
 import Profile from './pages/Profile';
@@ -223,7 +223,7 @@ useEffect(() => {
        {/* Dashboard Routes - Inside DefaultLayout. THEY SHOULD ALL BE PROTECTED ROUTES */}
        <Route path="/admindashboard" element= {
          <ProtectedRoute requiredRoles={['superadmin']}>
-        {withDefaultLayout(<ECommerce />, "Admin Dashboard")} 
+        {withDefaultLayout(<AdminDashboard />, "Admin Dashboard")} 
         </ProtectedRoute> }
        
         />
@@ -262,7 +262,7 @@ useEffect(() => {
       <Route path="/AdvancedUserSearchPage" element={withDefaultLayout(<AdvancedUserSearchPage />, "User Profile Card")} />
       <Route path="/AboutTLBC" element={withDefaultLayout(<AboutTLBC />, "About TLBC")} />
 
-      
+
       <Route path="/comingsoon" element={withDefaultLayout(<LOLD />, "Coming soon")} />
 
       

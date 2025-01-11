@@ -16,77 +16,12 @@ const UserDashboard = () => {
   const navigate = useNavigate();
 
   // State for dashboard statistics
-  const [totalUsers, setTotalUsers] = useState(0);
-  const [totalZones, setTotalZones] = useState(0);
-  const [totalChurches, setTotalChurches] = useState(0);
-  const [maleUsers, setMaleUsers] = useState(0);
-  const [femaleUsers, setFemaleUsers] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const accessToken = localStorage.getItem('accessToken');
-    if (!accessToken) {
-      alert("Access token not found. Please login first.");
-      navigate('/');
-      return;
-    }
-
-// Function to fetch all dashboard data
-const fetchDashboardData = async () => {
-  try {
-    // Fetch total users
-    const usersResponse = await axios.get('https://tlbc-platform-api.onrender.com/api/users/count/', {
-      headers: { 'Authorization': `Bearer ${accessToken}` }
-    });
-    setTotalUsers(usersResponse.data.total);
-
-    // Fetch total zones
-    const zonesResponse = await axios.get('https://tlbc-platform-api.onrender.com/api/zones/', {
-      headers: { 'Authorization': `Bearer ${accessToken}` }
-    });
-    setTotalZones(zonesResponse.data.count);
-
-    // Fetch total churches
-    const churchesResponse = await axios.get('https://tlbc-platform-api.onrender.com/api/churches/', {
-      headers: { 'Authorization': `Bearer ${accessToken}` }
-    });
-    setTotalChurches(churchesResponse.data.count);
-
-    // Fetch male users
-    const maleUsersResponse = await axios.get('https://tlbc-platform-api.onrender.com/api/users/count/', {
-      headers: { 'Authorization': `Bearer ${accessToken}` }
-    });
-    setMaleUsers(maleUsersResponse.data.male);
-
-    // Fetch female users
-    const femaleUsersResponse = await axios.get('https://tlbc-platform-api.onrender.com/api/users/count/', {
-      headers: { 'Authorization': `Bearer ${accessToken}` }
-    });
-    setFemaleUsers(femaleUsersResponse.data.female);
-
-    setLoading(false);
-  } catch (err) {
-    console.error('Error fetching dashboard data:', err);
-    setError(err);
-    setLoading(false);
-  }
-};
-
-fetchDashboardData();
-
-  }, [navigate]);
-
-
-
-
-
-
-  
   const [attendanceData, setAttendanceData] = useState(null);
   const [timeRange, setTimeRange] = useState('week');
   const [rawData, setRawData] = useState({ count: 0, results: [] });
   const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchAttendanceData();

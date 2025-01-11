@@ -4,6 +4,7 @@ import axios from 'axios';
 import authService from '../../js/services/authService';
 import SidebarLinkGroup from './SidebarLinkGroup';
 import TLBCFullLogo from '../../images/logo/tlbc-full-logo.svg'; 
+import LogoBG from '../../assets/images/TLBC_LOGO_removebg.png';
 
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
@@ -177,9 +178,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
       {/* <!-- SIDEBAR HEADER --> */}
       <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
       <NavLink to={isSuperAdmin() ? "/admindashboard" : "/dashboard"}>
-          <img src={TLBCFullLogo} alt="Logo" 
+          <img src={LogoBG} alt="Logo" 
             width={100} 
-            className='p-0 m-0'
+            className='p-0 m-0 h-18'
           />
         </NavLink>
 

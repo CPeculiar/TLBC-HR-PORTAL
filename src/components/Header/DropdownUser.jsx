@@ -126,13 +126,13 @@ const DropdownUser = () => {
           {/* <img src={UserOne} alt="User" /> */}
 
           <img
-            src={profilePicture || UserOne}
+            src={profilePicture}
             alt="User"
             className="h-full w-full object-cover"
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = UserOne;
-            }}
+            // onError={(e) => {
+            //   e.target.onerror = null;
+            //   e.target.src = UserOne;
+            // }}
           />
         </span>
         
