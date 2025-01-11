@@ -5,13 +5,16 @@ import ClickOutside from '../ClickOutside';
 import UserOne from '../../images/user/user-01.png';
 import axios from 'axios'; 
 
+
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [userInfo, setUserInfo] = useState({});
   const [profilePicture, setProfilePicture] = useState('');
+  const [imageLoaded, setImageLoaded] = useState(false);
   const navigate = useNavigate();
   const trigger = useRef(null);
   const dropdown = useRef(null);
+  
 
   const fetchProfileData = async () => {
     try {
@@ -37,6 +40,7 @@ const DropdownUser = () => {
       setProfilePicture(response.data.profile_picture);
     } catch (error) {
       console.error('Error fetching profile data:', error);
+      setImageLoaded(true); // Set to true even on error to prevent infinite loading
     }
   };
 
@@ -106,6 +110,10 @@ const DropdownUser = () => {
     return () => document.removeEventListener('keydown', keyHandler);
   });
 
+  // Only render the component when the image is loaded or if there's no profile picture
+  if (!imageLoaded && profilePicture) {
+    return null;
+  }
 
   return (
     <ClickOutside onClick={handleClickOutside}  className="relative">
@@ -127,12 +135,15 @@ const DropdownUser = () => {
 
           <img
             src={profilePicture}
-            alt="User"
+            alt=""
             className="h-full w-full object-cover"
+            onLoad={() => setImageLoaded(true)}
+            onError={() => setImageLoaded(true)}
             // onError={(e) => {
             //   e.target.onerror = null;
             //   e.target.src = UserOne;
             // }}
+
           />
         </span>
         

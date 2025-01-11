@@ -3,12 +3,14 @@ import { Link } from 'react-router-dom';
 import DropdownMessage from './DropdownMessage';
 import DropdownNotification from './DropdownNotification';
 import DropdownUser from './DropdownUser';
+import Loader from '../../common/Loader';
 import LogoIcon from '../../images/logo/logo-icon.svg';
 import LogoBG from '../../assets/images/TLBC_LOGO_removebg.png';
 import DarkModeSwitcher from './DarkModeSwitcher';
 
 const Header = (props) => {
   const [userRole, setUserRole] = useState('');
+  const [loading, setLoading] = useState(true);
 
  // Get user role from localStorage
    useEffect(() => {
@@ -24,6 +26,11 @@ const Header = (props) => {
   // Role checking functions
   const isAdmin = () => userRole === 'admin';
   const isSuperAdmin = () => userRole === 'superadmin';
+
+   // Handle loading and error states
+  //  if (loading) {
+  //   return <div><Loader/></div>;
+  // }
 
   return (
     <header className="sticky top-0 z-999 flex w-full bg-white drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none">

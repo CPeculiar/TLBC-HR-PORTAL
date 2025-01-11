@@ -1849,7 +1849,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                                 )}
                                 </li>
                                 <li>
-                                {isSuperAdmin() && (
+                                {(shouldShowSidebarItem('group_users') ||  
+                                  isSuperAdmin()) && (
                                   <NavLink
                                     to="/groupsmanagement"
                                     className={({ isActive }) =>
@@ -1862,7 +1863,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                                   )}
                                 </li>
                                 <li>
-                                { isSuperAdmin() && (
+                                {(shouldShowSidebarItem('group_users') ||  
+                                  isSuperAdmin()) && (
                                   <NavLink
                                     to="/permissionmanagement"
                                     className={({ isActive }) =>
@@ -1875,7 +1877,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                                 )}
                                 </li>
                                 <li>
-                                {isSuperAdmin() && (
+                                {(shouldShowSidebarItem('group_users') ||  
+                                  isSuperAdmin()) && (
                                   <NavLink
                                     to="/viewpermissions"
                                     className={({ isActive }) =>
