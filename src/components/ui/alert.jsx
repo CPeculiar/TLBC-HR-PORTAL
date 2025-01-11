@@ -1,5 +1,3 @@
-// components/ui/alert.jsx
-
 import React from 'react';
 
 

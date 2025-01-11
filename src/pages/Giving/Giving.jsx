@@ -16,7 +16,6 @@ const Giving = () => {
     type: 'TITHE',
     amount: '',
     church: '',
-    // callback_url: handlePaymentCompletion
   };
    const [formData, setFormData] = useState(initialFormState);
  

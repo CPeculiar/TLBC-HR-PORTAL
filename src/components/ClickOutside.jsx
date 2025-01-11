@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 
-const ClickOutside = ({
+export const ClickOutside = ({
   children,
   exceptionRef,
   onClick,

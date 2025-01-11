@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Clock, MapPin, Phone, Mail, User2 } from 'lucide-react';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
@@ -7,9 +7,18 @@ import { handleAddToCalendar } from './handleAddToCalendar';
 function EventsPage() {
   const navigate = useNavigate();
 
-  const [events, setEvents] = useState([
+  const events = [
     {
       id: 1,
+      title: "Rethinking the Work Conference 2025",
+      date: "Friday, 3rd - Monday 6th January, 2025",
+      time: "6:00 PM Arrival",
+      location: "God is Faithful (Cotton Mill) Uke, Anambra State.",
+      description: "Ministry-wide Conference for every member of TLBC Int'l.",
+      image: "/events/RWC2025.jpg",
+    },
+    {
+      id: 2,
       title: "Night of Glory, January 2025 Edition.",
       Conductor: "Conductor: Pastor Chizoba Okeke",
       date: "Friday, January 31, 2025",
@@ -21,7 +30,7 @@ function EventsPage() {
       image: "/events/NOG-Jan-2025.jpg",
     },
     {
-      id: 2,
+      id: 3,
       title: "Ministers Refreshers Course, February 2025 Edition.",
       Conductor: "Conductor: Pastor Kenechukwu Chukwukelue",
       date: "Saturday, February 08, 2025",
@@ -32,11 +41,7 @@ function EventsPage() {
       Email: "info@thelordsbrethrenchurch.org",
       image: "/events/MRC-Feb-2025.jpg",
     },
-  ]);
-
-  const handleAddEvent = (newEvent) => {
-    setEvents(prevEvents => [...prevEvents, newEvent]);
-  };
+  ];
 
   const upcomingEvents = useMemo(() => {
     const currentDate = new Date();
@@ -46,7 +51,7 @@ function EventsPage() {
       eventDate.setHours(0, 0, 0, 0);
       return eventDate >= currentDate;
     });
- }, [events]);
+  }, []);
 
   return (
     <>
@@ -107,7 +112,7 @@ function EventsPage() {
                         </div>
 
                         <button
-                           onClick={() => handleAddToCalendar(event)}
+                          onClick={() => handleAddToCalendar(event)}
                           className="inline-flex items-center justify-center rounded bg-primary py-3 px-6 text-center font-medium text-white hover:bg-opacity-90"
                         >
                           Add to my Calender

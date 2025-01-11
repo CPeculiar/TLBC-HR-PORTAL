@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { AuthProvider } from './js/services/AuthContext';
 
@@ -79,6 +79,7 @@ import GiveOffline from './pages/Giving/GiveOffline'
 import GivingRecords from './pages/Giving/GivingRecords';
 import CentralGivingList from './pages/Central Finance/CentralGivingList';
 import GivingList from './pages/finance/GivingList';
+import AdminEventUpload from './pages/Events/AdminEventUpload';
 
 
 
@@ -90,18 +91,71 @@ function App() {
   //   window.scrollTo(0, 0);
   // }, [pathname]);
 
+  const [events, setEvents] = useState(() => {
+    const saved = localStorage.getItem('events');
+    return saved ? JSON.parse(saved) : [
+    {
+      id: 1,
+      title: "Night of Glory, January 2025 Edition.",
+      Conductor: "Conductor: Pastor Chizoba Okeke",
+      date: "Friday, January 31, 2025",
+      time: "09:00 PM",
+      location: "The Lord's Brethren Place, Awka.",
+      description: "Ministry-wide Night of Glory, January 2025 Edition.",
+      Contact: "09134445037",
+      Email: "info@thelordsbrethrenchurch.org",
+      image: "/events/NOG-Jan-2025.jpg",
+    },
+    {
+      id: 2,
+      title: "Ministers Refreshers Course, February 2025 Edition.",
+      Conductor: "Conductor: Pastor Kenechukwu Chukwukelue",
+      date: "Saturday, February 08, 2025",
+      time: "9:00 PM",
+      location: "The Lord's Brethren Place, Awka.",
+      description: "Ministry-wide MRC, February 2025 edition.",
+      Contact: "09134445037",
+      Email: "info@thelordsbrethrenchurch.org",
+      image: "/events/MRC-Feb-2025.jpg",
+    },
+  ];
+});
+
+// Persist events to localStorage whenever they change
+useEffect(() => {
+  localStorage.setItem('events', JSON.stringify(events));
+}, [events]);
+
+
   useEffect(() => {
     setTimeout(() => setLoading(false), 1000);
   }, []);
 
+  // Function to add new event
+  const handleAddEvent = (newEvent) => {
+    setEvents(prevEvents => [...prevEvents, newEvent]);
+  };
 
-  // Helper function to wrap components with DefaultLayout and ProtectedRoute
-  const withDefaultLayout = (component, title) => (
-    <ProtectedRoute>
-      <PageTitle title={`${title} | TLBC Portal`} />
-      <DefaultLayout>{component}</DefaultLayout>
-   </ProtectedRoute>
-  );
+
+  // // Helper function to wrap components with DefaultLayout and ProtectedRoute
+  // const withDefaultLayout = (component, title) => (
+  //   <ProtectedRoute>
+  //     <PageTitle title={`${title} | TLBC Portal`} />
+  //     <DefaultLayout>{component}</DefaultLayout>
+  //  </ProtectedRoute>
+  // );
+
+  const withDefaultLayout = (component, title) => {
+    return (
+      <DefaultLayout>
+        {React.cloneElement(component, { 
+          events,
+          onAddEvent: handleAddEvent,
+          title 
+        })}
+      </DefaultLayout>
+    );
+  };
 
   
   if (loading) {
@@ -202,17 +256,23 @@ function App() {
       <Route path="/returningNewcomers/:refcode" element={withDefaultLayout(<ReturningNewComers />, "Returning NewComers")} />
       
       
+      {/* Community */}
       <Route path="/UserSearchPage" element={withDefaultLayout(<UserSearchPage />, "Search Members")} />
       <Route path="/UserProfileCard" element={withDefaultLayout(<UserProfileCard />, "User Profile Card")} />
       <Route path="/AdvancedUserSearchPage" element={withDefaultLayout(<AdvancedUserSearchPage />, "User Profile Card")} />
       <Route path="/AboutTLBC" element={withDefaultLayout(<AboutTLBC />, "About TLBC")} />
+
+      
       <Route path="/comingsoon" element={withDefaultLayout(<LOLD />, "Coming soon")} />
 
       
+        {/* Zone Management */}
       <Route path="/ZoneManagement" element={withDefaultLayout(<ZoneManagement />, "Zonal Manager")} />
       <Route path="/ChurchManagement" element={withDefaultLayout(<ChurchManagement />, "Church Manager")} />
       <Route path="/accountCreation" element={withDefaultLayout(<AccountCreationPage />, "Create Church Account")} />
 
+
+        {/* Finance Management */}
       <Route path="/financeDashboard" element={withDefaultLayout(<FinanceDashboard />, "Account Management")} />
       <Route path="/expensesManagement" element={withDefaultLayout(<ExpensesManagement />, "Expenses Management")} />
       <Route path="/fundManagement" element={withDefaultLayout(<FundManagement />, "Fund Management")} />
@@ -222,6 +282,7 @@ function App() {
       <Route path="/givinglist" element={withDefaultLayout(<GivingList />, "Church Givings")} />
 
 
+        {/* Central Finance Management */}
       <Route path="/centralfinanceDashboard" element={withDefaultLayout(<CentralAccountDashboard />, "Central Finance Dashboard")} />
       <Route path="/centralaccountCreation" element={withDefaultLayout(<CentralAccountCreationPage/>, "Create Central Account")} />
       <Route path="/centralexpensesManagement" element={withDefaultLayout(<CentralExpensesManagement />, "Central Expenses Management")} />
@@ -232,16 +293,20 @@ function App() {
       <Route path="/centralgivinglist" element={withDefaultLayout(<CentralGivingList />, "Central Givings")} />
 
 
+          {/* Giving */}
       <Route path="/giving" element={withDefaultLayout(<Giving />, "Giving")} />
       <Route path="/giveoffline" element={withDefaultLayout(<GiveOffline />, "Giving Record")} />
       <Route path="/givingrecords" element={withDefaultLayout(<GivingRecords />, "Giving Record")} />
       <Route path="/PaymentSuccess" element={withDefaultLayout(<PaymentSuccess />, "Payment Successful")} />
 
       
-
+            {/* Events */}
       <Route path="/events" element={withDefaultLayout(<EventsPage />, "Events")} />
+      <Route path="/admineventupload" element={withDefaultLayout(<AdminEventUpload  />, "Admin Events Upload")} />
 
 
+
+            {/* User Management */}
       <Route path="/onboardUser" element={withDefaultLayout(<OnboardUser />, "Onboard New User")} />
       <Route path="/deleteUser" element={withDefaultLayout(<DeleteUser />, "Delete User")} />
       <Route path="/userPermissions" element={withDefaultLayout(<UserPermissions />, "User Permissions")} />
@@ -250,7 +315,7 @@ function App() {
       
 
       
-
+          {/* Permssion Management */}
       <Route path="/addusertogroup" element={withDefaultLayout(<AddUserToGroup />, "Add User to Group")} />
       <Route path="/removeuserfromgroup" element={withDefaultLayout(<RemoveUserFromGroup />, "Remove User from Group")} />
       <Route path="/createpermissiongroup" element={withDefaultLayout(<CreatePermissionGroup />, "Create Permission Group")} />
@@ -259,7 +324,7 @@ function App() {
       <Route path="/viewpermissions" element={withDefaultLayout(<ViewPermissions />, "View Permissions")} />
 
 
-      
+          {/*Attendance */}
       <Route path="/attendancereportadmin" element={withDefaultLayout(<AttendanceReportAdmin />, "Attendance Admin Report")} />
       <Route path="/attendancedetailspageadmin/:refCode" element={withDefaultLayout(<AttendanceDetailsPageAdmin />, "Attendance Details Admin")} />
       <Route path="/addmembers/:refcode" element={withDefaultLayout(<AddMembersForm />, "Add Members")} />
