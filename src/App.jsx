@@ -59,7 +59,7 @@ import EditUserDetailsForm from './pages/User Management/EditUserDetailsForm';
 import UserDashboard from './pages/Dashboard/UserDashboard';
 import AboutTLBC from './pages/community/AboutTLBC';
 import LOLD from './pages/community/LOLD';
-import Giving from './pages/Giving/Giving';
+import GivingOnline from './pages/Giving/GivingOnline';
 import EventsPage from './pages/Events/EventsPage';
 import CentralAccountDashboard from './pages/Central Finance/CentralAccountDashboard';
 import CentralAccountCreationPage from './pages/Central Finance/CentralAccountCreationPage';
@@ -294,7 +294,7 @@ useEffect(() => {
 
 
           {/* Giving */}
-      <Route path="/giving" element={withDefaultLayout(<Giving />, "Giving")} />
+      <Route path="/giving" element={withDefaultLayout(<GivingOnline />, "Giving")} />
       <Route path="/giveoffline" element={withDefaultLayout(<GiveOffline />, "Giving Record")} />
       <Route path="/givingrecords" element={withDefaultLayout(<GivingRecords />, "Giving Record")} />
       <Route path="/PaymentSuccess" element={withDefaultLayout(<PaymentSuccess />, "Payment Successful")} />

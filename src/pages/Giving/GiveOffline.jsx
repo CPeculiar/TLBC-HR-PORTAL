@@ -13,9 +13,10 @@ const GiveOffline = () => {
   const [nextPage, setNextPage] = useState(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const initialFormState = {
-    type: 'TITHE',
+    type: 'STEWARDSHIP',
     amount: '',
     church: '',
+    detail: '',
     files: []
   };
   const [formData, setFormData] = useState(initialFormState);
@@ -39,7 +40,7 @@ const GiveOffline = () => {
         throw new Error("Access token not found");
       }
 
-       const response = await axios.get('https://tlbc-platform-api.onrender.com/api/churches/?limit=100', {
+       const response = await axios.get('https://tlbc-platform-api.onrender.com/api/churches/?limit=25', {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         }
@@ -53,16 +54,9 @@ const GiveOffline = () => {
     }
   };
 
-  const loadMoreChurches = async () => {
-    if (nextPage && !isLoadingMore) {
-      setIsLoadingMore(true);
-      await fetchChurches(nextPage);
-      setIsLoadingMore(false);
-    }
-  };
 
   const handleDashboardNavigation = () => {
-    const userRole = localStorage.getItem('userRole'); // Ensure you're storing user role in localStorage
+    const userRole = localStorage.getItem('userRole'); 
     if (userRole === 'superadmin') {
       navigate('/admindashboard');
     } else {
@@ -127,6 +121,7 @@ const GiveOffline = () => {
       formDataToSend.append('type', formData.type);
       formDataToSend.append('amount', formData.amount);
       formDataToSend.append('church', formData.church);
+      formDataToSend.append('detail', formData.detail);
       formData.files.forEach(file => {
         formDataToSend.append('files', file);
       });
@@ -186,7 +181,7 @@ const GiveOffline = () => {
         <CardTitle className="text-2xl font-bold text-center">Record your Giving Here</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 dark:text-black text-black">
           {error && (
             <div className="p-3 text-sm text-red-500 bg-red-100 rounded">
               {error}
@@ -202,7 +197,7 @@ const GiveOffline = () => {
               className="w-full p-2 border rounded"
               required
             >
-              <option value="TITHE">Stewardship</option>
+              <option value="STEWARDSHIP">Stewardship</option>
               <option value="OFFERING">Offering</option>
               <option value="PROJECT">Project</option>
               <option value="WELFARE">Welfare</option>
@@ -238,6 +233,21 @@ const GiveOffline = () => {
               placeholder="Enter amount"
               required
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Description</label>
+            <input
+              type="text"
+              name="detail"
+              value={formData.detail}
+              onChange={handleInputChange}
+              className="w-full p-2 border rounded"
+              placeholder="Enter details about your giving"
+              maxLength={30}
+              required
+            />
+            <small>{30 - formData.detail.length} characters remaining</small>
           </div>
 
           <div>

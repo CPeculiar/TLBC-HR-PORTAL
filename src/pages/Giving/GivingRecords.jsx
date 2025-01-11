@@ -130,6 +130,7 @@ const GivingRecords = () => {
                       <th className="px-4 py-3 text-left">Type</th>
                       <th className="px-4 py-3 text-left">Amount (₦)</th>
                       <th className="px-4 py-3 text-left">Church</th>
+                      <th className="px-4 py-3 text-left">Details</th>
                       <th className="px-4 py-3 text-center">Confirmed</th>
                       <th className="px-4 py-3 text-center">Upload</th>
                       <th className="px-4 py-3 text-center">View</th>
@@ -141,6 +142,7 @@ const GivingRecords = () => {
                         <td className="px-4 py-3">{record.type}</td>
                         <td className="px-4 py-3">{record.amount}</td>
                         <td className="px-4 py-3">{record.church}</td>
+                        <td className="px-4 py-3">{record.detail ? record.detail : 'N/A'}</td>
                         <td className="px-4 py-3 text-center">
                           {record.confirmed ? 'Yes' : 'No'}
                         </td>

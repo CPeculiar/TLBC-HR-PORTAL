@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/ca
 import Paystack from '@paystack/inline-js';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 
-const Giving = () => {
+const GivingOnline = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -13,9 +13,10 @@ const Giving = () => {
   const [nextPage, setNextPage] = useState(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const initialFormState = {
-    type: 'TITHE',
+    type: 'STEWARDSHIP',
     amount: '',
     church: '',
+    detail: '',
   };
    const [formData, setFormData] = useState(initialFormState);
  
@@ -159,7 +160,7 @@ const Giving = () => {
         <CardTitle className="text-2xl font-bold text-center dark:text-black">Give Online</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4 dark:text-black">
+        <form onSubmit={handleSubmit} className="space-y-4 dark:text-black text-black">
           {error && (
             <div className="p-3 text-sm text-red-500 bg-red-100 rounded">
               {error}
@@ -214,6 +215,21 @@ const Giving = () => {
             />
           </div>
 
+          <div>
+            <label className="block text-sm font-medium mb-1">Description</label>
+            <input
+              type="text"
+              name="detail"
+              value={formData.detail}
+              onChange={handleInputChange}
+              className="w-full p-2 border rounded"
+              placeholder="Enter details about your giving"
+              maxLength={30}
+              required
+            />
+            <small>{30 - formData.detail.length} characters remaining</small>
+          </div>
+
           <div className="flex flex-col md:flex-row justify-center gap-4 mt-8">
           <button
             type="submit"
@@ -244,4 +260,4 @@ const Giving = () => {
   );
 };
 
-export default Giving;
+export default GivingOnline;
