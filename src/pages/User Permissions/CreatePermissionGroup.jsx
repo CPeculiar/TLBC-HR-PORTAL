@@ -11,7 +11,7 @@ const CreatePermissionGroup = () => {
 
   const handleInputChange = (e) => {
     setGroupName(e.target.value);
-    setError('');
+    setErrors((prevErrors) => ({ ...prevErrors, name: '' }));
   };
 
   const validateForm = () => {
@@ -45,23 +45,23 @@ const CreatePermissionGroup = () => {
       setTimeout(() => setSuccessMessage(''), 5000);
     } catch (error) {
       const errorData = error.response?.data;
+      const formattedErrors = {};
       
+      // Handle detail error message
+      if (errorData?.detail) {
+        formattedErrors.general = errorData.detail;
+      }
       // Handle field-specific validation errors
-      if (typeof errorData === 'object') {
-        const formattedErrors = {};
+      else if (typeof errorData === 'object') {
         Object.entries(errorData).forEach(([field, errorMessages]) => {
-          // Handle both array and string error messages
           formattedErrors[field] = Array.isArray(errorMessages) 
             ? errorMessages[0] 
             : errorMessages;
-        });
-        setErrors(formattedErrors);
+        });        
       } else {
-         // Handle generic error message
-         setErrors({ 
-          general: errorData?.message || 'Failed to create group. Please try again.' 
-        });
+        formattedErrors.general = 'Failed to create group. Please try again.';
       }
+      setErrors(formattedErrors);
     } finally {
       setIsLoading(false);
     }
@@ -93,7 +93,6 @@ const CreatePermissionGroup = () => {
               </div>
             )}
 
-
           <form className="space-y-6 mb-8" onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 gap-6 p-6.5">
               <div className="relative">
@@ -109,7 +108,7 @@ const CreatePermissionGroup = () => {
                       errors.name ? 'border-red-500' : 'border-stroke'
                     } bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary`}
                   />
-                  {errors.name && (
+                 {errors.name && (
                     <span className="text-red-500 text-sm mt-1 block">
                       {errors.name}
                     </span>

@@ -23,7 +23,7 @@ const GroupsManagement = () => {
       setGroups(response.data);
       setCurrentPage(url);
     } catch (error) {
-      setError('Failed to fetch groups');
+      setError(error.response?.data?.detail || error.response?.data?.church?.[0] || err.response?.data?.detail || 'Failed to fetch groups');
     } finally {
       setIsLoading(false);
     }
@@ -39,7 +39,7 @@ const GroupsManagement = () => {
       setGroupDetails(response.data);
       setShowDetailsModal(true);
     } catch (error) {
-      setError('Failed to fetch group details');
+      setError(error.response?.data?.detail || error.response?.data?.church?.[0] || err.response?.data?.detail || 'Failed to fetch group details');
     } finally {
       setIsLoading(false);
     }
@@ -57,7 +57,7 @@ const GroupsManagement = () => {
       fetchGroups(currentPage);
       setTimeout(() => setSuccessMessage(''), 5000);
     } catch (error) {
-      setError('Failed to delete group');
+      setError(error.response?.data?.detail || error.response?.data?.church?.[0] || err.response?.data?.detail || 'Failed to delete group');
     } finally {
       setIsLoading(false);
     }

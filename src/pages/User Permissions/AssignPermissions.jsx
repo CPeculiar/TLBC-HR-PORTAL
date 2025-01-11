@@ -13,13 +13,18 @@ const AssignPermissions = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [updating, setUpdating] = useState(false);
 
+  // Helper function to extract error message
+  const extractErrorMessage = (err) => {
+    return err.response?.data?.detail || 'An unexpected error occurred';
+  };
+
   // Fetch all permissions
   const fetchPermissions = async () => {
     try {
       const response = await axios.get('https://tlbc-platform-api.onrender.com/api/permissions/');
       setPermissions(response.data);
     } catch (err) {
-      setError('Failed to fetch permissions');
+      setError(error.response?.data?.detail || error.response?.data?.church?.[0] || err.response?.data?.detail || 'Failed to fetch permissions');
     }
   };
 
@@ -30,7 +35,8 @@ const AssignPermissions = () => {
       setGroups(response.data.results);
       await Promise.all(response.data.results.map(group => fetchGroupPermissions(group.name)));
     } catch (err) {
-      setError('Failed to fetch groups');
+      // setError('Failed to fetch groups');
+      setError(error.response?.data?.detail || error.response?.data?.church?.[0] || err.response?.data?.detail || 'Failed to fetch groups');
     }
   };
 
@@ -44,6 +50,7 @@ const AssignPermissions = () => {
       }));
     } catch (err) {
       console.error(`Failed to fetch permissions for group ${groupName}`);
+      setError(error.response?.data?.detail || error.response?.data?.church?.[0] || err.response?.data?.detail || `Failed to fetch permissions for group ${groupName}`);
     }
   };
 

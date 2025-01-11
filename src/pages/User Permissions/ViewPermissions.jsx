@@ -22,7 +22,7 @@ const ViewPermissions = () => {
       setPermissions(response.data);
       setError('');
     } catch (error) {
-      setError('Failed to fetch permissions');
+      setError(error.response?.data?.detail || error.response?.data?.church?.[0] || 'Failed to fetch permissions');
     } finally {
       setIsLoading(false);
     }
