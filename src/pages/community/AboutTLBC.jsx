@@ -81,6 +81,23 @@ const AboutTLBC = () => {
                     3 Uche Ekwunife Crescent, Awka, <br />
                     Anambra State.
                   </p>
+
+                <div className="mt-1 font-semibold text-black dark:text-white"> Zonal Contact Information
+                <a
+                    href="tel:+2347035913268"
+                    className="block text-primary hover:text-primary/80 dark:text-primary dark:hover:text-white/80"
+                  >
+                    Phone: +234 703-591-3268
+                  </a>
+                  <a
+                    href="mailto:info@thelordsbrethrenchurch.org"
+                    className="block text-primary hover:text-primary/80 dark:text-primary dark:hover:text-white/80"
+                  >
+                    info@thelordsbrethrenchurch.org
+                  </a>
+               
+                </div>
+              
                 </div>
 
                 {/* Nnewi Zone */}
@@ -94,6 +111,22 @@ const AboutTLBC = () => {
                     (By Nwanyị Imo Bus Stop, 2nd Floor, <br />
                     Fidelity Bank Building), Anambra State.
                   </p>
+
+                  <div className="mt-1 font-semibold text-black dark:text-white"> Zonal Contact Information
+                <a
+                    href="tel:+2347062148857"
+                    className="block text-primary hover:text-primary/80 dark:text-primary dark:hover:text-white/80"
+                  >
+                    Phone: +234 706-214-8857
+                  </a>
+                  <a
+                    href="mailto:info@thelordsbrethrenchurch.org"
+                    className="block text-primary hover:text-primary/80 dark:text-primary dark:hover:text-white/80"
+                  >
+                    info@thelordsbrethrenchurch.org
+                  </a>
+               
+                </div>
                 </div>
 
                 {/* Ekwulobia Zone */}
@@ -106,6 +139,22 @@ const AboutTLBC = () => {
                     Old NEPA Office, near Oko Roundabout, <br />
                     Oko, Anambra State.
                   </p>
+
+                  <div className="mt-1 font-semibold text-black dark:text-white"> Zonal Contact Information
+                <a
+                    href="tel:+2348064430141"
+                    className="block text-primary hover:text-primary/80 dark:text-primary dark:hover:text-white/80"
+                  >
+                    Phone: +234 806-443-0141
+                  </a>
+                  <a
+                    href="mailto:info@thelordsbrethrenchurch.org"
+                    className="block text-primary hover:text-primary/80 dark:text-primary dark:hover:text-white/80"
+                  >
+                    info@thelordsbrethrenchurch.org
+                  </a>
+               
+                </div>
                 </div>
 
                 {/* Owerri Zone */}
@@ -118,15 +167,31 @@ const AboutTLBC = () => {
                     Umunnamaenyi Road (opposite Drink Depot), <br />
                     Ihiala, Anambra State.
                   </p>
+
+                  <div className="mt-1 font-semibold text-black dark:text-white"> Zonal Contact Information
+                <a
+                    href="tel:+2348167353945"
+                    className="block text-primary hover:text-primary/80 dark:text-primary dark:hover:text-white/80"
+                  >
+                    Phone: +234 816-735-3945
+                  </a>
+                  <a
+                    href="mailto:info@thelordsbrethrenchurch.org"
+                    className="block text-primary hover:text-primary/80 dark:text-primary dark:hover:text-white/80"
+                  >
+                    info@thelordsbrethrenchurch.org
+                  </a>
+               
+                </div>
                 </div>
               </div>
 
               {/* Contact Information */}
               <div className="mt-6 rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
                 <h4 className="mb-4 text-xl font-semibold text-black dark:text-white">
-                  Contact Information
+                  TLBC Contact Information
                 </h4>
-                <div className="space-y-2">
+                <div className="space-y-2 font-semibold">
                   <a
                     href="mailto:info@thelordsbrethrenchurch.org"
                     className="block text-primary hover:text-primary/80 dark:text-white dark:hover:text-white/80"

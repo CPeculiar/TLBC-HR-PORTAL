@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Eye, Upload, X } from 'lucide-react';
+import { Eye, Upload, X, Download, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
+import html2pdf from 'html2pdf.js';
 
 const GivingRecords = () => {
     const [records, setRecords] = useState([]);
@@ -15,6 +16,135 @@ const GivingRecords = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [uploadError, setUploadError] = useState('');
     const [uploadSuccess, setUploadSuccess] = useState('');
+
+    const [showDownloadModal, setShowDownloadModal] = useState(false);
+    const [showReportModal, setShowReportModal] = useState(false);
+    const [fromDate, setFromDate] = useState('');
+    const [toDate, setToDate] = useState('');
+    const [downloadData, setDownloadData] = useState(null);
+    const [userInfo, setUserInfo] = useState(null);
+    const [downloadError, setDownloadError] = useState('');
+
+    useEffect(() => {
+      const fetchUserInfo = async () => {
+        try {
+          const response = await axios.get(
+            'https://tlbc-platform-api.onrender.com/api/user/',
+            { withCredentials: true }
+          );
+          setUserInfo(response.data);
+        } catch (error) {
+          console.error('Error fetching user info:', error);
+        }
+      };
+      fetchUserInfo();
+    }, []);
+  
+    const handleDownloadRequest = async () => {
+      if (!fromDate || !toDate) {
+        setDownloadError('Please select both start and end dates');
+        return;
+      }
+  
+      const formattedFromDate = format(new Date(fromDate), 'MM/dd/yyyy');
+      const formattedToDate = format(new Date(toDate), 'MM/dd/yyyy');
+  
+      try {
+        const response = await axios.get(
+          `https://tlbc-platform-api.onrender.com/api/finance/giving/list/?initiated_after=${encodeURIComponent(
+            formattedFromDate
+          )}&initiated_before=${encodeURIComponent(
+            formattedToDate
+          )}&limit=100`,
+          { withCredentials: true }
+        );
+        setDownloadData(response.data);
+        setShowDownloadModal(false);
+        setShowReportModal(true);
+      } catch (error) {
+        setDownloadError('Failed to fetch report data');
+      }
+    };
+  
+    // const generatePDF = () => {
+    //   const element = document.getElementById('report-content');
+    //   const opt = {
+    //     margin: 1,
+    //     filename: `giving-report-${format(new Date(), 'yyyy-MM-dd')}.pdf`,
+    //     image: { type: 'jpeg', quality: 0.98 },
+    //     html2canvas: { scale: 2 },
+    //     jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    //   };
+  
+    //   html2pdf().set(opt).from(element).save();
+    // };
+
+     const generatePDF = () => {
+        const element = document.getElementById('report-content');
+        
+        // First check table width to determine orientation
+        const table = element.querySelector('table');
+        const tableWidth = table?.offsetWidth || 0;
+        
+        // If table is wider than 8.5 inches (standard letter width), use landscape
+        const orientation = tableWidth > 8.5 * 96 ? 'landscape' : 'portrait'; // 96 is approximate DPI
+      
+        const opt = {
+          margin: [0.5, 0.5, 0.5, 0.5], // Smaller margins: top, right, bottom, left
+          filename: `church-giving-report-${format(new Date(), 'yyyy-MM-dd')}.pdf`,
+          image: { type: 'jpeg', quality: 1.0 },
+          html2canvas: {
+            scale: 2, // Higher scale for better quality
+            useCORS: true,
+            logging: false,
+            letterRendering: true,
+            windowWidth: table?.scrollWidth || 1000, // Ensure full table width is captured
+          },
+          jsPDF: {
+            unit: 'in',
+            format: 'letter',
+            orientation: orientation,
+            compress: true,
+            precision: 4,
+            putOnlyUsedFonts: true
+          },
+          pagebreak: { mode: 'avoid-all', before: '.page-break' }
+        };
+      
+        // Add some CSS to the table before generating PDF
+        const style = document.createElement('style');
+        style.textContent = `
+          @media print {
+            table {
+              font-size: 8pt !important; /* Smaller font size for better fit */
+              width: 100% !important;
+              table-layout: fixed !important;
+            }
+            th, td {
+              padding: 4px !important;
+              overflow: hidden !important;
+              text-overflow: ellipsis !important;
+              white-space: nowrap !important;
+            }
+          }
+        `;
+        document.head.appendChild(style);
+      
+        // Generate PDF with adjusted settings
+        html2pdf()
+          .set(opt)
+          .from(element)
+          .save()
+          .then(() => {
+            // Clean up added style
+            document.head.removeChild(style);
+          })
+          .catch(error => {
+            console.error('PDF generation error:', error);
+            document.head.removeChild(style);
+          });
+      };
+
 
   const fetchRecords = async (url = 'https://tlbc-platform-api.onrender.com/api/finance/giving/list/?limit=20') => {
     setIsLoading(true);
@@ -91,10 +221,257 @@ const GivingRecords = () => {
           }
       };
 
+      const clearRecords = () => {
+        setRecords([]);
+        setError('');
+      };
+
   const formatDateTime = (dateString) => {
+    if (!dateString) return 'Not confirmed';
     const date = new Date(dateString);
     return format(date, 'dd/MM/yyyy hh:mm a');
   };
+
+
+  const calculateTotalsByCategory = (records) => {
+    const totals = records.reduce((acc, record) => {
+
+        // Only process confirmed records
+      if (!record.confirmed) {
+        return acc;
+      }
+
+      const amount = parseFloat(record.amount) || 0;
+      const type = record.type?.toLowerCase() || '';
+
+      if (type.includes('stewardship') || type.includes('tithe')) {
+        acc.stewardshipTithe += amount;
+      } else if (type.includes('offering')) {
+        acc.offering += amount;
+      } else if (type.includes('project')) {
+        acc.project += amount;
+      } else if (type.includes('welfare')) {
+        acc.welfare += amount;
+      }
+
+      return acc;
+    }, {
+      stewardshipTithe: 0,
+      offering: 0,
+      project: 0,
+      welfare: 0
+    });
+
+    totals.grandTotal = totals.stewardshipTithe + totals.offering + totals.project + totals.welfare;
+    return totals;
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN',
+      minimumFractionDigits: 2
+    }).format(amount);
+  };
+
+   // Add this near the top of your return statement, after the "Fetch My Giving Records" button
+   const renderDownloadButton = () => (
+    <button
+      onClick={() => setShowDownloadModal(true)}
+      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors ml-4"
+    >
+      <Download size={20} className="inline mr-2" />
+      Download Report
+    </button>
+  );
+
+  // Add these modals to your existing JSX, after the Details Modal
+  const renderDownloadModal = () => (
+    showDownloadModal && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white dark:bg-boxdark rounded-lg p-6 max-w-md w-full mx-4">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-medium dark:text-white">Select Date Range</h3>
+            <button
+              onClick={() => {
+                setShowDownloadModal(false);
+                setDownloadError('');
+                setFromDate('');
+                setToDate('');
+              }}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <X size={20} />
+            </button>
+          </div>
+
+          {downloadError && (
+            <div className="mb-4 p-3 bg-red-100 text-red-600 rounded-md">
+              {downloadError}
+            </div>
+          )}
+
+          <div className="space-y-4">
+            <div>
+              <label className="block mb-2 dark:text-white">From Date:</label>
+              <input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white"
+              />
+            </div>
+            <div>
+              <label className="block mb-2 dark:text-white">To Date:</label>
+              <input
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white"
+              />
+            </div>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => {
+                  setShowDownloadModal(false);
+                  setDownloadError('');
+                }}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDownloadRequest}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Generate Report
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  );
+
+  const renderReportModal = () => (
+    showReportModal && downloadData && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white dark:bg-boxdark rounded-lg p-6 max-w-6xl w-full mx-4 max-h-[90vh] overflow-y-auto mt-28">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-medium dark:text-white">Generated Report</h3>
+            <button
+              onClick={() => setShowReportModal(false)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <X size={20} />
+            </button>
+          </div>
+
+          <div id="report-content" className="space-y-6">
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl font-bold dark:text-white">
+                Giving Records Report
+              </h2>
+              {userInfo && (
+                <>
+                  <p className="dark:text-white font-semibold">
+                    Name: {userInfo.first_name} {userInfo.last_name}
+                  </p>
+                  <p className="dark:text-white font-semibold">Church: {userInfo.church}</p>
+                </>
+              )}
+              <p className="dark:text-white font-semibold">
+                Period: {format(new Date(fromDate), 'dd/MM/yyyy')} -{' '}
+                {format(new Date(toDate), 'dd/MM/yyyy')}
+              </p>
+            </div>
+
+            {downloadData.results?.length > 0 ? (
+              <>
+            <table className="w-full border-collapse border dark:text-white">
+              <thead>
+                <tr className="bg-gray/10 dark:bg-gray/5 text-center">
+                  <th className="border p-2">Type</th>
+                  <th className="border p-2">Amount (₦)</th>
+                  <th className="border p-2">Church</th>
+                  <th className="border p-2">Details</th>
+                  <th className="border p-2">Date</th>
+                  <th className="border p-2">Confirmed</th>
+                </tr>
+              </thead>
+              <tbody>
+                {downloadData.results?.map((record) => (
+                  <tr key={record.reference} className="border-b text-center">
+                    <td className="border p-2">{record.type}</td>
+                    <td className="border p-2">{record.amount}</td>
+                    <td className="border p-2">{record.church}</td>
+                    <td className="border p-2">{record.detail || 'N/A'}</td>
+                    <td className="border p-2">
+                      {formatDateTime(record.initiated_at)}
+                    </td>
+                    <td className="border p-2 text-center">
+                      {record.confirmed ? 'Yes' : 'No'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+
+ {/* Totals Section */}
+ <div className="border rounded-lg p-4 dark:text-white">
+                  <h3 className="font-bold text-lg mb-4">Summary</h3>
+                  {(() => {
+                    const totals = calculateTotalsByCategory(downloadData.results);
+                    return (
+                      <div className="space-y-2">
+                        <div className="grid grid-cols-2 gap-4 border-b pb-2">
+                          <span>Stewardship/Tithe:</span>
+                          <span className="text-right">{formatCurrency(totals.stewardshipTithe)}</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 border-b pb-2">
+                          <span>Offering:</span>
+                          <span className="text-right">{formatCurrency(totals.offering)}</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 border-b pb-2">
+                          <span>Project:</span>
+                          <span className="text-right">{formatCurrency(totals.project)}</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 border-b pb-2">
+                          <span>Welfare:</span>
+                          <span className="text-right">{formatCurrency(totals.welfare)}</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 pt-2 font-bold">
+                          <span>Grand Total:</span>
+                          <span className="text-right">{formatCurrency(totals.grandTotal)}</span>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-8 text-gray-600 dark:text-gray-300">
+                No data found for the selected period.
+              </div>
+            )}
+          </div>
+
+          {downloadData.results?.length > 0 && (
+          <div className="mt-6 flex justify-end">
+            <button
+              onClick={generatePDF}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              <Download size={20} className="inline mr-2" />
+              Download PDF
+            </button>
+          </div>
+          )}
+        </div>
+      </div>
+    )
+  );
 
   return (
     <>
@@ -107,14 +484,19 @@ const GivingRecords = () => {
               <h3 className="font-medium text-black dark:text-white">
                 My Giving Records
               </h3>
+              <div className="flex">
               <button
                 onClick={() => fetchRecords()}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                 disabled={isLoading}
               >
-                Fetch My Giving Records
+                {isLoading ? 'Fetching...' : 'Fetch My Giving Records'}
               </button>
+
+              {renderDownloadButton()}
             </div>
+            </div>
+            
 
             {error && (
               <div className="p-4 mb-4 text-red-700 bg-red-100 rounded-md mx-6.5">
@@ -131,18 +513,21 @@ const GivingRecords = () => {
                       <th className="px-4 py-3 text-left">Amount (₦)</th>
                       <th className="px-4 py-3 text-left">Church</th>
                       <th className="px-4 py-3 text-left">Details</th>
+                      <th className="px-4 py-3 text-left">Date</th>
                       <th className="px-4 py-3 text-center">Confirmed</th>
                       <th className="px-4 py-3 text-center">Upload</th>
                       <th className="px-4 py-3 text-center">View</th>
                     </tr>
                   </thead>
+                  {records.results?.length > 0 ? (
                   <tbody>
                     {records.results?.map((record) => (
-                      <tr key={record.reference} className="border-b dark:border-gray-700">
+                      <tr key={record.reference} className="border-b dark:border-gray/50">
                         <td className="px-4 py-3">{record.type}</td>
                         <td className="px-4 py-3">{record.amount}</td>
                         <td className="px-4 py-3">{record.church}</td>
                         <td className="px-4 py-3">{record.detail ? record.detail : 'N/A'}</td>
+                        <td className="px-4 py-3">{formatDateTime(record.initiated_at)}</td>
                         <td className="px-4 py-3 text-center">
                           {record.confirmed ? 'Yes' : 'No'}
                         </td>
@@ -170,6 +555,15 @@ const GivingRecords = () => {
                       </tr>
                     ))}
                   </tbody>
+                ) : (
+                <tbody>
+                  <tr>
+                    <td colSpan="7" className="text-center py-4 text-black/70 dark:text-white">
+                      Click the "Fetch my Giving Records" button to fetch your givings.
+                    </td>
+                  </tr>
+                </tbody>
+              )}
                 </table>
               </div>
 
@@ -197,6 +591,17 @@ const GivingRecords = () => {
                   Next
                 </button>
               </div>
+
+               {/* Clear button */}
+               <div className="flex justify-center mt-6">
+                <button
+                  onClick={clearRecords}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                >
+                  Clear List
+                </button>
+              </div>
+
             </div>
           </div>
         </div>
@@ -325,6 +730,9 @@ const GivingRecords = () => {
           </div>
         </div>
       )}
+
+      {renderDownloadModal()}
+      {renderReportModal()}
     </>
   );
 };
