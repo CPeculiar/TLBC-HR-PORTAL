@@ -60,23 +60,25 @@ const AttendanceReportAdmin = () => {
     previous: null,
   });
   const [selectedAttendance, setSelectedAttendance] = useState(null);
-
+ 
   const churchOptions = {
+    'Central': 'central',
     'TLBC Awka': 'tlbc-awka',
     'TLBC Ekwulobia': 'tlbc-ekwulobia',
     'TLBC Ihiala': 'tlbc-ihiala',
     'TLBC Nnewi': 'tlbc-nnewi',
     'TLBC Onitsha': 'tlbc-onitsha',
     'TLBCM Agulu': 'tlbcm-agulu',
+    'TLBCM COOU Igbariam': 'tlbcm-coou-igbariam',
+    'TLBCM COOU Uli': 'tlbcm-coou-uli',
     'TLBCM FUTO': 'tlbcm-futo',
-    'TLBCM Igbariam': 'tlbcm-coou-igbariam',
+    'TLBCM IMSU': 'tlbcm-imsu',
     'TLBCM Mbaukwu': 'tlbcm-mbaukwu',
     'TLBCM Mgbakwu': 'tlbcm-mgbakwu',
     'TLBCM NAU': 'tlbcm-nau',
     'TLBCM Nekede': 'tlbcm-nekede',
     'TLBCM Oko': 'tlbcm-oko',
     'TLBCM Okofia': 'tlbcm-okofia',
-    'TLBCM Uli': 'tlbcm-coou-uli',
     'TLBCM UNILAG': 'tlbcm-unilag',
     'TLTN Awka': 'tltn-awka',
     'TLTN Agulu': 'tltn-agulu',
@@ -170,7 +172,7 @@ const AttendanceReportAdmin = () => {
     }
   };
 
-  // Get attendance list
+  // Get my church's attendance list
   const getAttendanceList = async () => {
     try {
       const accessToken = localStorage.getItem('accessToken');
@@ -229,7 +231,7 @@ const AttendanceReportAdmin = () => {
       }
 
       const response = await axios.get(
-        'https://tlbc-platform-api.onrender.com/api/attendance/list/all/?church=central',
+        'https://tlbc-platform-api.onrender.com/api/attendance/list/all/?type=central',
       );
       setCentralAttendanceList(response.data);
       setNoResults(response.data.results.length === 0);
@@ -253,7 +255,7 @@ const AttendanceReportAdmin = () => {
       }
 
       const response = await axios.get(
-        'https://tlbc-platform-api.onrender.com/api/attendance/list/all/?church=local',
+        'https://tlbc-platform-api.onrender.com/api/attendance/list/all/?type=local',
       );
       setLocalChurchesAttendanceList(response.data);
       setNoResults(response.data.results.length === 0);

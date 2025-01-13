@@ -25,7 +25,7 @@ const ExpensesManagement = () => {
   useEffect(() => {
     const fetchBankAccounts = async () => {
       try {
-        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/');
+        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/?limit=30');
         setBankAccounts(response.data.results);
       } catch (error) {
         setErrorMessage('Failed to fetch bank accounts');

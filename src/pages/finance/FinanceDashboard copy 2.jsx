@@ -21,7 +21,21 @@ const FinanceDashboard = () => {
   const [updateError, setUpdateError] = useState(null);
   const [isUpdateButtonDisabled, setIsUpdateButtonDisabled] = useState(true);
 
-   // Add new state for transfer form
+// Add new state for Delete Account form
+  const [selectedAccountToDelete, setSelectedAccountToDelete] = useState('');
+const [deleteVerifiedDetails, setDeleteVerifiedDetails] = useState(null);
+const [isVerifyingDeleteAccount, setIsVerifyingDeleteAccount] = useState(false);
+const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
+const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
+const [deletePassword, setDeletePassword] = useState('');
+const [deleteError, setDeleteError] = useState('');
+const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+const [passwordVisible, setPasswordVisible] = useState(false);
+const [errors, setErrors] = useState({});
+const [modalError, setModalError] = useState("");
+
+
+  // Add new state for transfer form
    const [transferAmount, setTransferAmount] = useState('');
    const [transferPurpose, setTransferPurpose] = useState('');
    const [beneficiaryAccount, setBeneficiaryAccount] = useState('');
@@ -189,6 +203,79 @@ const fetchBanks = async () => {
 };
 
 
+const verifyDeleteAccountDetails = () => {
+  const account = accounts.find(acc => acc.code === selectedAccountToDelete);
+  setDeleteVerifiedDetails(account);
+};
+
+//Delete Account
+const handleDeleteAccount = async () => {
+  if (!deletePassword) {
+    setDeleteError("Password is required");
+    return;
+  }
+  
+  setIsDeletingAccount(true);
+  setDeleteError("");
+  
+  try {
+    const response = await axios.post(
+      `https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedAccountToDelete}/delete/`,
+      { password: deletePassword }
+    );
+
+    if (response.status === 204) {
+      setShowDeleteConfirmModal(false);
+      setShowDeleteSuccessModal(true);
+      // Refresh accounts list if needed
+    }
+  } catch (error) {
+    console.error('Error deleting account:', error);
+    if (error.response) {
+      if (error.response.status === 500) {
+        setDeleteError("Unable to delete account, please contact support");
+      } else if (error.response.data.detail) {
+        setDeleteError(error.response.data.detail);
+      } else {
+        setDeleteError(formatErrorMessage(error.response.data));
+      }
+    } else {
+      setDeleteError('An error occurred. Please try again.');
+    }
+  } finally {
+    setIsDeletingAccount(false);
+    
+  }
+};
+
+
+const handleInputChangeDelete = (e) => {
+  const { name, value } = e.target;
+ 
+  if (errors[name]) {
+    setErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[name];
+      return newErrors;
+    });
+  }
+};
+
+const formatErrorMessage = (error) => {
+  if (typeof error === 'object' && error !== null) {
+    return Object.entries(error)
+      .map(([key, value]) => {
+        if (Array.isArray(value)) {
+          return `${key}: ${value.join(', ')}`;
+        }
+        return `${key}: ${value}`;
+      })
+      .join('\n');
+  }
+  return error;
+};
+
+
 
 // Modify useEffect to include new fetch calls
 useEffect(() => {
@@ -232,28 +319,6 @@ useEffect(() => {
     
   fetchAllData();
 }, []);
-
-
- // New function to verify account details
-//  const verifyDefaultAccountDetails = async () => {
-//   if (!selectedDefaultAccount) {
-//     showMessage('error', 'Please select an account first');
-//     return;
-//   }
-
-//   setIsVerifyingAccount(true);
-//   setVerifiedAccountDetails(null);
-
-//   try {
-//     const response = await axios.get(`https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedDefaultAccount}/`);
-//     setVerifiedAccountDetails(response.data);
-//   } catch (error) {
-//     const errorMsg = handleErrorMessage(error);
-//     showMessage('error', errorMsg);
-//   } finally {
-//     setIsVerifyingAccount(false);
-//   }
-// };
 
 // Modify error handling to capture specific errors
 const handleErrorMessage = (error) => {
@@ -363,23 +428,6 @@ const fetchTransactions = async () => {
     showMessage('error', errorMsg);
   }
 };
-
-  // Handle account selection
-  // const handleAccountSelect = async (e) => {
-  //   const selectedCode = e.target.value;
-  //   try {
-  //     setIsLoading(true);
-  //     const response = await axios.get(`https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedCode}/`);
-  //     const account = response.data;
-  //     setSelectedAccount(account);
-  //     setAccountDetails(account);
-  //   } catch (error) {
-  //     console.error('Error fetching account details:', error);
-  //     showMessage('error', 'Error fetching account details');
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
 
   // Verify account details for update
   const verifyAccountDetails = async () => {
@@ -767,7 +815,7 @@ const fetchTransactions = async () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         {/* Update Account Section */}
         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-6">
-            <h3 className="text-xl font-bold mb-4 text-black dark:text-white">Update Account</h3>
+            <h3 className="text-xl font-bold mb-4 text-black dark:text-white">Update Account Details</h3>
             <div className="space-y-4">
             <select 
               value={selectedAccount?.code || ''}
@@ -1077,6 +1125,16 @@ const fetchTransactions = async () => {
               </div>
             )}
 
+            <button 
+            onClick={() => {
+              setSelectedDefaultAccount('');
+              setVerifiedAccountDetails(null);
+            }}
+            className="w-full bg-blue-500 text-white rounded p-3 hover:bg-blue-700 transition-colors duration-200"
+          >
+            Cancel
+          </button>
+
             <button
               onClick={handleTransfer}
               disabled={isTransferring || !selectedDefaultAccount || !beneficiaryAccount || !transferAmount || !transferPurpose}
@@ -1201,89 +1259,189 @@ const fetchTransactions = async () => {
 
 
  {/* Delete Account Section */}
- <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-4 sm:p-6">
-          <h3 className="text-lg sm:text-xl font-bold mb-4 text-black dark:text-white">Select Account to Delete</h3>
-          <div className="space-y-4">
-            {/* Account Selection Dropdown */}
-            <div className="flex flex-col space-y-2">
-              <select 
-                value={selectedDefaultAccount}
-                onChange={(e) => {
-                  setSelectedDefaultAccount(e.target.value);
-                  setVerifiedAccountDetails(null);
-                }}
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-4 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-              >
-                <option value="" disabled>Select Account</option>
-                {accounts.map(account => (
-                  <option key={account.code} value={account.code}>
-                    {account.account_name} - {account.bank_name}
-                  </option>
-                ))}
-              </select>
+<div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-4 sm:p-6">
+  <h3 className="text-lg sm:text-xl font-bold mb-4 text-black dark:text-white">Delete Account</h3>
+  <div className="space-y-4">
+    {/* Account Selection Dropdown */}
+    <div className="flex flex-col space-y-2">
+      <select 
+        value={selectedAccountToDelete || ''}
+        onChange={(e) => {
+          setSelectedAccountToDelete(e.target.value);
+          setDeleteVerifiedDetails(null);
+        }}
+        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-4 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+      >
+        <option value="" disabled>Select Account to Delete</option>
+        {accounts.map(account => (
+          <option key={account.code} value={account.code}>
+            {account.account_name} - {account.bank_name}
+          </option>
+        ))}
+      </select>
 
-              <button 
-                onClick={verifyDefaultAccountDetails}
-                disabled={!selectedDefaultAccount || isVerifyingAccount}
-                className="w-full bg-blue-500 text-white rounded p-3 disabled:opacity-50 hover:bg-blue-600 transition-colors duration-200 dark:border-form-strokedark dark:bg-blue-500 dark:hover:bg-blue-800 dark:text-white dark:focus:border-primary"
-              >
-                {isVerifyingAccount ? 'Verifying...' : 'Verify Account Details'}
-              </button>
-            </div>
+      <button 
+        onClick={verifyDeleteAccountDetails}
+        disabled={!selectedAccountToDelete || isVerifyingDeleteAccount}
+        className="w-full bg-blue-500 text-white rounded p-3 disabled:opacity-50 hover:bg-blue-700 transition-colors duration-200 dark:border-form-strokedark dark:bg-blue-500 dark:hover:bg-blue-800 dark:text-white dark:focus:border-primary"
+      >
+        {isVerifyingDeleteAccount ? 'Verifying...' : 'Verify Account Details'}
+      </button>
+    </div>
 
-            {/* Verified Account Details */}
-            {verifiedAccountDetails && (
-              <div className="mt-4 p-4 bg-blue-50 dark:bg-boxdark rounded-lg">
-                <h4 className="text-lg font-semibold mb-3 text-black dark:text-white">Account Details</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                  <div className="p-2 bg-white dark:bg-gray-800 rounded">
-                    <p className="text-sm text-black dark:text-black">
-                      <strong>Account Name:</strong><br />
-                      {verifiedAccountDetails.account_name}
-                    </p>
-                  </div>
-                  <div className="p-2 bg-white dark:bg-gray-800 rounded">
-                    <p className="text-sm text-black dark:text-black">
-                      <strong>Account Number:</strong><br />
-                      {verifiedAccountDetails.account_number}
-                    </p>
-                  </div>
-                  <div className="p-2 bg-white dark:bg-gray-800 rounded">
-                    <p className="text-sm text-black dark:text-black">
-                      <strong>Bank:</strong><br />
-                      {verifiedAccountDetails.bank_name}
-                    </p>
-                  </div>
-                  <div className="p-2 bg-white dark:bg-gray-800 rounded">
-                    <p className="text-sm text-black dark:text-black">
-                      <strong>Current Balance:</strong><br />
-                      ₦{verifiedAccountDetails.balance}
-                    </p>
-                  </div>
-                </div>
-
-                
-                {/* Action Buttons */}
-                <div className="mt-4 space-y-3">
-                  <button 
-                    onClick={addAccountSelection}
-                    className="w-full bg-blue-500 text-white rounded p-3 hover:bg-blue-800 transition-colors duration-200"
-                  >
-                    Cancel
-                  </button>
-
-                  <button 
-      onClick={handleSubmitDefaultSettings}
-      disabled={!selectedDefaultAccount || accountSelections.every(s => !s.selection)}
-      className="w-full bg-red-500 text-white rounded p-3 hover:bg-blue-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      Delete Account
-    </button>
-                </div>
-              </div>
-            )}
+    {/* Verified Account Details */}
+    {deleteVerifiedDetails && (
+      <div className="mt-4 p-4 bg-blue-50 dark:bg-boxdark rounded-lg">
+        <h4 className="text-lg font-semibold mb-3 text-black dark:text-white">Account Details</h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+          <div className="p-2 bg-white dark:bg-gray-800 rounded">
+            <p className="text-sm text-black dark:text-black">
+              <strong>Account Name:</strong><br />
+              {deleteVerifiedDetails.account_name}
+            </p>
+          </div>
+          <div className="p-2 bg-white dark:bg-gray-800 rounded">
+            <p className="text-sm text-black dark:text-black">
+              <strong>Account Number:</strong><br />
+              {deleteVerifiedDetails.account_number}
+            </p>
+          </div>
+          <div className="p-2 bg-white dark:bg-gray-800 rounded">
+            <p className="text-sm text-black dark:text-black">
+              <strong>Bank:</strong><br />
+              {deleteVerifiedDetails.bank_name}
+            </p>
+          </div>
+          <div className="p-2 bg-white dark:bg-gray-800 rounded">
+            <p className="text-sm text-black dark:text-black">
+              <strong>Current Balance:</strong><br />
+              ₦{deleteVerifiedDetails.balance}
+            </p>
           </div>
         </div>
+
+        {/* Action Buttons */}
+        <div className="mt-4 space-y-3">
+          <button 
+            onClick={() => {
+              setDeleteVerifiedDetails(null);
+              setSelectedAccountToDelete('');
+            }}
+            className="w-full bg-blue-500 text-white rounded p-3 hover:bg-blue-700 transition-colors duration-200"
+          >
+            Cancel
+          </button>
+
+          <button 
+            onClick={() => setShowDeleteConfirmModal(true)}
+            className="w-full bg-red-500 text-white rounded p-3 hover:bg-red-800 transition-colors duration-200"
+          >
+            Delete Account
+          </button>
+        </div>
+      </div>
+    )}
+  </div>
+</div>
+
+{/* Delete Confirmation Modal */}
+{showDeleteConfirmModal && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div className="bg-white rounded-lg p-6 text-center shadow-lg max-w-md w-full mx-4">
+      <h2 className="text-xl font-medium text-black mb-4">Confirm Account Deletion</h2>
+      <p className="mb-6 text-gray-600 dark:text-black">
+        Please enter your password to confirm deletion of account: 
+        <span className="font-semibold">{deleteVerifiedDetails?.account_name}</span>
+      </p>
+      
+      <div className="relative">
+        <input
+          type={passwordVisible ? 'text' : 'password'}
+          placeholder="Enter your password"
+          value={deletePassword}
+          onChange={(e) => setDeletePassword(e.target.value)}
+          className="w-full mb-6 rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary"
+        />
+        <button
+          type="button"
+          onClick={() => setPasswordVisible(!passwordVisible)}
+          className="absolute right-4 top-4"
+        >
+          <svg
+            className="fill-current"
+            width="22"
+            height="22"
+            viewBox="0 0 22 22"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <g opacity="0.5">
+              <path
+                d="M16.1547 6.80626V5.91251C16.1547 3.16251 14.0922 0.825009 11.4797 0.618759C10.0359 0.481259 8.59219 0.996884 7.52656 1.95938C6.46094 2.92188 5.84219 4.29688 5.84219 5.70626V6.80626C3.84844 7.18438 2.33594 8.93751 2.33594 11.0688V17.2906C2.33594 19.5594 4.19219 21.3813 6.42656 21.3813H15.5016C17.7703 21.3813 19.6266 19.525 19.6266 17.2563V11C19.6609 8.93751 18.1484 7.21876 16.1547 6.80626ZM8.55781 3.09376C9.31406 2.40626 10.3109 2.06251 11.3422 2.16563C13.1641 2.33751 14.6078 3.98751 14.6078 5.91251V6.70313H7.38906V5.67188C7.38906 4.70938 7.80156 3.78126 8.55781 3.09376ZM18.1141 17.2906C18.1141 18.7 16.9453 19.8688 15.5359 19.8688H6.46094C5.05156 19.8688 3.91719 18.7344 3.91719 17.325V11.0688C3.91719 9.52189 5.15469 8.28438 6.70156 8.28438H15.2953C16.8422 8.28438 18.1141 9.52188 18.1141 11V17.2906Z"
+                fill=""
+              />
+              <path
+                d="M10.9977 11.8594C10.5852 11.8594 10.207 12.2031 10.207 12.65V16.2594C10.207 16.6719 10.5508 17.05 10.9977 17.05C11.4102 17.05 11.7883 16.7063 11.7883 16.2594V12.6156C11.7883 12.2031 11.4102 11.8594 10.9977 11.8594Z"
+                fill=""
+              />
+            </g>
+          </svg>
+        </button>
+      </div>
+      
+      {deleteError && (
+        <div className="mb-6 text-red-500 text-sm whitespace-pre-line">
+          {deleteError}
+        </div>
+      )}
+
+      <div className="flex justify-center gap-4">
+        <button
+          className="bg-blue-500 hover:bg-blue-800 text-white py-2 px-6 rounded-lg transition duration-300"
+          onClick={() => {
+            setShowDeleteConfirmModal(false);
+            setDeletePassword("");
+            setDeleteError("");
+          }}
+        >
+          Cancel
+        </button>
+        <button
+          className="bg-red-600 hover:bg-red-800 text-white py-2 px-6 rounded-lg transition duration-300"
+          onClick={handleDeleteAccount}
+          disabled={isDeletingAccount || !deletePassword}
+        >
+          {isDeletingAccount ? 'Deleting...' : 'Confirm Delete'}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+{/* Success Modal */}
+{showDeleteSuccessModal && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div className="bg-white rounded-lg p-6 text-center shadow-lg max-w-md w-full mx-4">
+      <div className="mb-4 text-green-500">
+        <svg className="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <h2 className="text-xl font-medium text-black mb-4">Success!</h2>
+      <p className="mb-6 text-gray-600">The account has been successfully deleted.</p>
+      <button
+        className="bg-green-500 hover:bg-green-600 text-white py-2 px-6 rounded-lg transition duration-300"
+        onClick={() => {
+          setShowDeleteSuccessModal(false);
+          setSelectedAccountToDelete('');
+          setDeleteVerifiedDetails(null);
+        }}
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
 
 
       {/* Recent Transactions Table */}

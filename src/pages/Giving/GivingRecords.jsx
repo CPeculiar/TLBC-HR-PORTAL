@@ -66,18 +66,6 @@ const GivingRecords = () => {
       }
     };
   
-    // const generatePDF = () => {
-    //   const element = document.getElementById('report-content');
-    //   const opt = {
-    //     margin: 1,
-    //     filename: `giving-report-${format(new Date(), 'yyyy-MM-dd')}.pdf`,
-    //     image: { type: 'jpeg', quality: 0.98 },
-    //     html2canvas: { scale: 2 },
-    //     jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-    //   };
-  
-    //   html2pdf().set(opt).from(element).save();
-    // };
 
      const generatePDF = () => {
         const element = document.getElementById('report-content');

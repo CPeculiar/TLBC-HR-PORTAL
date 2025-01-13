@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { X } from 'lucide-react';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 
 const AccountCreationPage = () => {
@@ -18,6 +19,7 @@ const AccountCreationPage = () => {
     all: false
   });
   const navigate = useNavigate();
+  const [isProcessing, setIsProcessing] = useState(false); 
  
   useEffect(() => {
     fetchBanks();
@@ -87,6 +89,9 @@ const AccountCreationPage = () => {
   };
  
   const handleCreateAccount = async () => {
+    
+    setIsProcessing(true);
+    setError('');
     try {
       const bankCode = document.getElementById('bank-dropdown').value;
       const response = await axios.post('https://tlbc-platform-api.onrender.com/api/finance/accounts/create/', {
@@ -99,11 +104,34 @@ const AccountCreationPage = () => {
       setCreatedAccountData(response.data);
       setShowSuccessModal(true);
     } catch (error) {
-      setError('Failed to create account. Please try again.');
+      if (error.response?.data?.detail) {
+        setError(error.response.data.detail);
+      } else if (error.response?.data?.church) {
+        setError(error.response.data.church[0]);
+      } else if (error.response?.data?.non_field_errors) {
+        setError(error.response.data.non_field_errors[0]);
+       }  else {
+        setError('Failed to create account. Please try again.');
+      }
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   const handleCloseModal = () => {
+    setShowSuccessModal(false);
+    setAccountNumber('');
+    setAccountName('');
+    setError(null);
+    setCheckboxes({
+      giving: false,
+      fund: false,
+      remittance: false,
+      all: false
+    });
+  };
+
+  const goToAccounts = () => {
     setShowSuccessModal(false);
     navigate('/financeDashboard');
   };
@@ -203,23 +231,33 @@ const AccountCreationPage = () => {
           </div>
           <button
             onClick={handleCreateAccount}
-            disabled={isCreateButtonDisabled}
+            disabled={isCreateButtonDisabled || isProcessing}
             className="w-full rounded bg-primary p-3 font-medium text-white transition hover:bg-opacity-90 disabled:cursor-not-allowed disabled:bg-opacity-70"
           >
-            Create Account
+            {isProcessing ? 'Processing...' : 'Create Account'}
           </button>
         </div>
 
         {showSuccessModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="w-full max-w-md bg-white dark:bg-boxdark p-8 rounded-lg shadow-lg mx-4 sm:mx-0">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+            <div className="w-full max-w-lg bg-white dark:bg-boxdark p-6 rounded-lg shadow-lg mx-4 sm:mx-auto">
+           <div className='flex items-center justify-between'>
+           <div></div>
+            <button
+        onClick={handleCloseModal}
+        className="text-black dark:text-white hover:text-primary"
+      >
+        <X size={22} />
+      </button>
+      </div>
+
               <div className="flex items-center justify-center mb-4">
                 <svg className="w-12 h-12 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold mb-2 text-black dark:text-white">Congratulations!</h2>
-              <p className="text-gray-600 dark:text-gray-300 mb-6">Your account has been successfully created.</p>
+              <h2 className="text-2xl font-bold mb-2 text-black dark:text-white text-center">Congratulations!</h2>
+              <p className="text-gray-600 dark:text-gray-300 mb-6 text-center">Your account has been successfully created.</p>
               <div className="mb-4">
                 <h3 className="font-bold mb-2 text-black dark:text-white">Account Details:</h3>
                 <p className="text-black dark:text-white">Account Number: {createdAccountData?.account_number}</p>
@@ -227,7 +265,7 @@ const AccountCreationPage = () => {
                 <p className="text-black dark:text-white">Bank Name: {createdAccountData?.bank_name}</p>
               </div>
               <button
-                onClick={handleCloseModal}
+                onClick={goToAccounts}
                 className="w-full rounded bg-primary p-3 font-medium text-white transition hover:bg-opacity-90"
               >
                 Go to Accounts

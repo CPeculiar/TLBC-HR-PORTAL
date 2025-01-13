@@ -29,7 +29,7 @@ const RemittanceManagement = () => {
     const fetchChurches = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/churches/');
+        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/churches/?limit=40');
         setChurches(response.data.results);
         setIsLoading(false);
       } catch (error) {
@@ -41,7 +41,7 @@ const RemittanceManagement = () => {
     const fetchIncomingRemittances = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/remittance/incoming/');
+        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/remittance/incoming/?limit=30');
         setIncomingRemittances(response.data.results);
         setIncomingPagination({
           count: response.data.count,
@@ -58,7 +58,7 @@ const RemittanceManagement = () => {
     const fetchOutgoingRemittances = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/remittance/outgoing/');
+        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/remittance/outgoing/?limit=30');
         setOutgoingRemittances(response.data.results);
         setOutgoingPagination({
           count: response.data.count,

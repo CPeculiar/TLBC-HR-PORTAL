@@ -80,6 +80,10 @@ import GivingRecords from './pages/Giving/GivingRecords';
 import CentralGivingList from './pages/Central Finance/CentralGivingList';
 import GivingList from './pages/finance/GivingList';
 import AdminEventUpload from './pages/Events/AdminEventUpload';
+import ViewChurchAccounts from './pages/finance/ViewChurchAccounts';
+import ViewCentralAccounts from './pages/Central Finance/ViewCentralAccounts';
+import FundTransfer from './pages/finance/FundTransfer';
+import CentralFundTransfer from './pages/Central Finance/CentralFundTransfer';
 
 
 
@@ -244,6 +248,9 @@ useEffect(() => {
       <Route path="/ui/alerts" element={withDefaultLayout(<Alerts />, "Alerts")} />
       <Route path="/ui/buttons" element={withDefaultLayout(<Buttons />, "Buttons")} />
       <Route path="/changepassword" element={withDefaultLayout(<ChangePassword />, "Buttons")} />
+
+
+       {/* Attendance */}
       <Route path="/createattendance" element={withDefaultLayout(<AttendanceCreationPage />, "Create Attendance")} />
       <Route path="/attendancereport" element={withDefaultLayout(<AttendanceReport />, "Attendance Report")} />
       <Route path="/markattendance" element={withDefaultLayout(<AttendanceMarkerPage />, "Mark Attendance")} />
@@ -254,6 +261,13 @@ useEffect(() => {
       <Route path="/form/:ref_code" element={withDefaultLayout(<FirstTimersFormCopy />, "First Timer's form copy")} />
       <Route path="/attendanceDetails/:refCode" element={withDefaultLayout(<AttendanceDetailsPage />, "Attendance Details Page")} />
       <Route path="/returningNewcomers/:refcode" element={withDefaultLayout(<ReturningNewComers />, "Returning NewComers")} />
+
+      <Route path="/attendancereportadmin" element={withDefaultLayout(<AttendanceReportAdmin />, "Attendance Admin Report")} />
+      <Route path="/attendancedetailspageadmin/:refCode" element={withDefaultLayout(<AttendanceDetailsPageAdmin />, "Attendance Details Admin")} />
+      <Route path="/addmembers/:refcode" element={withDefaultLayout(<AddMembersForm />, "Add Members")} />
+      <Route path="/newcomerscount/:refcode" element={withDefaultLayout(<NewComersCount />, "NewComers Attendance Count")} />
+      <Route path="/firsttimersformadmin/:ref_code" element={withDefaultLayout(<FirstTimersFormAdmin />, "First Timer's form Admin")} />
+      <Route path="/addreturningadmin/:ref_code" element={withDefaultLayout(<AddReturningAdmin />, "Add Returning Visitors form Admin")} />
       
       
       {/* Community */}
@@ -280,17 +294,21 @@ useEffect(() => {
       <Route path="/topupManagement" element={withDefaultLayout(<TopupManagement />, "Topup Management")} />
       <Route path="/accountstatement" element={withDefaultLayout(<AccountStatement />, "Account Statement")} />
       <Route path="/givinglist" element={withDefaultLayout(<GivingList />, "Church Givings")} />
+      <Route path="/churchaccounts" element={withDefaultLayout(<ViewChurchAccounts />, "Church Accounts")} />
+      <Route path="/fundtransfer" element={withDefaultLayout(<FundTransfer />, "Fund Transfer")} />
 
 
         {/* Central Finance Management */}
-      <Route path="/centralfinanceDashboard" element={withDefaultLayout(<CentralAccountDashboard />, "Central Finance Dashboard")} />
-      <Route path="/centralaccountCreation" element={withDefaultLayout(<CentralAccountCreationPage/>, "Create Central Account")} />
-      <Route path="/centralexpensesManagement" element={withDefaultLayout(<CentralExpensesManagement />, "Central Expenses Management")} />
-      <Route path="/centralfundManagement" element={withDefaultLayout(<CentralFundManagement />, "Central Fund Management")} />
-      <Route path="/centralremittanceManagement" element={withDefaultLayout(<CentralRemittanceManagement />, "Central Remittance Management")} />
-      <Route path="/centraltopupManagement" element={withDefaultLayout(<CentralTopupManagement />, "Central Topup Management")} />
+      <Route path="/central/financeDashboard" element={withDefaultLayout(<CentralAccountDashboard />, "Central Finance Dashboard")} />
+      <Route path="/central/accountCreation" element={withDefaultLayout(<CentralAccountCreationPage/>, "Create Central Account")} />
+      <Route path="/central/expensesManagement" element={withDefaultLayout(<CentralExpensesManagement />, "Central Expenses Management")} />
+      <Route path="/central/fundManagement" element={withDefaultLayout(<CentralFundManagement />, "Central Fund Management")} />
+      <Route path="/central/remittanceManagement" element={withDefaultLayout(<CentralRemittanceManagement />, "Central Remittance Management")} />
+      <Route path="/central/topupManagement" element={withDefaultLayout(<CentralTopupManagement />, "Central Topup Management")} />
       <Route path="/centralaccountstatement" element={withDefaultLayout(<CentralAccountStatement />, "Central Account Statement")} />
-      <Route path="/centralgivinglist" element={withDefaultLayout(<CentralGivingList />, "Central Givings")} />
+      <Route path="/central/givinglist" element={withDefaultLayout(<CentralGivingList />, "Central Givings")} />
+      <Route path="/central/accounts" element={withDefaultLayout(<ViewCentralAccounts />, "Central Accounts")} />
+      <Route path="/central/fundtransfer" element={withDefaultLayout(<CentralFundTransfer />, "Central Fund Transfer")} />
 
 
           {/* Giving */}
@@ -324,13 +342,7 @@ useEffect(() => {
       <Route path="/viewpermissions" element={withDefaultLayout(<ViewPermissions />, "View Permissions")} />
 
 
-          {/*Attendance */}
-      <Route path="/attendancereportadmin" element={withDefaultLayout(<AttendanceReportAdmin />, "Attendance Admin Report")} />
-      <Route path="/attendancedetailspageadmin/:refCode" element={withDefaultLayout(<AttendanceDetailsPageAdmin />, "Attendance Details Admin")} />
-      <Route path="/addmembers/:refcode" element={withDefaultLayout(<AddMembersForm />, "Add Members")} />
-      <Route path="/newcomerscount/:refcode" element={withDefaultLayout(<NewComersCount />, "NewComers Attendance Count")} />
-      <Route path="/firsttimersformadmin/:ref_code" element={withDefaultLayout(<FirstTimersFormAdmin />, "First Timer's form Admin")} />
-      <Route path="/addreturningadmin/:ref_code" element={withDefaultLayout(<AddReturningAdmin />, "Add Returning Visitors form Admin")} />
+       
 
 
       <Route path="/transactions" element={withDefaultLayout(<Transactions />, "Create Church Account")} />

@@ -35,17 +35,10 @@ const [errors, setErrors] = useState({});
 const [modalError, setModalError] = useState("");
 
 
-  // Add new state for transfer form
-   const [transferAmount, setTransferAmount] = useState('');
-   const [transferPurpose, setTransferPurpose] = useState('');
-   const [beneficiaryAccount, setBeneficiaryAccount] = useState('');
-   const [isTransferring, setIsTransferring] = useState(false);
-   const [showTransferSuccess, setShowTransferSuccess] = useState(false);
-   const [transferSuccessDetails, setTransferSuccessDetails] = useState('');
-   const [transferError, setTransferError] = useState('');
-
-   // State for default account
-   const [selectedDefaultAccount, setSelectedDefaultAccount] = useState('');
+ // Separate state for default account section
+ const [selectedDefaultAccount, setSelectedDefaultAccount] = useState('');
+ const [defaultAccountDetails, setDefaultAccountDetails] = useState(null);
+ const [isVerifyingDefaultAccount, setIsVerifyingDefaultAccount] = useState(false);
 
    // Add new states for default account selections
 const [accountSelections, setAccountSelections] = useState([
@@ -85,8 +78,7 @@ const [accountSelections, setAccountSelections] = useState([
     }
   ];
 
-
-   // Add this state in FinanceDashboard component
+   //state for Account Statement
 const [showStatement, setShowStatement] = useState(false);
 
    const [fundPendingCount, setFundPendingCount] = useState(0);
@@ -175,7 +167,7 @@ const fetchTopupPendingApprovals = async () => {
 // Define fetch functions
 const fetchAccounts = async () => {
   try {
-    const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/');
+    const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/?limit=30');
     setAccounts(response.data.results);
     
     // Set default account if exists
@@ -580,30 +572,7 @@ const fetchTransactions = async () => {
     }
   };
 
-   // Add debugging for verification
-   const verifyDefaultAccountDetails = async () => {
-    if (!selectedDefaultAccount) {
-      showMessage('error', 'Please select an account first');
-      return;
-    }
-
-    setIsVerifyingAccount(true);
-    setVerifiedAccountDetails(null);
-
-    try {
-      console.log('Verifying account:', selectedDefaultAccount); // For debugging
-      const response = await axios.get(`https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedDefaultAccount}/`);
-      console.log('Verification response:', response.data); // For debugging
-      setVerifiedAccountDetails(response.data);
-    } catch (error) {
-      console.error('Verification error:', error); // For debugging
-      const errorMsg = handleErrorMessage(error);
-      showMessage('error', errorMsg);
-    } finally {
-      setIsVerifyingAccount(false);
-    }
-  };
-
+  
   // Update account selection to store the code
   const handleAccountSelect = async (e) => {
     const selectedCode = e.target.value;
@@ -630,59 +599,26 @@ const fetchTransactions = async () => {
       console.log(`${cardType} time period changed to: ${period}`);
     };
 
-
-    // Handle transfer submission
-  const handleTransfer = async () => {
-    if (!selectedDefaultAccount || !beneficiaryAccount || !transferAmount || !transferPurpose) {
-      setTransferError('Please fill in all required fields');
+    // Verify default account details
+  const verifyDefaultAccountDetails = async () => {
+    if (!selectedDefaultAccount) {
+      showMessage('error', 'Please select an account first');
       return;
     }
 
-    setIsTransferring(true);
-    setTransferError('');
+    setIsVerifyingDefaultAccount(true);
+  setDefaultAccountDetails(null);
 
     try {
-      const response = await axios.post(
-        'https://tlbc-platform-api.onrender.com/api/finance/accounts/transfer/',
-        {
-          from_account: selectedDefaultAccount,
-          to_account: beneficiaryAccount,
-          amount: transferAmount,
-          purpose: transferPurpose
-        }
-      );
-
-      // Set success details
-      setTransferSuccessDetails({
-        fromAccount: accounts.find(acc => acc.code === selectedDefaultAccount)?.account_name,
-        toAccount: accounts.find(acc => acc.code === beneficiaryAccount)?.account_name,
-        amount: transferAmount,
-        purpose: transferPurpose
-      });
-      
-      // Show success modal
-      setShowTransferSuccess(true);
-      
-      // Reset form
-      setTransferAmount('');
-      setTransferPurpose('');
-      setBeneficiaryAccount('');
-      
-      // Refresh account details
-      await fetchAccounts();
-      if (selectedDefaultAccount) {
-        await verifyDefaultAccountDetails();
-      }
+      const response = await axios.get(`https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedDefaultAccount}/`);
+      setDefaultAccountDetails(response.data);
     } catch (error) {
-      const errorMsg = error.response?.data?.message || 
-                      error.response?.data?.detail ||
-                      'Transfer failed. Please try again.';
-      setTransferError(errorMsg);
+      const errorMsg = handleErrorMessage(error);
+      showMessage('error', errorMsg);
     } finally {
-      setIsTransferring(false);
+      setIsVerifyingDefaultAccount(false);
     }
   };
-
 
      // Helper function to generate success message
   const generateSuccessMessage = (updates) => {
@@ -815,7 +751,7 @@ const fetchTransactions = async () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         {/* Update Account Section */}
         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-6">
-            <h3 className="text-xl font-bold mb-4 text-black dark:text-white">Update Account</h3>
+            <h3 className="text-xl font-bold mb-4 text-black dark:text-white">Update Account Details</h3>
             <div className="space-y-4">
             <select 
               value={selectedAccount?.code || ''}
@@ -908,10 +844,10 @@ const fetchTransactions = async () => {
             {/* Account Selection Dropdown */}
             <div className="flex flex-col space-y-2">
               <select 
-                value={selectedDefaultAccount}
+                  value={selectedDefaultAccount}
                 onChange={(e) => {
                   setSelectedDefaultAccount(e.target.value);
-                  setVerifiedAccountDetails(null);
+                  setDefaultAccountDetails(null);
                 }}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-4 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
               >
@@ -924,41 +860,41 @@ const fetchTransactions = async () => {
               </select>
 
               <button 
-                onClick={verifyDefaultAccountDetails}
-                disabled={!selectedDefaultAccount || isVerifyingAccount}
+                 onClick={verifyDefaultAccountDetails}
+                 disabled={!selectedDefaultAccount || isVerifyingDefaultAccount}
                 className="w-full bg-blue-500 text-white rounded p-3 disabled:opacity-50 hover:bg-blue-600 transition-colors duration-200 dark:border-form-strokedark dark:bg-blue-500 dark:hover:bg-blue-800 dark:text-white dark:focus:border-primary"
               >
-                {isVerifyingAccount ? 'Verifying...' : 'Verify Account Details'}
+                 {isVerifyingDefaultAccount ? 'Verifying...' : 'Verify Account Details'}
               </button>
             </div>
 
-            {/* Verified Account Details */}
-            {verifiedAccountDetails && (
+             {/* Default Account verified details display */}
+             {defaultAccountDetails && (
               <div className="mt-4 p-4 bg-blue-50 dark:bg-boxdark rounded-lg">
                 <h4 className="text-lg font-semibold mb-3 text-black dark:text-white">Account Details</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                   <div className="p-2 bg-white dark:bg-gray-800 rounded">
                     <p className="text-sm text-black dark:text-black">
-                      <strong>Account Name:</strong><br />
-                      {verifiedAccountDetails.account_name}
+                    <strong>Account Name:</strong><br />
+                    {defaultAccountDetails.account_name}
                     </p>
                   </div>
                   <div className="p-2 bg-white dark:bg-gray-800 rounded">
                     <p className="text-sm text-black dark:text-black">
                       <strong>Account Number:</strong><br />
-                      {verifiedAccountDetails.account_number}
+                      {defaultAccountDetails.account_number}
                     </p>
                   </div>
                   <div className="p-2 bg-white dark:bg-gray-800 rounded">
                     <p className="text-sm text-black dark:text-black">
                       <strong>Bank:</strong><br />
-                      {verifiedAccountDetails.bank_name}
+                      {defaultAccountDetails.bank_name}
                     </p>
                   </div>
                   <div className="p-2 bg-white dark:bg-gray-800 rounded">
                     <p className="text-sm text-black dark:text-black">
                       <strong>Current Balance:</strong><br />
-                      ₦{verifiedAccountDetails.balance}
+                      ₦{defaultAccountDetails.balance}
                     </p>
                   </div>
                 </div>
@@ -1012,251 +948,6 @@ const fetchTransactions = async () => {
             )}
           </div>
         </div>
-
-         {/* Funds Transfer Section */}
-         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-4 sm:p-6">
-          <h3 className="text-lg sm:text-xl font-bold mb-4 text-black dark:text-white">Funds Transfer</h3>
-          
-          {/* From Account Selection */}
-    <div className="space-y-4">
-      <div className="flex flex-col space-y-2">
-        <label className="text-black dark:text-white">From Account</label>
-        <select 
-          value={selectedDefaultAccount}
-          onChange={(e) => {
-            setSelectedDefaultAccount(e.target.value);
-            setVerifiedAccountDetails(null);
-          }}
-          className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-4 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-        >
-          <option value="">Select Sending Account</option>
-          {accounts.map(account => (
-            <option key={account.code} value={account.code}>
-              {account.account_name} - {account.bank_name}
-            </option>
-          ))}
-        </select>
-
-        <button 
-          onClick={verifyDefaultAccountDetails}
-          disabled={!selectedDefaultAccount || isVerifyingAccount}
-          className="w-full bg-blue-500 text-white rounded p-3 disabled:opacity-50 hover:bg-blue-600 transition-colors duration-200"
-        >
-          {isVerifyingAccount ? 'Verifying...' : 'Verify Sending Account'}
-        </button>
-      </div>
-
-      {/* Verified Account Details */}
-      {verifiedAccountDetails && (
-        <div className="mt-4 p-4 bg-blue-50 dark:bg-boxdark rounded-lg">
-          <h4 className="text-lg font-semibold mb-3 text-black dark:text-white">Sending Account Details</h4>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-            <div className="p-2 bg-white dark:bg-gray-800 rounded">
-              <p className="text-sm text-black dark:text-black">
-                <strong>Account Name:</strong><br />
-                {verifiedAccountDetails.account_name}
-              </p>
-            </div>
-            <div className="p-2 bg-white dark:bg-gray-800 rounded">
-              <p className="text-sm text-black dark:text-black">
-                <strong>Account Number:</strong><br />
-                {verifiedAccountDetails.account_number}
-              </p>
-            </div>
-            <div className="p-2 bg-white dark:bg-gray-800 rounded">
-              <p className="text-sm text-black dark:text-black">
-                <strong>Bank:</strong><br />
-                {verifiedAccountDetails.bank_name}
-              </p>
-            </div>
-            <div className="p-2 bg-white dark:bg-gray-800 rounded">
-              <p className="text-sm text-black dark:text-black">
-                <strong>Available Balance:</strong><br />
-                ₦{verifiedAccountDetails.balance}
-              </p>
-            </div>
-          </div>
-
-          {/* Transfer Form */}
-          <div className="space-y-4 mt-6">
-            <div>
-              <label className="text-black dark:text-white block mb-2">To Account</label>
-              <select
-                value={beneficiaryAccount}
-                onChange={(e) => setBeneficiaryAccount(e.target.value)}
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-4 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-              >
-                <option value="">Select Receiving Account</option>
-                {accounts
-                  .filter(account => account.code !== selectedDefaultAccount)
-                  .map(account => (
-                    <option key={account.code} value={account.code}>
-                      {account.account_name} - {account.bank_name}
-                    </option>
-                  ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="text-black dark:text-white block mb-2">Amount (₦)</label>
-              <input
-                type="number"
-                value={transferAmount}
-                onChange={(e) => setTransferAmount(e.target.value)}
-                placeholder="Enter amount"
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-4 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-              />
-            </div>
-
-            <div>
-              <label className="text-black dark:text-white block mb-2">Purpose</label>
-              <input
-                type="text"
-                value={transferPurpose}
-                onChange={(e) => setTransferPurpose(e.target.value)}
-                placeholder="Enter transfer purpose"
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-4 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-              />
-            </div>
-
-            {transferError && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-                {transferError}
-              </div>
-            )}
-
-            <button 
-            onClick={() => {
-              setSelectedDefaultAccount('');
-              setVerifiedAccountDetails(null);
-            }}
-            className="w-full bg-blue-500 text-white rounded p-3 hover:bg-blue-700 transition-colors duration-200"
-          >
-            Cancel
-          </button>
-
-            <button
-              onClick={handleTransfer}
-              disabled={isTransferring || !selectedDefaultAccount || !beneficiaryAccount || !transferAmount || !transferPurpose}
-              className="w-full bg-blue-500 text-white rounded p-3 hover:bg-blue-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isTransferring ? 'Processing Transfer...' : 'Transfer Funds'}
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  </div>
-
-  {/* Transfer Success Modal */}
-  {showTransferSuccess && (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-      <div className="absolute inset-0 bg-black bg-opacity-50"></div>
-      <div className="relative bg-white dark:bg-boxdark rounded-lg p-6 max-w-md w-full shadow-xl">
-        <div className="text-center">
-          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
-            <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-            </svg>
-          </div>
-          
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            Transfer Successful!
-          </h3>
-          
-          <div className="mt-4 text-left">
-            <p className="text-sm text-gray-500 dark:text-gray-300">
-              From: {transferSuccessDetails.fromAccount}<br />
-              To: {transferSuccessDetails.toAccount}<br />
-              Amount: ₦{transferSuccessDetails.amount}<br />
-              Purpose: {transferSuccessDetails.purpose}
-            </p>
-          </div>
-
-          <button
-            onClick={() => setShowTransferSuccess(false)}
-            className="mt-6 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors duration-200"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  )}
-
-
-      {/* Update Account Section */}
-      {/* <div className="mt-6 p-6 border rounded-lg">
-        <h3 className="text-xl font-bold mb-4">Update Account</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <select 
-            value={selectedAccount?.code || ''}
-            onChange={(e) => {
-              const account = accounts.find(acc => acc.code === e.target.value);
-              setSelectedAccount(account);
-            }}
-            className="w-full rounded border border-blue-300 p-2"
-          >
-            {accounts.map(account => (
-              <option key={account.code} value={account.code}>
-                {account.account_name} - {account.bank_name}
-              </option>
-            ))}
-          </select>
-
-          <select 
-            value={updateBankCode}
-            onChange={(e) => setUpdateBankCode(e.target.value)}
-            className="w-full rounded border border-blue-300 p-2"
-          >
-            <option value="">Select Bank</option>
-            {banks.map(bank => (
-              <option key={bank.bank_code} value={bank.bank_code}>
-                {bank.bank_name}
-              </option>
-            ))}
-          </select>
-
-          <input 
-            type="text" 
-            value={updateAccountNumber}
-            onChange={(e) => {
-              setUpdateAccountNumber(e.target.value);
-              setVerifiedAccountName('');
-              setIsUpdateButtonDisabled(true);
-            }}
-            placeholder="Enter Account Number"
-            maxLength="10"
-            className="w-full rounded border border-blue-300 p-2"
-          />
-
-          <button 
-            onClick={verifyAccountDetails}
-            className="w-full bg-blue-500 text-white rounded p-2"
-          >
-            Verify Account
-          </button>
-        </div>
-
-        {verifiedAccountName && (
-          <div className="mt-4">
-            <p>Account Name: <strong>{verifiedAccountName}</strong></p>
-          </div>
-        )}
-
-        {updateError && (
-          <p className="text-red-500 mt-2">{updateError}</p>
-        )}
-
-        <button 
-          onClick={handleUpdateAccount}
-          disabled={isUpdateButtonDisabled}
-          className="mt-4 w-full bg-blue-500 text-white rounded p-2 disabled:opacity-50"
-        >
-          Update Account
-        </button>
-      </div> */}
-
 
  {/* Delete Account Section */}
 <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-4 sm:p-6">

@@ -1141,6 +1141,24 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                           </li>
                         )}
 
+                  
+                          <li>
+                          {(shouldShowSidebarItem('account') ||
+                          isAdmin() ||
+                          isSuperAdmin()) && (
+                            <NavLink
+                              to="/churchaccounts"
+                              className={({ isActive }) =>
+                                'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
+                                (isActive && '!text-white')
+                              }
+                            >
+                            View Church Accounts
+                            </NavLink>
+                          )}
+                          </li>
+                       
+
                           <li>
                           {(shouldShowSidebarItem('account') ||
                           isAdmin() ||
@@ -1184,6 +1202,22 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                               }
                             >
                             Fund Management
+                            </NavLink>
+                          )}
+                          </li>
+                          <li>
+                          {(shouldShowSidebarItem('fund') ||
+                         shouldShowSidebarItem('account') ||
+                          isAdmin() ||
+                          isSuperAdmin()) && (
+                            <NavLink
+                              to="/fundtransfer"
+                              className={({ isActive }) =>
+                                'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
+                                (isActive && '!text-white')
+                              }
+                            >
+                            Funds Transfer
                             </NavLink>
                           )}
                           </li>
@@ -1347,7 +1381,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                         <ul className="mt-4 mb-5.5 flex flex-col gap-2.5 pl-6">
                           <li>  
                             <NavLink
-                              to="/centralaccountCreation"
+                              to="/central/accountCreation"
                               className={({ isActive }) =>
                                 'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
                                 (isActive && '!text-white')
@@ -1356,9 +1390,20 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                             Create Central Account
                             </NavLink>
                           </li>
+                          <li>  
+                            <NavLink
+                              to="/central/accounts"
+                              className={({ isActive }) =>
+                                'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
+                                (isActive && '!text-white')
+                              }
+                            >
+                            View Central Accounts
+                            </NavLink>
+                          </li>
                           <li>
                             <NavLink
-                              to="/centralfinanceDashboard"
+                              to="/central/financeDashboard"
                               className={({ isActive }) =>
                                 'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
                                 (isActive && '!text-white')
@@ -1369,7 +1414,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                           </li>
                           <li>
                             <NavLink
-                              to="/centraltopupManagement"
+                              to="/central/topupManagement"
                               className={({ isActive }) =>
                                 'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
                                 (isActive && '!text-white')
@@ -1380,7 +1425,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                           </li>
                           <li>
                             <NavLink
-                              to="/centralfundManagement"
+                              to="/central/fundManagement"
                               className={({ isActive }) =>
                                 'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
                                 (isActive && '!text-white')
@@ -1391,7 +1436,18 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                           </li>
                           <li>
                             <NavLink
-                              to="/centralexpensesManagement"
+                              to="/central/fundtransfer"
+                              className={({ isActive }) =>
+                                'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
+                                (isActive && '!text-white')
+                              }
+                            >
+                            Fund Transfer
+                            </NavLink>
+                          </li>
+                          <li>
+                            <NavLink
+                              to="/central/expensesManagement"
                               className={({ isActive }) =>
                                 'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
                                 (isActive && '!text-white')
@@ -1402,7 +1458,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                           </li>
                           <li>
                             <NavLink
-                              to="/centralremittanceManagement"
+                              to="/central/remittanceManagement"
                               className={({ isActive }) =>
                                 'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
                                 (isActive && '!text-white')
@@ -1413,7 +1469,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                           </li>
                           <li>
                             <NavLink
-                              to="/centralgivinglist"
+                              to="/central/givinglist"
                               className={({ isActive }) =>
                                 'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
                                 (isActive && '!text-white')

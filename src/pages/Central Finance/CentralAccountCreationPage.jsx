@@ -113,7 +113,7 @@ const CentralAccountCreationPage = () => {
 
   const handleCloseModal = () => {
     setShowSuccessModal(false);
-    navigate('/centralfinanceDashboard');
+    navigate('/central/financeDashboard');
   };
 
   return (

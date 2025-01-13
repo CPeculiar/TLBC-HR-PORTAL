@@ -175,7 +175,7 @@ const fetchTopupPendingApprovals = async () => {
 // Define fetch functions
 const fetchAccounts = async () => {
   try {
-    const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/central/accounts/');
+    const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/central/accounts/?limit=30');
     setAccounts(response.data.results);
     
     // Set default account if exists
@@ -357,7 +357,7 @@ const handleErrorMessage = (error) => {
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
-        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/central/accounts/');
+        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/central/accounts/?limit=30');
         setAccounts(response.data.results);
         
       // Set default account if exists

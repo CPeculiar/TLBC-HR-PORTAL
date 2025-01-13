@@ -231,7 +231,7 @@ const ChartOne = () => {
               <span className="block h-2.5 w-full max-w-2.5 rounded-full bg-primary"></span>
             </span>
             <div className="w-full">
-              <p className="font-semibold text-primary">Total Stewardship/Tithe</p>
+              <p className="font-semibold text-primary">Total Stewardship</p>
               {dateRange.start && dateRange.end && (
                 <p className="text-sm font-medium">
                   {formatDisplayDate(dateRange.start)} - {formatDisplayDate(dateRange.end)}
