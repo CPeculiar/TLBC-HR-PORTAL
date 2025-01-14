@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Menu, X, FileText, PlusCircle, CheckCircle, XCircle, Upload, FilePlus, DollarSign } from 'lucide-react';
+import { Menu, X, FileText, PlusCircle, CheckCircle, XCircle, Upload, FilePlus } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 
 const FundManagement = () => {
@@ -198,93 +205,95 @@ const FundManagement = () => {
   };
 
    // NavButton component for consistent navigation styling
-   const NavButton = ({ section, icon: Icon }) => (
-    <button 
+   const NavButton = ({ section, icon: Icon, label }) => (
+    <Button
+      variant={activeSection === section ? "default" : "ghost"}
+      className={`w-full justify-start gap-2 text-left transition-colors ${
+        activeSection === section 
+          ? 'bg-primary' 
+          : 'hover:bg-primary/10'
+      }`}
       onClick={() => {
         setActiveSection(section);
         setIsMobileMenuOpen(false);
       }}
-      className={`w-full p-3 text-left flex items-center transition-colors ${
-        activeSection === section 
-          ? 'bg-blue-500 text-white dark:bg-blue-600' 
-          : 'hover:bg-blue-100 text-blue-700 dark:hover:bg-blue-800 dark:text-blue-300'
-      }`}
     >
-      <Icon className="mr-2" /> 
-      {section.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-    </button>
+      <Icon className="h-4 w-4" />
+      {label || section.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+    </Button>
   );
 
   // Render Create Fund Section
   const renderCreateFund = () => (
-    <div className="w-full max-w-md mx-auto bg-white dark:bg-boxdark shadow-md rounded-lg p-6 border border-stroke dark:border-strokedark">
-      <h2 className="text-2xl mb-6 font-bold text-blue-600 dark:text-blue-400 text-center flex items-center justify-center">
-        <PlusCircle className="mr-2" /> Create Fund Request
-      </h2>
-      <div className="space-y-4">
-        <select 
-          value={selectedBeneficiary} 
-          onChange={(e) => setSelectedBeneficiary(e.target.value)}
-          className="w-full p-3 border rounded-md border-stroke bg-transparent text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-        >
-          <option value="">Select Beneficiary Church</option>
-          {churches.map(church => (
-            <option key={church.slug} value={church.slug}>
-              {church.name}
-            </option>
-          ))}
-        </select>
+    <Card className="max-w-2xl mx-auto">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-primary">
+          <PlusCircle className="h-5 w-5" />
+          Create Fund Request
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <select 
+            value={selectedBeneficiary}
+            onChange={(e) => setSelectedBeneficiary(e.target.value)}
+            className="w-full rounded-md border border-input bg-background px-3 py-2"
+          >
+            <option value="">Select Beneficiary Church</option>
+            {churches.map(church => (
+              <option key={church.slug} value={church.slug}>{church.name}</option>
+            ))}
+          </select>
 
-        <select 
-          value={selectedBenefactor} 
-          onChange={(e) => setSelectedBenefactor(e.target.value)}
-          className="w-full p-3 border rounded-md border-stroke bg-transparent text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-        >
-          <option value="">Select Benefactor Church</option>
-          {churches.map(church => (
-            <option key={church.slug} value={church.slug}>
-              {church.name}
-            </option>
-          ))}
-        </select>
-
-        <input 
-          type="number" 
-          placeholder="Amount" 
-          value={fundAmount}
-          onChange={(e) => setFundAmount(e.target.value)}
-          className="w-full p-3 border rounded-md border-stroke bg-transparent text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-        />
-
-        <input 
-          type="text" 
-          placeholder="Purpose" 
-          value={fundPurpose}
-          onChange={(e) => setFundPurpose(e.target.value)}
-          className="w-full p-3 border rounded-md border-stroke bg-transparent text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-        />
-
-        <div className="flex items-center space-x-4">
-          <input 
-            type="file" 
-            onChange={(e) => setFundFile(e.target.files[0])}
-            className="flex-grow file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700 dark:file:bg-blue-900 dark:file:text-blue-300 hover:file:bg-blue-100 dark:hover:file:bg-blue-800"
-            />
+          <select 
+            value={selectedBenefactor}
+            onChange={(e) => setSelectedBenefactor(e.target.value)}
+            className="w-full rounded-md border border-input bg-background px-3 py-2"
+          >
+            <option value="">Select Benefactor Church</option>
+            {churches.map(church => (
+              <option key={church.slug} value={church.slug}>{church.name}</option>
+            ))}
+          </select>
         </div>
 
-        <button 
-          onClick={handleCreateFund} 
+        <div className="grid gap-4 sm:grid-cols-2">
+          <input 
+            type="number"
+            placeholder="Amount"
+            value={fundAmount}
+            onChange={(e) => setFundAmount(e.target.value)}
+            className="w-full rounded-md border border-input bg-background px-3 py-2"
+          />
+
+          <input 
+            type="text"
+            placeholder="Purpose"
+            value={fundPurpose}
+            onChange={(e) => setFundPurpose(e.target.value)}
+            className="w-full rounded-md border border-input bg-background px-3 py-2"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="block text-sm font-medium">Supporting Documents</label>
+          <input 
+            type="file"
+            onChange={(e) => setFundFile(e.target.files[0])}
+            className="w-full cursor-pointer rounded-md border border-input bg-background px-3 py-2"
+          />
+        </div>
+
+        <Button
+          onClick={handleCreateFund}
           disabled={isLoading}
-          className={`w-full text-white p-3 rounded-md transition-colors flex items-center justify-center ${
-            isLoading 
-              ? 'bg-blue-300 dark:bg-blue-700 cursor-not-allowed' 
-              : 'bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700'
-          }`}
+          className="w-full"
         >
-          <PlusCircle className="mr-2" /> {isLoading ? 'Processing...' : 'Create Fund Request'}
-        </button>
-      </div>
-    </div>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          {isLoading ? 'Processing...' : 'Create Fund Request'}
+        </Button>
+      </CardContent>
+    </Card>
   );
 
   // Render table function
@@ -296,96 +305,124 @@ const FundManagement = () => {
     ];
 
     return (
-      <div className="w-full overflow-x-auto">
-      {data.length === 0 ? (
-        <div className="text-center p-4 text-gray-500 dark:text-gray-400">No funds found</div>
-      ) : (
-        <table className="w-full bg-white dark:bg-boxdark shadow-md rounded-lg overflow-hidden border border-stroke dark:border-strokedark">
-          <thead className="bg-blue-50 dark:bg-blue-900">
-            <tr>
-              {columns.map(column => (
-                <th key={column} className="p-3 text-left text-xs font-medium text-blue-700 dark:text-blue-300 uppercase tracking-wider whitespace-nowrap">
-                  {column}
-                </th>
-              ))}
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((item) => (
-                <tr key={item.reference} className="border-b border-stroke dark:border-strokedark hover:bg-gray-50 dark:hover:bg-blue-900/50 transition-colors">
-                  <td className="p-3 text-black dark:text-white">{type === 'incoming' ? item.benefactor : item.beneficiary}</td>
-                  <td className="p-3 text-black dark:text-white">{type === 'incoming' ? item.beneficiary : item.benefactor}</td>
-                  <td className="p-3 text-black dark:text-white">₦{Number(item.amount).toFixed(2)}</td>
-                  <td className="p-3 text-black dark:text-white">{item.purpose}</td>
-                  <td className="p-3 text-black dark:text-white">{item.status}</td>
-                  <td className="p-3 text-black dark:text-white">{extractName(item.initiator)}</td>
-                  <td className="p-3 text-black dark:text-white">{formatDate(item.initiated_at)}</td>
-                  <td className="p-3 text-black dark:text-white">{extractName(item.auditor)}</td>
-                  <td className="p-3 text-black dark:text-white">{formatDate(item.approved_at)}</td>
-                  <td className="p-3">
-                    {item.files && item.files.length > 0 ? (
-                      <a 
-                        href={`https://tlbc-platform-api.onrender.com${item.files[0]}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-blue-500 dark:text-blue-400 hover:underline"
-                      >
-                        View File
-                      </a>
-                    ) : 'N/A'}
-                  </td>
-                  {type === 'incoming' && (
-                    <td className="p-3 space-y-2">
-                      <button 
-                        onClick={() => handleFundProcessing(item.reference, 'processing')}
-                        className="w-full bg-yellow-500 dark:bg-yellow-600 text-white p-2 rounded hover:bg-yellow-600 dark:hover:bg-yellow-700"
-                      >
-                        Processing
-                      </button>
-                      <button 
-                        onClick={() => handleFundProcessing(item.reference, 'paid')}
-                        className="w-full bg-green-500 dark:bg-green-600 text-white p-2 rounded hover:bg-green-600 dark:hover:bg-green-700"
-                      >
-                        Paid
-                      </button>
-                      <button 
-                        onClick={() => handleFundProcessing(item.reference, 'decline')}
-                        className="w-full bg-red-500 dark:bg-red-600 text-white p-2 rounded hover:bg-red-600 dark:hover:bg-red-700"
-                      >
-                        Decline
-                      </button>
-                    </td>
-                  )}
-                  <td className="p-3">
-                    <input 
-                      type="file"
-                      id={`file-upload-${item.reference}`}
-                      className="hidden"
-                      onChange={(e) => {
-                        if (e.target.files[0]) {
-                          setUploadFileReference({
-                            reference: item.reference,
-                            file: e.target.files[0]
-                          });
-                        }
-                      }}
-                    />
-                    <label 
-                      htmlFor={`file-upload-${item.reference}`}
-                      className="cursor-pointer bg-blue-500 dark:bg-blue-600 text-white p-2 rounded hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors flex items-center justify-center"
-                    >
-                      <Upload className="mr-2" /> Update
-                    </label>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+      <Card className="w-full">
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            {data.length === 0 ? (
+              <div className="p-8 text-center text-muted-foreground">No funds found</div>
+            ) : (
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b bg-muted/50">
+                    {columns.map(column => (
+                      <th key={column} className="p-4 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">
+                        {column}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.map((item) => (
+                    <tr key={item.reference} className="border-b hover:bg-muted/50 transition-colors">
+                      <td className="p-4">{type === 'incoming' ? item.benefactor : item.beneficiary}</td>
+                      <td className="p-4">{type === 'incoming' ? item.beneficiary : item.benefactor}</td>
+                      <td className="p-4">₦{Number(item.amount).toFixed(2)}</td>
+                      <td className="p-4">{item.purpose}</td>
+                      <td className="p-4">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          item.status === 'PAID' ? 'bg-green-100 text-green-800' :
+                          item.status === 'PROCESSING' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {item.status}
+                        </span>
+                      </td>
+                      <td className="p-4">{extractName(item.initiator)}</td>
+                      <td className="p-4">{formatDate(item.initiated_at)}</td>
+                      <td className="p-4">{extractName(item.auditor)}</td>
+                      <td className="p-4">{formatDate(item.approved_at)}</td>
+                      <td className="p-4">
+                        {item.files?.length > 0 ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            asChild
+                          >
+                            <a 
+                              href={`https://tlbc-platform-api.onrender.com${item.files[0]}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2"
+                            >
+                              <FileText className="h-4 w-4" />
+                              View
+                            </a>
+                          </Button>
+                        ) : 'N/A'}
+                      </td>
+                      {type === 'incoming' && (
+                        <td className="p-4 space-y-2">
+                          <Button
+                            variant="warning"
+                            size="sm"
+                            className="w-full"
+                            onClick={() => handleFundProcessing(item.reference, 'processing')}
+                          >
+                            Processing
+                          </Button>
+                          <Button
+                            variant="success"
+                            size="sm"
+                            className="w-full"
+                            onClick={() => handleFundProcessing(item.reference, 'paid')}
+                          >
+                            Paid
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            className="w-full"
+                            onClick={() => handleFundProcessing(item.reference, 'decline')}
+                          >
+                            Decline
+                          </Button>
+                        </td>
+                      )}
+                      <td className="p-4">
+                        <input
+                          type="file"
+                          id={`file-upload-${item.reference}`}
+                          className="hidden"
+                          onChange={(e) => {
+                            if (e.target.files[0]) {
+                              setUploadFileReference({
+                                reference: item.reference,
+                                file: e.target.files[0]
+                              });
+                            }
+                          }}
+                        />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          asChild
+                        >
+                          <label htmlFor={`file-upload-${item.reference}`}>
+                            <Upload className="h-4 w-4 mr-2" />
+                            Update
+                          </label>
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </CardContent>
+      </Card>
     );
   };
-
 
   // Success Modal
   const renderSuccessModal = () => {
@@ -460,48 +497,78 @@ const FundManagement = () => {
   // Main Render Method
   return (
 <>
+<div className="min-h-screen bg-background">
 <Breadcrumb pageName="Fund Management"  className="text-black dark:text-white" />
+
     <div className="min-h-screen bg-gray-100 dark:bg-boxdark">
+
     {/* Mobile Menu Toggle */}
-    <div className="md:hidden bg-white dark:bg-boxdark shadow-md p-4 flex justify-between items-center border-b border-stroke dark:border-strokedark">
-      <h1 className="text-xl font-bold text-blue-600 dark:text-blue-400">Funds Management</h1>
-      <button 
-        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="text-blue-600 dark:text-blue-400"
-      >
-          {isMobileMenuOpen ? <X /> : <Menu />}
-        </button>
+    <div className="sticky top-0 z-30 md:hidden bg-background border-b p-4 flex justify-between items-center">
+        <h1 className="text-xl font-semibold">Funds Management</h1>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        >
+          {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </Button>
       </div>
 
 {/* Mobile Menu */}
 {isMobileMenuOpen && (
-  <div className="md:hidden fixed inset-0 bg-white dark:bg-boxdark z-40 overflow-y-auto mb-5 border-b border-stroke dark:border-strokedark">
-  <div className="pt-25">
-            <NavButton section="create-fund" icon={PlusCircle} />
-            <NavButton section="incoming-fund" icon={FileText} />
-            <NavButton section="outgoing-fund" icon={DollarSign} />
+        <div className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm mt-20">
+          <div className="fixed inset-y-0 left-0 w-full max-w-xs bg-background p-6 shadow-lg">
+            {/* Added Close Button */}
+            <div className="flex justify-end mb-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
+              >
+                <X className="h-6 w-6" />
+                <span className="sr-only">Close menu</span>
+              </Button>
+            </div>
+            
+            {/* Navigation Items */}
+            <div className="space-y-2">
+              <NavButton section="create-fund" icon={PlusCircle} />
+              <NavButton section="incoming-fund" icon={FileText} />
+              <NavButton section="outgoing-fund" icon={FilePlus} />
+            </div>
           </div>
+          
+          {/* Backdrop click handler */}
+          <div 
+            className="fixed inset-0 -z-10" 
+            onClick={() => setIsMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
         </div>
       )}
 
+      
+
       {/* Main Content */}
-      <div className="container mx-auto p-4 md:flex">
+      <div className="container mx-auto p-4 md:flex gap-6">
         {/* Desktop Sidebar */}
-        <div className="hidden md:block w-64 mr-4 space-y-2">
+        <aside className="hidden md:block w-64 space-y-2">
           <NavButton section="create-fund" icon={PlusCircle} />
           <NavButton section="incoming-fund" icon={FileText} />
-          <NavButton section="outgoing-fund" icon={DollarSign} />
-        </div>
+          <NavButton section="outgoing-fund" icon={FilePlus} />
+        </aside>
 
 
           {/* Content Area */}
-        <div className="flex-1">
+          <main className="flex-1 space-y-6">
           {activeSection === 'create-fund' && renderCreateFund()}
           
           {activeSection === 'incoming-fund' && (
             <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-blue-600 dark:text-blue-400 flex items-center">
-            <FileText className="mr-2" /> Incoming Funds
+              <h2 className="text-2xl font-semibold flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Incoming Funds
               </h2>
               {renderTable(incomingFunds, 'incoming')}
             </div>
@@ -509,13 +576,14 @@ const FundManagement = () => {
           
           {activeSection === 'outgoing-fund' && (
             <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-blue-600 dark:text-blue-400 flex items-center">
-                  <DollarSign className="mr-2" /> Outgoing Funds
+              <h2 className="text-2xl font-semibold flex items-center gap-2">
+                <FilePlus className="h-5 w-5" />
+                Outgoing Funds
               </h2>
               {renderTable(outgoingFunds, 'outgoing')}
             </div>
           )}
-        </div>
+        </main>
       </div>
 
 
@@ -575,6 +643,8 @@ const FundManagement = () => {
         </div>
       </div>
     )}
+
+    </div>
 </>
   
 )}

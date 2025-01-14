@@ -319,7 +319,7 @@ const formatAmount = (amount) => {
               onClick={downloadStatement}
               className="bg-green-500 text-white rounded py-2 px-4 hover:bg-green-600 transition-colors"
             >
-              Download CSV
+              Download
             </button>
           </div>
 
