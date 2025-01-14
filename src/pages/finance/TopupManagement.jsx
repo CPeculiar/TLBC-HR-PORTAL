@@ -46,7 +46,7 @@ const TopupManagement = () => {
     const fetchAccounts = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/');
+        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/?limit=30');
         setAccounts(response.data.results);
         setIsLoading(false);
       } catch (error) {

@@ -228,6 +228,8 @@ const handleDeleteAccount = async () => {
         setDeleteError("Unable to delete account, please contact support");
       } else if (error.response.data.detail) {
         setDeleteError(error.response.data.detail);
+      } else if (error.response?.data?.non_field_errors?.[0]) {
+        setDeleteError(error.response.data.non_field_errors[0]);
       } else {
         setDeleteError(formatErrorMessage(error.response.data));
       }
@@ -279,7 +281,7 @@ useEffect(() => {
       await fetchAccounts();
 
         // First fetch accounts to get initial data
-        const accountsResponse = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/');
+        const accountsResponse = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/?limit=30');
         setAccounts(accountsResponse.data.results);
         
         // Set default account if exists
@@ -349,7 +351,7 @@ const handleErrorMessage = (error) => {
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
-        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/');
+        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/?limit=30');
         setAccounts(response.data.results);
         
       // Set default account if exists
@@ -451,7 +453,7 @@ const fetchTransactions = async () => {
         bank_code: updateBankCode,
       });
       // Refresh accounts after update
-      const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/');
+      const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/?limit=30');
       setAccounts(response.data.results);
       
       // Reset update form
@@ -476,7 +478,7 @@ const fetchTransactions = async () => {
         await axios.put(`https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedDefaultAccount}/make-default/`);
         
         // Refresh accounts 
-        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/');
+        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/?limit=30');
         setAccounts(response.data.results);
         
         // Show success message
@@ -839,7 +841,7 @@ const fetchTransactions = async () => {
 
         {/* Make Default Account Section */}
         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-4 sm:p-6">
-          <h3 className="text-lg sm:text-xl font-bold mb-4 text-black dark:text-white">Select Default Account</h3>
+          <h3 className="text-lg sm:text-xl font-bold mb-4 text-black dark:text-white">Set a Default Account</h3>
           <div className="space-y-4">
             {/* Account Selection Dropdown */}
             <div className="flex flex-col space-y-2">

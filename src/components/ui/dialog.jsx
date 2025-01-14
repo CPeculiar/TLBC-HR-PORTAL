@@ -36,3 +36,7 @@ export const DialogHeader = ({ children }) => (
 export const DialogTitle = ({ children }) => (
   <h2 className="text-xl font-semibold">{children}</h2>
 );
+
+export const DialogDescription = ({ children }) => (
+  <p className="text-sm text-gray-600 mt-2">{children}</p>
+);

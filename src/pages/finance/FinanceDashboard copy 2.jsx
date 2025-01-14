@@ -175,7 +175,7 @@ const fetchTopupPendingApprovals = async () => {
 // Define fetch functions
 const fetchAccounts = async () => {
   try {
-    const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/');
+    const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/?limit=30');
     setAccounts(response.data.results);
     
     // Set default account if exists
@@ -287,7 +287,7 @@ useEffect(() => {
       await fetchAccounts();
 
         // First fetch accounts to get initial data
-        const accountsResponse = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/');
+        const accountsResponse = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/?limit=30');
         setAccounts(accountsResponse.data.results);
         
         // Set default account if exists
@@ -357,7 +357,7 @@ const handleErrorMessage = (error) => {
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
-        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/');
+        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/?limit=30');
         setAccounts(response.data.results);
         
       // Set default account if exists
@@ -459,7 +459,7 @@ const fetchTransactions = async () => {
         bank_code: updateBankCode,
       });
       // Refresh accounts after update
-      const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/');
+      const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/?limit=30');
       setAccounts(response.data.results);
       
       // Reset update form
@@ -484,7 +484,7 @@ const fetchTransactions = async () => {
         await axios.put(`https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedDefaultAccount}/make-default/`);
         
         // Refresh accounts 
-        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/');
+        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/?limit=30');
         setAccounts(response.data.results);
         
         // Show success message

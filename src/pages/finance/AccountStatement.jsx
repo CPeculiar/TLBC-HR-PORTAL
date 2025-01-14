@@ -61,7 +61,7 @@ const AccountStatement = ({ selectedAccount, onClose, isOpen }) => {
     const element = document.getElementById('statement-content');
     const opt = {
       margin: 10,
-      filename: `account-statement-${selectedAccount?.account_number}.pdf`,
+      filename: `account-statement for-${selectedAccount?.account_name}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }

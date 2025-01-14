@@ -84,6 +84,7 @@ import ViewChurchAccounts from './pages/finance/ViewChurchAccounts';
 import ViewCentralAccounts from './pages/Central Finance/ViewCentralAccounts';
 import FundTransfer from './pages/finance/FundTransfer';
 import CentralFundTransfer from './pages/Central Finance/CentralFundTransfer';
+import AccountStatementSidebar from './pages/finance/AccountStatementSidebar';
 
 
 
@@ -293,6 +294,7 @@ useEffect(() => {
       <Route path="/remittanceManagement" element={withDefaultLayout(<RemittanceManagement />, "Remittance Management")} />
       <Route path="/topupManagement" element={withDefaultLayout(<TopupManagement />, "Topup Management")} />
       <Route path="/accountstatement" element={withDefaultLayout(<AccountStatement />, "Account Statement")} />
+      <Route path="/statementofaccount" element={withDefaultLayout(<AccountStatementSidebar />, "Account Statement")} />
       <Route path="/givinglist" element={withDefaultLayout(<GivingList />, "Church Givings")} />
       <Route path="/churchaccounts" element={withDefaultLayout(<ViewChurchAccounts />, "Church Accounts")} />
       <Route path="/fundtransfer" element={withDefaultLayout(<FundTransfer />, "Fund Transfer")} />
