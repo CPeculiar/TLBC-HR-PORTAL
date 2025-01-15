@@ -227,6 +227,7 @@ const handleDeleteAccount = async () => {
     if (response.status === 204) {
       setShowDeleteConfirmModal(false);
       setShowDeleteSuccessModal(true);
+      fetchAccounts();
       // Refresh accounts list if needed
     }
   } catch (error) {
@@ -1362,6 +1363,7 @@ const fetchTransactions = async () => {
           setShowDeleteSuccessModal(false);
           setSelectedAccountToDelete('');
           setDeleteVerifiedDetails(null);
+          fetchAccounts();
         }}
       >
         Close

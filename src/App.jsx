@@ -85,6 +85,7 @@ import ViewCentralAccounts from './pages/Central Finance/ViewCentralAccounts';
 import FundTransfer from './pages/finance/FundTransfer';
 import CentralFundTransfer from './pages/Central Finance/CentralFundTransfer';
 import AccountStatementSidebar from './pages/finance/AccountStatementSidebar';
+import CentralAccountStatementSidebar from './pages/Central Finance/CentralAccountStatementSidebar';
 
 
 
@@ -308,9 +309,11 @@ useEffect(() => {
       <Route path="/central/remittanceManagement" element={withDefaultLayout(<CentralRemittanceManagement />, "Central Remittance Management")} />
       <Route path="/central/topupManagement" element={withDefaultLayout(<CentralTopupManagement />, "Central Topup Management")} />
       <Route path="/centralaccountstatement" element={withDefaultLayout(<CentralAccountStatement />, "Central Account Statement")} />
+      <Route path="/central/statementofaccount" element={withDefaultLayout(<CentralAccountStatementSidebar />, "Central Account Statement")} />
       <Route path="/central/givinglist" element={withDefaultLayout(<CentralGivingList />, "Central Givings")} />
       <Route path="/central/accounts" element={withDefaultLayout(<ViewCentralAccounts />, "Central Accounts")} />
       <Route path="/central/fundtransfer" element={withDefaultLayout(<CentralFundTransfer />, "Central Fund Transfer")} />
+      
 
 
           {/* Giving */}

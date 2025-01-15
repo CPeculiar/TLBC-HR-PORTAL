@@ -219,6 +219,7 @@ const handleDeleteAccount = async () => {
     if (response.status === 204) {
       setShowDeleteConfirmModal(false);
       setShowDeleteSuccessModal(true);
+      fetchAccounts();
       // Refresh accounts list if needed
     }
   } catch (error) {
@@ -1128,6 +1129,7 @@ const fetchTransactions = async () => {
           setShowDeleteSuccessModal(false);
           setSelectedAccountToDelete('');
           setDeleteVerifiedDetails(null);
+          fetchAccounts();
         }}
       >
         Close
@@ -1181,24 +1183,7 @@ const fetchTransactions = async () => {
     </table>
     {/* Account */}
   
-       {/* Add this button after the Recent Transactions section */}
-       
-<div className="mt-4 mb-6">
-  <button
-    onClick={() => setShowStatement(true)}
-    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-  >
-    Generate Account Statement
-  </button>
-</div>
 
-{showStatement && (
-  <AccountStatement
-   selectedAccount={selectedAccount}
-  isOpen={showStatement}
-  onClose={() => setShowStatement(false)}
-  />
-)}
   </div>
 </div>
 

@@ -9,7 +9,7 @@ import { format, parse } from 'date-fns';
 import html2pdf from 'html2pdf.js';
 import Logo from '../../../public/android-chrome-192x192.png';
 
-const AccountStatementSidebar = () => {
+const CentralAccountStatementSidebar = () => {
   const [accounts, setAccounts] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [selectedAccountCode, setSelectedAccountCode] = useState('');
@@ -63,7 +63,7 @@ useEffect(() => {
  const fetchAccounts = async () => {
       try {
         const response = await axios.get(
-          'https://tlbc-platform-api.onrender.com/api/finance/accounts/?limit=30'
+          'https://tlbc-platform-api.onrender.com/api/finance/central/accounts/?limit=30'
         );
         setAccounts(response.data.results);
     } catch (error) {
@@ -75,7 +75,7 @@ useEffect(() => {
    const fetchAccountDetails = async (code) => {
     try {
       const response = await axios.get(
-        `https://tlbc-platform-api.onrender.com/api/finance/accounts/${code}/`
+        `https://tlbc-platform-api.onrender.com/api/finance/central/accounts/${code}/`
       );
       setAccountDetails(response.data);
     } catch (error) {
@@ -132,7 +132,7 @@ const calculateChannelStats = (txns) => {
       const startDate = format(new Date(dateRange.startDate), 'yyyy-MM-dd');
       const endDate = format(new Date(dateRange.endDate), 'yyyy-MM-dd');
       
-      const finalUrl = url || `https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedAccountCode}/transactions/`;
+      const finalUrl = url || `https://tlbc-platform-api.onrender.com/api/finance/central/accounts/${selectedAccountCode}/transactions/`;
       const params = {
         limit: 100,
         ...(url ? {} : {
@@ -396,7 +396,7 @@ const calculateChannelStats = (txns) => {
 
   return (
     <>
-    <Breadcrumb pageName="Account Statement" className="text-black dark:text-white px-4 sm:px-6 lg:px-8" />
+    <Breadcrumb pageName="Central Account Statement" className="text-black dark:text-white px-4 sm:px-6 lg:px-8" />
 
     <Card className="w-full max-w-7xl mx-auto p-2 sm:p-4">
     <CardHeader>
@@ -417,13 +417,6 @@ const calculateChannelStats = (txns) => {
             ))
           : 'An error occurred'}
          </AlertDescription>
-            {/* <AlertDescription>
-              {Object.entries(errors).map(([key, value]) => (
-                <div key={key} className="mb-1">
-                  {formatErrorMessage(value)}
-                </div>
-              ))}
-            </AlertDescription> */}
           </Alert>
         )}
 
@@ -732,4 +725,4 @@ const calculateChannelStats = (txns) => {
 };
 
 
-export default AccountStatementSidebar;
+export default CentralAccountStatementSidebar;

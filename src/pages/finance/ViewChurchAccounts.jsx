@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Eye, X, Trash2  } from "lucide-react";
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
@@ -20,6 +21,7 @@ const ViewChurchAccounts = () => {
   const [password, setPassword] = useState('');
   const [deleteError, setDeleteError] = useState('');
   const [accountToDelete, setAccountToDelete] = useState(null);
+  const navigate = useNavigate();
 
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
   const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
@@ -37,6 +39,8 @@ const ViewChurchAccounts = () => {
       const accessToken = localStorage.getItem("accessToken");
       if (!accessToken) {
         throw new Error("Access token not found. Please login first.");
+        navigate("/");
+        return;
       }
 
       const response = await axios.get(
@@ -58,6 +62,8 @@ const ViewChurchAccounts = () => {
       const accessToken = localStorage.getItem("accessToken");
       if (!accessToken) {
         throw new Error("Access token not found. Please login first.");
+        navigate("/");
+        return;
       }
 
       const response = await axios.get(
@@ -88,6 +94,8 @@ const ViewChurchAccounts = () => {
       const accessToken = localStorage.getItem("accessToken");
       if (!accessToken) {
         throw new Error("Access token not found. Please login first.");
+        navigate("/");
+        return;
       }
 
       console.log("Deleting account with code:", accountToDelete.code); // For debugging
@@ -111,12 +119,16 @@ const ViewChurchAccounts = () => {
     error.response?.data?.detail || 
     error.message;
 setDeleteError(errorMessage);
-      console.error("Delete error:", error.response?.data); // For debugging
+      console.error("Delete error:", error.response?.data); 
     } finally {
       setIsDeletingAccount(false);
     }
   };
 
+  const formatAmount = (amount) => {
+    return `₦${parseFloat(amount).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`;
+    // {formatAmount(accountDetails.balance)}
+  };
 
   return (
     <>
@@ -182,7 +194,8 @@ setDeleteError(errorMessage);
                         {account.bank_name}
                       </td>
                       <td className="border-b border-[#eee] py-4 px-4 dark:border-strokedark">
-                      ₦{new Intl.NumberFormat('en-NG').format(account.balance)}
+                      {/* ₦{new Intl.NumberFormat('en-NG').format(account.balance)} */}
+                      {formatAmount(account.balance)}
                       </td>
                       <td className="border-b border-[#eee] py-4 px-4 dark:border-strokedark">
                         {account.church}

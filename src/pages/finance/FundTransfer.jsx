@@ -80,7 +80,6 @@ const FundTransfer = () => {
       });
       
       setShowTransferSuccess(true);
-      resetForm();
       await fetchAccounts();
     } catch (error) {
       setTransferError(handleErrorMessage(error));
@@ -110,6 +109,11 @@ const FundTransfer = () => {
     setTransferError(message);
   };
 
+  const formatAmount = (amount) => {
+    return `₦${parseFloat(amount).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`;
+  };
+
+  
   return (
     <>
       <Breadcrumb pageName="Fund Transfer" />
@@ -175,7 +179,8 @@ const FundTransfer = () => {
                     <div className="p-3 bg-white dark:bg-gray-800 rounded">
                       <p className="text-sm text-black dark:text-white">
                         <strong>Available Balance:</strong><br />
-                        ₦{transferAccountDetails.balance}
+                        {formatAmount(transferAccountDetails.balance)}
+                        
                       </p>
                     </div>
                   </div>
