@@ -17,8 +17,8 @@ const AccountStatementSidebar = () => {
   const [openingBalance, setOpeningBalance] = useState('0.00');
   const [closingBalance, setClosingBalance] = useState('0.00');
   const [channelStats, setChannelStats] = useState({
-    credit: { count: 0, inflow: 0, percentage: 0 },
-    debit: { count: 0, outflow: 0, percentage: 0 }
+    credit: { count: 0, inflow: 0 },
+    debit: { count: 0, outflow: 0 }
   });
 
   const [dateRange, setDateRange] = useState({
@@ -42,18 +42,11 @@ useEffect(() => {
     fetchAccounts();
   }, []);
 
-  // Fetch account details when an account is selected
-  useEffect(() => {
-    if (selectedAccountCode) {
-      fetchAccountDetails(selectedAccountCode);
-    }
-  }, [selectedAccountCode]);
-
   // Format error messages
   const formatErrorMessage = (error) => {
     if (typeof error === 'string') return error;
     if (Array.isArray(error)) return error.join(', ');
-    if (typeof error === 'object' && error !== null) {
+    if (typeof error === 'object') {
       return Object.entries(error)
         .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`)
         .join('; ');
@@ -73,58 +66,10 @@ useEffect(() => {
     }
   };
 
-   // Fetch account details
-   const fetchAccountDetails = async (code) => {
-    try {
-      const response = await axios.get(
-        `https://tlbc-platform-api.onrender.com/api/finance/accounts/${code}/`
-      );
-      setAccountDetails(response.data);
-    } catch (error) {
-      setErrors(error.response?.data || { error: 'Error fetching account details' });
-    }
-  };
-
-// Calculate channel statistics
-const calculateChannelStats = (txns) => {
-  if (!txns) return;
-  
-  const stats = txns.reduce((acc, tx) => {
-    const type = tx.type.toLowerCase();
-    acc[type].count++;
-    if (type === 'credit') {
-      acc[type].inflow += parseFloat(tx.amount);
-    } else {
-      acc[type].outflow += parseFloat(tx.amount);
-    }
-    return acc;
-  }, {
-    credit: { count: 0, inflow: 0, outflow: 0 },
-    debit: { count: 0, inflow: 0, outflow: 0 }
-  });
-
-  const total = stats.credit.count + stats.debit.count;
-  stats.credit.percentage = ((stats.credit.count / total) * 100).toFixed(1);
-  stats.debit.percentage = ((stats.debit.count / total) * 100).toFixed(1);
-  setChannelStats(stats);
-};
-
- // Handle account selection
- const handleAccountSelect = (e) => {
-  const code = e.target.value;
-  setSelectedAccountCode(code);
-  setSelectedAccount(code); // Add this line if you're using both state variables
-  setErrors(null);
-  setTransactions(null);
-};
 
  // Fetch transactions for selected account
  const fetchTransactions = async (url = null) => {
-     // Add a guard clause to prevent calls with null account code
-  if (!selectedAccountCode) {
-    setErrors('Please select an account first');
-    return;
-  }
+    if (!selectedAccount) return;
     
     setIsLoading(true);
     setErrors(null);
@@ -134,29 +79,20 @@ const calculateChannelStats = (txns) => {
       const startDate = format(new Date(dateRange.startDate), 'yyyy-MM-dd');
       const endDate = format(new Date(dateRange.endDate), 'yyyy-MM-dd');
       
-      const finalUrl = url || `https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedAccountCode}/transactions/`;
-      const params = {
-        limit: 100,
-        ...(url ? {} : {
-          date_after: startDate,
-          date_before: endDate
-        })
+      const finalUrl = url || `https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedAccount}/transactions/?limit=100`;
+      const params = url ? {} : {
+        date_after: startDate,
+        date_before: endDate
       };
-
-      console.log('Fetching transactions for account:', selectedAccountCode); // Debug log
-      console.log('Request URL:', finalUrl); // Debug log
-
 
       const response = await axios.get(finalUrl, { params });
       setTransactions(response.data.results);
-      calculateChannelStats(response.data.results.transactions);
       setPaginationUrls({
         next: response.data.next,
         previous: response.data.previous
       });
     } catch (error) {
-      console.error('Error fetching transactions:', error); // Debug log
-      setErrors(error.response?.data?.detail || { error: 'Error fetching transactions' });
+      setErrors(error.response?.data || { error: 'Error fetching transactions' });
     } finally {
       setIsLoading(false);
     }
@@ -167,6 +103,13 @@ const calculateChannelStats = (txns) => {
       setCurrentPage(url.includes('page=') ? parseInt(url.split('page=')[1]) : 1);
       fetchTransactions(url);
     }
+  };
+
+  // Handle account selection
+  const handleAccountSelect = (e) => {
+    setSelectedAccount(e.target.value);
+    setErrors(null);
+    setTransactions(null);
   };
 
   // Handle date range changes
@@ -182,24 +125,16 @@ const calculateChannelStats = (txns) => {
   // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!selectedAccountCode) {
-      setErrors('Please select an account first');
-      return;
-    }
     setCurrentPage(1);
     fetchTransactions();
   };
 
   // Add this helper function at the top of your component
-// const formatAmount = (amount) => {
+const formatAmount = (amount) => {
     // Convert to number and fix to 2 decimal places
-    // const number = Number(amount).toFixed(2);
+    const number = Number(amount).toFixed(2);
     // Add thousand separators and ₦ symbol
-  //   return `₦${number.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
-  // };
-
-  const formatAmount = (amount) => {
-    return `₦${parseFloat(amount).toLocaleString('en-NG', { minimumFractionDigits: 2 })}`;
+    return `₦${number.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
   };
 
 
@@ -294,15 +229,6 @@ const calculateChannelStats = (txns) => {
     html2pdf().from(printContent).set(opt).save();
   };
 
-   // Add pieData calculation
-   const pieData = [
-    { name: 'Credit', value: parseFloat(channelStats.credit.percentage) },
-    { name: 'Debit', value: parseFloat(channelStats.debit.percentage) }
-  ];
-
-  const COLORS = ['#4ECDC4', '#FF6B6B'];
-
-
   return (
     <Card className="w-full max-w-7xl mx-auto">
     <CardHeader>
@@ -312,49 +238,32 @@ const calculateChannelStats = (txns) => {
      {/* Error Display */}
      {errors && (
           <Alert variant="destructive" className="mb-4">
-          <AlertDescription>
-      {typeof errors === 'string' 
-        ? errors 
-        : typeof errors === 'object' 
-          ? Object.entries(errors).map(([key, value]) => (
-              <div key={key} className="mb-1">
-                {formatErrorMessage(value)}
-              </div>
-            ))
-          : 'An error occurred'}
-         </AlertDescription>
-            {/* <AlertDescription>
+            <AlertDescription>
               {Object.entries(errors).map(([key, value]) => (
                 <div key={key} className="mb-1">
                   {formatErrorMessage(value)}
                 </div>
               ))}
-            </AlertDescription> */}
+            </AlertDescription>
           </Alert>
         )}
 
 
-      {/* <form onSubmit={handleSubmit} className="space-y-4"> */}
-      <form onSubmit={(e) => {
-          e.preventDefault();
-          fetchTransactions();
-        }} className="space-y-4">
-
+      <form onSubmit={handleSubmit} className="space-y-4">
         {/* Account Selection */}
         <div>
           <label className="block text-sm font-medium mb-2">Select Account</label>
           <select
-            value={selectedAccountCode || ''} 
+            value={selectedAccount || ''}
             onChange={handleAccountSelect}
-            // className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
             className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
             required
           >
             <option value="" disabled>Select an account</option>
             {accounts.map(account => (
               <option key={account.code} value={account.code}>
-              {account.account_name} - {account.bank_name}
-            </option>
+                {account.account_name} - {account.bank_name}
+              </option>
             ))}
           </select>
         </div>
@@ -367,10 +276,8 @@ const calculateChannelStats = (txns) => {
               type="date"
               name="startDate"
               value={dateRange.startDate}
-              onChange={(e) => setDateRange(prev => ({ ...prev, startDate: e.target.value }))}
+              onChange={handleDateChange}
               className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-              // onChange={handleDateChange}
-              // className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
               required
             />
           </div>
@@ -380,10 +287,8 @@ const calculateChannelStats = (txns) => {
               type="date"
               name="endDate"
               value={dateRange.endDate}
-              onChange={(e) => setDateRange(prev => ({ ...prev, endDate: e.target.value }))}
+              onChange={handleDateChange}
               className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-              // onChange={handleDateChange}
-              // className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
               required
             />
           </div>
@@ -392,10 +297,9 @@ const calculateChannelStats = (txns) => {
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={isLoading || !selectedAccountCode}
-          // className="w-full bg-primary text-white rounded py-3 px-5 hover:bg-opacity-90 transition-colors disabled:opacity-50"
+          disabled={isLoading || !selectedAccount}
           className="w-full bg-primary text-white rounded py-3 px-5 hover:bg-opacity-90 transition-colors disabled:opacity-50"
-          >
+        >
           {isLoading ? 'Loading...' : 'Generate Statement'}
         </button>
       </form>
@@ -417,25 +321,8 @@ const calculateChannelStats = (txns) => {
             >
               Download
             </button>
-            </div>
+          </div>
 
-             {/* Account Information */}
-             {accountDetails && (
-             <div className="space-y-2">
-              <h3 className="font-bold text-orange-500 text-lg">
-                ACCOUNT STATEMENT for {accountDetails.account_name}
-              </h3>
-              <div className="grid grid-cols-2 text-sm gap-2 text-black font-semibold">
-              <p>Period: {format(new Date(dateRange.startDate), 'dd/MM/yyyy')} TO {format(new Date(dateRange.endDate), 'dd/MM/yyyy')}</p>
-                <p>Account Number: {accountDetails.account_number}</p>
-                <p>Account Name: {accountDetails.account_name}</p>
-                <p>Bank Name: {accountDetails.bank_name}</p>
-                <p>Currency: NGN</p>
-                <p>Current Balance: {formatAmount(accountDetails.balance)}</p>
-              </div>
-              </div>
-             )}
-      
              {/* Summary Cards */}
              {transactions && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -458,95 +345,6 @@ const calculateChannelStats = (txns) => {
             </div>
              )}
 
-              {/* Account Summary */}
-            <div className="border p-4 rounded dark:text-black">
-              <h4 className="font-bold mb-3">ACCOUNTS SUMMARY</h4>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="bg-gray-100">
-                      <th className="border p-2 text-left">Account No</th>
-                      <th className="border p-2 text-left">Account Name</th>
-                      <th className="border p-2 text-left">Currency</th>
-                      <th className="border p-2 text-right">Opening Balance</th>
-                      <th className="border p-2 text-right">Debits</th>
-                      <th className="border p-2 text-right">Credits</th>
-                      <th className="border p-2 text-right">Closing Balance</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td className="border p-2">{accountDetails?.account_number}</td>
-                      <td className="border p-2">{accountDetails?.account_name}</td>
-                      <td className="border p-2">NGN</td>
-                      <td className="border p-2 text-right">{formatAmount(transactions.opening)}</td>
-                      <td className="border p-2 text-right">{formatAmount(channelStats.debit.outflow)}</td>
-                      <td className="border p-2 text-right">{formatAmount(channelStats.credit.inflow)}</td>
-                      <td className="border p-2 text-right">{formatAmount(transactions.closing)}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Channel Statistics */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {/* Channel Interaction */}
-              <div className="border p-4 rounded dark:text-black">
-                <h4 className="font-bold mb-3">CHANNEL INTERACTION</h4>
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="p-2 text-left">Type</th>
-                      <th className="p-2 text-right">Count</th>
-                      <th className="p-2 text-right">Inflow (₦)</th>
-                      <th className="p-2 text-right">Outflow (₦)</th>
-                      <th className="p-2 text-right">%</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="border-b">
-                      <td className="p-2">Credit</td>
-                      <td className="p-2 text-right">{channelStats.credit.count}</td>
-                      <td className="p-2 text-right">{formatAmount(channelStats.credit.inflow)}</td>
-                      <td className="p-2 text-right">-</td>
-                      <td className="p-2 text-right">{channelStats.credit.percentage}%</td>
-                    </tr>
-                    <tr className="border-b">
-                      <td className="p-2">Debit</td>
-                      <td className="p-2 text-right">{channelStats.debit.count}</td>
-                      <td className="p-2 text-right">-</td>
-                      <td className="p-2 text-right">{formatAmount(channelStats.debit.outflow)}</td>
-                      <td className="p-2 text-right">{channelStats.debit.percentage}%</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Channel Usage Frequency */}
-              <div className="border p-4 rounded">
-                <h4 className="font-bold mb-3 dark:text-black">CHANNEL USAGE FREQUENCY</h4>
-                <div className="h-48 flex justify-center items-center">
-                  <PieChart width={200} height={200}>
-                    <Pie
-                      data={pieData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={50}
-                      outerRadius={70}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {pieData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                    <Legend />
-                  </PieChart>
-                </div>
-              </div>
-            </div>
 
          {/* Transactions Table */}
          {transactions && transactions.transactions && (
@@ -555,26 +353,28 @@ const calculateChannelStats = (txns) => {
                 <thead>
                   <tr className="bg-gray-100 dark:bg-boxdark dark:text-white">
                     <th className="border p-2 text-left">Date</th>
-                    <th className="border p-2 text-left">Purpose</th>
                     <th className="border p-2 text-left">Reference</th>
-                    <th className="border p-2 text-right">Debit</th>
-                    <th className="border p-2 text-right">Credit</th>
+                    <th className="border p-2 text-left">Purpose</th>
+                    <th className="border p-2 text-right">Amount</th>
+                    <th className="border p-2 text-center">Type</th>
                     <th className="border p-2 text-right">Balance</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {transactions.transactions?.map((tx) => (
+                  {transactions.transactions.map((tx) => (
                     <tr key={tx.reference} className="hover:bg-gray-50 dark:hover:bg-boxdark dark:text-black dark:hover:text-white">
                       <td className="border p-2">
                         {format(new Date(tx.date), 'dd/MM/yyyy HH:mm')}
                       </td>
-                      <td className="border p-2">{tx.purpose}</td>
                       <td className="border p-2">{tx.reference}</td>
-                      <td className="border p-2 text-right">
-                        {tx.type === 'DEBIT' ? formatAmount(tx.amount) : ''}
-                      </td>
-                      <td className="border p-2 text-right">
-                        {tx.type === 'CREDIT' ? formatAmount(tx.amount) : ''}
+                      <td className="border p-2">{tx.purpose}</td>
+                      <td className="border p-2 text-right">{formatAmount(tx.amount)}</td>
+                      <td className="border p-2 text-center">
+                        <span className={`px-2 py-1 rounded text-xs ${
+                          tx.type === 'CREDIT' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                          {tx.type}
+                        </span>
                       </td>
                       <td className="border p-2 text-right">{formatAmount(tx.balance)}</td>
                     </tr>
