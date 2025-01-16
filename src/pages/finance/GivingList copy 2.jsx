@@ -166,8 +166,39 @@ const GivingList = () => {
   const generatePDF = () => {
     const element = document.getElementById('report-content');
     
-     // Add some CSS to the table before generating PDF
-     const style = document.createElement('style');
+    // First check table width to determine orientation
+    const table = element.querySelector('table');
+    const tableWidth = table?.offsetWidth || 0;
+    
+    // If table is wider than 8.5 inches (standard letter width), use landscape
+    const orientation = tableWidth > 8.5 * 96 ? 'landscape' : 'portrait'; // 96 is approximate DPI
+  
+    const opt = {
+      margin: 0.5,
+      filename: `church-giving-report-${format(new Date(), 'yyyy-MM-dd')}.pdf`,
+      image: { type: 'jpeg', quality: 1.0 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        letterRendering: true,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: element.scrollWidth,
+        windowHeight: element.scrollHeight
+      },
+      jsPDF: {
+        unit: 'cm',
+        format: 'a4',
+        orientation: 'landscape',
+        compress: true,
+        precision: 4,
+        putOnlyUsedFonts: true
+      }
+    };
+  
+    // Add some CSS to the table before generating PDF
+    const style = document.createElement('style');
     style.textContent = `
       @media print {
         @page {
@@ -208,46 +239,20 @@ const GivingList = () => {
       }
     `;
     document.head.appendChild(style);
-   
   
-    const opt = {
-      margin: 0.5,
-      filename: `church-giving-report-${format(new Date(), 'yyyy-MM-dd')}.pdf`,
-      image: { type: 'jpeg', quality: 1.0 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        letterRendering: true,
-        scrollX: 0,
-        scrollY: 0,
-        windowWidth: element.scrollWidth,
-        windowHeight: element.scrollHeight
-      },
-      jsPDF: {
-        unit: 'cm',
-        format: 'a4',
-        orientation: 'landscape',
-        compress: true,
-        precision: 4,
-        putOnlyUsedFonts: true
-      }
-    };
-  
-   
     // Generate PDF with adjusted settings
     html2pdf()
-      .from(element)
-      .set(opt)
-      .save()
-      .then(() => {
-        document.head.removeChild(style);
-      })
-      .catch(error => {
-        console.error('PDF generation error:', error);
-        document.head.removeChild(style);
-      });
-  };
+    .from(element)
+    .set(opt)
+    .save()
+    .then(() => {
+      document.head.removeChild(style);
+    })
+    .catch(error => {
+      console.error('PDF generation error:', error);
+      document.head.removeChild(style);
+    });
+};
 
   const calculateTotalsByCategory = (records) => {
     const totals = records.reduce((acc, record) => {
@@ -309,10 +314,11 @@ const GivingList = () => {
 
   const renderDownloadModal = () => (
     showDownloadModal && (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white dark:bg-boxdark rounded-lg p-6 max-w-md w-full mx-4">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-medium dark:text-white">Select Date Range</h3>
+      <Dialog open={showDownloadModal} onOpenChange={setShowDownloadModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Select Date Range for Report</DialogTitle>
+          </DialogHeader>
             <button
               onClick={() => {
                 setShowDownloadModal(false);
@@ -324,53 +330,63 @@ const GivingList = () => {
             >
               <X size={20} />
             </button>
-          </div>
+         
 
+          <div className="p-4 space-y-6">
           {downloadError && (
-            <div className="mb-4 p-3 bg-red-100 text-red-600 rounded-md">
-              {downloadError}
-            </div>
+              <Alert variant="destructive" className="mb-4 p-3 bg-red-100 text-red-600 rounded-md">
+                <AlertDescription>{downloadError}</AlertDescription>
+              </Alert>
           )}
 
-          <div className="space-y-4">
-            <div>
-              <label className="block mb-2 dark:text-white">From Date:</label>
-              <input
+          <div className="grid gap-4">
+          <div className="space-y-2">
+              <label className="text-sm font-medium dark:text-white">From Date:</label>
+              <div className="relative">
+               <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
+                <input
                 type="date"
                 value={fromDate}
                 onChange={(e) => setFromDate(e.target.value)}
-                className="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white"
-              />
+                className="w-full pl-10 pr-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
+                />
             </div>
-            <div>
-              <label className="block mb-2 dark:text-white">To Date:</label>
-              <input
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium dark:text-white">To Date:</label>
+              <div className="relative">
+              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
+               <input
                 type="date"
                 value={toDate}
                 onChange={(e) => setToDate(e.target.value)}
-                className="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white"
-              />
+                className="w-full pl-10 pr-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
+                />
             </div>
-            <div className="flex justify-end gap-4">
+            </div>
+            </div>
+
+             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={() => {
                   setShowDownloadModal(false);
                   setDownloadError('');
                 }}
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
-              >
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                >
                 Cancel
               </button>
               <button
                 onClick={handleDownloadRequest}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 Generate Report
               </button>
             </div>
           </div>
-        </div>
-      </div>
+          </DialogContent>
+          </Dialog>
     )
   );
 
@@ -495,15 +511,87 @@ const GivingList = () => {
                        </div>
                      </div>
                    )
-                 );
-               
+  );
+
+  const renderReportContent = () => (
+    <div id="report-content" className="space-y-6 p-6">
+      <div className="text-center space-y-2">
+        <h2 className="text-2xl font-bold">Church Giving Records Report</h2>
+        {userInfo && <p className="font-semibold">Church: {userInfo.church}</p>}
+        <p className="font-semibold">
+          Period: {format(new Date(fromDate), 'dd/MM/yyyy')} - {format(new Date(toDate), 'dd/MM/yyyy')}
+        </p>
+      </div>
+
+      {downloadData.results?.length > 0 ? (
+        <div className="overflow-x-auto">
+          <table className="min-w-full border-collapse border">
+            <thead>
+              <tr className="bg-gray-50">
+                <th className="border p-2 whitespace-nowrap">Date</th>
+                <th className="border p-2 whitespace-nowrap">Type</th>
+                <th className="border p-2 whitespace-nowrap">Amount (₦)</th>
+                <th className="border p-2 whitespace-nowrap">Details</th>
+                <th className="border p-2 whitespace-nowrap">Giver</th>
+                <th className="border p-2 whitespace-nowrap">Confirmed</th>
+                <th className="border p-2 whitespace-nowrap">Confirmed By</th>
+                <th className="border p-2 whitespace-nowrap">Confirmed Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {downloadData.results.map((record) => (
+                <tr key={record.reference} className="border-b">
+                  <td className="border p-2 whitespace-normal">{formatDateTime(record.initiated_at)}</td>
+                  <td className="border p-2 whitespace-normal">{record.type}</td>
+                  <td className="border p-2 whitespace-normal">{record.amount}</td>
+                  <td className="border p-2 whitespace-normal">{record.detail || 'N/A'}</td>
+                  <td className="border p-2 whitespace-normal">{record.giver}</td>
+                  <td className="border p-2 whitespace-normal text-center">{record.confirmed ? 'Yes' : 'No'}</td>
+                  <td className="border p-2 whitespace-normal">{record.auditor ? record.auditor.split('(')[0] : 'N/A'}</td>
+                  <td className="border p-2 whitespace-normal">{formatDateTime(record.confirmation_date)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="text-center py-8 text-gray-600">
+          No data found for the selected period.
+        </div>
+      )}
+
+            {/* Summary Section */}
+      <div className="border rounded-lg p-4 print:break-inside-avoid">
+        <h3 className="font-bold text-lg mb-4">Summary</h3>
+        {(() => {
+          const totals = calculateTotalsByCategory(downloadData.results);
+          return (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {Object.entries({
+                'Stewardship': totals.stewardshipTithe,
+                'Offering': totals.offering,
+                'Project': totals.project,
+                'Welfare': totals.welfare,
+                'Grand Total': totals.grandTotal
+              }).map(([label, value]) => (
+                <div key={label} className="border-b pb-2 flex justify-between">
+                  <span className="font-medium">{label}:</span>
+                  <span>{formatCurrency(value)}</span>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
+      </div>
+    </div>
+  );    
 
 
   return (
     <>
      <Breadcrumb pageName="Church Giving Records" />
 
-     <div className="p-4 md:p-6 2xl:p-10">
+     <div className="p-2 sm:p-4 md:p-6 2xl:p-10">
         <div className="mx-auto max-w-full">
           <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark dark:text-white">
             <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark flex flex-col md:flex-row justify-between items-start md:items-center gap-4">

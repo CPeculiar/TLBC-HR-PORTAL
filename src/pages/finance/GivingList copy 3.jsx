@@ -166,81 +166,61 @@ const GivingList = () => {
   const generatePDF = () => {
     const element = document.getElementById('report-content');
     
-     // Add some CSS to the table before generating PDF
-     const style = document.createElement('style');
+    // First check table width to determine orientation
+    const table = element.querySelector('table');
+    const tableWidth = table?.offsetWidth || 0;
+    
+    // If table is wider than 8.5 inches (standard letter width), use landscape
+    const orientation = tableWidth > 8.5 * 96 ? 'landscape' : 'portrait'; // 96 is approximate DPI
+  
+    const opt = {
+      margin: [0.5, 0.5, 0.5, 0.5], // Smaller margins: top, right, bottom, left
+      filename: `church-giving-report-${format(new Date(), 'yyyy-MM-dd')}.pdf`,
+      image: { type: 'jpeg', quality: 1.0 },
+      html2canvas: {
+        scale: 2, // Higher scale for better quality
+        useCORS: true,
+        logging: false,
+        letterRendering: true,
+        windowWidth: table?.scrollWidth || 1000, // Ensure full table width is captured
+      },
+      jsPDF: {
+        unit: 'in',
+        format: 'letter',
+        orientation: orientation,
+        compress: true,
+        precision: 4,
+        putOnlyUsedFonts: true
+      },
+      pagebreak: { mode: 'avoid-all', before: '.page-break' }
+    };
+  
+    // Add some CSS to the table before generating PDF
+    const style = document.createElement('style');
     style.textContent = `
       @media print {
-        @page {
-          size: landscape;
-          margin: 0.5cm;
-        }
-        
-        body {
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
-        }
-        
         table {
+          font-size: 8pt !important; /* Smaller font size for better fit */
           width: 100% !important;
-          font-size: 8pt !important;
-          border-collapse: collapse !important;
-          page-break-inside: auto !important;
+          table-layout: fixed !important;
         }
-        
-        tr {
-          page-break-inside: avoid !important;
-          page-break-after: auto !important;
-        }
-        
-        td, th {
+        th, td {
           padding: 4px !important;
-          border: 1px solid #000 !important;
-          font-size: 8pt !important;
-          white-space: normal !important;
-          word-wrap: break-word !important;
-          min-width: 50px !important;
-        }
-        
-        th {
-          background-color: #f3f4f6 !important;
-          font-weight: bold !important;
+          overflow: hidden !important;
+          text-overflow: ellipsis !important;
+          white-space: nowrap !important;
         }
       }
     `;
     document.head.appendChild(style);
-   
   
-    const opt = {
-      margin: 0.5,
-      filename: `church-giving-report-${format(new Date(), 'yyyy-MM-dd')}.pdf`,
-      image: { type: 'jpeg', quality: 1.0 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        letterRendering: true,
-        scrollX: 0,
-        scrollY: 0,
-        windowWidth: element.scrollWidth,
-        windowHeight: element.scrollHeight
-      },
-      jsPDF: {
-        unit: 'cm',
-        format: 'a4',
-        orientation: 'landscape',
-        compress: true,
-        precision: 4,
-        putOnlyUsedFonts: true
-      }
-    };
-  
-   
     // Generate PDF with adjusted settings
     html2pdf()
-      .from(element)
       .set(opt)
+      .from(element)
       .save()
       .then(() => {
+        // Clean up added style
         document.head.removeChild(style);
       })
       .catch(error => {
@@ -248,7 +228,7 @@ const GivingList = () => {
         document.head.removeChild(style);
       });
   };
-
+  
   const calculateTotalsByCategory = (records) => {
     const totals = records.reduce((acc, record) => {
 
@@ -409,34 +389,34 @@ const GivingList = () => {
                 <table className="w-full border-collapse border dark:text-white">
                   <thead>
                     <tr className="bg-gray/10 dark:bg-gray/5 text-center">
-                    <th className="border p-2">Date of Giving</th>
                       <th className="border p-2">Type</th>
                       <th className="border p-2">Amount (₦)</th>
                       <th className="border p-2">Details</th>
                       <th className="border p-2">Giver</th>
-                      <th className="border p-2">Confirmed?</th>
-                      <th className="border p-2">Confirmed By</th>
+                      <th className="border p-2">Date of Giving</th>
+                      <th className="border p-2">Auditor</th>
                       <th className="border p-2">Confirmed Date</th>
+                      <th className="border p-2">Confirmed?</th>
                     </tr>
                   </thead>
                   <tbody>
                     {downloadData.results?.map((record) => (
                       <tr key={record.reference} className="border-b text-center">
-                      <td className="border p-2">
-                          {formatDateTime(record.initiated_at)}
-                        </td>
                         <td className="border p-2">{record.type}</td>
                         <td className="border p-2">{record.amount}</td>
                         <td className="border p-2">{record.detail || 'N/A'}</td>
                         <td className="border p-2">{record.giver}</td>
-                        <td className="border p-2 text-center">
-                          {record.confirmed ? 'Yes' : 'No'}
+                        <td className="border p-2">
+                          {formatDateTime(record.initiated_at)}
                         </td>
                         <td className="border p-2">
                           {record.auditor ? record.auditor.split('(')[0] : 'N/A'}
                         </td>
                         <td className="border p-2">
                           {formatDateTime(record.confirmation_date)}
+                        </td>
+                        <td className="border p-2 text-center">
+                          {record.confirmed ? 'Yes' : 'No'}
                         </td>
                       </tr>
                     ))}
@@ -450,7 +430,7 @@ const GivingList = () => {
                     return (
                       <div className="space-y-2">
                         <div className="grid grid-cols-2 gap-4 border-b pb-2">
-                          <span>Stewardship:</span>
+                          <span>Stewardship/Tithe:</span>
                           <span className="text-right">{formatCurrency(totals.stewardshipTithe)}</span>
                         </div>
                         <div className="grid grid-cols-2 gap-4 border-b pb-2">
@@ -540,13 +520,13 @@ const GivingList = () => {
                 <table className="w-full table-auto border-collapse">
                   <thead>
                     <tr className="bg-gray/5 dark:bg-gray/5 text-center">
-                    <th className="border px-4 py-3">Date of Giving</th>
                       <th className="border px-4 py-3">Type</th>
                       <th className="border px-4 py-3">Amount (₦)</th>
                       <th className="border px-4 py-3">Details</th>
                       <th className="border px-4 py-3">Giver</th>
                       <th className="border px-4 py-3">Confirmed?</th>
-                      <th className="border px-4 py-3">Confirmed by</th>
+                      <th className="border px-4 py-3">Auditor</th>
+                      <th className="border px-4 py-3">Date of Giving</th>
                       <th className="border px-4 py-3">Confirmation Date</th>
                       <th className="border px-4 py-3">Files</th>
                       <th className="border px-4 py-3 ">Verify</th>
@@ -557,7 +537,6 @@ const GivingList = () => {
                   <tbody>
                     {givings?.results.map((giving) => (
                       <tr key={giving.reference} className="border-b hover:bg-gray/90 dark:hover:bg-gray/10 text-center">
-                      <td className="border px-4 py-3">{formatDateTime(giving.initiated_at)}</td>
                         <td className="border px-4 py-3">{giving.type}</td>
                         <td className="border px-4 py-3">{giving.amount}</td>
                         <td className="border px-4 py-3">{giving.detail ? giving.detail : 'N/A'}</td>
@@ -569,6 +548,7 @@ const GivingList = () => {
                           {/* {giving.auditor ? giving.auditor.split('@')[0] : 'N/A'} */}
                           {giving.auditor ? giving.auditor.split('(')[0] : 'N/A'}
                         </td>
+                        <td className="border px-4 py-3">{formatDateTime(giving.initiated_at)}</td>
                         <td className="border px-4 py-3">{formatDateTime(giving.confirmation_date)}</td>
                         <td className="border px-4 py-3 text-center">
                           {giving.files && giving.files.length > 0 ? (
