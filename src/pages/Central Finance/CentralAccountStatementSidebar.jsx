@@ -405,7 +405,7 @@ const calculateChannelStats = (txns) => {
     <CardContent className="space-y-4">
      {/* Error Display */}
      {errors && (
-          <Alert variant="destructive" className="mb-4">
+          <Alert variant="destructive" className="mb-4 text-red-500">
           <AlertDescription>
       {typeof errors === 'string' 
         ? errors 

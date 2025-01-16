@@ -86,6 +86,7 @@ import FundTransfer from './pages/finance/FundTransfer';
 import CentralFundTransfer from './pages/Central Finance/CentralFundTransfer';
 import AccountStatementSidebar from './pages/finance/AccountStatementSidebar';
 import CentralAccountStatementSidebar from './pages/Central Finance/CentralAccountStatementSidebar';
+import TransactionChart from './pages/finance/TransactionChart';
 
 
 
@@ -299,6 +300,7 @@ useEffect(() => {
       <Route path="/givinglist" element={withDefaultLayout(<GivingList />, "Church Givings")} />
       <Route path="/churchaccounts" element={withDefaultLayout(<ViewChurchAccounts />, "Church Accounts")} />
       <Route path="/fundtransfer" element={withDefaultLayout(<FundTransfer />, "Fund Transfer")} />
+      <Route path="/transactionchart" element={withDefaultLayout(<TransactionChart />, "Transaction chart")} />
 
 
         {/* Central Finance Management */}

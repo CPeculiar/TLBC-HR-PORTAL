@@ -4,6 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import AccountStatement from './AccountStatement';
+import TransactionChart from './TransactionChart';
 
 const FinanceDashboard = () => {
   // State for accounts
@@ -651,7 +652,8 @@ const fetchTransactions = async () => {
     
   return (
     <>
- <Breadcrumb pageName="Account Management" className="text-black dark:text-white px-4 sm:px-6 lg:px-8" />
+     <div className="min-h-screen bg-gray-50 dark:bg-boxdark">
+ <Breadcrumb pageName="Account Management" className="text-black dark:text-white p-4 lg:px-8" />
     
     {/* Loading Overlay */}
     {isLoading && (
@@ -665,7 +667,8 @@ const fetchTransactions = async () => {
 
 {/* Success Modal */}
 {showSuccessModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
+  <div className="bg-white dark:bg-boxdark rounded-lg p-6 w-full max-w-md mx-auto">
           <div className="absolute inset-0 bg-black bg-opacity-50"></div>
           <div className="relative bg-white dark:bg-boxdark rounded-lg p-6 max-w-md w-full shadow-xl transform transition-all">
             <div className="text-center">
@@ -698,18 +701,19 @@ const fetchTransactions = async () => {
             </div>
           </div>
         </div>
+        </div>
       )}
 
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="container mx-auto px-4 lg:px-8 py-4 lg:py-6 space-y-6">
       {/* Message Handling */}
-      <div className="fixed top-4 right-4 z-50 space-y-2 w-full max-w-sm">
+      <div className="fixed top-4 right-4 z-50 w-full max-w-sm px-4">
         {successMessage && (
-          <div className="bg-green-500 text-white p-4 rounded shadow-lg">
+          <div className="bg-green-500 text-white p-4 rounded shadow-lg mb-2 animate-fade-in">
             {successMessage}
           </div>
         )}
         {errorMessage && (
-          <div className="bg-red-500 text-white p-4 rounded shadow-lg">
+          <div className="bg-red-500 text-white p-4 rounded shadow-lg animate-fade-in">
             {errorMessage}
           </div>
         )}
@@ -717,15 +721,15 @@ const fetchTransactions = async () => {
 
 
       {/* Account Selection */}
-      <div className="mb-6">
-        <h2 className="text-xl sm:text-2xl font-bold text-center text-black dark:text-white mb-4">
+      <div className="w-full max-w-3xl mx-auto">
+            <h2 className="text-xl md:text-2xl font-bold text-center text-black dark:text-white mb-4">
           {selectedAccount ? `Hello, ${selectedAccount.account_name} ( ${selectedAccount.church} )` : 'Select an Account'}
         </h2>
         <select 
           onChange={handleAccountSelect}
           value={selectedAccount?.code || ''}
           className="w-full rounded border border-stroke bg-white dark:border-strokedark dark:bg-boxdark p-3 text-black dark:text-white"
-        >
+          >
           <option value="" disabled>Select Account</option>
           {accounts.map(account => (
             <option key={account.code} value={account.code}>
@@ -736,9 +740,9 @@ const fetchTransactions = async () => {
       </div>
 
             {/* Cards */}
-      <div className="p-4 sm:p-6 bg-blue-50 dark:bg-boxdark rounded-lg">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-              <Cards title="Monthly Expenses" value={`₦${expenses.toFixed(2)}` || '₦0.00'} bgColor="bg-gradient-to-r from-orange-300 to-red-400" onTimePeriodChange={(period) => handleTimePeriodChange(period, 'Expenses')} />
+            <div className="bg-blue-50 dark:bg-boxdark rounded-lg p-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Cards title="Monthly Expenses" value={`₦${expenses.toFixed(2)}` || '₦0.00'} bgColor="bg-gradient-to-r from-orange-300 to-red-400" onTimePeriodChange={(period) => handleTimePeriodChange(period, 'Expenses')} />
             <Cards title="Monthly Income" value={`₦${accountDetails?.balance || '0.00'}`} bgColor="bg-gradient-to-r from-blue-300 to-blue-500" onTimePeriodChange={(period) => handleTimePeriodChange(period, 'Income')} />
             <Cards title="Account Balance" value={`₦${accountDetails?.balance || '0.00'}`} icon="💰" bgColor="bg-gradient-to-r from-green-300 to-teal-500" />
             <Cards title="Transaction History" value={transactions.length.toString()} icon="📜" bgColor="bg-gradient-to-r from-yellow-300 to-yellow-500" />
@@ -751,10 +755,10 @@ const fetchTransactions = async () => {
 
 
       {/* Update and Make Default Accounts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Update Account Section */}
-        <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-6">
-            <h3 className="text-xl font-bold mb-4 text-black dark:text-white">Update Account Details</h3>
+        <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-4 md:p-6">
+        <h3 className="text-lg md:text-xl font-bold mb-4 text-black dark:text-white">Update Account Details</h3>
             <div className="space-y-4">
             <select 
               value={selectedAccount?.code || ''}
@@ -841,8 +845,8 @@ const fetchTransactions = async () => {
 
 
         {/* Make Default Account Section */}
-        <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-4 sm:p-6">
-          <h3 className="text-lg sm:text-xl font-bold mb-4 text-black dark:text-white">Set a Default Account</h3>
+        <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-4 md:p-6">
+          <h3 className="text-lg md:text-xl font-bold mb-4 text-black dark:text-white">Set a Default Account</h3>
           <div className="space-y-4">
             {/* Account Selection Dropdown */}
             <div className="flex flex-col space-y-2">
@@ -1140,18 +1144,20 @@ const fetchTransactions = async () => {
 
 
       {/* Recent Transactions Table */}
-      <div className="mb-6">
-  <h3 className="text-xl font-bold mb-4 text-black dark:text-white">Recent Transactions</h3>
+    <div className="w-full overflow-hidden rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+       <h3 className="text-lg md:text-xl font-bold p-4 text-black dark:text-white border-b border-stroke dark:border-strokedark">
+             Recent Transactions
+       </h3>
   <div className="overflow-x-auto">
-    <table className="w-full border-collapse">
+  <table className="w-full min-w-[800px]">
       <thead>
-        <tr className="bg-blue-100 dark:bg-boxdark">
-          <th className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">Date</th>
-          <th className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">Account Name</th>
-          <th className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">Amount</th>
-          <th className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">Purpose</th>
-          <th className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">Status</th>
-        </tr>
+      <tr className="bg-blue-50 dark:bg-boxdark">
+                    <th className="p-4 text-left text-sm font-medium text-black dark:text-white">Date</th>
+                    <th className="p-4 text-left text-sm font-medium text-black dark:text-white">Account Name</th>
+                    <th className="p-4 text-left text-sm font-medium text-black dark:text-white">Amount</th>
+                    <th className="p-4 text-left text-sm font-medium text-black dark:text-white">Purpose</th>
+                    <th className="p-4 text-left text-sm font-medium text-black dark:text-white">Status</th>
+                  </tr>
       </thead>
       <tbody>
         {transactions.map((transaction) => {
@@ -1160,12 +1166,12 @@ const fetchTransactions = async () => {
           const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
           
           return (
-            <tr key={transaction.reference} className="hover:bg-blue-50 dark:hover:bg-boxdark">
-              <td className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">{formattedDate}</td>
-              <td className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">{transaction.account.account_name}</td>
-              <td className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">₦{transaction.amount}</td>
-              <td className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">{transaction.purpose}</td>
-              <td className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">
+            <tr key={transaction.reference} className="border-b border-stroke dark:border-strokedark hover:bg-blue-50 dark:hover:bg-boxdark/60">
+              <td className="p-4 text-sm text-black dark:text-white">{formattedDate}</td>
+              <td className="p-4 text-sm text-black dark:text-white">{transaction.account.account_name}</td>
+              <td className="p-4 text-sm text-black dark:text-white">₦{transaction.amount}</td>
+              <td className="p-4 text-sm text-black dark:text-white">{transaction.purpose}</td>
+              <td className="p-4 text-black dark:text-white">
                 <span 
                   className={`px-2 py-1 rounded text-xs font-semibold ${
                     transaction.status === 'APPROVED' ? 'bg-green-100 text-green-800' :
@@ -1182,25 +1188,14 @@ const fetchTransactions = async () => {
       </tbody>
     </table>
     {/* Account */}
-  
-
   </div>
 </div>
 
-       {/* Bar Chart */}
-       <div className="h-80 mb-6">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="expenses" fill="#3B82F6" />
-              <Bar dataKey="income" fill="#10B981" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+<div className="h-[300px] md:h-[400px] lg:h-[500px]">
+        <TransactionChart selectedAccount={selectedAccount} />
+</div>
+
+
       </div>
       </div>
 
@@ -1213,6 +1208,9 @@ const fetchTransactions = async () => {
         </div>
       </div>
     )}
+
+
+    </div>
     
     </>
   );
