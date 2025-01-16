@@ -810,7 +810,6 @@ const GivingList = () => {
                           {giving.confirmed ? 'Yes' : 'No'}
                         </td>
                         <td className="border px-4 py-3 text-center">
-                          {/* {giving.auditor ? giving.auditor.split('@')[0] : 'N/A'} */}
                           {giving.auditor ? giving.auditor.split('(')[0] : 'N/A'}
                         </td>
                         <td className="border px-4 py-3">{formatDateTime(giving.confirmation_date)}</td>
