@@ -1160,7 +1160,8 @@ const fetchTransactions = async () => {
                   </tr>
       </thead>
       <tbody>
-        {transactions.map((transaction) => {
+      {transactions.length > 0 ? (
+        transactions.map((transaction) => {
           // Format the date
           const date = new Date(transaction.initiated_at);
           const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
@@ -1184,12 +1185,20 @@ const fetchTransactions = async () => {
               </td>
             </tr>
           );
-        })}
+        })
+      ) : (
+        <tr>
+            <td colSpan="5" className="text-center text-gray-500 dark:text-gray-400 p-4">
+              No transactions to display
+            </td>
+          </tr>
+        )}
       </tbody>
     </table>
     {/* Account */}
   </div>
 </div>
+
 
 <div className="h-[300px] md:h-[400px] lg:h-[500px]">
         <TransactionChart selectedAccount={selectedAccount} />
