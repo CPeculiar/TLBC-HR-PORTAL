@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Eye, CheckCircle, X, Download, Calendar } from 'lucide-react';
+import { Eye, CheckCircle, X, Download, Calendar, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Alert, AlertDescription } from '../../components/ui/alert';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
@@ -30,6 +30,12 @@ const GivingList = () => {
   const [downloadError, setDownloadError] = useState('');
   const [userInfo, setUserInfo] = useState(null);
 
+   // Add new loading states
+   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+   const [isVerifying, setIsVerifying] = useState(null); // To track which record is being verified
+   const [isApproving, setIsApproving] = useState(null); // To track which record is being approved
+
   // Fetch user info on component mount
   React.useEffect(() => {
     const fetchUserInfo = async () => {
@@ -46,89 +52,15 @@ const GivingList = () => {
     fetchUserInfo();
   }, []);
 
-
-  const fetchGivings = async (url = 'https://tlbc-platform-api.onrender.com/api/finance/giving/admin/list/?limit=20') => {
-    setIsLoading(true);
-    setError('');
-    try {
-      const response = await axios.get(url, { withCredentials: true });
-        setGivings(response.data);
-        setRecords(response.data);
- 
-    } catch (error) {
-      setError('Failed to fetch giving list');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleApprove = async (reference) => {
-    setError('');
-    setSuccess('');
-    try {
-      const response = await axios.post(
-        `https://tlbc-platform-api.onrender.com/api/finance/giving/admin/${reference}/`,
-        {},
-        { withCredentials: true }
-      );
-      setSuccess(response.data.message);
-      fetchGivings();  
-    } catch (error) {
-      setError(error.response?.data?.detail || error.response?.data?.church?.[0] || 'Failed to approve giving');
-    } finally {
-      clearMessagesAfterTimeout();
-    }
-  };
-
-  const handleVerify = async (reference) => {
-    setError('');
-    try {
-      const response = await axios.get(
-        `https://tlbc-platform-api.onrender.com/api/finance/giving/${reference}/verify/`,
-        { withCredentials: true }
-      );
-      
-      if (response.data.confirmed) {
-        setSuccess('Payment was successful');
-      } else {
-        setError("Payment hasn't been confirmed by PayStack");
-      }
-    } catch (error) {
-      setError(error.response?.data?.detail || error.response?.data?.church?.[0] || 'Failed to verify payment');
-    } finally {
-      clearMessagesAfterTimeout();
-    }
-  };
-
-  const formatDateTime = (dateString) => {
-    if (!dateString) return 'Not confirmed';
-    const date = new Date(dateString);
-    return format(date, 'dd/MM/yyyy hh:mm a');
-  };
- 
-   const handleViewFile = (files) => {
-    if (files.length === 1) {
-      window.open(files[0], '_blank');
-    } else {
-      setSelectedFiles(files);
-      setIsModalOpen(true);
-    }
-  };
-
-  const clearMessagesAfterTimeout = () => {
-    setTimeout(() => {
-      setError('');
-      setSuccess('');
-    }, 5000);
-  };
-
-
   // New functions for download functionality
   const handleDownloadRequest = async () => {
     if (!fromDate || !toDate) {
       setDownloadError('Please select both start and end dates');
       return;
     }
+
+    setIsGeneratingReport(true);
+    setDownloadError('');
 
     const formattedFromDate = format(new Date(fromDate), 'MM/dd/yyyy');
     const formattedToDate = format(new Date(toDate), 'MM/dd/yyyy');
@@ -147,25 +79,16 @@ const GivingList = () => {
       setShowReportModal(true);
     } catch (error) {
       setDownloadError('Failed to fetch report data');
+    } finally {
+      setIsGeneratingReport(false);
     }
   };
-
-  // const generatePDF = () => {
-  //   const element = document.getElementById('report-content');
-  //   const opt = {
-  //     margin: 1,
-  //     filename: `church-giving-report-${format(new Date(), 'yyyy-MM-dd')}.pdf`,
-  //     image: { type: 'jpeg', quality: 0.98 },
-  //     html2canvas: { scale: 2 },
-  //     jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-  //   };
-
-  //   html2pdf().set(opt).from(element).save();
-  // };
 
   const generatePDF = () => {
     const element = document.getElementById('report-content');
     if (!element) return;
+
+    setIsDownloadingPdf(true);
     
      // Add some CSS to the table before generating PDF
      const style = document.createElement('style');
@@ -235,20 +158,120 @@ const GivingList = () => {
       }
     };
   
-   
+    try {
     // Generate PDF with adjusted settings
     html2pdf()
       .from(element)
       .set(opt)
-      .save()
-      .then(() => {
-        document.head.removeChild(style);
-      })
-      .catch(error => {
-        console.error('PDF generation error:', error);
-        document.head.removeChild(style);
-      });
+      .save();
+      // .then(() => {
+      //   document.head.removeChild(style);
+      // })
+    } catch (error) {
+      console.error('PDF generation error:', error);
+    } finally {
+      document.head.removeChild(style);
+      setIsDownloadingPdf(false);
+    }
   };
+
+  const handleVerify = async (reference) => {
+    setError('');
+    setIsVerifying(reference);
+    try {
+      const response = await axios.get(
+        `https://tlbc-platform-api.onrender.com/api/finance/giving/${reference}/verify/`,
+        { withCredentials: true }
+      );
+      
+      if (response.data.confirmed) {
+        setSuccess('Payment was successful');
+      } else {
+        setError("Payment hasn't been confirmed by PayStack");
+      }
+    } catch (error) {
+      setError(error.response?.data?.detail || error.response?.data?.church?.[0] || 'Failed to verify payment');
+    } finally {
+      setIsVerifying(null);
+      clearMessagesAfterTimeout();
+    }
+  };
+
+  const handleApprove = async (reference) => {
+    setError('');
+    setSuccess('');
+    setIsApproving(reference);
+    try {
+      const response = await axios.post(
+        `https://tlbc-platform-api.onrender.com/api/finance/giving/admin/${reference}/`,
+        {},
+        { withCredentials: true }
+      );
+      setSuccess(response.data.message);
+      fetchGivings();  
+    } catch (error) {
+      setError(error.response?.data?.detail || error.response?.data?.church?.[0] || 'Failed to approve giving');
+    } finally {
+      setIsApproving(null);
+      clearMessagesAfterTimeout();
+    }
+  };
+
+
+
+  const fetchGivings = async (url = 'https://tlbc-platform-api.onrender.com/api/finance/giving/admin/list/?limit=20') => {
+    setIsLoading(true);
+    setError('');
+    try {
+      const response = await axios.get(url, { withCredentials: true });
+        setGivings(response.data);
+        setRecords(response.data);
+ 
+    } catch (error) {
+      setError('Failed to fetch giving list');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const formatDateTime = (dateString) => {
+    if (!dateString) return 'Not confirmed';
+    const date = new Date(dateString);
+    return format(date, 'dd/MM/yyyy hh:mm a');
+  };
+ 
+   const handleViewFile = (files) => {
+    if (files.length === 1) {
+      window.open(files[0], '_blank');
+    } else {
+      setSelectedFiles(files);
+      setIsModalOpen(true);
+    }
+  };
+
+  const clearMessagesAfterTimeout = () => {
+    setTimeout(() => {
+      setError('');
+      setSuccess('');
+    }, 5000);
+  };
+
+
+  
+
+  // const generatePDF = () => {
+  //   const element = document.getElementById('report-content');
+  //   const opt = {
+  //     margin: 1,
+  //     filename: `church-giving-report-${format(new Date(), 'yyyy-MM-dd')}.pdf`,
+  //     image: { type: 'jpeg', quality: 0.98 },
+  //     html2canvas: { scale: 2 },
+  //     jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+  //   };
+
+  //   html2pdf().set(opt).from(element).save();
+  // };
+
 
   const calculateTotalsByCategory = (records) => {
     const totals = records.reduce((acc, record) => {
@@ -316,12 +339,9 @@ const GivingList = () => {
             <DialogTitle>Select Date Range for Report</DialogTitle>
           </DialogHeader>
 
-          
-          
-
             <div className="p-4 space-y-6">
             {downloadError && (
-              <Alert variant="destructive">
+              <Alert variant="destructive" className="mb-4 p-3 bg-red-50 text-red-600 rounded-md">
                 <AlertDescription>{downloadError}</AlertDescription>
               </Alert>
             )}
@@ -361,14 +381,23 @@ const GivingList = () => {
                   setDownloadError('');
                 }}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                disabled={isGeneratingReport}
               >
                 Cancel
               </button>
               <button
                 onClick={handleDownloadRequest}
+                disabled={isGeneratingReport}
                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                Generate Report
+                {isGeneratingReport ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                'Generate Report'
+              )}
               </button>
             </div>
           </div>
@@ -376,6 +405,47 @@ const GivingList = () => {
       </Dialog>
     )
   );
+
+  // Update the table rows to include loading states
+  const renderTableRows = (giving) => (
+    <tr key={giving.reference} className="border-b hover:bg-gray/90 dark:hover:bg-gray/10 text-center">
+      {/* ... [Previous columns remain the same until the action buttons] ... */}
+      <td className="border px-4 py-3 text-center">
+        <button
+          onClick={() => handleVerify(giving.reference)}
+          disabled={isVerifying === giving.reference}
+          className="p-2 text-blue-600 hover:text-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isVerifying === giving.reference ? (
+            <Loader2 className="w-5 h-5 animate-spin" />
+          ) : (
+            <CheckCircle size={20} />
+          )}
+        </button>
+      </td>
+      <td className="border px-4 py-3 text-center">
+        {giving.auditor ? (
+          <span className="text-green-600">Approved</span>
+        ) : (
+          <button
+            onClick={() => handleApprove(giving.reference)}
+            disabled={isApproving === giving.reference}
+            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 justify-center mx-auto"
+          >
+            {isApproving === giving.reference ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Approving...
+              </>
+            ) : (
+              'Approve'
+            )}
+          </button>
+        )}
+      </td>
+    </tr>
+  );
+
 
   const renderReportContent = () => {
      // Return early if downloadData is null or undefined
@@ -471,14 +541,25 @@ const GivingList = () => {
             No data found for the selected period.
           </div>
         )}
+        
         {downloadData?.results?.length > 0 && (
             <div className="mt-6 flex justify-end">
               <button
                 onClick={generatePDF}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2"
-              >
+                disabled={isDownloadingPdf}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isDownloadingPdf ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Downloading...
+              </>
+            ) : (
+              <>
                 <Download size={20} />
                 Download PDF
+              </>
+            )}
               </button>
             </div>
           )}
@@ -613,7 +694,46 @@ const GivingList = () => {
                      </div>
                    )
  );
-               
+   
+ const renderReportModals = () => (
+  <Dialog 
+    open={showReportModal} 
+    onOpenChange={(open) => {
+      setShowReportModal(open);
+      if (!open) {
+        setDownloadData(null);
+      }
+    }}
+  >
+    <DialogContent className="w-full max-w-7xl mx-auto">
+      <DialogHeader>
+        <DialogTitle>Generated Report</DialogTitle>
+      </DialogHeader>
+      {renderReportContent()}
+      {downloadData?.results?.length > 0 && (
+        <div className="mt-6 flex justify-end">
+          <button
+            onClick={generatePDF}
+            disabled={isDownloadingPdf}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isDownloadingPdf ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Downloading...
+              </>
+            ) : (
+              <>
+                <Download size={20} />
+                Download PDF
+              </>
+            )}
+          </button>
+        </div>
+      )}
+    </DialogContent>
+  </Dialog>
+);
 
 
   return (
@@ -630,10 +750,17 @@ const GivingList = () => {
               <div className="flex">
             <button
                onClick={() => fetchGivings()}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors w-full md:w-auto"
+               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors w-full md:w-auto disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 justify-center"
                 disabled={isLoading}
               >
-              {isLoading ? 'Fetching...' : 'Fetch Church Giving List'}
+               {isLoading ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              Fetching...
+            </>
+          ) : (
+            'Fetch Church Giving List'
+          )}
             </button>
 
             {renderDownloadButton()}
@@ -775,8 +902,9 @@ const GivingList = () => {
       </div>
 
       {renderDownloadModal()}
+      {renderReportModals()}
       
-      <Dialog 
+      {/* <Dialog 
         open={showReportModal} 
         onOpenChange={(open) => {
           setShowReportModal(open);
@@ -802,7 +930,7 @@ const GivingList = () => {
             </div>
           )}
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
 
     </>
     
