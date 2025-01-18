@@ -119,8 +119,8 @@ const FundTransfer = () => {
       <Breadcrumb pageName="Fund Transfer" />
       
       <div className="mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-5xl">
-        <Card>
-          <CardHeader>
+        <Card className='rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark sm:p-6.5 md:p-8 lg:p-6.5'>
+          <CardHeader className='border-b border-stroke py-4 px-6.5 dark:border-strokedark'>
             <CardTitle>Fund Transfer</CardTitle>
           </CardHeader>
           <CardContent>
@@ -155,28 +155,29 @@ const FundTransfer = () => {
 
               {/* Account Details Display */}
               {transferAccountDetails && (
+                <div>
                 <div className="mt-6 p-4 bg-blue-50 dark:bg-boxdark rounded-lg">
                   <h4 className="text-lg font-semibold mb-4 text-black dark:text-white">Account Details</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="p-3 bg-white dark:bg-gray-800 rounded">
+                    <div className="p-3 bg-white dark:bg-gray/5 rounded ">
                       <p className="text-sm text-black dark:text-white">
                         <strong>Account Name:</strong><br />
                         {transferAccountDetails.account_name}
                       </p>
                     </div>
-                    <div className="p-3 bg-white dark:bg-gray-800 rounded">
+                    <div className="p-3 bg-white dark:bg-gray/5 rounded">
                       <p className="text-sm text-black dark:text-white">
                         <strong>Account Number:</strong><br />
                         {transferAccountDetails.account_number}
                       </p>
                     </div>
-                    <div className="p-3 bg-white dark:bg-gray-800 rounded">
+                    <div className="p-3 bg-white dark:bg-gray/5 rounded">
                       <p className="text-sm text-black dark:text-white">
                         <strong>Bank:</strong><br />
                         {transferAccountDetails.bank_name}
                       </p>
                     </div>
-                    <div className="p-3 bg-white dark:bg-gray-800 rounded">
+                    <div className="p-3 bg-white dark:bg-gray/5 rounded">
                       <p className="text-sm text-black dark:text-white">
                         <strong>Available Balance:</strong><br />
                         {formatAmount(transferAccountDetails.balance)}
@@ -250,6 +251,7 @@ const FundTransfer = () => {
                       </button>
                     </div>
                   </div>
+                </div>
                 </div>
               )}
             </div>

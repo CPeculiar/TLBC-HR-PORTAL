@@ -783,7 +783,7 @@ const GivingList = () => {
               <div className="w-full overflow-x-auto">
                 <table className="w-full table-auto border-collapse">
                   <thead>
-                    <tr className="bg-gray/5 dark:bg-gray/5 text-center">
+                    <tr className="bg-gray/5 dark:bg-gray/5 text-center dark:text-white">
                     <th className="border px-4 py-3">Date of Giving</th>
                       <th className="border px-4 py-3">Type</th>
                       <th className="border px-4 py-3">Amount (₦)</th>
@@ -800,7 +800,7 @@ const GivingList = () => {
                   {givings?.results?.length > 0 ? (
                   <tbody>
                     {givings?.results.map((giving) => (
-                      <tr key={giving.reference} className="border-b hover:bg-gray/90 dark:hover:bg-gray/10 text-center">
+                      <tr key={giving.reference} className="border-b hover:bg-gray/90 dark:hover:bg-gray/10 text-center dark:text-gray/70">
                       <td className="border px-4 py-3">{formatDateTime(giving.initiated_at)}</td>
                         <td className="border px-4 py-3">{giving.type}</td>
                         <td className="border px-4 py-3">{giving.amount}</td>

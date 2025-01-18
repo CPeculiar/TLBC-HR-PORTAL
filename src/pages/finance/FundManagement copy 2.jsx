@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { format } from 'date-fns';
-import { Menu, Eye, X, Loader2, FileText, PlusCircle, CheckCircle, XCircle, Upload, FilePlus, MoreVertical, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Menu, Eye, X, Loader2, FileText, PlusCircle, CheckCircle, XCircle, Upload, FilePlus } from 'lucide-react';
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "../../components/ui/card";
-import { DropdownMenu, DropdownItem } from '../../components/ui/DropdownMenu';
-import { Alert, AlertDescription } from "../../components/ui/alert";
 import { Button } from "../../components/ui/button";
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 
@@ -36,12 +34,6 @@ const FundManagement = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedFiles, setSelectedFiles] = useState([]);
 
-     // Add new state for pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [nextPageUrl, setNextPageUrl] = useState(null);
-  const [prevPageUrl, setPrevPageUrl] = useState(null);
-
   // Fetch churches and funds on component mount
   useEffect(() => {
     const fetchChurches = async () => {
@@ -56,162 +48,34 @@ const FundManagement = () => {
       }
     };
 
+    const fetchIncomingFunds = async () => {
+      try {
+        setIsLoading(true);
+        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/fund/incoming/?limit=25');
+        setIncomingFunds(response.data.results);
+        setIsLoading(false);
+      } catch (error) {
+        setErrorMessage('Failed to fetch incoming funds');
+        setIsLoading(false);
+      }
+    };
+
+    const fetchOutgoingFunds = async () => {
+      try {
+        setIsLoading(true);
+        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/fund/outgoing/?limit=25');
+        setOutgoingFunds(response.data.results);
+        setIsLoading(false);
+      } catch (error) {
+        setErrorMessage('Failed to fetch outgoing funds');
+        setIsLoading(false);
+      }
+    };
+
     fetchChurches();
     fetchIncomingFunds();
     fetchOutgoingFunds();
   }, []);
-
-  const fetchIncomingFunds = async (url = 'https://tlbc-platform-api.onrender.com/api/finance/fund/incoming/?limit=15') => {
-    try {
-      setIsLoading(true);
-      const response = await axios.get(url);
-      setIncomingFunds(response.data.results);
-      setTotalPages(Math.ceil(response.data.count / response.data.limit));
-      setNextPageUrl(response.data.next);
-      setPrevPageUrl(response.data.previous);
-      setIsLoading(false);
-    } catch (error) {
-      setError('Failed to fetch incoming funds');
-      setIsLoading(false);
-    }
-  };
-
-  const fetchOutgoingFunds = async (url = 'https://tlbc-platform-api.onrender.com/api/finance/fund/outgoing/?limit=15') => {
-    try {
-      setIsLoading(true);
-      const response = await axios.get(url);
-      setOutgoingFunds(response.data.results);
-      setTotalPages(Math.ceil(response.data.count / response.data.limit));
-      setNextPageUrl(response.data.next);
-      setPrevPageUrl(response.data.previous);
-      setIsLoading(false);
-    } catch (error) {
-      setError('Failed to fetch outgoing funds');
-      setIsLoading(false);
-    }
-  };
-
-
-    // Add pagination component
-    const PaginationControls = () => {
-      const handlePageChange = async (url) => {
-        if (!url) return;
-        
-        try {
-          if (activeSection === 'incoming-fund') {
-            await fetchIncomingFunds(url);
-          } else {
-            await fetchOutgoingFunds(url);
-          }
-        } catch (error) {
-          setError('Failed to fetch page');
-        }
-      };
-    
-      return (
-        <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-boxdark dark:bg-navy-800 border-t">
-          <div className="flex items-center gap-2">
-            <button
-              className={`flex items-center px-3 py-1 text-sm font-medium rounded-md ${
-                !prevPageUrl 
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-700'
-                  : 'bg-white text-gray-700 hover:bg-gray-50 dark:bg-navy-700 dark:text-gray-200 dark:hover:bg-navy-600'
-              } border dark:border-gray-600`}
-              onClick={() => handlePageChange(prevPageUrl)}
-              disabled={!prevPageUrl}
-            >
-              <ChevronLeft className="h-4 w-4 mr-1" />
-              Previous
-            </button>
-            <button
-              className={`flex items-center px-3 py-1 text-sm font-medium rounded-md ${
-                !nextPageUrl 
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-700'
-                  : 'bg-white text-gray-700 hover:bg-gray-50 dark:bg-navy-700 dark:text-gray-200 dark:hover:bg-navy-600'
-              } border dark:border-gray-600`}
-              onClick={() => handlePageChange(nextPageUrl)}
-              disabled={!nextPageUrl}
-            >
-              Next
-              <ChevronRight className="h-4 w-4 ml-1" />
-            </button>
-          </div>
-          <span className="text-sm text-gray-700 dark:text-gray-300">
-            Page {currentPage} of {totalPages}
-          </span>
-        </div>
-      );
-    };
-
-
-    // Initial data fetch
-   useEffect(() => {
-  const fetchInitialData = async () => {
-    try {
-      setIsLoading(true);
-      
-      if (activeSection === 'incoming-fund') {
-        await fetchIncomingFunds();
-      } else if (activeSection === 'outgoing-fund') {
-        await fetchOutgoingFunds();
-      }
-      setIsLoading(false);
-    } catch (error) {
-      setError('Failed to fetch initial data');
-      setIsLoading(false);
-    }
-  };
-
-  fetchInitialData();
-}, [activeSection]);
-
-
-// Fund Processing Handlers
-const handleFundProcessing = async (reference, type) => {
-  try {
-    setIsLoading(true);
-    setError(null);
-    
-    let endpoint = '';
-    if (type === 'processing') {
-      endpoint = `https://tlbc-platform-api.onrender.com/api/finance/fund/${reference}/processing/`;
-    } else if (type === 'paid') {
-      endpoint = `https://tlbc-platform-api.onrender.com/api/finance/fund/${reference}/paid/`;
-    } else if (type === 'decline') {
-      endpoint = `https://tlbc-platform-api.onrender.com/api/finance/fund/${reference}/decline/`;
-    }
-
-    const response = await axios.post(endpoint);
-
-    setSuccessModal({
-      message: response.data.message || 'Fund status updated successfully'
-    });
-
-        // Refresh funds list
-        if (activeSection === 'incoming-fund') {
-          await fetchIncomingFunds();
-        } else {
-          await fetchOutgoingFunds()
-    }
-    
-    setIsLoading(false);
-  } catch (error) {
-    // setErrorMessage(error.response?.data?.detail || 'Failed to update fund status');
-    setSuccessModal(null);
-    if (error.response?.data?.detail) {
-      setErrorMessage(error.response.data.detail);
-    } else if (error.response?.data?.fund) {
-      setErrorMessage(error.response.data.fund[0]);
-    }  else  if (error.response.status === 500) {
-      setErrorMessage('Failed to process. Contact Support Team.');
-  }else {
-      setError('Failed to process. Please try again');
-    }
-    setIsLoading(false);
-    // setErrorMessage('Network error. Please check your connection.');
-  }
-};
-
 
   // Clear error message when user starts typing
   useEffect(() => {
@@ -265,7 +129,37 @@ const handleFundProcessing = async (reference, type) => {
     }
   };
 
-  
+  // Fund Processing Handlers
+  const handleFundProcessing = async (reference, type) => {
+    try {
+      setIsLoading(true);
+      let endpoint = '';
+      if (type === 'processing') {
+        endpoint = `https://tlbc-platform-api.onrender.com/api/finance/fund/${reference}/processing/`;
+      } else if (type === 'paid') {
+        endpoint = `https://tlbc-platform-api.onrender.com/api/finance/fund/${reference}/paid/`;
+      } else if (type === 'decline') {
+        endpoint = `https://tlbc-platform-api.onrender.com/api/finance/fund/${reference}/decline/`;
+      }
+
+      const response = await axios.post(endpoint);
+
+      setSuccessModal({
+        message: response.data.message || 'Fund status updated successfully'
+      });
+
+      // Refresh funds list
+      if (type === 'processing' || type === 'paid') {
+        await fetchIncomingFunds();
+        await fetchOutgoingFunds();
+      }
+      
+      setIsLoading(false);
+    } catch (error) {
+      setErrorMessage(error.response?.data?.detail || 'Failed to update fund status');
+      setIsLoading(false);
+    }
+  };
 
   // File Upload Handler
   const handleFileUpload = async () => {
@@ -640,17 +534,10 @@ const handleFundProcessing = async (reference, type) => {
   // Define table columns based on section
   const getTableColumns = (section) => {
     const baseColumns = [
-      { key: 'initiated_at', label: 'Date' },
-      { key: 'initiated_at', label: 'Time' },
-      { key: 'benefactor', label: 'Sent From' },
-      { key: 'amount', label: 'Amount' },
-      { key: 'purpose', label: 'Purpose' },
-      { key: 'initiator', label: 'Request Created by' },
       { key: 'beneficiary', label: 'Beneficiary' },
+      { key: 'amount', label: 'Amount' },
       { key: 'status', label: 'Status' },
-      { key: 'auditor', label: 'Approved By' },
-      { key: 'approved_at', label: 'Approved On' },
-      { key: 'files', label: 'Documents' },
+      { key: 'date', label: 'Date' },
     ];
 
     if (section === 'outgoing-fund') {
@@ -659,105 +546,8 @@ const handleFundProcessing = async (reference, type) => {
 
     return baseColumns;
   };
- 
 
- 
   
-
-  // Render table cell content
-  const renderTableCell = (column, fund) => {
-    switch (column.key) {
-      case 'initiated_at':
-        return formatDate(fund.initiated_at);  
-        case 'initiated_at':
-        return formatTime(fund.initiated_at);
-        case 'benefactor':
-        return fund.benefactor;
-        case 'amount':
-        return `₦${Number(fund.amount).toFixed(2)}`;
-        case 'purpose':
-        return fund.purpose;
-        case 'initiator':
-        return fund.initiator ? fund.initiator.split('(')[0].trim() : 'N/A';
-        case 'beneficiary':
-        return fund.beneficiary;
-        case 'status':
-        return (
-          <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-            fund.status === 'PAID' 
-              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100' 
-              : fund.status === "DECLINED"
-              ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"
-              : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100'
-          }`}>
-            {fund.status}
-          </span>
-        );
-      case 'auditor':
-        return fund.auditor ? fund.auditor.split('(')[0] : 'N/A'
-      case 'approved_at':
-        return fund.approved_at ? formatDate(fund.approved_at) : "N/A";
-      case 'files':
-        return fund.files && fund.files.length > 0 ? (
-          <button
-            onClick={() => handleViewFile(fund.files)}
-            className="p-2 text-blue-600 hover:text-blue-800 transition-colors"
-             >
-            <Eye size={20} />
-        </button>
-        ) : (
-        <span>N/A</span>
-        );
-      case 'actions':
-        return (
-          <DropdownMenu
-            trigger={
-              <Button variant="ghost" size="sm" className="p-2">
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            }
-          >
-            <DropdownItem onClick={() => handleFundProcessing(fund.reference, 'processing')}>
-              Move to Processing
-            </DropdownItem>
-            <DropdownItem onClick={() => handleFundProcessing(fund.reference, 'paid')}>
-              Move to Paid
-            </DropdownItem>
-          </DropdownMenu>
-        );
-      default:
-        return null;
-    }
-  };
-
-// Error and Success Messages
-const renderMessages = () => (
-  <>
-    {errorMessage && (
-      <div className="fixed bottom-4 right-4 z-50 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-lg">
-        <div className="flex items-center">
-          <span>{errorMessage}</span>
-          <button onClick={() => setErrorMessage(null)} className="ml-4">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-    )}
-    
-    {successModal && (
-      <div className="fixed bottom-4 right-4 z-50 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg shadow-lg">
-        <div className="flex items-center">
-          <span>{successModal.message}</span>
-          <button onClick={() => setSuccessModal(null)} className="ml-4">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-    )}
-  </>
-);
-
-
 
 
   return (
@@ -863,44 +653,114 @@ const renderMessages = () => (
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-navy-700">
                   <thead className="bg-gray-50 dark:bg-navy-700 dark:text-white text-center">
                     <tr>
-                    {getTableColumns(activeSection).map((column) => (
-                        <th key={column.key} className={tableHeaderClass}>
-                          {column.label}
-                        </th>
-                      ))}
+                      <th className={tableHeaderClass}>Date</th>
+                      <th className={tableHeaderClass}>Time</th>
+                      <th className={tableHeaderClass}>Sent From</th>
+                      <th className={tableHeaderClass}>Amount</th>
+                      <th className={tableHeaderClass}>Purpose</th>
+                      <th className={tableHeaderClass}>Request Created by</th>
+                      <th className={tableHeaderClass}>Beneficiary</th>
+                      <th className={tableHeaderClass}>Status</th>
+                      <th className={tableHeaderClass}>Approved By</th>
+                      <th className={tableHeaderClass}>Approved On</th>
+                      <th className={tableHeaderClass}>Documents</th>
+                      <th className={tableHeaderClass}>Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-navy-700 bg-white dark:bg-navy-800 dark:bg-boxdark dark:text-gray/70 ">
                     {(activeSection === 'incoming-fund' ? incomingFunds : outgoingFunds).map((fund) => (
                       <tr key={fund.reference} className="hover:bg-gray/100 dark:hover:bg-gray/10">
+                        <td className={tableCellClass}>{formatDate(fund.initiated_at)}</td>
+                        <td className={tableCellClass}>{formatTime(fund.initiated_at)}</td>
+                        <td className={tableCellClass}>{fund.benefactor}</td>
+                        <td className={tableCellClass}>₦{Number(fund.amount).toFixed(2)}</td>
+                        <td className={tableCellClass}>{fund.purpose}</td>
+                        <td className={tableCellClass}>
+                        {fund.initiator ? fund.initiator.split('(')[0] : 'N/A'}
+                        </td>
+                        <td className={tableCellClass}>{fund.beneficiary}</td>
+                        <td className={tableCellClass}>
+                          <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
+                            fund.status === 'PAID' 
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100' 
+                              : fund.status === "DECLINED"
+                              ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"
+                              : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100'
+                          }`}>
+                            {fund.status}
+                          </span>
+                        </td>
+                        <td className={tableCellClass}>
+                        {fund.auditor ? fund.auditor.split('(')[0] : 'N/A'}
+                        </td>
+                        <td className={tableCellClass}>
+                        {fund.approved_at ? formatDate(fund.initiated_at) : "N/A"}
+                        </td>
+                         <td className={tableCellClass}>
+                        {fund.files && fund.files.length > 0 ? (
+                          <button
+                            onClick={() => handleViewFile(fund.files)}
+                            className="p-2 text-blue-600 hover:text-blue-800 transition-colors"
+                             >
+                            <Eye size={20} />
+                        </button>
+                        ) : (
+                         'N/A'
+                        )}
+                      </td>
 
-                      {getTableColumns(activeSection).map((column) => (
-                          <td key={`${fund.reference}-${column.key}`} className={tableCellClass}>
-                            {renderTableCell(column, fund)}
-                          </td>
-                        ))}
+                        <td className={tableCellClass}>
+                          <div className="flex space-x-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleFundProcessing(fund.reference, 'processing')}
+                              className="text-primary hover:text-primary-dark"
+                            >
+                              Process
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleFundProcessing(fund.reference, 'paid')}
+                              className="text-green-600 hover:text-green-700"
+                            >
+                              Pay
+                            </Button>
+                          </div>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-
-                 {/* Add pagination below the table */}
-      {(activeSection === 'incoming-fund' || activeSection === 'outgoing-fund') && (
-        <PaginationControls />
-      )}
-
               </div>
             </Card>
           )}
         </div>
       </div>
 
-      {/* Render error and success messages */}
-      {renderMessages()}
-      
+      {/* Success Modal */}
+      {successModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-navy-800 p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
+            <h2 className="text-xl font-bold mb-4 text-green-700">Success!</h2>
+            <p className="text-green-700 dark:text-gray-300">{successModal.message}</p>
+            <Button
+              onClick={() => setSuccessModal(null)}
+              className="w-full mt-4"
+            >
+              Close
+            </Button>
+          </div>
+        </div>
+      )}
 
-
- 
+      {/* Error Toast */}
+      {errorMessage && (
+        <div className="fixed bottom-4 right-4 bg-red-500 text-white p-4 rounded-lg shadow-lg z-50">
+          {errorMessage}
+        </div>
+      )}
 
       {/* Loading Overlay */}
       {isLoading && (
