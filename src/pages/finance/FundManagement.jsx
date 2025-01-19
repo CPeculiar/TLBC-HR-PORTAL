@@ -30,11 +30,14 @@ const FundManagement = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [uploadFileReference, setUploadFileReference] = useState(null);
 
-   const [records, setRecords] = useState([]);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedFiles, setSelectedFiles] = useState([]);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+
+    // Add new state for file upload
+  const [uploadingFile, setUploadingFile] = useState(null);
+  const [uploadError, setUploadError] = useState('');
 
      // Add new state for pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -61,7 +64,7 @@ const FundManagement = () => {
     fetchOutgoingFunds();
   }, []);
 
-  const fetchIncomingFunds = async (url = 'https://tlbc-platform-api.onrender.com/api/finance/fund/incoming/?limit=15') => {
+  const fetchIncomingFunds = async (url = 'https://tlbc-platform-api.onrender.com/api/finance/fund/incoming/') => {
     try {
       setIsLoading(true);
       const response = await axios.get(url);
@@ -71,12 +74,12 @@ const FundManagement = () => {
       setPrevPageUrl(response.data.previous);
       setIsLoading(false);
     } catch (error) {
-      setError('Failed to fetch incoming funds');
+      setErrorMessage('Failed to fetch incoming funds');
       setIsLoading(false);
     }
   };
 
-  const fetchOutgoingFunds = async (url = 'https://tlbc-platform-api.onrender.com/api/finance/fund/outgoing/?limit=15') => {
+  const fetchOutgoingFunds = async (url = 'https://tlbc-platform-api.onrender.com/api/finance/fund/outgoing/') => {
     try {
       setIsLoading(true);
       const response = await axios.get(url);
@@ -86,7 +89,7 @@ const FundManagement = () => {
       setPrevPageUrl(response.data.previous);
       setIsLoading(false);
     } catch (error) {
-      setError('Failed to fetch outgoing funds');
+      setErrorMessage('Failed to fetch outgoing funds');
       setIsLoading(false);
     }
   };
@@ -171,6 +174,7 @@ const handleFundProcessing = async (reference, type) => {
   try {
     setIsLoading(true);
     setError(null);
+    setErrorMessage(null);
     
     let endpoint = '';
     if (type === 'processing') {
@@ -200,18 +204,17 @@ const handleFundProcessing = async (reference, type) => {
     setSuccessModal(null);
     if (error.response?.data?.detail) {
       setErrorMessage(error.response.data.detail);
-    } else if (error.response?.data?.fund) {
-      setErrorMessage(error.response.data.fund[0]);
+    } else if (error.response?.data?.non_field_errors) {
+      setErrorMessage(error.response.data.non_field_errors[0]);
     }  else  if (error.response.status === 500) {
       setErrorMessage('Failed to process. Contact Support Team.');
   }else {
-      setError('Failed to process. Please try again');
+      setErrorMessage('Failed to process. Please try again');
     }
     setIsLoading(false);
     // setErrorMessage('Network error. Please check your connection.');
   }
 };
-
 
   // Clear error message when user starts typing
   useEffect(() => {
@@ -227,6 +230,9 @@ const handleFundProcessing = async (reference, type) => {
   const handleCreateFund = async () => {
     try {
       setIsLoading(true);
+      setError(null);
+      setErrorMessage(null);
+
       const formData = new FormData();
       formData.append('amount', fundAmount);
       formData.append('purpose', fundPurpose);
@@ -264,41 +270,53 @@ const handleFundProcessing = async (reference, type) => {
       setIsLoading(false);
     }
   };
-
   
+// Add file upload handler
+const handleFileUpload = async (reference, file) => {
+  try {
+    setIsLoading(true);
+    setUploadError('');
+    
+    const formData = new FormData();
+    formData.append('files', file);
 
-  // File Upload Handler
-  const handleFileUpload = async () => {
-    try {
-      setIsLoading(true);
-      const formData = new FormData();
-      formData.append('files', uploadFileReference.file);
-
-      const response = await axios.put(
-        `https://tlbc-platform-api.onrender.com/api/finance/fund/${uploadFileReference.reference}/upload/`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
+    await axios.patch(
+      `https://tlbc-platform-api.onrender.com/api/finance/fund/${reference}/upload/`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data'
         }
-      );
+      }
+    );
 
-      setSuccessModal({
-        message: 'File uploaded successfully'
-      });
+    // Show success message
+    setSuccessModal({
+      message: 'File uploaded successfully'
+    });
 
-      // Refresh funds list
+    // Refresh the funds list
+    if (activeSection === 'incoming-fund') {
       await fetchIncomingFunds();
+    } else {
       await fetchOutgoingFunds();
-
-      setUploadFileReference(null);
-      setIsLoading(false);
-    } catch (error) {
-      setErrorMessage('Failed to upload file');
-      setIsLoading(false);
     }
-  };
+
+  } catch (error) {
+    if (error.response?.status === 500) {
+      setErrorMessage('Unable to process. Contact Support.');
+    } else if (error.response?.data?.detail) {
+      setErrorMessage(error.response.data.detail);
+    } else if (error.response?.data?.non_field_errors) {
+      setErrorMessage(error.response.data.non_field_errors[0]);
+    } else {
+      setErrorMessage('Failed to upload file. Please try again.');
+    }
+  } finally {
+    setIsLoading(false);
+    setUploadingFile(null);
+  }
+};
 
   // Helper function to extract name from email
   const extractName = (fullString) => {
@@ -352,7 +370,7 @@ const handleFundProcessing = async (reference, type) => {
             onChange={(e) => setSelectedBeneficiary(e.target.value)}
             className="w-full rounded-md border border-input bg-background px-3 py-2"
           >
-            <option value="">Select Beneficiary Church</option>
+            <option value="" disabled>Select Beneficiary Church</option>
             {churches.map(church => (
               <option key={church.slug} value={church.slug}>{church.name}</option>
             ))}
@@ -363,7 +381,7 @@ const handleFundProcessing = async (reference, type) => {
             onChange={(e) => setSelectedBenefactor(e.target.value)}
             className="w-full rounded-md border border-input bg-background px-3 py-2"
           >
-            <option value="">Select Benefactor Church</option>
+            <option value="" disabled>Select Benefactor Church</option>
             {churches.map(church => (
               <option key={church.slug} value={church.slug}>{church.name}</option>
             ))}
@@ -613,15 +631,15 @@ const handleFundProcessing = async (reference, type) => {
       return format(date, 'dd/MM/yyyy hh:mm a');
     };
 
-    const formatTime = (isoString) => {
-      const date = new Date(isoString);
-      return date.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: true,
+    function formatTime(timestamp) {
+      const date = new Date(timestamp);
+      return date.toLocaleString('en-US', {
+          hour: 'numeric',
+          minute: 'numeric',
+          second: 'numeric',
+          hour12: true
       });
-    };
+  }
 
     const handleViewFile = (files) => {
       if (files.length === 1) {
@@ -640,8 +658,8 @@ const handleFundProcessing = async (reference, type) => {
   // Define table columns based on section
   const getTableColumns = (section) => {
     const baseColumns = [
-      { key: 'initiated_at', label: 'Date' },
-      { key: 'initiated_at', label: 'Time' },
+      { key: 'initiated_date', label: 'Date' },
+      { key: 'initiated_time', label: 'Time' },
       { key: 'benefactor', label: 'Sent From' },
       { key: 'amount', label: 'Amount' },
       { key: 'purpose', label: 'Purpose' },
@@ -654,22 +672,19 @@ const handleFundProcessing = async (reference, type) => {
     ];
 
     if (section === 'outgoing-fund') {
+      baseColumns.push({ key: 'uploads', label: 'Uploads' });
       baseColumns.push({ key: 'actions', label: 'Actions' });
     }
 
     return baseColumns;
   };
- 
-
- 
-  
 
   // Render table cell content
   const renderTableCell = (column, fund) => {
     switch (column.key) {
-      case 'initiated_at':
+      case 'initiated_date':
         return formatDate(fund.initiated_at);  
-        case 'initiated_at':
+        case 'initiated_time':
         return formatTime(fund.initiated_at);
         case 'benefactor':
         return fund.benefactor;
@@ -708,7 +723,43 @@ const handleFundProcessing = async (reference, type) => {
         ) : (
         <span>N/A</span>
         );
+        case 'uploads':
+          return (
+            <div className="flex justify-center">
+              <input
+                type="file"
+                id={`file-upload-${fund.reference}`}
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files?.[0]) {
+                    handleFileUpload(fund.reference, e.target.files[0]);
+                  }
+                }}
+              />
+              <label
+                htmlFor={`file-upload-${fund.reference}`}
+                className="cursor-pointer p-2 text-blue-600 hover:text-blue-800 transition-colors"
+              >
+                <Upload size={20} />
+              </label>
+            </div>
+          );
       case 'actions':
+        const handleProcessingClick = () => {
+          if (!['PAID', 'DECLINED', 'PROCESSING'].includes(fund.status)) {
+            handleFundProcessing(fund.reference, 'processing');
+          }
+        };
+      
+        const handlePaidClick = () => {
+          if (!['PAID', 'DECLINED'].includes(fund.status)) {
+            handleFundProcessing(fund.reference, 'paid');
+          }
+        };
+      
+        const isProcessingDisabled = ['PAID', 'DECLINED', 'PROCESSING'].includes(fund.status);
+        const isPaidDisabled = ['PAID', 'DECLINED'].includes(fund.status);
+
         return (
           <DropdownMenu
             trigger={
@@ -717,10 +768,26 @@ const handleFundProcessing = async (reference, type) => {
               </Button>
             }
           >
-            <DropdownItem onClick={() => handleFundProcessing(fund.reference, 'processing')}>
+            <DropdownItem 
+            onClick={handleProcessingClick}
+            disabled={isProcessingDisabled}
+            className={`${
+          isProcessingDisabled 
+            ? 'opacity-50 cursor-not-allowed pointer-events-none' 
+            : 'cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700'
+        }`}
+            >
               Move to Processing
             </DropdownItem>
-            <DropdownItem onClick={() => handleFundProcessing(fund.reference, 'paid')}>
+            <DropdownItem 
+            onClick={handlePaidClick}
+        disabled={isPaidDisabled}
+        className={`${
+          isPaidDisabled
+            ? 'opacity-50 cursor-not-allowed pointer-events-none' 
+            : 'cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700'
+        }`}
+            >
               Move to Paid
             </DropdownItem>
           </DropdownMenu>
@@ -756,9 +823,6 @@ const renderMessages = () => (
     )}
   </>
 );
-
-
-
 
   return (
 <>
@@ -861,7 +925,7 @@ const renderMessages = () => (
             <Card className="bg-white dark:bg-navy-800 border-0 shadow-lg overflow-hidden dark:bg-boxdark">
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-navy-700">
-                  <thead className="bg-gray-50 dark:bg-navy-700 dark:text-white text-center">
+                  <thead className="bg-gray/50 dark:bg-navy-700 dark:text-white text-center">
                     <tr>
                     {getTableColumns(activeSection).map((column) => (
                         <th key={column.key} className={tableHeaderClass}>
@@ -871,7 +935,21 @@ const renderMessages = () => (
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-navy-700 bg-white dark:bg-navy-800 dark:bg-boxdark dark:text-gray/70 ">
-                    {(activeSection === 'incoming-fund' ? incomingFunds : outgoingFunds).map((fund) => (
+                  {(activeSection === 'incoming-fund' ? incomingFunds : outgoingFunds).length === 0 ? (
+            <tr>
+              <td 
+                colSpan={getTableColumns(activeSection).length} 
+                className="px-6 py-8 text-center text-gray-500 dark:text-gray-400"
+              >
+                <div className="flex flex-col items-center justify-center space-y-2">
+                  <FileText className="h-8 w-8 text-gray-400 dark:text-gray-600" />
+                  <p className="text-base font-medium">No data available</p>
+                  <p className="text-sm">No fund records found for this section.</p>
+                </div>
+              </td>
+            </tr>
+          ) : (
+                    (activeSection === 'incoming-fund' ? incomingFunds : outgoingFunds).map((fund) => (
                       <tr key={fund.reference} className="hover:bg-gray/100 dark:hover:bg-gray/10">
 
                       {getTableColumns(activeSection).map((column) => (
@@ -880,12 +958,13 @@ const renderMessages = () => (
                           </td>
                         ))}
                       </tr>
-                    ))}
+                    ))
+                    )}
                   </tbody>
                 </table>
 
                  {/* Add pagination below the table */}
-      {(activeSection === 'incoming-fund' || activeSection === 'outgoing-fund') && (
+      {(activeSection === 'incoming-fund' ? incomingFunds : outgoingFunds).length > 0  && (
         <PaginationControls />
       )}
 
@@ -897,10 +976,6 @@ const renderMessages = () => (
 
       {/* Render error and success messages */}
       {renderMessages()}
-      
-
-
- 
 
       {/* Loading Overlay */}
       {isLoading && (

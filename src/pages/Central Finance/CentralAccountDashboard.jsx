@@ -538,7 +538,7 @@ const fetchTransactions = async () => {
         return acc;
       }, {});
 
-      const response = await axios.patch(
+      const response = await axios.put(
         `https://tlbc-platform-api.onrender.com/api/finance/central/accounts/${selectedDefaultAccount}/`,
         updates,
         {
