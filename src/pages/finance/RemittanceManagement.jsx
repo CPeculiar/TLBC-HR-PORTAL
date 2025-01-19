@@ -712,7 +712,7 @@ const RemittanceManagement = () => {
                               className="bg-blue-500 dark:bg-blue-600 text-white p-1 rounded hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors flex items-center"
                               disabled={isLoading}
                             >
-                              <DollarSign size={16} className="mr-1" /> Paid
+                              <CheckCircle className="mr-1" /> Paid
                             </button>
                           </>
                         )}
@@ -1298,7 +1298,7 @@ const RemittanceManagement = () => {
                                 No data available
                               </p>
                               <p className="text-sm">
-                                No fund records found for this section.
+                                No Remittance records found for this section.
                               </p>
                             </div>
                           </td>

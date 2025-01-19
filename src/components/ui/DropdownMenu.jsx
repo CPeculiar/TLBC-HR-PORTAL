@@ -31,12 +31,13 @@ const DropdownMenu = ({ trigger, children }) => {
   );
 };
 
-const DropdownItem = ({ onClick, children, className = '' }) => (
+const DropdownItem = ({ onClick, children, disabled, className = '' }) => (
   <button
     onClick={(e) => {
       e.preventDefault();
-      onClick();
+      if (!disabled) onClick();
     }}
+    disabled={disabled}
     className={`block w-full text-left px-4 py-1 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray/50 dark:hover:bg-gray/10 ${className}`}
   >
     {children}
