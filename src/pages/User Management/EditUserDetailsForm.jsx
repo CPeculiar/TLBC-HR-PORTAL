@@ -1,39 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Trash2, Plus } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 import axios from "axios";
 import { Alert, AlertDescription } from '../../components/ui/alert';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 
-const CHURCHES_DATA = {
-  "TLBC Awka": "tlbc-awka",
-  "TLBC Ekwulobia": "tlbc-ekwulobia",
-  "TLBC Ihiala": "tlbc-ihiala",
-  "TLBC Nnewi": "tlbc-nnewi",
-  "TLBC Onitsha": "tlbc-onitsha",
-  "TLBCM Agulu": "tlbcm-agulu",
-  "TLBCM COOU Igbariam": "tlbcm-coou-igbariam",
-  "TLBCM COOU Uli": "tlbcm-coou-uli",
-  "TLBCM FUTO": "tlbcm-futo",
-  "TLBCM Mbaukwu": "tlbc-mbaukwu",
-  "TLBCM Mgbakwu": "tlbcm-mgbakwu",
-  "TLBCM NAU": "tlbcm-nau",
-  "TLBCM Nekede": "tlbcm-nekede",
-  "TLBCM Oko": "tlbcm-oko",
-  "TLBCM Okofia": "tlbcm-okofia",
-  "TLBCM UNILAG": "tlbcm-unilag",
-  "TLTN Awka": "tltn-awka",
-  "TLTN Agulu": "tltn-agulu",
-  "CENTRAL": "central"
-};
+// const CHURCHES_DATA = {
+//   "TLBC Awka": "tlbc-awka",
+//   "TLBC Ekwulobia": "tlbc-ekwulobia",
+//   "TLBC Ihiala": "tlbc-ihiala",
+//   "TLBC Nnewi": "tlbc-nnewi",
+//   "TLBC Onitsha": "tlbc-onitsha",
+//   "TLBCM Agulu": "tlbcm-agulu",
+//   "TLBCM COOU Igbariam": "tlbcm-coou-igbariam",
+//   "TLBCM COOU Uli": "tlbcm-coou-uli",
+//   "TLBCM FUTO": "tlbcm-futo",
+//   "TLBCM Mbaukwu": "tlbc-mbaukwu",
+//   "TLBCM Mgbakwu": "tlbcm-mgbakwu",
+//   "TLBCM NAU": "tlbcm-nau",
+//   "TLBCM Nekede": "tlbcm-nekede",
+//   "TLBCM Oko": "tlbcm-oko",
+//   "TLBCM Okofia": "tlbcm-okofia",
+//   "TLBCM UNILAG": "tlbcm-unilag",
+//   "TLTN Awka": "tltn-awka",
+//   "TLTN Agulu": "tltn-agulu",
+//   "CENTRAL": "central"
+// };
 
-const ZONES_DATA = {
-  "Awka Zone": "awka-zone",
-  "Ekwulobia Zone": "ekwulobia-zone",
-  "Nnewi Zone": "nnewi-zone",
-  "Owerri Zone": "owerri-zone",
-  "CENTRAL": "central"
-};
+// const ZONES_DATA = {
+//   "Awka Zone": "awka-zone",
+//   "Ekwulobia Zone": "ekwulobia-zone",
+//   "Nnewi Zone": "nnewi-zone",
+//   "Owerri Zone": "owerri-zone",
+//   "CENTRAL": "central"
+// };
 
 const FORM_FIELDS = {
   profile_picture: { type: 'file', label: 'Profile Picture' },
@@ -49,8 +49,8 @@ const FORM_FIELDS = {
   city: { type: 'text', label: 'City' },
   state: { type: 'text', label: 'State' },
   country: { type: 'text', label: 'Country' },
-  church: { type: 'select', label: 'Church', options: Object.keys(CHURCHES_DATA) },
-  zone: { type: 'select', label: 'Zone', options: Object.keys(ZONES_DATA) },
+  church: { type: 'select', label: 'Church', options: [] },
+  zone: { type: 'select', label: 'Zone', options: [] }, 
   joined_at: { type: 'date', label: 'Joined At' },
   invited_by: { type: 'text', label: 'Invited By' },
   first_min_arm: { type: 'text', label: 'First Ministry Arm' },
@@ -68,6 +68,50 @@ export default function EditUserPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [churches, setChurches] = useState([]);
+  const [zones, setZones] = useState([]);
+  const [isLoadingData, setIsLoadingData] = useState(true);
+
+   // Fetch churches and zones data on component mount
+   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const accessToken = localStorage.getItem("accessToken");
+        if (!accessToken) {
+          throw new Error("Access token not found. Please login first.");
+        }
+
+        const headers = {
+          Authorization: `Bearer ${accessToken}`
+        };
+
+        // Fetch churches
+        const churchesResponse = await axios.get(
+          'https://tlbc-platform-api.onrender.com/api/churches/?limit=50',
+          { headers }
+        );
+        
+        // Fetch zones
+        const zonesResponse = await axios.get(
+          'https://tlbc-platform-api.onrender.com/api/zones/',
+          { headers }
+        );
+
+        setChurches(churchesResponse.data.results);
+        setZones(zonesResponse.data.results);
+
+        // Update FORM_FIELDS with the fetched data
+        FORM_FIELDS.church.options = churchesResponse.data.results.map(church => church.name);
+        FORM_FIELDS.zone.options = zonesResponse.data.results.map(zone => zone.name);
+      } catch (err) {
+        setError(err.message || 'Failed to fetch data');
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const addField = () => {
     setFields([...fields, { key: '', value: '' }]);
@@ -81,6 +125,17 @@ export default function EditUserPage() {
     const newFields = [...fields];
     newFields[index] = { key, value };
     setFields(newFields);
+  };
+
+  const getSlugFromName = (type, name) => {
+    if (type === 'church') {
+      const church = churches.find(c => c.name === name);
+      return church ? church.slug : name;
+    } else if (type === 'zone') {
+      const zone = zones.find(z => z.name === name);
+      return zone ? zone.slug : name;
+    }
+    return name;
   };
 
   const handleSubmit = async (e) => {
@@ -102,9 +157,9 @@ export default function EditUserPage() {
         } else if (field.key === 'enrolled_in_wfs') {
           formData.append(field.key, field.value === 'true');
         } else if (field.key === 'church') {
-          formData.append(field.key, CHURCHES_DATA[field.value]);
+          formData.append(field.key, getSlugFromName('church', field.value));
         } else if (field.key === 'zone') {
-          formData.append(field.key, ZONES_DATA[field.value]);
+          formData.append(field.key, getSlugFromName('zone', field.value));
         } else {
           formData.append(field.key, field.value);
         }
@@ -130,31 +185,30 @@ export default function EditUserPage() {
           } 
       );
 
-      const data = await response.data;
+      // const data = await response.data;
 
-      if (response.ok) {
-        setSuccess('User updated successfully');
         // throw new Error(data.detail || 'Failed to update user');
-      }
 
       setSuccess('User updated successfully');
       setFields([{ key: '', value: '' }]);
     } catch (err) {
-      if (error.response.data.detail) {
-        setError({ message: error.response.data.detail });
-      } else if (!response.ok) {
-        throw new Error(data.detail || 'Failed to update user');
-      } else if (error.response.data) {
-        setError(error.response.data);
-      }
-      else {
-      setError(err.message);
+      if (error.response?.data?.detail) {
+        setError(err.response.data.detail );
+      } else if (err.response?.data?.church) {
+        setError(err.response.data.church[0]); 
+       } else if (err.response?.data?.non_field_errors) {
+          setError(err.response.data.non_field_errors[0]);
+      } else {
+        setError(err.message || 'Failed to update user');
       }
     } finally {
       setIsLoading(false);
     }
   };
    
+  if (isLoadingData) {
+    return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+  }
 
   return (
     <>
@@ -204,9 +258,7 @@ export default function EditUserPage() {
       </Link>{" "}
       to search.
     </p>
-            </div>
-
-            
+    </div>  
 
             {fields.map((field, index) => (
               <div key={index} className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
