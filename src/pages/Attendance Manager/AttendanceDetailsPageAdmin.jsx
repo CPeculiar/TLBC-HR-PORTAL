@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Download, Eye } from 'lucide-react';
 import { Card } from '../../components/ui/card';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import jsPDF from 'jspdf'; 
 import 'jspdf-autotable';
@@ -12,6 +12,7 @@ const AttendanceDetailsPageAdmin = () => {
     const [selectedAttendance, setSelectedAttendance] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [userRole, setUserRole] = useState('');
     const { refCode } = useParams();
     const navigate = useNavigate();
 
@@ -73,6 +74,17 @@ const AttendanceDetailsPageAdmin = () => {
         }
     }, [refCode]);
 
+    useEffect(() => {
+        try {
+          const userInfo = JSON.parse(localStorage.getItem('userInfo')) || {};
+          setUserRole(userInfo.role || '');
+        } catch (error) {
+          console.error('Error parsing user info:', error);
+          setUserRole('');
+        }
+      }, []);
+    
+      const isSuperAdmin = () => userRole === 'superadmin';
 
      // useEffect to handle success message timeout
      useEffect(() => {
@@ -642,12 +654,12 @@ const formatDate = (dateString) => {
                                     NewComers Management
                                 </button>
 
-                                <button
-                                    onClick={() => navigate("/dashboard")}
+                                <Link
+                                    to={isSuperAdmin() ? "/admindashboard" : "/dashboard"}
                                     className="flex items-center rounded bg-primary p-3 font-medium text-white hover:bg-opacity-90"
                                 >
                                     Back to Dashboard
-                                </button>
+                                </Link>
                             </div>
                         </div>
                     </div>

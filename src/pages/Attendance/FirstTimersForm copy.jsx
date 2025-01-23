@@ -31,7 +31,17 @@ const FirstTimersForm = () => {
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target;
     
-    if (type === 'file') {
+     // Special handling for want_to_be_member
+  if (name === 'want_to_be_member') {
+    // Convert value to boolean and reset interested_department if false
+    const boolValue = value === 'true';
+    setFormData(prev => ({
+      ...prev,
+      [name]: boolValue,
+      // Reset interested_department when not a member
+      ...(boolValue ? {} : { interested_department: '' })
+    }));
+   } else if (type === 'file') {
       setFormData(prev => ({
         ...prev,
         profile_picture: files[0]
@@ -74,7 +84,7 @@ const FirstTimersForm = () => {
           params: { ref_code: refCode }, 
           headers: { 
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${accessToken}`, 
+             
           },
           
         } 
@@ -91,9 +101,6 @@ const FirstTimersForm = () => {
       // Extract date from response message
       const match = response.data.message.match(/for '(.*?)'/);
       const dateString = match ? match[1] : 'this service';
-      
-      // setSuccessMessage(`You have successfully marked your Attendance for ${dateString}`);
-      // alert("You have successfully marked your Attendance for this service");
     
       setFormData({
         first_name: '',
@@ -354,32 +361,9 @@ const FirstTimersForm = () => {
                 )}
               </div>
 
-              {/* Marital Status */}
-              <div className="mb-4.5">
-                <label className="mb-2.5 block text-black dark:text-white">
-                  Marital Status
-                </label>
-                <select
-                  id="marital_status"
-                  name="marital_status"
-                  value={formData.marital_status}
-                  onChange={handleInputChange}
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  required
-                >
-                  <option value="" disabled>Select Marital Status</option>
-                  <option value="Single">Single</option>
-                  <option value="Married">Married</option>
-                  <option value="Divorced">Divorced</option>
-                  <option value="Widowed">Widowed</option>
-                </select>
-                {errors.marital_status && (
-                  <p className="mt-1 text-sm text-red-500">{errors.marital_status[0]}</p>
-                )}
-              </div>
-
-              {/* Interested Department */}
-              <div className="mb-4.5">
+                  {/* Conditionally render Interested Department */}
+                {formData.want_to_be_member === true && (
+                  <div className="mb-4.5">
                 <label className="mb-2.5 block text-black dark:text-white">
                   Interested Department
                 </label>
@@ -411,6 +395,34 @@ const FirstTimersForm = () => {
                   <p className="mt-1 text-sm text-red-500">{errors.interested_department[0]}</p>
                 )}
               </div>
+                )}
+
+              {/* Marital Status */}
+              <div className="mb-4.5">
+                <label className="mb-2.5 block text-black dark:text-white">
+                  Marital Status
+                </label>
+                <select
+                  id="marital_status"
+                  name="marital_status"
+                  value={formData.marital_status}
+                  onChange={handleInputChange}
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  required
+                >
+                  <option value="" disabled>Select Marital Status</option>
+                  <option value="Single">Single</option>
+                  <option value="Married">Married</option>
+                  <option value="Divorced">Divorced</option>
+                  <option value="Widowed">Widowed</option>
+                </select>
+                {errors.marital_status && (
+                  <p className="mt-1 text-sm text-red-500">{errors.marital_status[0]}</p>
+                )}
+              </div>
+              
+
+          
 
               {/* Global Error Message */}
               {errors.message && (
@@ -436,9 +448,10 @@ const FirstTimersForm = () => {
               </button> */}
               <button
               type="submit"
+              disabled={isLoading}
               className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90 disabled:bg-opacity-50"
               >
-                submit
+               {isLoading ? "Submitting..." : "Submit"}
               </button>
             </div>
           </form>

@@ -12,7 +12,7 @@ const QRCodeHandler = () => {
         if (accessToken) {
           // User is authenticated, navigate to a member page or dashboard
           console.log("Authenticated user scanned. Ref code:", refCode);
-          navigate('/dashboard'); // or wherever you want authenticated users to go
+          navigate(isSuperAdmin() ? '/admindashboard' : '/dashboard');
         } else {
           // User is not authenticated, save ref code and redirect
           localStorage.setItem("attendance_ref_code", refCode);
@@ -27,6 +27,12 @@ const QRCodeHandler = () => {
   }, [refCode, navigate]);
 
   return <div>Processing QR code...</div>;
+};
+
+// Function to check if the user is a super admin
+const isSuperAdmin = () => {
+  const user = JSON.parse(localStorage.getItem("user"));
+  return user?.role === "superadmin";
 };
 
 export default QRCodeHandler;

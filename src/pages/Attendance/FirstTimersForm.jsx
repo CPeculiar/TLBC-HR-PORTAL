@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Download, Camera, SwitchCamera } from 'lucide-react';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import QrScanner from "react-qr-scanner";
 
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 
-const FirstTimersForm = () => {
-
+const FirstTimersFormSelect = () => {
+  const [userRole, setUserRole] = useState('');
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -35,6 +35,17 @@ const FirstTimersForm = () => {
       }
      }, []);
 
+     useEffect(() => {
+      try {
+        const userInfo = JSON.parse(localStorage.getItem('userInfo')) || {};
+        setUserRole(userInfo.role || '');
+      } catch (error) {
+        console.error('Error parsing user info:', error);
+        setUserRole('');
+      }
+    }, []);
+  
+    const isSuperAdmin = () => userRole === 'superadmin';
 
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target;
@@ -139,12 +150,12 @@ const FirstTimersForm = () => {
   
               {/* Back Button */}
               <div className="flex justify-center mt-6">
-                <button
-                  onClick={() => navigate("/dashboard")}
+                <Link
+                  to={isSuperAdmin() ? "/admindashboard" : "/dashboard"}
                   className="flex items-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
                 >
                   Back to Dashboard
-                </button>
+                </Link>
               </div>
             </div>
           </div>
@@ -154,4 +165,4 @@ const FirstTimersForm = () => {
   );
 };
 
-export default FirstTimersForm;
+export default FirstTimersFormSelect;

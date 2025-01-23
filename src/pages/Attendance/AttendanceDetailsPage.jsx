@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Download, Eye } from 'lucide-react';
 import { Card } from '../../components/ui/card';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import jsPDF from 'jspdf'; 
 import 'jspdf-autotable';
@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from '../../components/ui/alert';
 const AttendanceDetailsPage = () => {
     const [selectedAttendance, setSelectedAttendance] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [userRole, setUserRole] = useState('');
     const [error, setError] = useState(null);
     const { refCode } = useParams();
     const navigate = useNavigate();
@@ -27,6 +28,20 @@ const AttendanceDetailsPage = () => {
     const [updateSuccess, setUpdateSuccess] = useState(null);
     const [updateError, setUpdateError] = useState(null);
 
+
+    useEffect(() => {
+        try {
+          const userInfo = JSON.parse(localStorage.getItem('userInfo')) || {};
+          setUserRole(userInfo.role || '');
+        } catch (error) {
+          console.error('Error parsing user info:', error);
+          setUserRole('');
+        }
+      }, []);
+    
+      const isSuperAdmin = () => userRole === 'superadmin';
+
+      
 
     useEffect(() => {
         const fetchAttendanceDetails = async () => {
@@ -595,12 +610,12 @@ const formatDate = (dateString) => {
 
                             {/* Back Button */}
                             <div className="flex justify-center mt-6">
-                                <button
-                                    onClick={() => navigate("/dashboard")}
+                                <Link
+                                    to={isSuperAdmin() ? "/admindashboard" : "/dashboard"}
                                     className="flex items-center rounded bg-primary p-3 font-medium text-white hover:bg-opacity-90"
                                 >
                                     Back to Dashboard
-                                </button>
+                                </Link>
                             </div>
                         </div>
                     </div>

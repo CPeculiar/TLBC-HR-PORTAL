@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { Camera, SwitchCamera } from "lucide-react";
 import QrScanner from "react-qr-scanner";
@@ -14,6 +14,7 @@ const AttendanceMarkerPage = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [userRole, setUserRole] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -42,6 +43,19 @@ const AttendanceMarkerPage = () => {
         setError("Unable to access camera. Please check your device settings.");
       });
   }, []);
+
+  useEffect(() => {
+    try {
+      const userInfo = JSON.parse(localStorage.getItem('userInfo')) || {};
+      setUserRole(userInfo.role || '');
+    } catch (error) {
+      console.error('Error parsing user info:', error);
+      setUserRole('');
+    }
+  }, []);
+
+  const isSuperAdmin = () => userRole === 'superadmin';
+
 
   const handleScan = async (data) => {
     if (data) {
@@ -190,12 +204,12 @@ const AttendanceMarkerPage = () => {
 
          {/* Back Button */}
               <div className="flex justify-center mt-6">
-                <button
-                  onClick={() => navigate("/dashboard")}
+                <Link
+                  to={isSuperAdmin() ? "/admindashboard" : "/dashboard"}
                   className="flex items-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
                 >
                   Back to Dashboard
-                </button>
+                </Link>
               </div>
             </div>
             </div>
