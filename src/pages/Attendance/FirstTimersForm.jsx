@@ -65,12 +65,6 @@ const FirstTimersForm = () => {
   }
 
   try {
-    const accessToken = localStorage.getItem("accessToken");
-    if (!accessToken) {
-      alert("Access token not found. Please login first.");
-      navigate("/");
-      return;
-    }
 
       // Extract date from response message
       const match = response.data.message.match(/for '(.*?)'/);
