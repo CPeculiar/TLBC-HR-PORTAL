@@ -235,6 +235,16 @@ useEffect(() => {
      }
        />
 
+     <Route path="/returningNewcomers/:refcode" element={
+      <>
+      <PageTitle title="Returning NewComer's form" />
+      <ReturningNewComers />
+        </>
+     }
+       />
+
+
+
 
 
      <Route path="*" element={
@@ -282,7 +292,7 @@ useEffect(() => {
       <Route path="/forms2/" element={withDefaultLayout(<NewcomerForm2 />, "New Comers form")} />
       {/* <Route path="/form/:ref_code" element={withDefaultLayout(<FirstTimersFormCopy />, "First Timer's form copy")} /> */}
       <Route path="/attendanceDetails/:refCode" element={withDefaultLayout(<AttendanceDetailsPage />, "Attendance Details Page")} />
-      <Route path="/returningNewcomers/:refcode" element={withDefaultLayout(<ReturningNewComers />, "Returning NewComers")} />
+      {/* <Route path="/returningNewcomers/:refcode" element={withDefaultLayout(<ReturningNewComers />, "Returning NewComers")} /> */}
 
       <Route path="/attendancereportadmin" element={withDefaultLayout(<AttendanceReportAdmin />, "Attendance Admin Report")} />
       <Route path="/attendancedetailspageadmin/:refCode" element={withDefaultLayout(<AttendanceDetailsPageAdmin />, "Attendance Details Admin")} />
