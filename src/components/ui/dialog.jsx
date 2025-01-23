@@ -17,7 +17,7 @@ export const Dialog = ({ open, onOpenChange, children }) => {
       data-overlay
       onClick={handleClose}
     >
-      <div className="bg-white rounded-md shadow-lg p-6 w-full max-w-lg">
+      <div className="bg-white rounded-md shadow-lg w-full max-w-[95vw] sm:max-w-[600px] p-4 sm:p-6 md:p-8">
         {children}
       </div>
     </div>,
@@ -39,4 +39,10 @@ export const DialogTitle = ({ children }) => (
 
 export const DialogDescription = ({ children }) => (
   <p className="text-sm text-gray-600 mt-2">{children}</p>
+);
+
+export const DialogFooter = ({ children }) => (
+  <div className="border-t pt-3 mt-4 flex justify-end space-x-2">
+    {children}
+  </div>
 );

@@ -27,6 +27,7 @@ import {
 import { DropdownMenu, DropdownItem } from '../../components/ui/DropdownMenu';
 import { Alert, AlertDescription } from '../../components/ui/alert';
 import { Button } from '../../components/ui/button';
+
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 
 const TopUpManagement = () => {
@@ -82,7 +83,7 @@ const TopUpManagement = () => {
       setAccounts(response.data.results);
       setIsLoading(false);
     } catch (error) {
-      setErrorMessage('Failed to fetch accounts');
+      setErrorMessage(error.response?.data?.detail ||'Failed to fetch accounts');
       setIsLoading(false);
     }
   };
@@ -227,7 +228,11 @@ const TopUpManagement = () => {
       formData.append('purpose', topupPurpose);
       if (topupFile) formData.append('files', topupFile);
 
-      await axios.post('https://tlbc-platform-api.onrender.com/api/finance/topup/', formData);
+      await axios.post('https://tlbc-platform-api.onrender.com/api/finance/topup/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
       
       setSuccessModal({ message: 'TopUp request created successfully' });
       setSelectedAccount('');

@@ -469,7 +469,7 @@ const CentralRemittanceManagement = () => {
                             className="bg-blue-500 dark:bg-blue-600 text-white p-1 rounded hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors flex items-center"
                             disabled={isLoading}
                           >
-                            <DollarSign size={16} className="mr-1" /> Paid
+                            <CheckCircle size={16} className="mr-1" /> Paid
                           </button>
                         </>
                       )}

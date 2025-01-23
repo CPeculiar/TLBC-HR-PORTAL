@@ -20,6 +20,8 @@ const ExpensesManagement = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedExpenseReference, setSelectedExpenseReference] = useState(null);
 
+  // Mobile menu close handler
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   // Fetch bank accounts and expenses on component mount
   useEffect(() => {
@@ -205,78 +207,79 @@ const renderUpdates = () => (
   </div>
 );
 
+ // Responsive design improvements
+ const cardStyle = "bg-white dark:bg-boxdark rounded-xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl";
+ const buttonStyle = "inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-all duration-300";
+ const primaryButtonStyle = `${buttonStyle} bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700`;
+ const secondaryButtonStyle = `${buttonStyle} bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600`;
+
 
   // Render sections with improved responsiveness
   const renderCreateExpenses = () => (
-    <div className="w-full max-w-md mx-auto bg-white dark:bg-boxdark shadow-md rounded-lg p-6">
-    <h2 className="text-2xl mb-6 font-bold text-blue-600 dark:text-blue-400 text-center flex items-center justify-center">
-      <PlusCircle className="mr-2 text-blue-600 dark:text-blue-400" /> 
-      <span className="text-black dark:text-white">Create Expense</span>
-    </h2>
-      <div className="space-y-4">
-        <select 
-          value={selectedAccount} 
-          onChange={(e) => setSelectedAccount(e.target.value)}
-          className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500 transition-all 
-            bg-white dark:bg-form-input 
-            text-black dark:text-white 
-            border-stroke dark:border-form-strokedark 
-            focus:border-primary dark:focus:border-primary"
-        >
-          <option value="" className="bg-white dark:bg-boxdark text-black dark:text-white">Select Bank Account</option>
-          {bankAccounts.map(account => (
-            <option key={account.code} value={account.code}  className="bg-white dark:bg-boxdark text-black dark:text-white">
-              {account.account_name}
-            </option>
-          ))}
-        </select>
+    <div className={`${cardStyle} max-w-xl mx-auto`}>
+      <h2 className="text-2xl mb-8 font-bold text-gray-800 dark:text-white text-center flex items-center justify-center">
+        <PlusCircle className="mr-3 h-6 w-6 text-blue-500" /> 
+        Create New Expense
+      </h2>
+      <form className="space-y-6">
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Bank Account</label>
+          <select 
+            value={selectedAccount} 
+            onChange={(e) => setSelectedAccount(e.target.value)}
+            className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700"
+          >
+            <option value="">Select Account</option>
+            {bankAccounts.map(account => (
+              <option key={account.code} value={account.code}>
+                {account.account_name}
+              </option>
+            ))}
+          </select>
+        </div>
 
-        <input 
-          type="number" 
-          placeholder="Amount" 
-          value={expenseAmount}
-          onChange={(e) => setExpenseAmount(e.target.value)}
-          className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500 transition-all 
-            bg-white dark:bg-form-input 
-            text-black dark:text-white 
-            border-stroke dark:border-form-strokedark 
-            focus:border-primary dark:focus:border-primary"
-        />
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Amount (₦)</label>
+          <input 
+            type="number" 
+            value={expenseAmount}
+            onChange={(e) => setExpenseAmount(e.target.value)}
+            className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700"
+            placeholder="Enter amount"
+          />
+        </div>
 
-        <input 
-          type="text" 
-          placeholder="Purpose" 
-          value={expensePurpose}
-          onChange={(e) => setExpensePurpose(e.target.value)}
-          className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500 transition-all 
-            bg-white dark:bg-form-input 
-            text-black dark:text-white 
-            border-stroke dark:border-form-strokedark 
-            focus:border-primary dark:focus:border-primary"
-        />
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Purpose</label>
+          <input 
+            type="text" 
+            value={expensePurpose}
+            onChange={(e) => setExpensePurpose(e.target.value)}
+            className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700"
+            placeholder="Enter purpose"
+          />
+        </div>
 
-
-        <div className="flex items-center space-x-4">
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Supporting Documents</label>
           <input 
             type="file" 
             onChange={(e) => setExpenseFile(e.target.files[0])}
-            className="flex-grow 
+            className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700
               file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 
               file:text-sm file:bg-blue-50 file:text-blue-700 
-              dark:file:bg-blue-900 dark:file:text-blue-300 
-              hover:file:bg-blue-100 dark:hover:file:bg-blue-800"
+              dark:file:bg-blue-900 dark:file:text-blue-300"
           />
         </div>
 
         <button 
+          type="button"
           onClick={handleCreateExpense} 
-          className="w-full bg-blue-500 text-white p-3 rounded-md 
-            hover:bg-blue-600 transition-colors flex items-center justify-center 
-            dark:bg-blue-700 dark:hover:bg-blue-600"
+          className={`${primaryButtonStyle} w-full`}
         >
-          <PlusCircle className="mr-2" /> Add Expense
+          <PlusCircle className="mr-2 h-5 w-5" /> Create Expense
         </button>
-      </div>
+      </form>
     </div>
   );
 
@@ -301,75 +304,61 @@ const formatDate = (dateString, prefix = '') => {
 
   // Render lists with responsive tables
   const renderTable = (data, columns, renderActions = null) => (
-    <div className="w-full overflow-x-auto">
-    {data.length === 0 ? (
-      <div className="text-center p-4 text-gray-500 dark:text-gray-400">No expenses found</div>
-    ) : (
-      <table className="w-full bg-white dark:bg-boxdark shadow-md rounded-lg overflow-hidden">
-        <thead className="bg-blue-50 dark:bg-blue-900">
-          <tr>
-              {columns.map(column => (
-                <th key={column} 
-                  className="p-3 text-left text-xs font-medium text-blue-700 dark:text-blue-300 uppercase tracking-wider whitespace-nowrap"
-                  >
-                  {column}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((item, index) => (
-              <tr key={index} 
-                className="border-b hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors 
-                  border-stroke dark:border-strokedark"
-              >
-                {columns.map((column, colIndex) => {
-                  let value;
-                  switch(column.toLowerCase()) {
-                    case 'account':
-                      value = item.account?.account_name || item.account || 'N/A';
-                      break;
-                    case 'amount':
-                      value = item.amount ? `₦${Number(item.amount).toFixed(2)}` : 'N/A';
-                      break;
-                    case 'purpose':
-                      value = item.purpose || 'N/A';
-                      break;
-                    case 'status':
-                      value = item.status || 'N/A';
-                      break;
-                      case 'initiator':
-                    value = extractName(item.initiator);
-                    break;
-                  case 'auditor':
-                    value = extractName(item.auditor);
-                    break;
-                  case 'initiated_at':
-                    value = formatDate(item.initiated_at);
-                    break;
-                  case 'approved_at':
-                    value = formatDate(item.approved_at);
-                    break;
-                    case 'files':
-                      value = item.files ? `${item.files.length} file(s)` : 'No files';
-                      break;
-                    default:
-                      value = item[column.toLowerCase()] || 'N/A';
-                  }
-                  return (
-                    <td key={colIndex} className="p-3 text-sm whitespace-nowrap overflow-hidden text-ellipsis max-w-xs">
-                      {value}
-                    </td>
-                  );
-                })}
-                {renderActions && renderActions(item)}
+    <div className="overflow-x-auto rounded-xl shadow-lg">
+      <div className="inline-block min-w-full align-middle">
+        {data.length === 0 ? (
+          <div className="text-center p-8 bg-white dark:bg-boxdark rounded-xl">
+            <p className="text-gray-500 dark:text-gray-400">No expenses found</p>
+          </div>
+        ) : (
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className="bg-gray-50 dark:bg-gray-800">
+              <tr>
+                {columns.map(column => (
+                  <th key={column} className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    {column}
+                  </th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+            </thead>
+            <tbody className="bg-white dark:bg-boxdark divide-y divide-gray-200 dark:divide-gray-700">
+              {data.map((item, index) => (
+                <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                  {columns.map((column, colIndex) => (
+                    <td key={colIndex} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
+                      {formatTableCell(item, column)}
+                    </td>
+                  ))}
+                  {renderActions && renderActions(item)}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
+
+  // Helper function to format table cell content
+  const formatTableCell = (item, column) => {
+    switch(column.toLowerCase()) {
+      case 'amount':
+        return item.amount ? `₦${Number(item.amount).toLocaleString('en-NG', { minimumFractionDigits: 2 })}` : 'N/A';
+      case 'initiator':
+      case 'auditor':
+        return extractName(item[column.toLowerCase()]);
+      case 'initiated_at':
+      case 'approved_at':
+        return formatDate(item[column.toLowerCase()]);
+      case 'files':
+        return item.files ? `${item.files.length} file(s)` : 'No files';
+      default:
+        // return item[column.toLowerCase()] || 'N/A';
+        const cellValue = item[column.toLowerCase()];
+        return typeof cellValue === 'object' ? JSON.stringify(cellValue) : cellValue || 'N/A';
+
+    }
+  };
 
   
   const renderExpensesList = () => (
@@ -461,50 +450,72 @@ const formatDate = (dateString, prefix = '') => {
     );
   };
 
+  // Mobile navigation with close button
+  const MobileNav = () => (
+    <div className="fixed inset-0 bg-white dark:bg-boxdark z-50 overflow-y-auto">
+      <div className="flex justify-between items-center p-4 border-b dark:border-gray-700">
+        <h2 className="text-xl font-bold text-gray-800 dark:text-white">Menu</h2>
+        <button 
+          onClick={closeMobileMenu}
+          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+        >
+          <X className="h-6 w-6 text-gray-500 dark:text-gray-400" />
+        </button>
+      </div>
+      <nav className="p-4 space-y-2">
+        <NavButton section="expenses-list" icon={FileText} />
+        <NavButton section="create-expenses" icon={PlusCircle} />
+        <NavButton section="approvals" icon={CheckCircle} />
+        <NavButton section="updates" icon={XCircle} />
+      </nav>
+    </div>
+  );
+
+
   return (
     <>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
     <Breadcrumb pageName="Expenses Management"  className="text-black dark:text-white" />
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-black dark:text-white">
+
+    
     {/* Mobile Header */}
-    <div className="md:hidden bg-white dark:bg-boxdark shadow-md p-4 flex justify-between items-center">
-      <h1 className="text-xl font-bold text-blue-600 dark:text-blue-400">Expenses Management</h1>
+    <div className="md:hidden sticky top-0 z-40 bg-white dark:bg-boxdark shadow-md">
+        <div className="flex justify-between items-center p-4">
+      <h1 className="text-xl font-bold text-gray-800 dark:text-white">Expenses Management</h1>
       <button 
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="text-blue-600 dark:text-blue-400"
-      >
-          {isMobileMenuOpen ? <X /> : <Menu />}
-        </button>
+        className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          >
+            <Menu className="h-6 w-6 text-gray-500 dark:text-gray-400" />
+          </button>
+      </div>
       </div>
 
       {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 bg-white z-40 overflow-y-auto dark:text-white">
-          <div className="p-4 dark:text-white">
+      {isMobileMenuOpen && <MobileNav />}
+
+
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-6 md:flex gap-6">
+        {/* Desktop Sidebar */}
+        <aside className="hidden md:block w-64 flex-shrink-0">
+          <div className={`${cardStyle} space-y-2`}>
             <NavButton section="expenses-list" icon={FileText} />
             <NavButton section="create-expenses" icon={PlusCircle} />
             <NavButton section="approvals" icon={CheckCircle} />
             <NavButton section="updates" icon={XCircle} />
           </div>
-        </div>
-      )}
-
-      {/* Main Content */}
-      <div className="container mx-auto p-4 md:flex dark:text-white">
-        {/* Desktop Sidebar */}
-        <div className="hidden md:block w-64 mr-4 space-y-2 dark:text-white">
-          <NavButton section="expenses-list" icon={FileText} />
-          <NavButton section="create-expenses" icon={PlusCircle} />
-          <NavButton section="approvals" icon={CheckCircle} />
-          <NavButton section="updates" icon={XCircle} />
-        </div>
+        </aside>
 
         {/* Content Area */}
-        <div className="flex-1">
-          {activeSection === 'create-expenses' && renderCreateExpenses()}
-          {activeSection === 'expenses-list' && renderExpensesList()}
-          {activeSection === 'approvals' && renderApprovals()}
-          {activeSection === 'updates' && renderUpdates()}
-        </div>
+        <main className="flex-1 space-y-6">
+          <div className={cardStyle}>
+            {activeSection === 'create-expenses' && renderCreateExpenses()}
+            {activeSection === 'expenses-list' && renderExpensesList()}
+            {activeSection === 'approvals' && renderApprovals()}
+            {activeSection === 'updates' && renderUpdates()}
+          </div>
+        </main>
       </div>
 
       {/* Error Toast */}
@@ -551,7 +562,7 @@ const formatDate = (dateString, prefix = '') => {
       )}
 
     </div>
-
+    
     </>
   );
 };

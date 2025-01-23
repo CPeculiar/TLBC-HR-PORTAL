@@ -1,6 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card';
+import { Alert, AlertDescription } from '../../components/ui/alert';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "../../components/ui/dialog";
+import { Button } from "../../components/ui/button";
+import { CheckCircle, XCircle } from 'lucide-react';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 
 const CentralFundTransfer = () => {
@@ -20,6 +31,10 @@ const CentralFundTransfer = () => {
   const [transferError, setTransferError] = useState('');
   const [showTransferSuccess, setShowTransferSuccess] = useState(false);
   const [transferSuccessDetails, setTransferSuccessDetails] = useState(null);
+  const [errorDetails, setErrorDetails] = useState({
+    code: '',
+    message: ''
+  });
 
   // Fetch accounts on component mount
   useEffect(() => {
@@ -63,6 +78,7 @@ const CentralFundTransfer = () => {
 
     setIsTransferring(true);
     setTransferError('');
+    setErrorDetails({ code: '', message: '' });
 
     try {
       await axios.post('https://tlbc-platform-api.onrender.com/api/finance/central/accounts/transfer/', {
@@ -80,13 +96,38 @@ const CentralFundTransfer = () => {
       });
       
       setShowTransferSuccess(true);
-      resetForm();
+      // resetForm();
       await fetchAccounts();
     } catch (error) {
-      setTransferError(handleErrorMessage(error));
+      const errorCode = error.response?.data?.code || 'UNKNOWN_ERROR';
+      const errorMessage = handleErrorMessage(error);
+      
+      setErrorDetails({
+        code: errorCode,
+        message: errorMessage
+      });
+      setTransferError(errorMessage);
     } finally {
       setIsTransferring(false);
     }
+  };
+
+  const handleErrorMessage = (error) => {
+    // Map error codes to user-friendly messages
+    const errorMessages = {
+      'INSUFFICIENT_FUNDS': 'Insufficient funds in the selected account',
+      'INVALID_ACCOUNT': 'One or more account numbers are invalid',
+      'ACCOUNT_INACTIVE': 'The selected account is inactive',
+      'TRANSFER_LIMIT_EXCEEDED': 'Transfer amount exceeds daily limit',
+      'INVALID_AMOUNT': 'Invalid transfer amount',
+      'UNAUTHORIZED': 'You are not authorized to perform this transfer',
+    };
+
+    const errorCode = error.response?.data?.code;
+    return errorMessages[errorCode] || 
+           error.response?.data?.message || 
+           error.response?.data?.detail || 
+           'An unexpected error occurred';
   };
 
   const resetForm = () => {
@@ -98,14 +139,15 @@ const CentralFundTransfer = () => {
     setBeneficiaryAccount('');
     setTransferError('');
     setShowTransferSuccess(false);
-    setTransferSuccessDetails(null);    
+    setTransferSuccessDetails(null); 
+    fetchAccounts();   
   };
 
-  const handleErrorMessage = (error) => {
-    return error.response?.data?.message || 
-           error.response?.data?.detail || 
-           'An unexpected error occurred';
-  };
+  // const handleErrorMessage = (error) => {
+  //   return error.response?.data?.message || 
+  //          error.response?.data?.detail || 
+  //          'An unexpected error occurred';
+  // };
 
   const showErrorMessage = (message) => {
     setTransferError(message);
@@ -225,9 +267,63 @@ const CentralFundTransfer = () => {
 
                     {transferError && (
                       <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                        {transferError}
+                      <XCircle className="h-4 w-4" />
+                      <AlertDescription>
+                      {transferError}
+                    </AlertDescription>
+                        {/* {transferError} */}
                       </div>
                     )}
+
+                    {/* Success Modal using Shadcn Dialog */}
+                    {showTransferSuccess && (         
+      <Dialog open={showTransferSuccess} onOpenChange={setShowTransferSuccess}>
+      <DialogContent className="bg-blue-500">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CheckCircle className="h-5 w-5 text-green-500" />
+              Fund Transfer Successful
+            </DialogTitle>
+            <DialogDescription>
+              Your transfer has been processed successfully.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="font-semibold mb-1">From Account:</p>
+                <p className="text-sm">{transferSuccessDetails?.fromAccount}</p>
+              </div>
+              <div>
+                <p className="font-semibold mb-1">To Account:</p>
+                <p className="text-sm">{transferSuccessDetails?.toAccount}</p>
+              </div>
+              <div>
+                <p className="font-semibold mb-1">Amount:</p>
+                <p className="text-sm">₦{transferSuccessDetails?.amount}</p>
+              </div>
+              <div>
+                <p className="font-semibold mb-1">Purpose:</p>
+                <p className="text-sm">{transferSuccessDetails?.purpose}</p>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button 
+              onClick={() => {
+                resetForm();
+              }}
+              className="w-full sm:w-auto"
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    )}
+
 
                     <div className="flex gap-4">
                       <button
@@ -253,8 +349,9 @@ const CentralFundTransfer = () => {
         </Card>
       </div>
 
-      {/* Success Modal */}
-      {showTransferSuccess && (
+      
+    {/*  Success Modal */}
+       {/* {showTransferSuccess && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-black bg-opacity-50"></div>
           <div className="relative bg-white dark:bg-boxdark rounded-lg p-6 max-w-md w-full shadow-xl">
@@ -287,7 +384,7 @@ const CentralFundTransfer = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </>
   );
 };
