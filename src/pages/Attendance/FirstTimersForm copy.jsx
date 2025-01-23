@@ -67,13 +67,6 @@ const FirstTimersForm = () => {
 
 
   try {
-    const accessToken = localStorage.getItem("accessToken");
-    if (!accessToken) {
-      alert("Access token not found. Please login first.");
-      navigate("/");
-      return;
-    }
-
       const response = await axios.patch(
         `https://tlbc-platform-api.onrender.com/api/attendance/${refCode}/newcomers/`,
         formDataToSubmit,
