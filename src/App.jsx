@@ -213,11 +213,20 @@ useEffect(() => {
       />
            <Route path="/sidebarcopy"  element={
           <>
-            <PageTitle title="Sidebar-copy | TLBC Portal" />
+            <PageTitle title="Sidebar-copy" />
             <SidebarCopy />
           </>
         }
       />
+      
+      <Route path="/forms/:ref_code" element={
+        <>
+        <PageTitle title="First Timer's form" />
+        <FirstTimersForm />
+        </>
+      }
+      />
+
      <Route path="*" element={
           <>
             <PageTitle title="NotFound | TLBC Portal" />
@@ -258,7 +267,7 @@ useEffect(() => {
       <Route path="/attendancereport" element={withDefaultLayout(<AttendanceReport />, "Attendance Report")} />
       <Route path="/markattendance" element={withDefaultLayout(<AttendanceMarkerPage />, "Mark Attendance")} />
       <Route path="/form" element={withDefaultLayout(<NewcomerForm />, "First Timer's form")} />
-      <Route path="/forms/:ref_code" element={withDefaultLayout(<FirstTimersForm />, "First Timer's form")} />
+      {/* <Route path="/forms/:ref_code" element={withDefaultLayout(<FirstTimersForm />, "First Timer's form")} /> */}
       <Route path="/forms/" element={withDefaultLayout(<FirstTimersForm />, "First Timer's form")} />
       <Route path="/forms2/" element={withDefaultLayout(<NewcomerForm2 />, "New Comers form")} />
       <Route path="/form/:ref_code" element={withDefaultLayout(<FirstTimersFormCopy />, "First Timer's form copy")} />
