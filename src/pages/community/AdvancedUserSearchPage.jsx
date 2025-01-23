@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
@@ -8,23 +8,25 @@ import UserProfileCard from './UserProfileCard';
 import UserProfileCardAdmin from '../User Management/UserProfileCardAdmin';
 
 // Predefined lists for dropdowns
-const CHURCHES = [
-  "TLBC Awka", "TLBC Ekwulobia", "TLBC Ihiala", "TLBC Nnewi", 
-  "TLBC Onitsha", "TLBCM Agulu", "TLBCM COOU Igbariam",
-  "TLBCM COOU Uli", "TLBCM FUTO", "TLBCM Mbaukwu",
-  "TLBCM Mgbakwu", "TLBCM NAU", "TLBCM Nekede", 
-  "TLBCM Oko", "TLBCM Okofia", "TLBCM UNILAG",
-  "TLTN Awka", "TLTN Agulu", "TLTN Umuokpu",
-];
+// const CHURCHES = [
+//   "TLBC Awka", "TLBC Ekwulobia", "TLBC Ihiala", "TLBC Nnewi", 
+//   "TLBC Onitsha", "TLBCM Agulu", "TLBCM COOU Igbariam",
+//   "TLBCM COOU Uli", "TLBCM FUTO", "TLBCM Mbaukwu",
+//   "TLBCM Mgbakwu", "TLBCM NAU", "TLBCM Nekede", 
+//   "TLBCM Oko", "TLBCM Okofia", "TLBCM UNILAG",
+//   "TLTN Awka", "TLTN Agulu", "TLTN Umuokpu",
+// ];
 
-const ZONES = [
-  "Awka Zone", "Ekwulobia Zone", "Nnewi Zone", 
-  "Owerri Zone"
-];
+// const ZONES = [
+//   "Awka Zone", "Ekwulobia Zone", "Nnewi Zone", 
+//   "Owerri Zone"
+// ];
 
 const COUNTRIES = [
-  "Nigeria", "Ghana", "Kenya", "Uganda", 
-  "South Africa", "United States", "United Kingdom"
+  "Nigeria", "Ghana", "Kenya", "Uganda", "Egypt", "Ethiopia", "Morocco",
+  "South Africa", "Senegal", "Ivory Coast", "Cameroon", "Rwanda", "Zambia", 
+  "United States", "United Kingdom", "Canada", "Australia", "Switzerland",
+  "Germany", "France", "Italy", "Spain", "Norway", "Argentina", "England"
 ];
 
 const STATES = [
@@ -47,7 +49,43 @@ const AdvancedUserSearchPage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isUsernameSearch, setIsUsernameSearch] = useState(false);
     const navigate = useNavigate();
+    const [churches, setChurches] = useState([]);
+    const [zones, setZones] = useState([]);
 
+ // Fetch churches and zones on component mount
+ useEffect(() => {
+  const fetchChurchesAndZones = async () => {
+      const accessToken = localStorage.getItem("accessToken");
+      if (!accessToken) return;
+
+      try {
+          const [churchResponse, zoneResponse] = await Promise.all([
+              axios.get('https://tlbc-platform-api.onrender.com/api/churches/', {
+                  headers: { Authorization: `Bearer ${accessToken}` },
+                  params: { limit: 50 }
+              }),
+              axios.get('https://tlbc-platform-api.onrender.com/api/zones/', {
+                  headers: { Authorization: `Bearer ${accessToken}` },
+                  params: { limit: 20 }
+              })
+          ]);
+
+          setChurches(churchResponse.data.results.map(church => ({
+              name: church.name,
+              slug: church.slug
+          })));
+
+          setZones(zoneResponse.data.results.map(zone => ({
+              name: zone.name,
+              slug: zone.slug
+          })));
+      } catch (error) {
+          console.error('Error fetching churches and zones:', error);
+      }
+  };
+
+  fetchChurchesAndZones();
+}, []);
 
   // Color constants
   const primaryColor = '#3c50e0';
@@ -59,8 +97,9 @@ const AdvancedUserSearchPage = () => {
   // Available search field options
   const SEARCH_FIELDS = [
     { key: 'username', label: 'Username', type: 'username' }, 
-    { key: 'church', label: 'Church', type: 'select', options: CHURCHES },
-    { key: 'zone', label: 'Zone', type: 'select', options: ZONES },
+    { key: 'phone_number', label: 'Phone Number', type: 'tel' },
+    { key: 'church', label: 'Church', type: 'select', options: churches.map(church => church.name) },
+    { key: 'zone', label: 'Zone', type: 'select', options: zones.map(zone => zone.name) },
     { key: 'gender', label: 'Gender', type: 'select', options: ['Male', 'Female'] },
     { key: 'invited_by', label: 'Invited By', type: 'text' },
     { key: 'origin_state', label: 'State of Origin', type: 'select', options: STATES },
@@ -88,6 +127,17 @@ const AdvancedUserSearchPage = () => {
         return;
       }
 
+       // Convert church and zone to their respective slugs
+       if (params.church) {
+        const churchSlug = churches.find(church => church.name === params.church)?.slug;
+        if (churchSlug) params.church = churchSlug;
+    }
+
+    if (params.zone) {
+        const zoneSlug = zones.find(zone => zone.name === params.zone)?.slug;
+        if (zoneSlug) params.zone = zoneSlug;
+    }
+    
        // Check if we're searching by username
        const usernameField = searchFields.find(field => field.key === 'username');
        if (usernameField && usernameField.value) {

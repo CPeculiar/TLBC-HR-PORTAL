@@ -305,7 +305,6 @@ useEffect(() => {
       {/* Community */}
       <Route path="/UserSearchPage" element={withDefaultLayout(<UserSearchPage />, "Search Members")} />
       <Route path="/UserProfileCard" element={withDefaultLayout(<UserProfileCard />, "User Profile Card")} />
-      <Route path="/AdvancedUserSearchPage" element={withDefaultLayout(<AdvancedUserSearchPage />, "User Profile Card")} />
       <Route path="/AboutTLBC" element={withDefaultLayout(<AboutTLBC />, "About TLBC")} />
 
 
@@ -366,6 +365,7 @@ useEffect(() => {
       <Route path="/userPermissions" element={withDefaultLayout(<UserPermissions />, "User Permissions")} />
       <Route path="/userSearchAdmin" element={withDefaultLayout(<UserSearchAdmin />, "Admin User Search")} />
       <Route path="/edituserdetailsform" element={withDefaultLayout(<EditUserDetailsForm />, "Edit User's Details Form")} />
+      <Route path="/AdvancedUserSearchPage" element={withDefaultLayout(<AdvancedUserSearchPage />, "User Profile Card")} />
       
 
       
