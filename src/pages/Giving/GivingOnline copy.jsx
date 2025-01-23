@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate, useSearchParams, Link, useLocation } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card';
 import Paystack from '@paystack/inline-js';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 
 const GivingOnline = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [churches, setChurches] = useState([]);
   const [nextPage, setNextPage] = useState(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
   const initialFormState = {
     type: 'STEWARDSHIP',
     amount: '',
@@ -21,49 +19,13 @@ const GivingOnline = () => {
     detail: '',
   };
    const [formData, setFormData] = useState(initialFormState);
+ 
 
   const popup = new Paystack()
 
   useEffect(() => {
-    // Check for Paystack callback parameters
-    const searchParams = new URLSearchParams(location.search);
-    const trxref = searchParams.get('trxref');
-    const reference = searchParams.get('reference');
-
-    if (trxref && reference) {
-      // Verify the transaction
-      verifyPaystackTransaction(reference);
-    }
     fetchChurches();
-  }, [location]);
-
-
-  const verifyPaystackTransaction = async (reference) => {
-    try {
-      const accessToken = localStorage.getItem("accessToken");
-      const response = await axios.get(
-        `https://tlbc-platform-api.onrender.com/api/finance/giving/${reference}/verify/`, 
-        {
-          headers: { 
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-        // If transaction is confirmed, redirect to the callback URL
-        if (response.data.confirmed) {
-          const redirectUrl = response.data.redirecturl || 
-            `https://tlbc-hr-portal.vercel.app/givingrecords?trxref=${trxref}&reference=${reference}`;
-          
-          window.location.href = redirectUrl;
-        }
-      } catch (error) {
-        console.error('Transaction verification error:', error);
-      }
-    };
-
-
+  }, []);
 
   const resetForm = () => {
     setFormData(initialFormState);
@@ -127,8 +89,6 @@ const GivingOnline = () => {
   };
      
 
-
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -153,46 +113,12 @@ const GivingOnline = () => {
           }
         }
       );
-      
+
       if (response.status === 201 && response.data) {
-
-        popup.resumeTransaction(response.data.access_code, {
-          onSuccess: async (paystackResponse) => {
-
-        // Set processing state to true
-        setIsProcessing(true);
-
-            try {
-              // Verify transaction first
-              const verifyResponse = await axios.get(
-               `https://tlbc-platform-api.onrender.com/api/finance/giving/${paystackResponse.reference}/verify/`,
-                {
-                  headers: { 
-                    Authorization: `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json'
-                  }
-                }
-              );
-
-          // If transaction is confirmed, redirect to callback URL
-          if (verifyResponse.data.confirmed) {
-            window.location.href = paystackResponse.redirecturl;
-          } else {
-            throw new Error('Transaction verification failed');
-          }
-        } catch (verifyError) {
-          // Reset processing state
-          setIsProcessing(false);
-          setError('Unable to verify transaction');
-          console.error('Verification error:', verifyError);
-        }
-      },
-      onClose: () => {
-        setError('Transaction was cancelled');
-      }
-    });
-    resetForm();   
-        // const popup = new Paystack()   
+        
+        // const popup = new Paystack()
+        popup.resumeTransaction(response.data.access_code)
+        resetForm();
 
       } else {
         throw new Error('Invalid response from server');
@@ -222,6 +148,7 @@ const GivingOnline = () => {
       setIsLoading(false);
     }
   };
+
  
  
   return (
@@ -329,16 +256,6 @@ const GivingOnline = () => {
         </form>
       </CardContent>
     </Card>
-
-
-{isProcessing && (
-  <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-50">
-    <div className="text-center text-white">
-      <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-white mx-auto mb-4"></div>
-      <p>Please hold on.....</p>
-    </div>
-  </div>
-)}
     </>
   );
 };
