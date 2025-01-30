@@ -189,7 +189,7 @@ const GiveOffline = () => {
           )}
 
           <div>
-            <label className="block text-sm font-medium mb-1">Type</label>
+            <label className="block text-sm font-medium mb-1">Type of Giving</label>
             <select
               name="type"
               value={formData.type}
@@ -201,7 +201,23 @@ const GiveOffline = () => {
               <option value="OFFERING">Offering</option>
               <option value="PROJECT">Project</option>
               <option value="WELFARE">Welfare</option>
+              <option value="OTHERS">Others</option>
             </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Description</label>
+            <input
+              type="text"
+              name="detail"
+              value={formData.detail}
+              onChange={handleInputChange}
+              className="w-full p-2 border rounded"
+              placeholder="Enter details about your giving"
+              maxLength={30}
+              required
+            />
+            <small>{30 - formData.detail.length} characters remaining</small>
           </div>
 
           <div>
@@ -233,21 +249,6 @@ const GiveOffline = () => {
               placeholder="Enter amount"
               required
             />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Description</label>
-            <input
-              type="text"
-              name="detail"
-              value={formData.detail}
-              onChange={handleInputChange}
-              className="w-full p-2 border rounded"
-              placeholder="Enter details about your giving"
-              maxLength={30}
-              required
-            />
-            <small>{30 - formData.detail.length} characters remaining</small>
           </div>
 
           <div>

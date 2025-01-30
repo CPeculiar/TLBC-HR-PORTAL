@@ -3,13 +3,15 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import userThree from '../images/user/user-03.png';
 import axios from 'axios';
-import { X, Edit2  } from 'lucide-react';
+import { X, Edit2, Calendar  } from 'lucide-react';
 import authService from '../js/services/authService';
 import { Camera, Loader } from 'lucide-react';
-import DatePicker from 'react-datepicker';
+import DatePicker from "react-multi-date-picker"
 import 'react-datepicker/dist/react-datepicker.css';
 import { nigerianStates } from '../utils/nigerianStates';
 import ProfilePicture from './ProfilePicture';
+import { BiMap } from "react-icons/bi";
+import { FaFlag, FaCity, FaFileAlt, FaClipboardCheck } from "react-icons/fa";
 
 const Settings = ({ onUpdateSuccess, onFileSelect }) => {
   const [isEditMode, setIsEditMode] = useState(false);
@@ -88,6 +90,12 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
     fetchProfileData();
   }, []);
 
+  const countries = [
+    "Nigeria", "United States", "Canada", "United Kingdom", "Germany",
+    "France", "Australia", "India", "China", "Brazil", "South Africa",
+     "Benin", "Cameroon", "Chad", "Ghana", "Niger",  "Ivory Coast",
+  "Togo", "Burkina Faso", "Mali", "Central African Republic"
+  ];
   
     const fetchProfileData = async () => {
       try {
@@ -166,14 +174,21 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
   //   setFormData((prev) => ({ ...prev, [key]: formattedDate }));
   // };
 
-  const handleDateChange = (date, fieldName) => {
-    if (date) {
-      // Format date as YYYY-MM-DD for API
-      const formattedDate = date.toISOString().split('T')[0];
-      setFormData(prev => ({ ...prev, [fieldName]: formattedDate }));
-    } else {
-      setFormData(prev => ({ ...prev, [fieldName]: null }));
-    }
+  // const handleDateChange = (date, fieldName) => {
+  //   if (date) {
+  //     // Format date as YYYY-MM-DD for API
+  //     const formattedDate = date.toISOString().split('T')[0];
+  //     setFormData(prev => ({ ...prev, [fieldName]: formattedDate }));
+  //   } else {
+  //     setFormData(prev => ({ ...prev, [fieldName]: null }));
+  //   }
+  // };
+
+  const handleDateChange = (value, field) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   const handleFileChange = (e) => {
@@ -445,6 +460,37 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
               </div>
               <div className="p-7">
               <form onSubmit={handleSubmit}>
+                   {/* Action buttons */}
+                   <div className="flex justify-end gap-4.5">
+                  {isEditMode ? (
+                    <>
+                    <button
+                      className="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
+                      type="button"
+                      onClick={handleCancel}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90"
+                      type="submit"
+                      disabled={updating}
+                    >
+                      {updating ? 'Saving...' : 'Save'}
+                    </button>
+                    </>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleEdit}
+                        className="flex items-center justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90"
+                      >
+                        <Edit2 className="w-4 h-4 mr-2" />
+                        Edit Profile
+                      </button>
+                    )}
+                  </div>
+
                   <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
                     <div className="w-full sm:w-1/2">
                       <label
@@ -480,7 +526,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                           </svg>
                         </span>
                         <input
- l                         className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+ l                         className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
                           type="text"
                           value={`${profileData.first_name} ${profileData.last_name}`.trim()}
                           readOnly
@@ -495,12 +541,39 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                       >
                         Username
                       </label>
+                      <div className='relative'>
+                      <span className="absolute left-4.5 top-4">
+                          <svg
+                            className="fill-current"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 20 20"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <g opacity="0.8">
+                              <path
+                                fillRule="evenodd"
+                                clipRule="evenodd"
+                                d="M3.72039 12.887C4.50179 12.1056 5.5616 11.6666 6.66667 11.6666H13.3333C14.4384 11.6666 15.4982 12.1056 16.2796 12.887C17.061 13.6684 17.5 14.7282 17.5 15.8333V17.5C17.5 17.9602 17.1269 18.3333 16.6667 18.3333C16.2064 18.3333 15.8333 17.9602 15.8333 17.5V15.8333C15.8333 15.1703 15.5699 14.5344 15.1011 14.0655C14.6323 13.5967 13.9964 13.3333 13.3333 13.3333H6.66667C6.00363 13.3333 5.36774 13.5967 4.8989 14.0655C4.43006 14.5344 4.16667 15.1703 4.16667 15.8333V17.5C4.16667 17.9602 3.79357 18.3333 3.33333 18.3333C2.8731 18.3333 2.5 17.9602 2.5 17.5V15.8333C2.5 14.7282 2.93899 13.6684 3.72039 12.887Z"
+                                fill=""
+                              />
+                              <path
+                                fillRule="evenodd"
+                                clipRule="evenodd"
+                                d="M9.99967 3.33329C8.61896 3.33329 7.49967 4.45258 7.49967 5.83329C7.49967 7.214 8.61896 8.33329 9.99967 8.33329C11.3804 8.33329 12.4997 7.214 12.4997 5.83329C12.4997 4.45258 11.3804 3.33329 9.99967 3.33329ZM5.83301 5.83329C5.83301 3.53211 7.69849 1.66663 9.99967 1.66663C12.3009 1.66663 14.1663 3.53211 14.1663 5.83329C14.1663 8.13448 12.3009 9.99996 9.99967 9.99996C7.69849 9.99996 5.83301 8.13448 5.83301 5.83329Z"
+                                fill=""
+                              />
+                            </g>
+                          </svg>
+                        </span>
                       <input
-                        className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                        className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
                         type="text"
                         value={profileData.username}
                         readOnly
                       />
+                    </div>
                     </div>
                   </div>
 
@@ -539,7 +612,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                           </svg>
                         </span>
                         <input
-                          className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                          className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
                           type="email"
                           value={profileData.email}
                           readOnly
@@ -554,12 +627,33 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                       >
                         Phone Number
                       </label>
+                      <div className='relative'>
+                        <span className="absolute left-4.5 top-4">
+                            <svg
+                              className="fill-current"
+                              width="20"
+                              height="20"
+                              viewBox="0 0 20 20"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <g opacity="0.8">
+                                <path
+                                  fillRule="evenodd"
+                                  clipRule="evenodd"
+                                  d="M4.16667 2.5C3.72464 2.5 3.30072 2.67559 2.98816 2.98816C2.67559 3.30072 2.5 3.72464 2.5 4.16667V5.83333C2.5 11.8167 7.35167 16.6667 13.3333 16.6667H15C15.442 16.6667 15.866 16.4911 16.1785 16.1785C16.4911 15.866 16.6667 15.442 16.6667 15V12.9083C16.6667 12.5333 16.4583 12.1867 16.1233 12.0033L13.62 10.7517C13.2367 10.5417 12.7733 10.5733 12.4233 10.8317L11.3233 11.6667C10.9783 11.9167 10.52 11.96 10.1367 11.7733C9.30331 11.3984 8.55763 10.8779 7.93334 10.2333C7.28876 9.60901 6.76823 8.86334 6.39334 8.03C6.20667 7.64667 6.25 7.18833 6.5 6.84333L7.335 5.74333C7.59333 5.39333 7.625 4.93 7.415 4.54667L6.16334 2.04333C6.07253 1.86008 5.93271 1.70369 5.75751 1.59159C5.58232 1.47948 5.37827 1.41581 5.16834 1.40667H4.16667C3.72464 1.40667 3.30072 1.58226 2.98816 1.89482C2.67559 2.20738 2.5 2.63131 2.5 3.07333V4.16667C2.5 10.15 7.35167 15 13.3333 15H15C15.442 15 15.866 14.8244 16.1785 14.5118C16.4911 14.1993 16.6667 13.7754 16.6667 13.3333V11.2417C16.6667 10.8667 16.4583 10.52 16.1233 10.3367L13.62 9.085C13.2367 8.875 12.7733 8.90667 12.4233 9.165L11.3233 10C10.9783 10.25 10.52 10.2933 10.1367 10.1067C9.30331 9.73175 8.55763 9.21122 7.93334 8.56667C7.28876 7.94238 6.76823 7.1967 6.39334 6.36333C6.20667 5.98 6.25 5.52167 6.5 5.17667L7.335 4.07667C7.59333 3.72667 7.625 3.26333 7.415 2.88L6.16334 0.376667C6.07253 0.193422 5.93271 0.037029 5.75751 -0.075071C5.58232 -0.187171 5.37827 -0.250839 5.16834 -0.26V4.16667Z"
+                                  fill=""
+                                />
+                              </g>
+                            </svg>
+                        </span>
                       <input
-                        className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                       className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
                         type="tel"
                         value={profileData.phone_number}
                         readOnly
                       />
+                    </div>
                     </div>
                   </div>
 
@@ -598,7 +692,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                           </svg>
                         </span>
                         <select
-                          className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                          className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
                           type="text"
                           id="gender"
                           name="gender"
@@ -622,8 +716,34 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                       >
                         Church
                       </label>
+                      <div className='relative'>
+                      <span className="absolute left-4.5 top-4">
+                          <svg
+                            className="fill-current"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <g opacity="0.8">
+                              <path
+                                fillRule="evenodd"
+                                clipRule="evenodd"
+                                d="M12 3C12.3183 3 12.6235 3.12643 12.8485 3.35147L16.2485 6.75147C16.6029 7.10593 16.6029 7.67593 16.2485 8.03053C15.8941 8.38511 15.324 8.38511 14.9696 8.03053L12 5.09696L9.03043 8.03053C8.676 8.38511 8.106 8.38511 7.75157 8.03053C7.39714 7.67593 7.39714 7.10593 7.75157 6.75147L11.1515 3.35147C11.3765 3.12643 11.6817 3 12 3Z"
+                                fill=""
+                              />
+                              <path
+                                fillRule="evenodd"
+                                clipRule="evenodd"
+                                d="M4 11C4 9.89543 4.89543 9 6 9H18C19.1046 9 20 9.89543 20 11V20C20 21.1046 19.1046 22 18 22H6C4.89543 22 4 21.1046 4 20V11ZM6 11H18V20H15V16C15 14.8954 14.1046 14 13 14H11C9.89543 14 9 14.8954 9 16V20H6V11ZM11 20V16H13V20H11Z"
+                                fill=""
+                              />
+                            </g>
+                          </svg>
+                        </span>
                       <select
-                        className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                        className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
                         type="text"
                         id="church"
                         name="church"
@@ -641,6 +761,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                         ))}
                       </select>
                     </div>
+                    </div>
                   </div>
 
 
@@ -650,10 +771,10 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                         className="mb-3 block text-sm font-medium text-black dark:text-white"
                         htmlFor="birth_date"
                       >
-                        Date of Birth
+                        Date of Birth (dd/mm/yyyy)
                       </label>
                       <div className="relative">
-                        <span className="absolute left-4.5 top-4">
+                        {/* <span className="absolute left-4.5 top-4">
                           <svg
                             className="fill-current"
                             width="20"
@@ -677,32 +798,42 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                               />
                             </g>
                           </svg>
-                        </span>
-                        <DatePicker
-                        selected={formData.birth_date ? new Date(formData.birth_date) : null}
-                        onChange={(date) => handleDateChange(date, 'birth_date')}
-                        dateFormat="yyyy-MM-dd"
-                        className="w-full rounded border border-stroke bg-gray py-3 px-4.5"
-                        disabled={!isEditMode}
-                      />
+                        </span> */}
+
+                         <span className="absolute left-4 top-1/2 -translate-y-1/2">
+                            <Calendar className="h-5 w-5 text-gray-500" />
+                          </span>
+                          <input
+                            type="date"
+                            id="birth_date"
+                            value={formData.birth_date || 'N/A'}
+                            onChange={(e) => handleDateChange(e.target.value, 'birth_date')}
+                            className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
+                            disabled={!isEditMode}
+                          />
+                        </div>
                       </div>
-                    </div>
 
                     <div className="w-full sm:w-1/2">
                       <label
                         className="mb-3 block text-sm font-medium text-black dark:text-white"
                         htmlFor="joined_at"
                       >
-                        When did you join the Ministry?
+                        When did you join the Ministry? (dd/mm/y)
                       </label>
-                      <DatePicker
-                        selected={formData.joined_at ? new Date(formData.joined_at) : null}
-                        onChange={(date) => handleDateChange(date, 'joined_at')}
-                        dateFormat="yyyy-MM-dd"
-                        // className="w-full rounded border border-stroke bg-gray py-3 px-4.5"
-                        className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                        disabled={!isEditMode}
+                      <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2">
+                            <Calendar className="h-5 w-5 text-gray-500" />
+                          </span>
+                      <input
+                       type="date"
+                       id='"joined_at'
+                       value={formData.joined_at || 'N/A'}
+                       onChange={(e) => handleDateChange(e.target.value, 'joined_at')}
+                       className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
+                      disabled={!isEditMode}
                       />
+                    </div>
                     </div>
                   </div>
 
@@ -742,7 +873,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                           </svg>
                         </span>
                         <select
-                          className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                          className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
                           type="text"
                           id="origin_state"
                           name="origin_state"
@@ -767,8 +898,40 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                       >
                         Address
                       </label>
+                      <div className='relative'>
+                      <span className="absolute left-4.5 top-4">
+                        <svg
+                          className="fill-current"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <g opacity="0.8">
+                            <path
+                              fillRule="evenodd"
+                              clipRule="evenodd"
+                              d="M12 4C9.23858 4 7 6.23858 7 9C7 10.3583 7.67432 11.5775 8.71885 12.3846L12 16.6923L15.2812 12.3846C16.3257 11.5775 17 10.3583 17 9C17 6.23858 14.7614 4 12 4ZM12 2C15.866 2 19 5.13401 19 9C19 10.8861 18.1032 12.5786 16.7026 13.7014C16.7024 13.7015 16.7023 13.7017 16.7021 13.7019L12.7071 18.7069C12.3166 19.0974 11.6834 19.0974 11.2929 18.7069L7.29792 14.7019L7.29741 14.7014C5.89682 13.5786 5 11.8861 5 9C5 5.13401 8.13401 2 12 2Z"
+                              fill=""
+                            />
+                            <path
+                              fillRule="evenodd"
+                              clipRule="evenodd"
+                              d="M12 8C11.4477 8 11 8.44772 11 9C11 9.55228 11.4477 10 12 10C12.5523 10 13 9.55228 13 9C13 8.44772 12.5523 8 12 8ZM9 9C9 7.34315 10.3431 6 12 6C13.6569 6 15 7.34315 15 9C15 10.6569 13.6569 12 12 12C10.3431 12 9 10.6569 9 9Z"
+                              fill=""
+                            />
+                            <path
+                              fillRule="evenodd"
+                              clipRule="evenodd"
+                              d="M5 21C4.44772 21 4 20.5523 4 20C4 19.4477 4.44772 19 5 19H19C19.5523 19 20 19.4477 20 20C20 20.5523 19.5523 21 19 21H5Z"
+                              fill=""
+                            />
+                          </g>
+                        </svg>
+                      </span>
                       <input
-                        className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                        className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
                         type="text"
                         id="address"
                         name="address"
@@ -776,6 +939,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                         value={formData.address}
                         onChange={handleChange}
                       />
+                    </div>
                     </div>
                   </div>
 
@@ -788,33 +952,39 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                         Permanent Address
                       </label>
                       <div className="relative">
-                        <span className="absolute left-4.5 top-4">
-                          <svg
-                            className="fill-current"
-                            width="20"
-                            height="20"
-                            viewBox="0 0 20 20"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <g opacity="0.8">
-                              <path
-                                fillRule="evenodd"
-                                clipRule="evenodd"
-                                d="M3.72039 12.887C4.50179 12.1056 5.5616 11.6666 6.66667 11.6666H13.3333C14.4384 11.6666 15.4982 12.1056 16.2796 12.887C17.061 13.6684 17.5 14.7282 17.5 15.8333V17.5C17.5 17.9602 17.1269 18.3333 16.6667 18.3333C16.2064 18.3333 15.8333 17.9602 15.8333 17.5V15.8333C15.8333 15.1703 15.5699 14.5344 15.1011 14.0655C14.6323 13.5967 13.9964 13.3333 13.3333 13.3333H6.66667C6.00363 13.3333 5.36774 13.5967 4.8989 14.0655C4.43006 14.5344 4.16667 15.1703 4.16667 15.8333V17.5C4.16667 17.9602 3.79357 18.3333 3.33333 18.3333C2.8731 18.3333 2.5 17.9602 2.5 17.5V15.8333C2.5 14.7282 2.93899 13.6684 3.72039 12.887Z"
-                                fill=""
-                              />
-                              <path
-                                fillRule="evenodd"
-                                clipRule="evenodd"
-                                d="M9.99967 3.33329C8.61896 3.33329 7.49967 4.45258 7.49967 5.83329C7.49967 7.214 8.61896 8.33329 9.99967 8.33329C11.3804 8.33329 12.4997 7.214 12.4997 5.83329C12.4997 4.45258 11.3804 3.33329 9.99967 3.33329ZM5.83301 5.83329C5.83301 3.53211 7.69849 1.66663 9.99967 1.66663C12.3009 1.66663 14.1663 3.53211 14.1663 5.83329C14.1663 8.13448 12.3009 9.99996 9.99967 9.99996C7.69849 9.99996 5.83301 8.13448 5.83301 5.83329Z"
-                                fill=""
-                              />
-                            </g>
-                          </svg>
-                        </span>
+                      <span className="absolute left-4.5 top-4">
+                        <svg
+                          className="fill-current"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <g opacity="0.8">
+                            <path
+                              fillRule="evenodd"
+                              clipRule="evenodd"
+                              d="M12 4C9.23858 4 7 6.23858 7 9C7 10.3583 7.67432 11.5775 8.71885 12.3846L12 16.6923L15.2812 12.3846C16.3257 11.5775 17 10.3583 17 9C17 6.23858 14.7614 4 12 4ZM12 2C15.866 2 19 5.13401 19 9C19 10.8861 18.1032 12.5786 16.7026 13.7014C16.7024 13.7015 16.7023 13.7017 16.7021 13.7019L12.7071 18.7069C12.3166 19.0974 11.6834 19.0974 11.2929 18.7069L7.29792 14.7019L7.29741 14.7014C5.89682 13.5786 5 11.8861 5 9C5 5.13401 8.13401 2 12 2Z"
+                              fill=""
+                            />
+                            <path
+                              fillRule="evenodd"
+                              clipRule="evenodd"
+                              d="M12 8C11.4477 8 11 8.44772 11 9C11 9.55228 11.4477 10 12 10C12.5523 10 13 9.55228 13 9C13 8.44772 12.5523 8 12 8ZM9 9C9 7.34315 10.3431 6 12 6C13.6569 6 15 7.34315 15 9C15 10.6569 13.6569 12 12 12C10.3431 12 9 10.6569 9 9Z"
+                              fill=""
+                            />
+                            <path
+                              fillRule="evenodd"
+                              clipRule="evenodd"
+                              d="M5 21C4.44772 21 4 20.5523 4 20C4 19.4477 4.44772 19 5 19H19C19.5523 19 20 19.4477 20 20C20 20.5523 19.5523 21 19 21H5Z"
+                              fill=""
+                            />
+                          </g>
+                        </svg>
+                      </span>
                         <input
-                          className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                          className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
                           type="text"
                           id="perm_address"
                           name="perm_address"
@@ -832,8 +1002,12 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                       >
                         City
                       </label>
+                      <div className='relative'>
+                      <span className="absolute left-4.5 top-4">
+                      <BiMap size={24} className="bg-gray" />
+                      </span>
                       <input
-                        className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                        className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
                         type="text"
                         id="city"
                         name="city"
@@ -841,6 +1015,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                         value={formData.city}
                         onChange={handleChange}
                       />
+                    </div>
                     </div>
                   </div>
 
@@ -854,32 +1029,10 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                       </label>
                       <div className="relative">
                         <span className="absolute left-4.5 top-4">
-                          <svg
-                            className="fill-current"
-                            width="20"
-                            height="20"
-                            viewBox="0 0 20 20"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <g opacity="0.8">
-                              <path
-                                fillRule="evenodd"
-                                clipRule="evenodd"
-                                d="M3.72039 12.887C4.50179 12.1056 5.5616 11.6666 6.66667 11.6666H13.3333C14.4384 11.6666 15.4982 12.1056 16.2796 12.887C17.061 13.6684 17.5 14.7282 17.5 15.8333V17.5C17.5 17.9602 17.1269 18.3333 16.6667 18.3333C16.2064 18.3333 15.8333 17.9602 15.8333 17.5V15.8333C15.8333 15.1703 15.5699 14.5344 15.1011 14.0655C14.6323 13.5967 13.9964 13.3333 13.3333 13.3333H6.66667C6.00363 13.3333 5.36774 13.5967 4.8989 14.0655C4.43006 14.5344 4.16667 15.1703 4.16667 15.8333V17.5C4.16667 17.9602 3.79357 18.3333 3.33333 18.3333C2.8731 18.3333 2.5 17.9602 2.5 17.5V15.8333C2.5 14.7282 2.93899 13.6684 3.72039 12.887Z"
-                                fill=""
-                              />
-                              <path
-                                fillRule="evenodd"
-                                clipRule="evenodd"
-                                d="M9.99967 3.33329C8.61896 3.33329 7.49967 4.45258 7.49967 5.83329C7.49967 7.214 8.61896 8.33329 9.99967 8.33329C11.3804 8.33329 12.4997 7.214 12.4997 5.83329C12.4997 4.45258 11.3804 3.33329 9.99967 3.33329ZM5.83301 5.83329C5.83301 3.53211 7.69849 1.66663 9.99967 1.66663C12.3009 1.66663 14.1663 3.53211 14.1663 5.83329C14.1663 8.13448 12.3009 9.99996 9.99967 9.99996C7.69849 9.99996 5.83301 8.13448 5.83301 5.83329Z"
-                                fill=""
-                              />
-                            </g>
-                          </svg>
+                        <BiMap size={24} className="bg-gray" />
                         </span>
                         <select
-                          className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                          className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
                           type="text"
                           id="state"
                           name="state"
@@ -904,84 +1057,27 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                       >
                         Country
                       </label>
-                      <input
-                        className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                        type="text"
+                      <div className='relative'>
+                      <span className="absolute left-4.5 top-4">
+                      <FaFlag size={24} className="bg-gray" />
+                      </span>
+                     
+                      <select
+                        className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
                         id="country"
                         name="country"
                         placeholder="Country"
                         value={formData.country}
                         onChange={handleChange}
-                      />
+                      >
+                       <option value="">Select a country</option>
+                        {countries.map((country, index) => (
+                          <option key={index} value={country}>{country}</option>
+                        ))}
+                      </select>
+                    </div>
                     </div>
                   </div>
-
-                  {/* Date of Birth */}
-                  {/* <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
-                    <div className="w-full sm:w-1/2">
-                      <label
-                        className="mb-3 block text-sm font-medium text-black dark:text-white"
-                        htmlFor="date"
-                      >
-                        Date of Birth
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-4.5 top-4">
-                          <svg
-                            className="fill-current"
-                            width="20"
-                            height="20"
-                            viewBox="0 0 20 20"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <g opacity="0.8">
-                              <path
-                                fillRule="evenodd"
-                                clipRule="evenodd"
-                                d="M3.72039 12.887C4.50179 12.1056 5.5616 11.6666 6.66667 11.6666H13.3333C14.4384 11.6666 15.4982 12.1056 16.2796 12.887C17.061 13.6684 17.5 14.7282 17.5 15.8333V17.5C17.5 17.9602 17.1269 18.3333 16.6667 18.3333C16.2064 18.3333 15.8333 17.9602 15.8333 17.5V15.8333C15.8333 15.1703 15.5699 14.5344 15.1011 14.0655C14.6323 13.5967 13.9964 13.3333 13.3333 13.3333H6.66667C6.00363 13.3333 5.36774 13.5967 4.8989 14.0655C4.43006 14.5344 4.16667 15.1703 4.16667 15.8333V17.5C4.16667 17.9602 3.79357 18.3333 3.33333 18.3333C2.8731 18.3333 2.5 17.9602 2.5 17.5V15.8333C2.5 14.7282 2.93899 13.6684 3.72039 12.887Z"
-                                fill=""
-                              />
-                              <path
-                                fillRule="evenodd"
-                                clipRule="evenodd"
-                                d="M9.99967 3.33329C8.61896 3.33329 7.49967 4.45258 7.49967 5.83329C7.49967 7.214 8.61896 8.33329 9.99967 8.33329C11.3804 8.33329 12.4997 7.214 12.4997 5.83329C12.4997 4.45258 11.3804 3.33329 9.99967 3.33329ZM5.83301 5.83329C5.83301 3.53211 7.69849 1.66663 9.99967 1.66663C12.3009 1.66663 14.1663 3.53211 14.1663 5.83329C14.1663 8.13448 12.3009 9.99996 9.99967 9.99996C7.69849 9.99996 5.83301 8.13448 5.83301 5.83329Z"
-                                fill=""
-                              />
-                            </g>
-                          </svg>
-                        </span>
-                        <input
-                          type="date"
-                          id="date"
-                          name="birth_date"
-                          className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                          placeholder="Select your date of birth"
-                          value={formData.birth_date}
-                          onChange={handleChange}
-                          //  onChange={(date) => handleDateChange(date, key)}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="w-full sm:w-1/2">
-                      <label
-                        className="mb-3 block text-sm font-medium text-black dark:text-white"
-                        htmlFor="joined_at"
-                      >
-                        When did you join the Ministry?
-                      </label>
-                      <input
-                        className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                        type="date"
-                        id="joined_at"
-                        name="joined_at"
-                        placeholder="Date of joining the ministry"
-                        value={formData.joined_at}
-                        onChange={handleChange}
-                      />
-                    </div>
-                  </div> */}
 
 
                   <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
@@ -1019,7 +1115,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                           </svg>
                         </span>
                         <input
-                          className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                          className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
                           type="text"
                           id="invited_by"
                           name="invited_by"
@@ -1037,8 +1133,12 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                       >
                         First ministry arm you joined
                       </label>
+                      <div className="relative">
+                      <span className="absolute left-4.5 top-4">
+                      <FaCity size={24} className="bg-gray" />
+                      </span>
                       <input
-                        className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                        className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
                         type="text"
                         id="first_min_arm"
                         name="first_min_arm"
@@ -1046,6 +1146,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                         value={formData.first_min_arm}
                         onChange={handleChange}
                       />
+                    </div>
                     </div>
                   </div>
 
@@ -1059,32 +1160,10 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                       </label>
                       <div className="relative">
                         <span className="absolute left-4.5 top-4">
-                          <svg
-                            className="fill-current"
-                            width="20"
-                            height="20"
-                            viewBox="0 0 20 20"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <g opacity="0.8">
-                              <path
-                                fillRule="evenodd"
-                                clipRule="evenodd"
-                                d="M3.72039 12.887C4.50179 12.1056 5.5616 11.6666 6.66667 11.6666H13.3333C14.4384 11.6666 15.4982 12.1056 16.2796 12.887C17.061 13.6684 17.5 14.7282 17.5 15.8333V17.5C17.5 17.9602 17.1269 18.3333 16.6667 18.3333C16.2064 18.3333 15.8333 17.9602 15.8333 17.5V15.8333C15.8333 15.1703 15.5699 14.5344 15.1011 14.0655C14.6323 13.5967 13.9964 13.3333 13.3333 13.3333H6.66667C6.00363 13.3333 5.36774 13.5967 4.8989 14.0655C4.43006 14.5344 4.16667 15.1703 4.16667 15.8333V17.5C4.16667 17.9602 3.79357 18.3333 3.33333 18.3333C2.8731 18.3333 2.5 17.9602 2.5 17.5V15.8333C2.5 14.7282 2.93899 13.6684 3.72039 12.887Z"
-                                fill=""
-                              />
-                              <path
-                                fillRule="evenodd"
-                                clipRule="evenodd"
-                                d="M9.99967 3.33329C8.61896 3.33329 7.49967 4.45258 7.49967 5.83329C7.49967 7.214 8.61896 8.33329 9.99967 8.33329C11.3804 8.33329 12.4997 7.214 12.4997 5.83329C12.4997 4.45258 11.3804 3.33329 9.99967 3.33329ZM5.83301 5.83329C5.83301 3.53211 7.69849 1.66663 9.99967 1.66663C12.3009 1.66663 14.1663 3.53211 14.1663 5.83329C14.1663 8.13448 12.3009 9.99996 9.99967 9.99996C7.69849 9.99996 5.83301 8.13448 5.83301 5.83329Z"
-                                fill=""
-                              />
-                            </g>
-                          </svg>
+                        <FaCity size={24} className="bg-gray" />
                         </span>
                         <select
-                          className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                          className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
                           type="text"
                           id="current_min_arm"
                           name="current_min_arm"
@@ -1109,8 +1188,12 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                       >
                         Word Foundation School Graduation Year
                       </label>
+                      <div className='relative'>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2">
+                            <Calendar className="h-5 w-5 text-gray-500" />
+                          </span>
                       <input
-                        className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                        className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
                         type="tel"
                         id="wfs_graduation_year"
                         name="wfs_graduation_year"
@@ -1118,6 +1201,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                         value={formData.wfs_graduation_year}
                         onChange={handleChange}
                       />
+                    </div>
                     </div>
                   </div>
 
@@ -1131,32 +1215,10 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                       </label>
                       <div className="relative">
                         <span className="absolute left-4.5 top-4">
-                          <svg
-                            className="fill-current"
-                            width="20"
-                            height="20"
-                            viewBox="0 0 20 20"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <g opacity="0.8">
-                              <path
-                                fillRule="evenodd"
-                                clipRule="evenodd"
-                                d="M3.72039 12.887C4.50179 12.1056 5.5616 11.6666 6.66667 11.6666H13.3333C14.4384 11.6666 15.4982 12.1056 16.2796 12.887C17.061 13.6684 17.5 14.7282 17.5 15.8333V17.5C17.5 17.9602 17.1269 18.3333 16.6667 18.3333C16.2064 18.3333 15.8333 17.9602 15.8333 17.5V15.8333C15.8333 15.1703 15.5699 14.5344 15.1011 14.0655C14.6323 13.5967 13.9964 13.3333 13.3333 13.3333H6.66667C6.00363 13.3333 5.36774 13.5967 4.8989 14.0655C4.43006 14.5344 4.16667 15.1703 4.16667 15.8333V17.5C4.16667 17.9602 3.79357 18.3333 3.33333 18.3333C2.8731 18.3333 2.5 17.9602 2.5 17.5V15.8333C2.5 14.7282 2.93899 13.6684 3.72039 12.887Z"
-                                fill=""
-                              />
-                              <path
-                                fillRule="evenodd"
-                                clipRule="evenodd"
-                                d="M9.99967 3.33329C8.61896 3.33329 7.49967 4.45258 7.49967 5.83329C7.49967 7.214 8.61896 8.33329 9.99967 8.33329C11.3804 8.33329 12.4997 7.214 12.4997 5.83329C12.4997 4.45258 11.3804 3.33329 9.99967 3.33329ZM5.83301 5.83329C5.83301 3.53211 7.69849 1.66663 9.99967 1.66663C12.3009 1.66663 14.1663 3.53211 14.1663 5.83329C14.1663 8.13448 12.3009 9.99996 9.99967 9.99996C7.69849 9.99996 5.83301 8.13448 5.83301 5.83329Z"
-                                fill=""
-                              />
-                            </g>
-                          </svg>
+                        <FaCity size={24} className="bg-gray" />
                         </span>
                         <input
-                          className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                          className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
                           type="text"
                           id="current_offices"
                           name="current_offices"
@@ -1174,8 +1236,12 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                       >
                         Previous ministry offices
                       </label>
+                      <div className="relative">
+                      <span className="absolute left-4.5 top-4">
+                      <FaCity size={24} className="bg-gray" />
+                      </span>
                       <input
-                        className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                        className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
                         type="text"
                         id="previous_offices"
                         name="previous_offices"
@@ -1183,6 +1249,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                         value={formData.previous_offices}
                         onChange={handleChange}
                       />
+                    </div>
                     </div>
                   </div>
                 
@@ -1192,36 +1259,14 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                         className="mb-3 block text-sm font-medium text-black dark:text-white"
                         htmlFor="suspension_record"
                       >
-                        Suspension Record
+                        Do you have any record of Suspension?
                       </label>
                       <div className="relative">
                         <span className="absolute left-4.5 top-4">
-                          <svg
-                            className="fill-current"
-                            width="20"
-                            height="20"
-                            viewBox="0 0 20 20"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <g opacity="0.8">
-                              <path
-                                fillRule="evenodd"
-                                clipRule="evenodd"
-                                d="M3.72039 12.887C4.50179 12.1056 5.5616 11.6666 6.66667 11.6666H13.3333C14.4384 11.6666 15.4982 12.1056 16.2796 12.887C17.061 13.6684 17.5 14.7282 17.5 15.8333V17.5C17.5 17.9602 17.1269 18.3333 16.6667 18.3333C16.2064 18.3333 15.8333 17.9602 15.8333 17.5V15.8333C15.8333 15.1703 15.5699 14.5344 15.1011 14.0655C14.6323 13.5967 13.9964 13.3333 13.3333 13.3333H6.66667C6.00363 13.3333 5.36774 13.5967 4.8989 14.0655C4.43006 14.5344 4.16667 15.1703 4.16667 15.8333V17.5C4.16667 17.9602 3.79357 18.3333 3.33333 18.3333C2.8731 18.3333 2.5 17.9602 2.5 17.5V15.8333C2.5 14.7282 2.93899 13.6684 3.72039 12.887Z"
-                                fill=""
-                              />
-                              <path
-                                fillRule="evenodd"
-                                clipRule="evenodd"
-                                d="M9.99967 3.33329C8.61896 3.33329 7.49967 4.45258 7.49967 5.83329C7.49967 7.214 8.61896 8.33329 9.99967 8.33329C11.3804 8.33329 12.4997 7.214 12.4997 5.83329C12.4997 4.45258 11.3804 3.33329 9.99967 3.33329ZM5.83301 5.83329C5.83301 3.53211 7.69849 1.66663 9.99967 1.66663C12.3009 1.66663 14.1663 3.53211 14.1663 5.83329C14.1663 8.13448 12.3009 9.99996 9.99967 9.99996C7.69849 9.99996 5.83301 8.13448 5.83301 5.83329Z"
-                                fill=""
-                              />
-                            </g>
-                          </svg>
+                        <FaFileAlt size={24} className="bg-gray" />
                         </span>
                         <input
-                          className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                          className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
                           type="text"
                           id="suspension_record"
                           name="suspension_record"
@@ -1237,10 +1282,15 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                         className="mb-3 block text-sm font-medium text-black dark:text-white"
                         htmlFor="enrolled_in_wfs"
                       >
-                        Are you enrolled in WFS?
+                        Have you graduated from Workers Training School?
                       </label>
+                      <div className='relative'>
+                        
+                      <span className="absolute left-4.5 top-4">
+                      <FaClipboardCheck size={24} className="bg-gray" />
+                        </span>
                       <select
-                        className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                        className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
                         type="text"
                         id="enrolled_in_wfs"
                         name="enrolled_in_wfs"
@@ -1255,6 +1305,37 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                         <option value="no">No</option>
                       </select>
                     </div>
+                  </div>
+
+                  <div className="w-full sm:w-1/2">
+                      <label
+                        className="mb-3 block text-sm font-medium text-black dark:text-white"
+                        htmlFor="tlosom"
+                      >
+                        Have you graduated from TLOSOM?
+                      </label>
+                      <div className='relative'>
+                        
+                      <span className="absolute left-4.5 top-4">
+                      <FaClipboardCheck size={24} className="bg-gray mb-2" />
+                        </span>
+                      <select
+                        className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
+                        type="text"
+                        id="tlosom"
+                        name="tlosom"
+                        placeholder="Graduated from TLOSOM?"
+                        value={formData.tlosom}
+                        onChange={handleChange}
+                      >
+                        <option value="" selected disabled>
+                          Select
+                        </option>
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                      </select>
+                    </div>
+                  </div>
                   </div>
 
 
@@ -1293,7 +1374,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                           </svg>
                         </span>
                         <input
-                          className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                          className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
                           type="text"
                           id="facebook_link"
                           name="facebook_link"
@@ -1311,8 +1392,34 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                       >
                         Instagram Profile link
                       </label>
+                      <div className="relative">
+                        <span className="absolute left-4.5 top-4">
+                          <svg
+                            className="fill-current"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 20 20"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <g opacity="0.8">
+                              <path
+                                fillRule="evenodd"
+                                clipRule="evenodd"
+                                d="M3.72039 12.887C4.50179 12.1056 5.5616 11.6666 6.66667 11.6666H13.3333C14.4384 11.6666 15.4982 12.1056 16.2796 12.887C17.061 13.6684 17.5 14.7282 17.5 15.8333V17.5C17.5 17.9602 17.1269 18.3333 16.6667 18.3333C16.2064 18.3333 15.8333 17.9602 15.8333 17.5V15.8333C15.8333 15.1703 15.5699 14.5344 15.1011 14.0655C14.6323 13.5967 13.9964 13.3333 13.3333 13.3333H6.66667C6.00363 13.3333 5.36774 13.5967 4.8989 14.0655C4.43006 14.5344 4.16667 15.1703 4.16667 15.8333V17.5C4.16667 17.9602 3.79357 18.3333 3.33333 18.3333C2.8731 18.3333 2.5 17.9602 2.5 17.5V15.8333C2.5 14.7282 2.93899 13.6684 3.72039 12.887Z"
+                                fill=""
+                              />
+                              <path
+                                fillRule="evenodd"
+                                clipRule="evenodd"
+                                d="M9.99967 3.33329C8.61896 3.33329 7.49967 4.45258 7.49967 5.83329C7.49967 7.214 8.61896 8.33329 9.99967 8.33329C11.3804 8.33329 12.4997 7.214 12.4997 5.83329C12.4997 4.45258 11.3804 3.33329 9.99967 3.33329ZM5.83301 5.83329C5.83301 3.53211 7.69849 1.66663 9.99967 1.66663C12.3009 1.66663 14.1663 3.53211 14.1663 5.83329C14.1663 8.13448 12.3009 9.99996 9.99967 9.99996C7.69849 9.99996 5.83301 8.13448 5.83301 5.83329Z"
+                                fill=""
+                              />
+                            </g>
+                          </svg>
+                        </span>
                       <input
-                          className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                          className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
                           type="text"
                           id="instagram_link"
                           name="instagram_link"
@@ -1320,6 +1427,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                           value={formData.instagram_link}
                           onChange={handleChange}
                         />
+                    </div>
                     </div>
                   </div>
 
@@ -1358,7 +1466,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                           </svg>
                         </span>
                         <input
-                          className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                          className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
                           type="text"
                           id="tiktok_link"
                           name="tiktok_link"
@@ -1376,8 +1484,34 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                       >
                       Twitter Profile link
                       </label>
+                      <div className="relative">
+                        <span className="absolute left-4.5 top-4">
+                          <svg
+                            className="fill-current"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 20 20"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <g opacity="0.8">
+                              <path
+                                fillRule="evenodd"
+                                clipRule="evenodd"
+                                d="M3.72039 12.887C4.50179 12.1056 5.5616 11.6666 6.66667 11.6666H13.3333C14.4384 11.6666 15.4982 12.1056 16.2796 12.887C17.061 13.6684 17.5 14.7282 17.5 15.8333V17.5C17.5 17.9602 17.1269 18.3333 16.6667 18.3333C16.2064 18.3333 15.8333 17.9602 15.8333 17.5V15.8333C15.8333 15.1703 15.5699 14.5344 15.1011 14.0655C14.6323 13.5967 13.9964 13.3333 13.3333 13.3333H6.66667C6.00363 13.3333 5.36774 13.5967 4.8989 14.0655C4.43006 14.5344 4.16667 15.1703 4.16667 15.8333V17.5C4.16667 17.9602 3.79357 18.3333 3.33333 18.3333C2.8731 18.3333 2.5 17.9602 2.5 17.5V15.8333C2.5 14.7282 2.93899 13.6684 3.72039 12.887Z"
+                                fill=""
+                              />
+                              <path
+                                fillRule="evenodd"
+                                clipRule="evenodd"
+                                d="M9.99967 3.33329C8.61896 3.33329 7.49967 4.45258 7.49967 5.83329C7.49967 7.214 8.61896 8.33329 9.99967 8.33329C11.3804 8.33329 12.4997 7.214 12.4997 5.83329C12.4997 4.45258 11.3804 3.33329 9.99967 3.33329ZM5.83301 5.83329C5.83301 3.53211 7.69849 1.66663 9.99967 1.66663C12.3009 1.66663 14.1663 3.53211 14.1663 5.83329C14.1663 8.13448 12.3009 9.99996 9.99967 9.99996C7.69849 9.99996 5.83301 8.13448 5.83301 5.83329Z"
+                                fill=""
+                              />
+                            </g>
+                          </svg>
+                        </span>
                       <input
-                          className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                          className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
                           type="text"
                           id="twitter_link"
                           name="twitter_link"
@@ -1385,6 +1519,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                           value={formData.twitter_link}
                           onChange={handleChange}
                         />
+                    </div>
                     </div>
                   </div>
 
@@ -1395,8 +1530,34 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                       >
                       Youtube Profile link
                       </label>
+                      <div className="relative">
+                        <span className="absolute left-4.5 top-4">
+                          <svg
+                            className="fill-current"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 20 20"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <g opacity="0.8">
+                              <path
+                                fillRule="evenodd"
+                                clipRule="evenodd"
+                                d="M3.72039 12.887C4.50179 12.1056 5.5616 11.6666 6.66667 11.6666H13.3333C14.4384 11.6666 15.4982 12.1056 16.2796 12.887C17.061 13.6684 17.5 14.7282 17.5 15.8333V17.5C17.5 17.9602 17.1269 18.3333 16.6667 18.3333C16.2064 18.3333 15.8333 17.9602 15.8333 17.5V15.8333C15.8333 15.1703 15.5699 14.5344 15.1011 14.0655C14.6323 13.5967 13.9964 13.3333 13.3333 13.3333H6.66667C6.00363 13.3333 5.36774 13.5967 4.8989 14.0655C4.43006 14.5344 4.16667 15.1703 4.16667 15.8333V17.5C4.16667 17.9602 3.79357 18.3333 3.33333 18.3333C2.8731 18.3333 2.5 17.9602 2.5 17.5V15.8333C2.5 14.7282 2.93899 13.6684 3.72039 12.887Z"
+                                fill=""
+                              />
+                              <path
+                                fillRule="evenodd"
+                                clipRule="evenodd"
+                                d="M9.99967 3.33329C8.61896 3.33329 7.49967 4.45258 7.49967 5.83329C7.49967 7.214 8.61896 8.33329 9.99967 8.33329C11.3804 8.33329 12.4997 7.214 12.4997 5.83329C12.4997 4.45258 11.3804 3.33329 9.99967 3.33329ZM5.83301 5.83329C5.83301 3.53211 7.69849 1.66663 9.99967 1.66663C12.3009 1.66663 14.1663 3.53211 14.1663 5.83329C14.1663 8.13448 12.3009 9.99996 9.99967 9.99996C7.69849 9.99996 5.83301 8.13448 5.83301 5.83329Z"
+                                fill=""
+                              />
+                            </g>
+                          </svg>
+                        </span>
                       <input
-                          className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                          className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
                           type="text"
                           id="youtube_link"
                           name="youtube_link"
@@ -1404,6 +1565,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                           value={formData.youtube_link}
                           onChange={handleChange}
                         />
+                    </div>
                     </div>
                   
 
@@ -1447,7 +1609,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                       </span>
 
                       <textarea
-                        className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                        className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
                         name="bio"
                         id="bio"
                         rows={6}
@@ -1458,36 +1620,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                     </div>
                   </div>
 
-                    {/* Action buttons */}
-                  <div className="flex justify-end gap-4.5">
-                  {isEditMode ? (
-                    <>
-                    <button
-                      className="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
-                      type="button"
-                      onClick={handleCancel}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      className="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90"
-                      type="submit"
-                      disabled={updating}
-                    >
-                      {updating ? 'Saving...' : 'Save'}
-                    </button>
-                    </>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={handleEdit}
-                        className="flex items-center justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90"
-                      >
-                        <Edit2 className="w-4 h-4 mr-2" />
-                        Edit Profile
-                      </button>
-                    )}
-                  </div>
+               
                 </form>
               </div>
             </div>

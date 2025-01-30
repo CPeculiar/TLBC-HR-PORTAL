@@ -134,7 +134,7 @@ const GivingRecords = () => {
       };
 
 
-  const fetchRecords = async (url = 'https://tlbc-platform-api.onrender.com/api/finance/giving/list/?limit=20') => {
+  const fetchRecords = async (url = 'https://tlbc-platform-api.onrender.com/api/finance/giving/list/?limit=10') => {
     setIsLoading(true);
     try {
       const response = await axios.get(url, { withCredentials: true });

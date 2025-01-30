@@ -28,15 +28,6 @@ const AttendanceReportAdmin = () => {
     church: '',
   });
 
-  // Add separate error states at the top of your component
-const [churchAttendanceError, setChurchAttendanceError] = useState(null);
-const [zonalAttendanceError, setZonalAttendanceError] = useState(null);
-const [centralAttendanceError, setCentralAttendanceError] = useState(null);
-const [localChurchesAttendanceError, setLocalChurchesAttendanceError] = useState(null);
-const [allAttendanceError, setAllAttendanceError] = useState(null);
-const [myAttendanceError, setMyAttendanceError] = useState(null);
-
-
   // State for attendance lists
   const [attendanceList, setAttendanceList] = useState({
     results: [],
@@ -184,7 +175,6 @@ const [myAttendanceError, setMyAttendanceError] = useState(null);
   // Get my church's attendance list
   const getAttendanceList = async () => {
     try {
-      setChurchAttendanceError(null);
       const accessToken = localStorage.getItem('accessToken');
       if (!accessToken) {
         alert('Access token not found. Please login first.');
@@ -198,8 +188,9 @@ const [myAttendanceError, setMyAttendanceError] = useState(null);
       setAttendanceList(response.data);
       setNoResults(response.data.results.length === 0);
     } catch (error) {
-      setChurchAttendanceError(
-        error.response?.data?.message || 'Error fetching church attendance'
+      showAlert(
+        error.response?.data?.message || 'Error fetching attendance list',
+        'error',
       );
       setNoResults(false);
     }
@@ -208,7 +199,6 @@ const [myAttendanceError, setMyAttendanceError] = useState(null);
   // Get zonal attendance list
   const getZonalAttendanceList = async () => {
     try {
-      setZonalAttendanceError(null);
       const accessToken = localStorage.getItem('accessToken');
       if (!accessToken) {
         alert('Access token not found. Please login first.');
@@ -222,8 +212,9 @@ const [myAttendanceError, setMyAttendanceError] = useState(null);
       setZonalAttendanceList(response.data);
       setNoResults(response.data.results.length === 0);
     } catch (error) {
-      setZonalAttendanceError(
-        error.response?.data?.message || 'Error fetching zonal attendance'
+      showAlert(
+        error.response?.data?.message || 'Error fetching zonal attendance list',
+        'error',
       );
       setNoResults(false);
     }
@@ -232,7 +223,6 @@ const [myAttendanceError, setMyAttendanceError] = useState(null);
   // Get Central attendance lists
   const getCentralAttendanceList = async () => {
     try {
-      setCentralAttendanceError(null);
       const accessToken = localStorage.getItem('accessToken');
       if (!accessToken) {
         alert('Access token not found. Please login first.');
@@ -246,7 +236,7 @@ const [myAttendanceError, setMyAttendanceError] = useState(null);
       setCentralAttendanceList(response.data);
       setNoResults(response.data.results.length === 0);
     } catch (error) {
-      setCentralAttendanceError(
+      showAlert(
         error.response?.data?.message || 'Error fetching central attendance lists',
         'error',
       );
@@ -257,7 +247,6 @@ const [myAttendanceError, setMyAttendanceError] = useState(null);
    // Get Local Churches attendance lists
    const getAllLocalChurchesAttendanceList = async () => {
     try {
-      setLocalChurchesAttendanceError(null);
       const accessToken = localStorage.getItem('accessToken');
       if (!accessToken) {
         alert('Access token not found. Please login first.');
@@ -271,7 +260,7 @@ const [myAttendanceError, setMyAttendanceError] = useState(null);
       setLocalChurchesAttendanceList(response.data);
       setNoResults(response.data.results.length === 0);
     } catch (error) {
-      setLocalChurchesAttendanceError(
+      showAlert(
         error.response?.data?.message || 'Error fetching local churches attendance lists',
         'error',
       );
@@ -282,7 +271,6 @@ const [myAttendanceError, setMyAttendanceError] = useState(null);
   // Get all attendance lists
   const getAllAttendanceLists = async () => {
     try {
-      setAllAttendanceError(null);
       const accessToken = localStorage.getItem('accessToken');
       if (!accessToken) {
         alert('Access token not found. Please login first.');
@@ -296,7 +284,7 @@ const [myAttendanceError, setMyAttendanceError] = useState(null);
       setAllAttendanceList(response.data);
       setNoResults(response.data.results.length === 0);
     } catch (error) {
-      setAllAttendanceError(
+      showAlert(
         error.response?.data?.message || 'Error fetching all attendance lists',
         'error',
       );
@@ -307,8 +295,6 @@ const [myAttendanceError, setMyAttendanceError] = useState(null);
   // Get My attendance lists
   const getMyAttendanceLists = async () => {
     try {
-      setMyAttendanceError(null);
-      setMyAttendanceError
       const accessToken = localStorage.getItem('accessToken');
       if (!accessToken) {
         alert('Access token not found. Please login first.');
@@ -322,7 +308,7 @@ const [myAttendanceError, setMyAttendanceError] = useState(null);
       setMyAttendanceList(response.data);
       setNoResults(response.data.results.length === 0);
     } catch (error) {
-      setMyAttendanceError(
+      showAlert(
         error.response?.data?.message || 'Error fetching all attendance lists',
         'error',
       );
@@ -427,11 +413,7 @@ const formatDate = (dateString) => {
               </AlertDescription>
             </Alert>
           )}
-          {churchAttendanceError && (
-  <div className="text-red-500 p-2">
-    {churchAttendanceError}
-  </div>
-)}
+
           {/* Attendance Lists Sections */}
           <div className="grid grid-cols-1 gap-6">
             {/* Church Attendance List */}
@@ -586,12 +568,6 @@ const formatDate = (dateString) => {
                   </div>
                 </>
               )}
-
-              {zonalAttendanceError && (
-  <div className="text-red-500 p-2">
-    {zonalAttendanceError}
-  </div>
-)}
 
               {/* Zonal Attendance Lists */}
               <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
