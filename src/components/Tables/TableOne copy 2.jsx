@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { format, parseISO, isFuture, isToday, setYear, isPast } from 'date-fns';
+import { format, parseISO, isFuture, isToday, setYear } from 'date-fns';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card';
@@ -7,10 +7,6 @@ import ProfilePic from '../../../public/user/blackmanprofilepic.jpg';
 
 
 const TableOne = () => {
-  const [allUsers, setAllUsers] = useState([]); // Store all upcoming birthdays
-  const [displayedUsers, setDisplayedUsers] = useState([]); // Store currently displayed users
-
-
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -42,22 +38,6 @@ const TableOne = () => {
       return false;
     }
   };
-
-  const updateDisplayedUsers = (allUpcomingBirthdays) => {
-    const today = new Date();
-    
-    // Filter out past birthdays
-    const currentUpcomingBirthdays = allUpcomingBirthdays.filter(user => {
-      const birthday = parseISO(user.birth_date);
-      const birthdayThisYear = setYear(birthday, today.getFullYear());
-      return !isPast(birthdayThisYear) || isToday(birthdayThisYear);
-    });
-
-    // Take only the first 7 users or all if less than 7
-    setDisplayedUsers(currentUpcomingBirthdays.slice(0, 7));
-    setAllUsers(currentUpcomingBirthdays);
-  };
-
 
 
   useEffect(() => {
@@ -96,8 +76,7 @@ const TableOne = () => {
           return birthdayA.getTime() - birthdayB.getTime();
         });
       
-      // setUsers(usersWithBirthdays);
-      updateDisplayedUsers(usersWithBirthdays);
+      setUsers(usersWithBirthdays);
       setLoading(false);
     } catch (err) {
       if (err.response?.status === 401) {
@@ -113,33 +92,6 @@ const TableOne = () => {
   fetchUsers();
 }, [navigate]);
  
-// Check for passed birthdays every day and update the list
-useEffect(() => {
-  const checkBirthdays = () => {
-    if (allUsers.length > 0) {
-      updateDisplayedUsers(allUsers);
-    }
-  };
-
-  // Check at midnight each day
-  const now = new Date();
-  const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-  const timeUntilMidnight = tomorrow.getTime() - now.getTime();
-
-  // Initial check
-  checkBirthdays();
-
-  // Set up daily check
-  const timeout = setTimeout(() => {
-    checkBirthdays();
-    // Set up interval for subsequent days
-    const interval = setInterval(checkBirthdays, 24 * 60 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, timeUntilMidnight);
-
-  return () => clearTimeout(timeout);
-}, [allUsers]);
-
 
 const formatBirthDate = (dateString) => {
   try {
@@ -195,7 +147,7 @@ if (error) {
   return (
     <Card className="w-full rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
     <CardHeader>
-    <CardTitle className="text-xl font-semibold"> Upcoming Birthdays</CardTitle>
+    <CardTitle className="text-xl font-semibold">Upcoming Birthdays</CardTitle>
     </CardHeader>
     <CardContent className="p-0">
 
@@ -217,7 +169,7 @@ if (error) {
           </div>
 
        <div className="divide-y divide-gray-200 dark:divide-gray-700">
-       {displayedUsers.map((user, key) => (
+        {users.map((user, key) => (
           <div className="grid grid-cols-4 hover:bg-gray-50 dark:hover:bg-gray-800/50" key={key}>
                 <div className="p-4 flex items-center gap-3">
                   <div className="flex-shrink-0">
@@ -236,10 +188,8 @@ if (error) {
                   {formatBirthDate(user.birth_date)}
                 </div>
               </div>
-              
         ))}
       </div>
-      <p>Total: {displayedUsers.length} Birthdays</p>
       </div>
 
       {/* Mobile Table */}
@@ -281,7 +231,7 @@ if (error) {
 
       <div className="block md:hidden">
           <div className="divide-y divide-gray-200 dark:divide-gray-700">
-          {displayedUsers.map((user, key) => (
+            {users.map((user, key) => (
               <div key={key} className="p-4 space-y-3">
                 <div className="flex items-center gap-3">
                   <img 
@@ -309,12 +259,11 @@ if (error) {
               </div>
             ))}
           </div>
-          <p>Total: {displayedUsers.length} Birthdays</p>
         </div>
 
 
 
-        {displayedUsers.length === 0 && !loading && !error && (
+      {users.length === 0 && !loading && !error && (
         <div className="text-center p-8 text-gray-500">
           No birthdays found in the system
         </div>
