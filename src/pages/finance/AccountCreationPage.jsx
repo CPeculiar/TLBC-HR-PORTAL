@@ -27,7 +27,7 @@ const AccountCreationPage = () => {
 
   const fetchBanks = async () => {
     try {
-      const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/banks/');
+      const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/finance/banks/');
       setBanks(response.data.banks);
     } catch (error) {
       console.error('Error fetching banks:', error);
@@ -76,7 +76,7 @@ const AccountCreationPage = () => {
 
   const verifyAccountDetails = async (accountNumber, bankCode) => {
     try {
-      const response = await axios.post('https://tlbc-platform-api.onrender.com/api/finance/banks/verify/', {
+      const response = await axios.post('https://api.thelordsbrethrenchurch.org/api/finance/banks/verify/', {
         account_number: accountNumber,
         bank_code: bankCode,
       });
@@ -94,7 +94,7 @@ const AccountCreationPage = () => {
     setError('');
     try {
       const bankCode = document.getElementById('bank-dropdown').value;
-      const response = await axios.post('https://tlbc-platform-api.onrender.com/api/finance/accounts/create/', {
+      const response = await axios.post('https://api.thelordsbrethrenchurch.org/api/finance/accounts/create/', {
         account_number: accountNumber,
         bank_code: bankCode,
         for_giving: checkboxes.giving,

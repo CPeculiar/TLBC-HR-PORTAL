@@ -81,7 +81,7 @@ const startTokenRefresh = () => {
           // If token is invalid, attempt to refresh
           const refreshResult = await authService.refreshToken();
 
-        //   const response = await axios.post('https://tlbc-platform-api.onrender.com/api/token/refresh/', {});
+        //   const response = await axios.post('https://api.thelordsbrethrenchurch.org/api/token/refresh/', {});
         
         // if (response.data.access && response.data.refresh) {
         //   // Update tokens in localStorage

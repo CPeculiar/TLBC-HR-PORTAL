@@ -47,7 +47,7 @@ const CentralFundManagement = () => {
     const fetchChurches = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/churches/?limit=40');
+        const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/churches/?limit=40');
         setChurches(response.data.results);
         setIsLoading(false);
       } catch (error) {
@@ -61,7 +61,7 @@ const CentralFundManagement = () => {
     fetchOutgoingFunds();
   }, []);
 
-  const fetchIncomingFunds = async  (url = 'https://tlbc-platform-api.onrender.com/api/finance/central/fund/incoming/?limit=15') => {
+  const fetchIncomingFunds = async  (url = 'https://api.thelordsbrethrenchurch.org/api/finance/central/fund/incoming/?limit=15') => {
     try {
       setIsLoading(true);
       const response = await axios.get(url);
@@ -76,7 +76,7 @@ const CentralFundManagement = () => {
     }
   };
 
-  const fetchOutgoingFunds = async (url = 'https://tlbc-platform-api.onrender.com/api/finance/central/fund/outgoing/?limit=15') => {
+  const fetchOutgoingFunds = async (url = 'https://api.thelordsbrethrenchurch.org/api/finance/central/fund/outgoing/?limit=15') => {
     try {
       setIsLoading(true);
       const response = await axios.get(url);
@@ -174,11 +174,11 @@ const CentralFundManagement = () => {
 
       let endpoint = '';
       if (type === 'processing') {
-        endpoint = `https://tlbc-platform-api.onrender.com/api/finance/central/fund/${reference}/processing/`;
+        endpoint = `https://api.thelordsbrethrenchurch.org/api/finance/central/fund/${reference}/processing/`;
       } else if (type === 'paid') {
-        endpoint = `https://tlbc-platform-api.onrender.com/api/finance/central/fund/${reference}/paid/`;
+        endpoint = `https://api.thelordsbrethrenchurch.org/api/finance/central/fund/${reference}/paid/`;
       } else if (type === 'decline') {
-        endpoint = `https://tlbc-platform-api.onrender.com/api/finance/central/fund/${reference}/decline/`;
+        endpoint = `https://api.thelordsbrethrenchurch.org/api/finance/central/fund/${reference}/decline/`;
       }
 
       const response = await axios.post(endpoint);
@@ -249,7 +249,7 @@ const CentralFundManagement = () => {
     }
 
       const response = await axios.post(
-        'https://tlbc-platform-api.onrender.com/api/finance/central/fund/create/',
+        'https://api.thelordsbrethrenchurch.org/api/finance/central/fund/create/',
        formData, 
        {
         headers: {
@@ -311,7 +311,7 @@ const CentralFundManagement = () => {
       formData.append('files', uploadFileReference.file);
 
       const response = await axios.put(
-        `https://tlbc-platform-api.onrender.com/api/finance/central/fund/${uploadFileReference.reference}/upload/`,
+        `https://api.thelordsbrethrenchurch.org/api/finance/central/fund/${uploadFileReference.reference}/upload/`,
         formData,
         {
           headers: {
@@ -502,7 +502,7 @@ const CentralFundManagement = () => {
                              asChild
                            >
                              <a 
-                               href={`https://tlbc-platform-api.onrender.com${item.files[0]}`}
+                               href={`https://api.thelordsbrethrenchurch.org${item.files[0]}`}
                                target="_blank"
                                rel="noopener noreferrer"
                                className="inline-flex items-center gap-2"

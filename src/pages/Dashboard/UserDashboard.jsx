@@ -13,6 +13,7 @@ import TableOne from '../../components/Tables/TableOne';
 import DashboardHeader from './DashboardHeader';
 import MaskedCardDataStats from '../../components/MaskedCardDataStats';
 
+
 const UserDashboard = () => {
   const navigate = useNavigate();
 
@@ -33,7 +34,7 @@ const UserDashboard = () => {
     fetchFinancialData();
   }, [timeRange]);
 
-  const fetchFinancialData = async (url = 'https://tlbc-platform-api.onrender.com/api/finance/giving/list/?limit=1000') => {
+  const fetchFinancialData = async (url = 'https://api.thelordsbrethrenchurch.org/api/finance/giving/list/?limit=1000') => {
     try {
       const accessToken = localStorage.getItem("accessToken");
       if (!accessToken) {
@@ -115,7 +116,7 @@ const UserDashboard = () => {
       setLoading(true);
       const dateFilter = getDateFilter();
       const response = await axios.get(
-        `https://tlbc-platform-api.onrender.com/api/attendance/me/${dateFilter}`,
+        `https://api.thelordsbrethrenchurch.org/api/attendance/me/${dateFilter}`,
         {
           headers: { Authorization: `Bearer ${accessToken}` },
         }
@@ -275,6 +276,7 @@ const UserDashboard = () => {
           <TableOne />
         </div>
         <ChatCard />
+       
       </div>
     </>
   );

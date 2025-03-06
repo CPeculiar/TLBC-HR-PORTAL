@@ -45,7 +45,7 @@ const UserSearchAdmin = ({  deleteUser }) => {
 
 
       const response = await axios.get(
-        `https://tlbc-platform-api.onrender.com/api/users/?page=${page}&s=${searchTerm}`,
+        `https://api.thelordsbrethrenchurch.org/api/users/?page=${page}&s=${searchTerm}`,
         {
           headers: { Authorization: `Bearer ${accessToken}` },
         }
@@ -106,7 +106,7 @@ const UserSearchAdmin = ({  deleteUser }) => {
     try {
       const accessToken = localStorage.getItem("accessToken");
       const response = await axios.delete(
-        `https://tlbc-platform-api.onrender.com/api/users/${userToDelete.email}/`,
+        `https://api.thelordsbrethrenchurch.org/api/users/${userToDelete.email}/`,
         {
           headers: { Authorization: `Bearer ${accessToken}` },
         }

@@ -42,7 +42,7 @@ const GivingOnline = () => {
     try {
       const accessToken = localStorage.getItem("accessToken");
       const response = await axios.get(
-        `https://tlbc-platform-api.onrender.com/api/finance/giving/${reference}/verify/`, 
+        `https://api.thelordsbrethrenchurch.org/api/finance/giving/${reference}/verify/`, 
         {
           headers: { 
             Authorization: `Bearer ${accessToken}`,
@@ -79,7 +79,7 @@ const GivingOnline = () => {
         throw new Error("Access token not found");
       }
 
-      const response = await axios.get('https://tlbc-platform-api.onrender.com/api/churches/?limit=100', {
+      const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/churches/?limit=100', {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         }
@@ -144,7 +144,7 @@ const GivingOnline = () => {
 
       // Initialize payment on your server
       const response = await axios.post(
-        'https://tlbc-platform-api.onrender.com/api/finance/giving/payment/',
+        'https://api.thelordsbrethrenchurch.org/api/finance/giving/payment/',
         formData,
         {
           headers: { 
@@ -165,7 +165,7 @@ const GivingOnline = () => {
             try {
               // Verify transaction first
               const verifyResponse = await axios.get(
-               `https://tlbc-platform-api.onrender.com/api/finance/giving/${paystackResponse.reference}/verify/`,
+               `https://api.thelordsbrethrenchurch.org/api/finance/giving/${paystackResponse.reference}/verify/`,
                 {
                   headers: { 
                     Authorization: `Bearer ${accessToken}`,
@@ -249,7 +249,7 @@ const GivingOnline = () => {
               className="w-full p-2 border rounded"
               required
             >
-              <option value="TITHE">Stewardship</option>
+              <option value="STEWARDSHIP">Stewardship</option>
               <option value="OFFERING">Offering</option>
               <option value="PROJECT">Project</option>
               <option value="WELFARE">Welfare</option>

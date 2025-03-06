@@ -28,7 +28,7 @@ const DashboardHeader = () => {
         }
   
         const response = await axios.get(
-          "https://tlbc-platform-api.onrender.com/api/user/",
+          "https://api.thelordsbrethrenchurch.org/api/user/",
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,

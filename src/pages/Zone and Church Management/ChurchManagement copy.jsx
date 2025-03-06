@@ -56,7 +56,7 @@ const ChurchManagement = () => {
    });
 
    // API base URL
-  const API_BASE_URL = 'https://tlbc-platform-api.onrender.com/api';
+  const API_BASE_URL = 'https://api.thelordsbrethrenchurch.org/api';
  
    // Fetch zones on component load
   useEffect(() => {

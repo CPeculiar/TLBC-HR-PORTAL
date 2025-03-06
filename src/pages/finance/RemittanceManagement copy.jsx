@@ -29,7 +29,7 @@ const RemittanceManagement = () => {
     const fetchChurches = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/churches/?limit=40');
+        const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/churches/?limit=40');
         setChurches(response.data.results);
         setIsLoading(false);
       } catch (error) {
@@ -41,7 +41,7 @@ const RemittanceManagement = () => {
     const fetchIncomingRemittances = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/remittance/incoming/?limit=30');
+        const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/finance/remittance/incoming/?limit=30');
         setIncomingRemittances(response.data.results);
         setIncomingPagination({
           count: response.data.count,
@@ -58,7 +58,7 @@ const RemittanceManagement = () => {
     const fetchOutgoingRemittances = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/remittance/outgoing/?limit=30');
+        const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/finance/remittance/outgoing/?limit=30');
         setOutgoingRemittances(response.data.results);
         setOutgoingPagination({
           count: response.data.count,
@@ -124,7 +124,7 @@ const RemittanceManagement = () => {
         formData.append('files', remittanceFile);
       }
 
-      const response = await axios.post('https://tlbc-platform-api.onrender.com/api/finance/remittance/create', formData, {
+      const response = await axios.post('https://api.thelordsbrethrenchurch.org/api/finance/remittance/create', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -186,9 +186,9 @@ const RemittanceManagement = () => {
       setIsLoading(true);
       let endpoint = '';
       if (type === 'confirm') {
-        endpoint = `https://tlbc-platform-api.onrender.com/api/finance/remittance/${reference}/confirm/`;
+        endpoint = `https://api.thelordsbrethrenchurch.org/api/finance/remittance/${reference}/confirm/`;
       } else if (type === 'paid') {
-        endpoint = `https://tlbc-platform-api.onrender.com/api/finance/remittance/${reference}/paid/`;
+        endpoint = `https://api.thelordsbrethrenchurch.org/api/finance/remittance/${reference}/paid/`;
       }
 
       const response = await axios.post(endpoint);
@@ -216,7 +216,7 @@ const RemittanceManagement = () => {
       formData.append('files', uploadFileReference.file);
 
       const response = await axios.put(
-        `https://tlbc-platform-api.onrender.com/api/finance/remittance/${uploadFileReference.reference}/upload/`,
+        `https://api.thelordsbrethrenchurch.org/api/finance/remittance/${uploadFileReference.reference}/upload/`,
         formData,
         {
           headers: {
@@ -442,7 +442,7 @@ const RemittanceManagement = () => {
                   <td className="p-3">
                     {item.files && item.files.length > 0 ? (
                       <a 
-                        href={`https://tlbc-platform-api.onrender.com${item.files[0]}`} 
+                        href={`https://api.thelordsbrethrenchurch.org${item.files[0]}`} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="text-blue-500 dark:text-blue-400 hover:underline flex items-center"

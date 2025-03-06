@@ -52,8 +52,10 @@ const AdvancedUserSearchPage = () => {
     const [churches, setChurches] = useState([]);
     const [zones, setZones] = useState([]);
 
-    const [nextPageUrl, setNextPageUrl] = useState(null);
-    const [previousPageUrl, setPreviousPageUrl] = useState(null);
+     // URLs for pagination
+     const [nextPageUrl, setNextPageUrl] = useState(null);
+     const [previousPageUrl, setPreviousPageUrl] = useState(null);
+     const [totalCount, setTotalCount] = useState(0);
 
 
  // Fetch churches and zones on component mount
@@ -64,11 +66,11 @@ const AdvancedUserSearchPage = () => {
 
       try {
           const [churchResponse, zoneResponse] = await Promise.all([
-              axios.get('https://tlbc-platform-api.onrender.com/api/churches/', {
+              axios.get('https://api.thelordsbrethrenchurch.org/api/churches/', {
                   headers: { Authorization: `Bearer ${accessToken}` },
                   params: { limit: 50 }
               }),
-              axios.get('https://tlbc-platform-api.onrender.com/api/zones/', {
+              axios.get('https://api.thelordsbrethrenchurch.org/api/zones/', {
                   headers: { Authorization: `Bearer ${accessToken}` },
                   params: { limit: 20 }
               })
@@ -118,18 +120,19 @@ const AdvancedUserSearchPage = () => {
     { key: 'wfs_graduation_year_min', label: 'WFS Graduation Year (Min.)', type: 'number' }
   ];
 
-  // Fetch users based on search parameters
-    const fetchUsers = async (pageUrl = null, params = {}) => {
-        setError(null);
-        setIsLoading(true);
-        setIsUsernameSearch(false); 
+  // Fetch users based on search parametersl
+  const fetchUsers = async (pageUrl = null, params = {}) => {
+    setError(null);
+    setIsLoading(true);
+    setIsUsernameSearch(false);
+    
     try {
-      const accessToken = localStorage.getItem("accessToken");
-      if (!accessToken) {
-        alert("Access token not found. Please login first.");
-        navigate("/");
-        return;
-      }
+        const accessToken = localStorage.getItem("accessToken");
+        if (!accessToken) {
+            alert("Access token not found. Please login first.");
+            navigate("/");
+            return;
+        }
 
        // Convert church and zone to their respective slugs
        if (params.church) {
@@ -145,10 +148,10 @@ const AdvancedUserSearchPage = () => {
        // Check if we're searching by username
        const usernameField = searchFields.find(field => field.key === 'username');
        if (usernameField && usernameField.value) {
-        setIsUsernameSearch(true);
+           setIsUsernameSearch(true);
            // Make the specific username API call
            const response = await axios.get(
-               `https://tlbc-platform-api.onrender.com/api/users/${usernameField.value}/`,
+               `https://api.thelordsbrethrenchurch.org/api/users/${usernameField.value}/`,
                {
                    headers: { Authorization: `Bearer ${accessToken}` }
                }
@@ -158,23 +161,35 @@ const AdvancedUserSearchPage = () => {
            setNextPageUrl(null);
            setPreviousPageUrl(null);
            setSelectedUser(response.data);
+           setTotalCount(1);
            // Automatically show the profile card for username search
            setSelectedUser(response.data);
        } else {
            // Make the regular search API call
-           const url = pageUrl || 'https://tlbc-platform-api.onrender.com/api/users/';
+           const url = pageUrl || 'https://api.thelordsbrethrenchurch.org/api/users/';
            const config = {
-          headers: { Authorization: `Bearer ${accessToken}` },
-          params: pageUrl ? {} : params // Only include params if it's not a pagination URL
-              };
+               headers: { Authorization: `Bearer ${accessToken}` },
+               params: pageUrl ? {} : params // Only include params if it's not a pagination URL
+           };
       
-            const response = await axios.get(url, config);
-            const data = response.data;
+           const response = await axios.get(url, config);
+           const data = response.data;
 
-            setUsers(data.results || []);
+           setUsers(data.results || []);
+            setTotalCount(data.count || 0);
             setTotalPages(data.count ? Math.ceil(data.count / data.limit) : 1);
             setNextPageUrl(data.next);
             setPreviousPageUrl(data.previous);
+
+             // Update current page based on URL if available
+             if (pageUrl) {
+              const pageMatch = pageUrl.match(/page=(\d+)/);
+              if (pageMatch && pageMatch[1]) {
+                  setCurrentPage(parseInt(pageMatch[1]));
+              }
+          } else {
+              setCurrentPage(1);
+          }
           }
             setIsLoading(false);
           } catch (error) {
@@ -193,21 +208,24 @@ const AdvancedUserSearchPage = () => {
 
             setNextPageUrl(null);
             setPreviousPageUrl(null);
+            setTotalCount(0);
           }
         };
 
           // Update the pagination handlers
-    const handlePrevPage = () => {
-      if (previousPageUrl) {
-          fetchUsers(previousPageUrl);
-      }
-  };
+          const handlePrevPage = () => {
+            if (previousPageUrl && !isLoading) {
+                fetchUsers(previousPageUrl);
+            }
+        };
+        
+        const handleNextPage = () => {
+            if (nextPageUrl && !isLoading) {
+                fetchUsers(nextPageUrl);
+            }
+        };
 
-  const handleNextPage = () => {
-      if (nextPageUrl) {
-          fetchUsers(nextPageUrl);
-      }
-  };
+        
 
   const hasPagination = () => {
     return nextPageUrl !== null || previousPageUrl !== null;
@@ -277,6 +295,7 @@ const AdvancedUserSearchPage = () => {
         setTotalPages(1);
         setNextPageUrl(null);
         setPreviousPageUrl(null);
+        setTotalCount(0);
     };
 
     // Handler for viewing user details
@@ -534,28 +553,105 @@ const AdvancedUserSearchPage = () => {
         )}
       </div>
 
+     {/* Pagination - Responsive */}
+     {users.length > 0 && (
+            <div className="flex flex-col sm:flex-row justify-between items-center mt-4 space-y-2 sm:space-y-0">
+                <span className="text-xs sm:text-sm text-gray-600 dark:text-white">
+                    {/* Show total count from API response */}
+                    {totalCount > 0 
+                ? `Showing ${(currentPage - 1) * users.length + 1}-${Math.min(currentPage * users.length, totalCount)} of ${totalCount} total users` 
+                : `Total Users: ${users.length}`}
+
+                    {/* {totalCount > 0 
+                    ? `Showing ${users.length} of ${totalCount} total users` : `Total Users: ${users.length}`}
+                    {currentPage > 1 && totalPages > 1 && ` | Page ${currentPage} of ${totalPages}`} */}
+                </span>
+                <div className="flex space-x-2">
+                    {/* Clear/Close button */}
+                    <button
+                        className="rounded-md px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 dark:bg-red-700 dark:hover:bg-red-600 transition-colors duration-300 flex items-center"
+                        onClick={clearSearchResults}
+                        disabled={users.length === 0}
+                    >
+                        Close
+                    </button>
+
+                     {/* Pagination buttons */}
+            <button
+                className={`rounded-md px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white 
+                    ${!previousPageUrl || isLoading
+                        ? 'bg-primary/50 cursor-not-allowed' 
+                        : 'bg-primary hover:bg-opacity-90'}`}
+                onClick={handlePrevPage}
+                disabled={!previousPageUrl || isLoading}
+            >
+                Previous
+            </button>[]
+            <button
+                className={`rounded-md px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white 
+                    ${!nextPageUrl || isLoading
+                        ? 'bg-primary/50 cursor-not-allowed' 
+                        : 'bg-primary hover:bg-opacity-90'}`}
+                onClick={handleNextPage}
+                disabled={!nextPageUrl || isLoading}
+            >
+                Next
+            </button>
+                    
+                    {/* Only show pagination buttons if we have results */}
+                    {/* {users.length > 0 && (
+                        <>
+                            <button
+                                className={`rounded-md px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white 
+                                    ${!previousPageUrl 
+                                        ? 'bg-primary/50 cursor-not-allowed dark:bg-form-input' 
+                                        : 'bg-primary hover:bg-opacity-90'}`}
+                                onClick={handlePrevPage}
+                                disabled={!previousPageUrl || isLoading}
+                            >
+                                Previous
+                            </button>
+                            <button
+                                className={`rounded-md px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white 
+                                    ${!nextPageUrl 
+                                        ? 'bg-primary/50 cursor-not-allowed dark:bg-form-input' 
+                                        : 'bg-primary hover:bg-opacity-90'}`}
+                                onClick={handleNextPage}
+                                disabled={!nextPageUrl || isLoading}
+                            >
+                                Next
+                            </button>
+                        </>
+                    )} */}
+                </div>
+            </div>
+        )}
+
+      </div>
+
+
         {/* Pagination - Responsive */}
-        {users.length > 0 && (
+        {/* {users.length > 0 && (
                 <div className="flex flex-col sm:flex-row justify-between items-center mt-4 space-y-2 sm:space-y-0">
-                    <span className="text-xs sm:text-sm text-gray-600 dark:text-white">
+                    <span className="text-xs sm:text-sm text-gray-600 dark:text-white"> */}
                         {/* Only show pagination info if there's actually pagination */}
-                        {hasPagination() 
+                        {/* {hasPagination() 
                             ? `Total Users: ${users.length} of ${totalPages * users.length}`
                             : `Total Users: ${users.length}`
                         }
                     </span>
-                    <div className="flex space-x-2">
+                    <div className="flex space-x-2"> */}
                         {/* Clear/Close button */}
-                        <button
+                        {/* <button
                             className="rounded-md px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 dark:bg-red-700 dark:hover:bg-red-600 transition-colors duration-300 flex items-center"
                             onClick={clearSearchResults}
                             disabled={users.length === 0}
                         >
                             Close
-                        </button>
+                        </button> */}
                         
                        {/* Only show pagination buttons if there's pagination data */}
-                       {hasPagination() && (
+                       {/* {hasPagination() && (
                             <>
                                 <button
                                     className={`rounded-md px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white 
@@ -583,7 +679,7 @@ const AdvancedUserSearchPage = () => {
                 </div>
             )}
 
-      </div>
+      </div> */}
 
       {selectedUser && !isUsernameSearch && (
         <UserProfileCard 

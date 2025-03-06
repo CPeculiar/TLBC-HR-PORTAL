@@ -40,7 +40,7 @@ const Profile = () => {
         }
 
         const response = await axios.get(
-          'https://tlbc-platform-api.onrender.com/api/user/',
+          'https://api.thelordsbrethrenchurch.org/api/user/',
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -111,7 +111,7 @@ const Profile = () => {
       formDataToSend.append('profile_picture', file);
 
       const response = await axios.patch(
-        'https://tlbc-platform-api.onrender.com/api/user/',
+        'https://api.thelordsbrethrenchurch.org/api/user/',
         formDataToSend,
         {
           headers: {

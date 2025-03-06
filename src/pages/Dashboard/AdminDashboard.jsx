@@ -13,6 +13,7 @@ import TableOne from '../../components/Tables/TableOne';
 import { Eye, EyeOff } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card';
 import MaskedCardDataStats from '../../components/MaskedCardDataStats';
+import UserChat from '../../components/Chat/UserChat';
 
 // const MaskedCardDataStats = ({ title, total, icon: Icon }) => {
 //   const [isVisible, setIsVisible] = useState(true);
@@ -79,7 +80,7 @@ const AdminDashboard = () => {
       fetchFinancialData();
     }, [timeRange]);
 
-    const fetchFinancialData = async (url = 'https://tlbc-platform-api.onrender.com/api/finance/giving/list/?limit=1000') => {
+    const fetchFinancialData = async (url = 'https://api.thelordsbrethrenchurch.org/api/finance/giving/list/?limit=1000') => {
         try {
           const accessToken = localStorage.getItem("accessToken");
           if (!accessToken) {
@@ -161,7 +162,7 @@ const AdminDashboard = () => {
         setLoading(true);
         const dateFilter = getDateFilter();
         const response = await axios.get(
-          `https://tlbc-platform-api.onrender.com/api/attendance/me/${dateFilter}`,
+          `https://api.thelordsbrethrenchurch.org/api/attendance/me/${dateFilter}`,
           {
             headers: { Authorization: `Bearer ${accessToken}` },
           }
@@ -238,31 +239,31 @@ const AdminDashboard = () => {
 const fetchDashboardData = async () => {
   try {
     // Fetch total users
-    const usersResponse = await axios.get('https://tlbc-platform-api.onrender.com/api/users/count/', {
+    const usersResponse = await axios.get('https://api.thelordsbrethrenchurch.org/api/users/count/', {
       headers: { 'Authorization': `Bearer ${accessToken}` }
     });
     setTotalUsers(usersResponse.data.total);
 
     // Fetch total zones
-    const zonesResponse = await axios.get('https://tlbc-platform-api.onrender.com/api/zones/', {
+    const zonesResponse = await axios.get('https://api.thelordsbrethrenchurch.org/api/zones/', {
       headers: { 'Authorization': `Bearer ${accessToken}` }
     });
     setTotalZones(zonesResponse.data.count);
 
     // Fetch total churches
-    const churchesResponse = await axios.get('https://tlbc-platform-api.onrender.com/api/churches/', {
+    const churchesResponse = await axios.get('https://api.thelordsbrethrenchurch.org/api/churches/', {
       headers: { 'Authorization': `Bearer ${accessToken}` }
     });
     setTotalChurches(churchesResponse.data.count);
 
     // Fetch male users
-    const maleUsersResponse = await axios.get('https://tlbc-platform-api.onrender.com/api/users/count/', {
+    const maleUsersResponse = await axios.get('https://api.thelordsbrethrenchurch.org/api/users/count/', {
       headers: { 'Authorization': `Bearer ${accessToken}` }
     });
     setMaleUsers(maleUsersResponse.data.male);
 
     // Fetch female users
-    const femaleUsersResponse = await axios.get('https://tlbc-platform-api.onrender.com/api/users/count/', {
+    const femaleUsersResponse = await axios.get('https://api.thelordsbrethrenchurch.org/api/users/count/', {
       headers: { 'Authorization': `Bearer ${accessToken}` }
     });
     setFemaleUsers(femaleUsersResponse.data.female);
@@ -509,6 +510,7 @@ fetchDashboardData();
           <TableOne />
         </div>
         <ChatCard />
+        {/* <UserChat /> */}
       </div>
     </>
   );

@@ -22,7 +22,7 @@ const RemoveUserFromGroup = () => {
   const fetchPermissions = async () => {
     try {
       const response = await axios.get(
-        'https://tlbc-platform-api.onrender.com/api/groups/',
+        'https://api.thelordsbrethrenchurch.org/api/groups/',
         {
           withCredentials: true
         }
@@ -74,7 +74,7 @@ const RemoveUserFromGroup = () => {
     setIsLoading(true);
     try {
       const response = await axios.put(
-        `https://tlbc-platform-api.onrender.com/api/groups/${formData.selectedPermission}/`,
+        `https://api.thelordsbrethrenchurch.org/api/groups/${formData.selectedPermission}/`,
         {
           remove_users: [formData.username]
         },

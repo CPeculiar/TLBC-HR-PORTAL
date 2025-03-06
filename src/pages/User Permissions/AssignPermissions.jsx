@@ -21,7 +21,7 @@ const AssignPermissions = () => {
   // Fetch all permissions
   const fetchPermissions = async () => {
     try {
-      const response = await axios.get('https://tlbc-platform-api.onrender.com/api/permissions/');
+      const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/permissions/');
       setPermissions(response.data);
     } catch (err) {
       setError(error.response?.data?.detail || error.response?.data?.church?.[0] || err.response?.data?.detail || 'Failed to fetch permissions');
@@ -31,7 +31,7 @@ const AssignPermissions = () => {
   // Fetch all groups
   const fetchGroups = async () => {
     try {
-      const response = await axios.get('https://tlbc-platform-api.onrender.com/api/groups/');
+      const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/groups/');
       setGroups(response.data.results);
       await Promise.all(response.data.results.map(group => fetchGroupPermissions(group.name)));
     } catch (err) {
@@ -43,7 +43,7 @@ const AssignPermissions = () => {
   // Fetch permissions for a specific group
   const fetchGroupPermissions = async (groupName) => {
     try {
-      const response = await axios.get(`https://tlbc-platform-api.onrender.com/api/groups/${groupName}/`);
+      const response = await axios.get(`https://api.thelordsbrethrenchurch.org/api/groups/${groupName}/`);
       setGroupPermissions(prev => ({
         ...prev,
         [groupName]: response.data.permissions.map(p => p.codename)
@@ -66,7 +66,7 @@ const AssignPermissions = () => {
 
     try {
       await axios.put(
-        `https://tlbc-platform-api.onrender.com/api/groups/${groupName}/`,
+        `https://api.thelordsbrethrenchurch.org/api/groups/${groupName}/`,
         requestBody,
         {
           headers: { 'Content-Type': 'application/json' },

@@ -43,7 +43,7 @@ const CentralFundTransfer = () => {
 
   const fetchAccounts = async () => {
     try {
-      const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/central/accounts/?limit=30');
+      const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/finance/central/accounts/?limit=30');
       setAccounts(response.data.results);
     } catch (error) {
       console.error('Error fetching accounts:', error);
@@ -61,7 +61,7 @@ const CentralFundTransfer = () => {
     setTransferAccountDetails(null);
 
     try {
-      const response = await axios.get(`https://tlbc-platform-api.onrender.com/api/finance/central/accounts/${selectedTransferAccount}/`);
+      const response = await axios.get(`https://api.thelordsbrethrenchurch.org/api/finance/central/accounts/${selectedTransferAccount}/`);
       setTransferAccountDetails(response.data);
     } catch (error) {
       showErrorMessage(handleErrorMessage(error));
@@ -81,7 +81,7 @@ const CentralFundTransfer = () => {
     setErrorDetails({ code: '', message: '' });
 
     try {
-      await axios.post('https://tlbc-platform-api.onrender.com/api/finance/central/accounts/transfer/', {
+      await axios.post('https://api.thelordsbrethrenchurch.org/api/finance/central/accounts/transfer/', {
         from_account: selectedTransferAccount,
         to_account: beneficiaryAccount,
         amount: transferAmount,

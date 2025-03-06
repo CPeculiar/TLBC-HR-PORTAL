@@ -72,7 +72,7 @@ const ChangePassword = () => {
     }
     setIsLoading(true);
 
-      const response = await axios.post('https://tlbc-platform-api.onrender.com/api/password/change/', {
+      const response = await axios.post('https://api.thelordsbrethrenchurch.org/api/password/change/', {
         old_password: oldPassword,
         new_password: newPassword, 
       },

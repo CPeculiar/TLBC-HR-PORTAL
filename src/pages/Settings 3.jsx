@@ -118,7 +118,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
         }
         setLoading(true);
 
-      const response = await axios.get('https://tlbc-platform-api.onrender.com/api/user/', {
+      const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/user/', {
         headers: { Authorization: `Bearer ${accessToken}` }
       });
 
@@ -145,7 +145,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
           throw new Error("Access token not found");
         }
   
-        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/churches/?limit=100', {
+        const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/churches/?limit=100', {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           }
@@ -321,7 +321,7 @@ const getCurrentChurchSlug = (slug) => {
       formDataToSend.append("profile_picture", file);
 
       const response = await axios.patch(
-        "https://tlbc-platform-api.onrender.com/api/user/",
+        "https://api.thelordsbrethrenchurch.org/api/user/",
         formDataToSend,
         {
           headers: {
@@ -421,7 +421,7 @@ const getCurrentChurchSlug = (slug) => {
 
 
       const response = await axios.patch(
-        'https://tlbc-platform-api.onrender.com/api/user/',
+        'https://api.thelordsbrethrenchurch.org/api/user/',
         formDataToSend,
         {
           headers: {

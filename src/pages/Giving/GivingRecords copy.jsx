@@ -16,7 +16,7 @@ const GivingRecords = () => {
     const [uploadError, setUploadError] = useState('');
     const [uploadSuccess, setUploadSuccess] = useState('');
 
-  const fetchRecords = async (url = 'https://tlbc-platform-api.onrender.com/api/finance/giving/list/?limit=20') => {
+  const fetchRecords = async (url = 'https://api.thelordsbrethrenchurch.org/api/finance/giving/list/?limit=20') => {
     setIsLoading(true);
     try {
       const response = await axios.get(url, { withCredentials: true });
@@ -32,7 +32,7 @@ const GivingRecords = () => {
   const fetchRecordDetails = async (reference) => {
     try {
       const response = await axios.get(
-        `https://tlbc-platform-api.onrender.com/api/finance/giving/${reference}/`,
+        `https://api.thelordsbrethrenchurch.org/api/finance/giving/${reference}/`,
         { withCredentials: true }
       );
       setSelectedRecord(response.data);
@@ -63,7 +63,7 @@ const GivingRecords = () => {
 
     try {
       await axios.patch(
-        `https://tlbc-platform-api.onrender.com/api/finance/giving/${selectedRecord.reference}/upload/`,
+        `https://api.thelordsbrethrenchurch.org/api/finance/giving/${selectedRecord.reference}/upload/`,
         formData,
         {
           withCredentials: true,

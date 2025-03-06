@@ -34,7 +34,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         }
 
         const response = await axios.get(
-          'https://tlbc-platform-api.onrender.com/api/permissions/module/',
+          'https://api.thelordsbrethrenchurch.org/api/permissions/module/',
           {
             headers: { 'Authorization': `Bearer ${accessToken}` }
           }
