@@ -442,7 +442,8 @@ const CentralRemittanceManagement = () => {
                   <td className="p-3">
                     {item.files && item.files.length > 0 ? (
                       <a 
-                        href={`https://tlbc-platform-api.onrender.com${item.files[0]}`} 
+                        // href={`https://tlbc-platform-api.onrender.com${item.files[0]}`} 
+                        href={`${item.files[0]}`} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="text-blue-500 dark:text-blue-400 hover:underline flex items-center"

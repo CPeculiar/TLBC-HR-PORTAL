@@ -406,7 +406,7 @@ const SignIn = () => {
              value="Sign In"
               type="submit"
               disabled={isLoading}
-              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white transition duration-150 ease-in-out 
+              className={`group relative w-full flex justify-center py-3 px-4 border border-transparent text-xl font-medium rounded-md text-white transition duration-150 ease-in-out 
   ${isLoading ? "bg-[#A9A9A9] cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
   }`}>
               {isLoading ? "Logging in..." : "Login"}
@@ -417,7 +417,7 @@ const SignIn = () => {
                   </div>
 
                   {/* Google Sign In */}
-                  <div className="mt-6">
+                  {/* <div className="mt-6">
                     <button className="flex w-full items-center justify-center gap-3.5 rounded-lg border border-stroke bg-gray p-4 hover:bg-opacity-50 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-50">
                       <span>
                         <svg
@@ -454,7 +454,7 @@ const SignIn = () => {
                       </span>
                       Sign in with Google
                     </button>
-                  </div>
+                  </div> */}
 
                   {/* Sign up link */}
                   <div className="mt-6 text-center">

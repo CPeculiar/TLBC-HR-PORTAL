@@ -13,6 +13,7 @@ import TableOne from '../../components/Tables/TableOne';
 import DashboardHeader from './DashboardHeader';
 import MaskedCardDataStats from '../../components/MaskedCardDataStats';
 
+
 const UserDashboard = () => {
   const navigate = useNavigate();
 
@@ -275,6 +276,7 @@ const UserDashboard = () => {
           <TableOne />
         </div>
         <ChatCard />
+       
       </div>
     </>
   );

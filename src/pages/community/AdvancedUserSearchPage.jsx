@@ -52,8 +52,10 @@ const AdvancedUserSearchPage = () => {
     const [churches, setChurches] = useState([]);
     const [zones, setZones] = useState([]);
 
-    const [nextPageUrl, setNextPageUrl] = useState(null);
-    const [previousPageUrl, setPreviousPageUrl] = useState(null);
+     // URLs for pagination
+     const [nextPageUrl, setNextPageUrl] = useState(null);
+     const [previousPageUrl, setPreviousPageUrl] = useState(null);
+     const [totalCount, setTotalCount] = useState(0);
 
 
  // Fetch churches and zones on component mount
@@ -158,6 +160,7 @@ const AdvancedUserSearchPage = () => {
            setNextPageUrl(null);
            setPreviousPageUrl(null);
            setSelectedUser(response.data);
+           setTotalCount(1);
            // Automatically show the profile card for username search
            setSelectedUser(response.data);
        } else {
@@ -172,6 +175,7 @@ const AdvancedUserSearchPage = () => {
             const data = response.data;
 
             setUsers(data.results || []);
+            setTotalCount(data.count || 0);
             setTotalPages(data.count ? Math.ceil(data.count / data.limit) : 1);
             setNextPageUrl(data.next);
             setPreviousPageUrl(data.previous);
@@ -193,20 +197,23 @@ const AdvancedUserSearchPage = () => {
 
             setNextPageUrl(null);
             setPreviousPageUrl(null);
+            setTotalCount(0);
           }
         };
 
           // Update the pagination handlers
     const handlePrevPage = () => {
       if (previousPageUrl) {
-          fetchUsers(previousPageUrl);
-      }
+        fetchUsers(previousPageUrl);
+        setCurrentPage(prev => prev - 1);
+    }
   };
 
   const handleNextPage = () => {
-      if (nextPageUrl) {
-          fetchUsers(nextPageUrl);
-      }
+    if (nextPageUrl) {
+      fetchUsers(nextPageUrl);
+      setCurrentPage(prev => prev + 1);
+  }
   };
 
   const hasPagination = () => {
@@ -277,6 +284,7 @@ const AdvancedUserSearchPage = () => {
         setTotalPages(1);
         setNextPageUrl(null);
         setPreviousPageUrl(null);
+        setTotalCount(0);
     };
 
     // Handler for viewing user details
@@ -534,28 +542,77 @@ const AdvancedUserSearchPage = () => {
         )}
       </div>
 
+       {/* Pagination - Responsive */}
+       {users.length > 0 && (
+            <div className="flex flex-col sm:flex-row justify-between items-center mt-4 space-y-2 sm:space-y-0">
+                <span className="text-xs sm:text-sm text-gray-600 dark:text-white">
+                    {/* Show total count from API response */}
+                    {totalCount > 0 ? `Showing ${users.length} of ${totalCount} total users` : `Total Users: ${users.length}`}
+                    {currentPage > 1 && totalPages > 1 && ` | Page ${currentPage} of ${totalPages}`}
+                </span>
+                <div className="flex space-x-2">
+                    {/* Clear/Close button */}
+                    <button
+                        className="rounded-md px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 dark:bg-red-700 dark:hover:bg-red-600 transition-colors duration-300 flex items-center"
+                        onClick={clearSearchResults}
+                        disabled={users.length === 0}
+                    >
+                        Close
+                    </button>
+                    
+                    {/* Only show pagination buttons if we have results */}
+                    {users.length > 0 && (
+                        <>
+                            <button
+                                className={`rounded-md px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white 
+                                    ${!previousPageUrl 
+                                        ? 'bg-primary/50 cursor-not-allowed dark:bg-form-input' 
+                                        : 'bg-primary hover:bg-opacity-90'}`}
+                                onClick={handlePrevPage}
+                                disabled={!previousPageUrl || isLoading}
+                            >
+                                Previous
+                            </button>
+                            <button
+                                className={`rounded-md px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white 
+                                    ${!nextPageUrl 
+                                        ? 'bg-primary/50 cursor-not-allowed dark:bg-form-input' 
+                                        : 'bg-primary hover:bg-opacity-90'}`}
+                                onClick={handleNextPage}
+                                disabled={!nextPageUrl || isLoading}
+                            >
+                                Next
+                            </button>
+                        </>
+                    )}
+                </div>
+            </div>
+        )}
+
+      </div>
+
         {/* Pagination - Responsive */}
-        {users.length > 0 && (
+        {/* {users.length > 0 && (
                 <div className="flex flex-col sm:flex-row justify-between items-center mt-4 space-y-2 sm:space-y-0">
-                    <span className="text-xs sm:text-sm text-gray-600 dark:text-white">
-                        {/* Only show pagination info if there's actually pagination */}
-                        {hasPagination() 
+                    <span className="text-xs sm:text-sm text-gray-600 dark:text-white"> */}
+                        {/* Only show pagination info if there's actually pagination */}  
+                        {/* {hasPagination() 
                             ? `Total Users: ${users.length} of ${totalPages * users.length}`
                             : `Total Users: ${users.length}`
                         }
                     </span>
-                    <div className="flex space-x-2">
+                    <div className="flex space-x-2"> */}
                         {/* Clear/Close button */}
-                        <button
+                        {/* <button
                             className="rounded-md px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 dark:bg-red-700 dark:hover:bg-red-600 transition-colors duration-300 flex items-center"
                             onClick={clearSearchResults}
                             disabled={users.length === 0}
                         >
                             Close
-                        </button>
+                        </button> */}
                         
                        {/* Only show pagination buttons if there's pagination data */}
-                       {hasPagination() && (
+                       {/* {hasPagination() && (
                             <>
                                 <button
                                     className={`rounded-md px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white 
@@ -583,7 +640,7 @@ const AdvancedUserSearchPage = () => {
                 </div>
             )}
 
-      </div>
+      </div> */}
 
       {selectedUser && !isUsernameSearch && (
         <UserProfileCard 

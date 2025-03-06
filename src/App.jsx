@@ -87,6 +87,8 @@ import CentralFundTransfer from './pages/Central Finance/CentralFundTransfer';
 import AccountStatementSidebar from './pages/finance/AccountStatementSidebar';
 import CentralAccountStatementSidebar from './pages/Central Finance/CentralAccountStatementSidebar';
 import TransactionChart from './pages/finance/TransactionChart';
+import ChatComponent from './components/Chat/ChatComponent';
+import UserChat from './components/Chat/UserChat';
 
 
 
@@ -377,7 +379,9 @@ useEffect(() => {
       <Route path="/permissionmanagement" element={withDefaultLayout(<AssignPermissions />, "Permissions Management")} />
       <Route path="/viewpermissions" element={withDefaultLayout(<ViewPermissions />, "View Permissions")} />
 
-
+            {/* Chat */}
+            <Route path="/ChatComponent" element={withDefaultLayout(<ChatComponent />, "Chat")} />
+            <Route path="/UserChat" element={withDefaultLayout(<UserChat />, "Chat")} />
        
 
 

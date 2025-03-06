@@ -13,6 +13,7 @@ import TableOne from '../../components/Tables/TableOne';
 import { Eye, EyeOff } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card';
 import MaskedCardDataStats from '../../components/MaskedCardDataStats';
+import UserChat from '../../components/Chat/UserChat';
 
 // const MaskedCardDataStats = ({ title, total, icon: Icon }) => {
 //   const [isVisible, setIsVisible] = useState(true);
@@ -509,6 +510,7 @@ fetchDashboardData();
           <TableOne />
         </div>
         <ChatCard />
+        {/* <UserChat /> */}
       </div>
     </>
   );

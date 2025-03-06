@@ -249,7 +249,7 @@ const GivingOnline = () => {
               className="w-full p-2 border rounded"
               required
             >
-              <option value="TITHE">Stewardship</option>
+              <option value="STEWARDSHIP">Stewardship</option>
               <option value="OFFERING">Offering</option>
               <option value="PROJECT">Project</option>
               <option value="WELFARE">Welfare</option>
