@@ -119,7 +119,7 @@ const ProfilePicture = ({ onUpdateSuccess, onFileSelect }) => {
 
 
       const response = await axios.patch(
-        "https://tlbc-platform-api.onrender.com/api/user/",
+        "https://api.thelordsbrethrenchurch.org/api/user/",
         formDataToSend,
         {
           headers: {

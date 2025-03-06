@@ -66,11 +66,11 @@ const AdvancedUserSearchPage = () => {
 
       try {
           const [churchResponse, zoneResponse] = await Promise.all([
-              axios.get('https://tlbc-platform-api.onrender.com/api/churches/', {
+              axios.get('https://api.thelordsbrethrenchurch.org/api/churches/', {
                   headers: { Authorization: `Bearer ${accessToken}` },
                   params: { limit: 50 }
               }),
-              axios.get('https://tlbc-platform-api.onrender.com/api/zones/', {
+              axios.get('https://api.thelordsbrethrenchurch.org/api/zones/', {
                   headers: { Authorization: `Bearer ${accessToken}` },
                   params: { limit: 20 }
               })
@@ -120,18 +120,19 @@ const AdvancedUserSearchPage = () => {
     { key: 'wfs_graduation_year_min', label: 'WFS Graduation Year (Min.)', type: 'number' }
   ];
 
-  // Fetch users based on search parameters
-    const fetchUsers = async (pageUrl = null, params = {}) => {
-        setError(null);
-        setIsLoading(true);
-        setIsUsernameSearch(false); 
+  // Fetch users based on search parametersl
+  const fetchUsers = async (pageUrl = null, params = {}) => {
+    setError(null);
+    setIsLoading(true);
+    setIsUsernameSearch(false);
+    
     try {
-      const accessToken = localStorage.getItem("accessToken");
-      if (!accessToken) {
-        alert("Access token not found. Please login first.");
-        navigate("/");
-        return;
-      }
+        const accessToken = localStorage.getItem("accessToken");
+        if (!accessToken) {
+            alert("Access token not found. Please login first.");
+            navigate("/");
+            return;
+        }
 
        // Convert church and zone to their respective slugs
        if (params.church) {
@@ -147,10 +148,10 @@ const AdvancedUserSearchPage = () => {
        // Check if we're searching by username
        const usernameField = searchFields.find(field => field.key === 'username');
        if (usernameField && usernameField.value) {
-        setIsUsernameSearch(true);
+           setIsUsernameSearch(true);
            // Make the specific username API call
            const response = await axios.get(
-               `https://tlbc-platform-api.onrender.com/api/users/${usernameField.value}/`,
+               `https://api.thelordsbrethrenchurch.org/api/users/${usernameField.value}/`,
                {
                    headers: { Authorization: `Bearer ${accessToken}` }
                }
@@ -161,24 +162,35 @@ const AdvancedUserSearchPage = () => {
            setPreviousPageUrl(null);
            setSelectedUser(response.data);
            setTotalCount(1);
+           setTotalCount(1);
            // Automatically show the profile card for username search
            setSelectedUser(response.data);
        } else {
            // Make the regular search API call
-           const url = pageUrl || 'https://tlbc-platform-api.onrender.com/api/users/';
+           const url = pageUrl || 'https://api.thelordsbrethrenchurch.org/api/users/';
            const config = {
-          headers: { Authorization: `Bearer ${accessToken}` },
-          params: pageUrl ? {} : params // Only include params if it's not a pagination URL
-              };
+               headers: { Authorization: `Bearer ${accessToken}` },
+               params: pageUrl ? {} : params // Only include params if it's not a pagination URL
+           };
       
-            const response = await axios.get(url, config);
-            const data = response.data;
+           const response = await axios.get(url, config);
+           const data = response.data;
 
             setUsers(data.results || []);
             setTotalCount(data.count || 0);
             setTotalPages(data.count ? Math.ceil(data.count / data.limit) : 1);
             setNextPageUrl(data.next);
             setPreviousPageUrl(data.previous);
+
+             // Update current page based on URL if available
+             if (pageUrl) {
+              const pageMatch = pageUrl.match(/page=(\d+)/);
+              if (pageMatch && pageMatch[1]) {
+                  setCurrentPage(parseInt(pageMatch[1]));
+              }
+          } else {
+              setCurrentPage(1);
+          }
           }
             setIsLoading(false);
           } catch (error) {
@@ -197,6 +209,7 @@ const AdvancedUserSearchPage = () => {
 
             setNextPageUrl(null);
             setPreviousPageUrl(null);
+            setTotalCount(0);
             setTotalCount(0);
           }
         };
@@ -284,6 +297,7 @@ const AdvancedUserSearchPage = () => {
         setTotalPages(1);
         setNextPageUrl(null);
         setPreviousPageUrl(null);
+        setTotalCount(0);
         setTotalCount(0);
     };
 
@@ -604,6 +618,7 @@ const AdvancedUserSearchPage = () => {
                     <div className="flex space-x-2"> */}
                         {/* Clear/Close button */}
                         {/* <button
+                        {/* <button
                             className="rounded-md px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 dark:bg-red-700 dark:hover:bg-red-600 transition-colors duration-300 flex items-center"
                             onClick={clearSearchResults}
                             disabled={users.length === 0}
@@ -612,6 +627,7 @@ const AdvancedUserSearchPage = () => {
                         </button> */}
                         
                        {/* Only show pagination buttons if there's pagination data */}
+                       {/* {hasPagination() && (
                        {/* {hasPagination() && (
                             <>
                                 <button

@@ -137,7 +137,7 @@ const handleSubmit = async (e) => {
 
   try {
     const response = await fetch(
-      "https://tlbc-platform-api.onrender.com/api/onboarding/",
+      "https://api.thelordsbrethrenchurch.org/api/onboarding/",
       {
         method: "POST",
         headers: {

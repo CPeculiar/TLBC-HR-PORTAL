@@ -20,7 +20,7 @@ const BirthdayTable = () => {
         }
 
         const response = await axios.get(
-          'https://tlbc-platform-api.onrender.com/api/users/',
+          'https://api.thelordsbrethrenchurch.org/api/users/',
           {
             headers: { Authorization: `Bearer ${accessToken}` },
           }

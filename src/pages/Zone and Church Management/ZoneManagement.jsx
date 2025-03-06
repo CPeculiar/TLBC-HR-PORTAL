@@ -45,7 +45,7 @@ const ZoneManagement = () => {
    });
 
    // API base URL
-  const API_BASE_URL = 'https://tlbc-platform-api.onrender.com/api';
+  const API_BASE_URL = 'https://api.thelordsbrethrenchurch.org/api';
 
   // Helper function to set and auto-clear success message
   const setSuccessMessageWithTimeout = (message, setMessageFn) => {

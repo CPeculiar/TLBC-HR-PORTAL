@@ -55,7 +55,7 @@ const UsersPage = () => {
       }
       setIsLoading(true);
 
-      const response = await axios.get(`https://tlbc-platform-api.onrender.com/api/users/?s=${searchTerm}`, {
+      const response = await axios.get(`https://api.thelordsbrethrenchurch.org/api/users/?s=${searchTerm}`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
 
@@ -83,7 +83,7 @@ const UsersPage = () => {
         if (value) params.append(key, value);
       });
 
-      const response = await axios.get(`https://tlbc-platform-api.onrender.com/api/users/?${params.toString()}`, {
+      const response = await axios.get(`https://api.thelordsbrethrenchurch.org/api/users/?${params.toString()}`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
 
@@ -119,7 +119,7 @@ const UsersPage = () => {
         return;
       }
 
-      const response = await axios.get(`https://tlbc-platform-api.onrender.com/api/users/?page=${newPage}`, {
+      const response = await axios.get(`https://api.thelordsbrethrenchurch.org/api/users/?page=${newPage}`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
 

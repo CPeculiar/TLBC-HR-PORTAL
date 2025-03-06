@@ -115,7 +115,7 @@ const [isUpdatingAccount, setIsUpdatingAccount] = useState(false);
 // Add new fetch functions for pending approvals
 const fetchFundPendingApprovals = async () => {
   try {
-    const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/fund/outgoing/');
+    const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/finance/fund/outgoing/');
     const pendingCount = response.data.results.filter(
       item => item.status !== 'APPROVED' && item.status !== 'DECLINED'
     ).length;
@@ -128,7 +128,7 @@ const fetchFundPendingApprovals = async () => {
 
 const fetchRemittancePendingApprovals = async () => {
   try {
-    const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/remittance/outgoing/');
+    const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/finance/remittance/outgoing/');
     const pendingCount = response.data.results.filter(
       item => item.status !== 'APPROVED' && item.status !== 'DECLINED'
     ).length;
@@ -141,7 +141,7 @@ const fetchRemittancePendingApprovals = async () => {
 
 const fetchExpensesPendingApprovals = async () => {
   try {
-    const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/expense/list/');
+    const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/finance/expense/list/');
     const pendingCount = response.data.results.filter(
       item => item.status !== 'APPROVED' && item.status !== 'DECLINED'
     ).length;
@@ -154,7 +154,7 @@ const fetchExpensesPendingApprovals = async () => {
 
 const fetchTopupPendingApprovals = async () => {
   try {
-    const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/topup/list/');
+    const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/finance/topup/list/');
     const pendingCount = response.data.results.filter(
       item => item.status !== 'APPROVED' && item.status !== 'DECLINED'
     ).length;
@@ -168,7 +168,7 @@ const fetchTopupPendingApprovals = async () => {
 // Define fetch functions
 const fetchAccounts = async () => {
   try {
-    const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/?limit=30');
+    const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/finance/accounts/?limit=30');
     setAccounts(response.data.results);
     
     // Set default account if exists
@@ -187,7 +187,7 @@ const fetchAccounts = async () => {
 
 const fetchBanks = async () => {
   try {
-    const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/banks/');
+    const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/finance/banks/');
     setBanks(response.data.banks);
   } catch (error) {
     console.error('Error fetching banks:', error);
@@ -213,7 +213,7 @@ const handleDeleteAccount = async () => {
   
   try {
     const response = await axios.post(
-      `https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedAccountToDelete}/delete/`,
+      `https://api.thelordsbrethrenchurch.org/api/finance/accounts/${selectedAccountToDelete}/delete/`,
       { password: deletePassword }
     );
 
@@ -283,7 +283,7 @@ useEffect(() => {
       await fetchAccounts();
 
         // First fetch accounts to get initial data
-        const accountsResponse = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/?limit=30');
+        const accountsResponse = await axios.get('https://api.thelordsbrethrenchurch.org/api/finance/accounts/?limit=30');
         setAccounts(accountsResponse.data.results);
         
         // Set default account if exists
@@ -353,7 +353,7 @@ const handleErrorMessage = (error) => {
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
-        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/?limit=30');
+        const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/finance/accounts/?limit=30');
         setAccounts(response.data.results);
         
       // Set default account if exists
@@ -370,7 +370,7 @@ const handleErrorMessage = (error) => {
 
   const fetchBanks = async () => {
     try {
-      const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/banks/');
+      const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/finance/banks/');
       setBanks(response.data.banks);
     } catch (error) {
       const errorMsg = error.response?.data?.non_field_errors?.[0] || 'Error fetching banks';
@@ -387,7 +387,7 @@ const handleErrorMessage = (error) => {
   // Fetch account details for selected account
   const fetchAccountDetails = async (accountCode) => {
     try {
-      const response = await axios.get(`https://tlbc-platform-api.onrender.com/api/finance/accounts/${accountCode}/`);
+      const response = await axios.get(`https://api.thelordsbrethrenchurch.org/api/finance/accounts/${accountCode}/`);
       setAccountDetails(response.data);
     } catch (error) {
       const errorMsg = error.response?.data?.non_field_errors?.[0] || 'Error fetching account details';
@@ -398,7 +398,7 @@ const handleErrorMessage = (error) => {
   // Fetch expenses
   const fetchExpenses = async () => {
     try {
-       const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/expense/list/');
+       const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/finance/expense/list/');
     const transactions = response.data.results;
     // Calculate total expenses from approved transactions only
     const totalExpenses = transactions
@@ -417,7 +417,7 @@ const handleErrorMessage = (error) => {
    // Update the fetch function
 const fetchTransactions = async () => {
   try {
-    const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/expense/list/');
+    const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/finance/expense/list/');
     setTransactions(response.data.results);
   } catch (error) {
     const errorMsg = error.response?.data?.non_field_errors?.[0] || 'Error fetching transactions';
@@ -430,7 +430,7 @@ const fetchTransactions = async () => {
     setIsVerifyingAccount(true);
     setUpdateError(null);
     try {
-      const response = await axios.post('https://tlbc-platform-api.onrender.com/api/finance/banks/verify/', {
+      const response = await axios.post('https://api.thelordsbrethrenchurch.org/api/finance/banks/verify/', {
         account_number: updateAccountNumber,
         bank_code: updateBankCode,
       });
@@ -450,12 +450,12 @@ const fetchTransactions = async () => {
   const handleUpdateAccount = async () => {
     setIsUpdatingAccount(true);
     try {
-      await axios.put(`https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedAccount.code}/`, {
+      await axios.put(`https://api.thelordsbrethrenchurch.org/api/finance/accounts/${selectedAccount.code}/`, {
         account_number: updateAccountNumber,
         bank_code: updateBankCode,
       });
       // Refresh accounts after update
-      const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/?limit=30');
+      const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/finance/accounts/?limit=30');
       setAccounts(response.data.results);
       
       // Reset update form
@@ -477,10 +477,10 @@ const fetchTransactions = async () => {
     // Handle make default account
     const handleMakeDefaultAccount = async () => {
       try {
-        await axios.put(`https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedDefaultAccount}/make-default/`);
+        await axios.put(`https://api.thelordsbrethrenchurch.org/api/finance/accounts/${selectedDefaultAccount}/make-default/`);
         
         // Refresh accounts 
-        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/?limit=30');
+        const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/finance/accounts/?limit=30');
         setAccounts(response.data.results);
         
         // Show success message
@@ -533,7 +533,7 @@ const fetchTransactions = async () => {
       }, {});
  
       const response = await axios.patch(
-        `https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedDefaultAccount}/`,
+        `https://api.thelordsbrethrenchurch.org/api/finance/accounts/${selectedDefaultAccount}/`,
         updates,
         {
           headers: {
@@ -585,7 +585,7 @@ const fetchTransactions = async () => {
     try {
       setIsLoading(true);
       console.log('Selected account code:', selectedCode); // For debugging
-      const response = await axios.get(`https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedCode}/`);
+      const response = await axios.get(`https://api.thelordsbrethrenchurch.org/api/finance/accounts/${selectedCode}/`);
       const account = response.data;
       setSelectedAccount(account);
       setAccountDetails(account);
@@ -614,7 +614,7 @@ const fetchTransactions = async () => {
   setDefaultAccountDetails(null);
 
     try {
-      const response = await axios.get(`https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedDefaultAccount}/`);
+      const response = await axios.get(`https://api.thelordsbrethrenchurch.org/api/finance/accounts/${selectedDefaultAccount}/`);
       setDefaultAccountDetails(response.data);
     } catch (error) {
       const errorMsg = handleErrorMessage(error);

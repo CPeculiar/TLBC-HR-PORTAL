@@ -78,7 +78,7 @@ const FirstTimersForm = () => {
 
   try {
       const response = await axios.patch(
-        `https://tlbc-platform-api.onrender.com/api/attendance/${refCode}/newcomers/`,
+        `https://api.thelordsbrethrenchurch.org/api/attendance/${refCode}/newcomers/`,
         formDataToSubmit,
         {
           params: { ref_code: refCode }, 

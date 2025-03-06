@@ -43,7 +43,7 @@ const IdleTimerContainer = ({ children }) => {
   const logout = useCallback(async () => {
     const refreshToken = localStorage.getItem('refreshToken');
     try {
-      const response = await axios.post('https://tlbc-platform-api.onrender.com/api/logout/', { refresh: refreshToken });
+      const response = await axios.post('https://api.thelordsbrethrenchurch.org/api/logout/', { refresh: refreshToken });
       if (response.status === 200) {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');

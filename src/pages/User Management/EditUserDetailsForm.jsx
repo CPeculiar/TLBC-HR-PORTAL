@@ -87,13 +87,13 @@ export default function EditUserPage() {
 
         // Fetch churches
         const churchesResponse = await axios.get(
-          'https://tlbc-platform-api.onrender.com/api/churches/?limit=50',
+          'https://api.thelordsbrethrenchurch.org/api/churches/?limit=50',
           { headers }
         );
         
         // Fetch zones
         const zonesResponse = await axios.get(
-          'https://tlbc-platform-api.onrender.com/api/zones/',
+          'https://api.thelordsbrethrenchurch.org/api/zones/',
           { headers }
         );
 
@@ -175,7 +175,7 @@ export default function EditUserPage() {
       }
 
       const response = await axios.patch(
-        `https://tlbc-platform-api.onrender.com/api/users/${username}/`,
+        `https://api.thelordsbrethrenchurch.org/api/users/${username}/`,
         formData,
         {
           headers: {
