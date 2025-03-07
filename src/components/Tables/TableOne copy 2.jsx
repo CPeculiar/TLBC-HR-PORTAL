@@ -51,7 +51,7 @@ const TableOne = () => {
         }
 
         const response = await axios.get(
-          'https://api.thelordsbrethrenchurch.org/api/users/?limit=500',
+          'https://tlbc-platform-api.onrender.com/api/users/?limit=500',
           {
             headers: { Authorization: `Bearer ${accessToken}` },
           }

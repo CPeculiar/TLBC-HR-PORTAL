@@ -64,7 +64,7 @@ const AttendanceMarkerPage = () => {
       try {
         const refCode = data.text; // Assuming the QR code contains only the ref_code
         const response = await axios.put(
-          `https://api.thelordsbrethrenchurch.org/api/attendance/${refCode}/mark/`
+          `https://tlbc-platform-api.onrender.com/api/attendance/${refCode}/mark/`
         );
         setSuccessMessage(response.data.message);
       } catch (err) {

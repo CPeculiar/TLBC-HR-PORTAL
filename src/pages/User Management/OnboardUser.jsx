@@ -133,7 +133,7 @@ const OnboardUser = () => {
   
     try {
       const response = await axios.post(
-        "https://api.thelordsbrethrenchurch.org/api/onboarding/",
+        "https://tlbc-platform-api.onrender.com/api/onboarding/",
         formData, // Payload goes here
         {
             headers: {

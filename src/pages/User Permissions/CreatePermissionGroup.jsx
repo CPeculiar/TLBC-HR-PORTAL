@@ -30,7 +30,7 @@ const CreatePermissionGroup = () => {
     setIsLoading(true);
     try {
       const response = await axios.post(
-        'https://api.thelordsbrethrenchurch.org/api/groups/',
+        'https://tlbc-platform-api.onrender.com/api/groups/',
         { name: groupName },
         {
           headers: {

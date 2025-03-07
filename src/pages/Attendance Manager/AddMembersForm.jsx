@@ -57,7 +57,7 @@ const AddMembersForm = () => {
       const username = formData.username;
 
       const response = await axios.put(
-        `https://api.thelordsbrethrenchurch.org/api/attendance/${refCode}/mark/${username}/admin/`,
+        `https://tlbc-platform-api.onrender.com/api/attendance/${refCode}/mark/${username}/admin/`,
         formDataToSubmit,
         {
           params: { ref_code: refCode }, 

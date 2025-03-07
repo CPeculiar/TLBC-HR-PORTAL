@@ -16,7 +16,7 @@ const ViewPermissions = () => {
     setIsLoading(true);
     try {
       const response = await axios.get(
-        'https://api.thelordsbrethrenchurch.org/api/permissions/',
+        'https://tlbc-platform-api.onrender.com/api/permissions/',
         { withCredentials: true }
       );
       setPermissions(response.data);
@@ -28,7 +28,7 @@ const ViewPermissions = () => {
     }
   };
 
-  const fetchUsersByPermission = async (codename, url = `https://api.thelordsbrethrenchurch.org/api/permissions/${codename}/users/`) => {
+  const fetchUsersByPermission = async (codename, url = `https://tlbc-platform-api.onrender.com/api/permissions/${codename}/users/`) => {
     setIsLoading(true);
     try {
       const response = await axios.get(url, { withCredentials: true });

@@ -76,7 +76,7 @@ const TopUpManagement = () => {
   const fetchAccounts = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/finance/accounts/?limit=30');
+      const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/?limit=30');
       setAccounts(response.data.results);
       setIsLoading(false);
     } catch (error) {
@@ -85,7 +85,7 @@ const TopUpManagement = () => {
     }
   };
 
-  const fetchTopupList = async (url = 'https://api.thelordsbrethrenchurch.org/api/finance/topup/list/') => {
+  const fetchTopupList = async (url = 'https://tlbc-platform-api.onrender.com/api/finance/topup/list/') => {
     try {
       setIsLoading(true);
       const response = await axios.get(url);
@@ -117,7 +117,7 @@ const TopUpManagement = () => {
       formData.append('purpose', topupPurpose);
       if (topupFile) formData.append('files', topupFile);
 
-      await axios.post('https://api.thelordsbrethrenchurch.org/api/finance/topup/', formData);
+      await axios.post('https://tlbc-platform-api.onrender.com/api/finance/topup/', formData);
       
       setSuccessModal({ message: 'TopUp request created successfully' });
       setSelectedAccount('');
@@ -135,7 +135,7 @@ const TopUpManagement = () => {
   const handleTopupAction = async (reference, action) => {
     try {
       setIsLoading(true);
-      await axios.post(`https://api.thelordsbrethrenchurch.org/api/finance/topup/${reference}/${action}/`);
+      await axios.post(`https://tlbc-platform-api.onrender.com/api/finance/topup/${reference}/${action}/`);
       setSuccessModal({ message: `TopUp ${action}ed successfully` });
       await fetchTopupList();
     } catch (error) {
@@ -305,9 +305,9 @@ const PaginationControls = () => (
 
       let endpoint = '';
       if (type === 'approve') {
-        endpoint = `https://api.thelordsbrethrenchurch.org/api/finance/topup/${reference}/approve/`;
+        endpoint = `https://tlbc-platform-api.onrender.com/api/finance/topup/${reference}/approve/`;
       } else if (type === 'decline') {
-        endpoint = `https://api.thelordsbrethrenchurch.org/api/finance/topup/${reference}/decline/`;
+        endpoint = `https://tlbc-platform-api.onrender.com/api/finance/topup/${reference}/decline/`;
       }
 
       const response = await axios.post(endpoint);
@@ -554,7 +554,7 @@ const PaginationControls = () => (
         }
   
         const response = await axios.post(
-          'https://api.thelordsbrethrenchurch.org/api/finance/topup/', 
+          'https://tlbc-platform-api.onrender.com/api/finance/topup/', 
           formData, 
           {
             headers: {
@@ -590,7 +590,7 @@ const PaginationControls = () => (
       const handleTopupApproval = async (reference) => {
         try {
           setIsLoading(true);
-          const response = await axios.post(`https://api.thelordsbrethrenchurch.org/api/finance/topup/${reference}/approve/`);
+          const response = await axios.post(`https://tlbc-platform-api.onrender.com/api/finance/topup/${reference}/approve/`);
     
           setSuccessModal({
             message: response.data.message || 'Topup approved successfully'
@@ -598,7 +598,7 @@ const PaginationControls = () => (
     
           // Refresh topup list
           const fetchTopupList = async () => {
-            const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/finance/topup/list/');
+            const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/topup/list/');
             setTopupList(response.data.results);
             const approved = response.data.results.filter(item => item.status === 'APPROVED');
             const declined = response.data.results.filter(item => item.status === 'DECLINED');
@@ -621,7 +621,7 @@ const PaginationControls = () => (
         if (confirmDecline) {
           try {
             setIsLoading(true);
-            const response = await axios.post(`https://api.thelordsbrethrenchurch.org/api/finance/topup/${reference}/decline/`);
+            const response = await axios.post(`https://tlbc-platform-api.onrender.com/api/finance/topup/${reference}/decline/`);
     
             setSuccessModal({
               message: response.data.message || 'Topup declined successfully'
@@ -629,7 +629,7 @@ const PaginationControls = () => (
     
             // Refresh topup list
             const fetchTopupList = async () => {
-              const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/finance/topup/list/');
+              const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/topup/list/');
               setTopupList(response.data.results);
               const approved = response.data.results.filter(item => item.status === 'APPROVED');
               const declined = response.data.results.filter(item => item.status === 'DECLINED');
@@ -659,7 +659,7 @@ const PaginationControls = () => (
       // uploadFileReference.reference
 
       const response = await axios.patch(
-        `https://api.thelordsbrethrenchurch.org/api/finance/topup/${reference}/upload/`,
+        `https://tlbc-platform-api.onrender.com/api/finance/topup/${reference}/upload/`,
         formData,
         {
           headers: {

@@ -47,8 +47,8 @@ const AttendanceCreationPage = () => {
       }
 
       const endpoint = selectedType === 'central' 
-        ? "https://api.thelordsbrethrenchurch.org/api/attendance/create/central/"
-        : "https://api.thelordsbrethrenchurch.org/api/attendance/create/";
+        ? "https://tlbc-platform-api.onrender.com/api/attendance/create/central/"
+        : "https://tlbc-platform-api.onrender.com/api/attendance/create/";
 
       const response = await axios.post(
         endpoint,
@@ -59,7 +59,7 @@ const AttendanceCreationPage = () => {
       );
       
       // const response = await axios.post(
-      //   "https://api.thelordsbrethrenchurch.org/api/attendance/create/",
+      //   "https://tlbc-platform-api.onrender.com/api/attendance/create/",
       //   attendanceData,
       //   {
       //     headers: { Authorization: `Bearer ${accessToken}` },

@@ -1,12 +1,7 @@
 // userApi.js - Handle Django API calls
 import axiosInstance from './axiosConfig';
 
-<<<<<<< HEAD
 const API_BASE_URL = 'https://tlbc-platform-api.onrender.com';
-=======
-const API_BASE_URL = 'https://api.thelordsbrethrenchurch.org';
->>>>>>> dfc3f27a5deda41d600716fc965790772dae9a98
-
 export const userApi = {
   // Get user profile from Django
   getUserProfile: async (username) => {

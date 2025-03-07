@@ -25,7 +25,7 @@ const UserTable = () => {
     }
     setIsLoading(true);
 
-      const response = await axios.get(`https://api.thelordsbrethrenchurch.org/api/users/?page=${page}`, {
+      const response = await axios.get(`https://tlbc-platform-api.onrender.com/api/users/?page=${page}`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       setUsers(response.data.results);

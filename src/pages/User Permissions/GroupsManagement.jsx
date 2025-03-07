@@ -14,7 +14,7 @@ const GroupsManagement = () => {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [currentPage, setCurrentPage] = useState('');
 
-  const fetchGroups = async (url = 'https://api.thelordsbrethrenchurch.org/api/groups/') => {
+  const fetchGroups = async (url = 'https://tlbc-platform-api.onrender.com/api/groups/') => {
     setIsLoading(true);
     try {
       const response = await axios.get(url, {
@@ -33,7 +33,7 @@ const GroupsManagement = () => {
     setIsLoading(true);
     try {
       const response = await axios.get(
-        `https://api.thelordsbrethrenchurch.org/api/groups/${name}/`,
+        `https://tlbc-platform-api.onrender.com/api/groups/${name}/`,
         { withCredentials: true }
       );
       setGroupDetails(response.data);
@@ -49,7 +49,7 @@ const GroupsManagement = () => {
     setIsLoading(true);
     try {
       await axios.delete(
-        `https://api.thelordsbrethrenchurch.org/api/groups/${selectedGroup}/`,
+        `https://tlbc-platform-api.onrender.com/api/groups/${selectedGroup}/`,
         { withCredentials: true }
       );
       setSuccessMessage('Group successfully deleted');

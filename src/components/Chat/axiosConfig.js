@@ -2,11 +2,7 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-<<<<<<< HEAD
   baseURL: 'https://tlbc-platform-api.onrender.com',
-=======
-  baseURL: 'https://api.thelordsbrethrenchurch.org',
->>>>>>> dfc3f27a5deda41d600716fc965790772dae9a98
   timeout: 5000,
 });
 

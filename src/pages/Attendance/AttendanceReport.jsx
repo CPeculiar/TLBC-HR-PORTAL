@@ -109,7 +109,7 @@ const AttendanceReport = () => {
       }
 
       const response = await axios.get(
-        `https://api.thelordsbrethrenchurch.org/api/attendance/${searchParams.refCode}/newcomers/search/`,
+        `https://tlbc-platform-api.onrender.com/api/attendance/${searchParams.refCode}/newcomers/search/`,
         {
           params: {
             s: searchParams.name,
@@ -138,7 +138,7 @@ const AttendanceReport = () => {
       }
 
       const response = await axios.put(
-        `https://api.thelordsbrethrenchurch.org/api/attendance/${returningVisitorParams.refCode}/newcomers/${returningVisitorParams.church}/`,
+        `https://tlbc-platform-api.onrender.com/api/attendance/${returningVisitorParams.refCode}/newcomers/${returningVisitorParams.church}/`,
       );
       showAlert(response.data.message, 'success');
       setReturningVisitorParams({ refCode: '', church: '' });
@@ -161,7 +161,7 @@ const AttendanceReport = () => {
       }
 
       const response = await axios.get(
-        'https://api.thelordsbrethrenchurch.org/api/attendance/list/',
+        'https://tlbc-platform-api.onrender.com/api/attendance/list/',
       );
       setAttendanceList(response.data);
       setNoResults(response.data.results.length === 0);
@@ -185,7 +185,7 @@ const AttendanceReport = () => {
       }
 
       const response = await axios.get(
-        'https://api.thelordsbrethrenchurch.org/api/attendance/list/zone/',
+        'https://tlbc-platform-api.onrender.com/api/attendance/list/zone/',
       );
       setZonalAttendanceList(response.data);
       setNoResults(response.data.results.length === 0);
@@ -209,7 +209,7 @@ const AttendanceReport = () => {
       }
 
       const response = await axios.get(
-        'https://api.thelordsbrethrenchurch.org/api/attendance/list/all/?church=central',
+        'https://tlbc-platform-api.onrender.com/api/attendance/list/all/?church=central',
       );
       setCentralAttendanceList(response.data);
       setNoResults(response.data.results.length === 0);
@@ -233,7 +233,7 @@ const AttendanceReport = () => {
       }
 
       const response = await axios.get(
-        'https://api.thelordsbrethrenchurch.org/api/attendance/list/all/',
+        'https://tlbc-platform-api.onrender.com/api/attendance/list/all/',
       );
       setAllAttendanceList(response.data);
       setNoResults(response.data.results.length === 0);
@@ -263,7 +263,7 @@ const AttendanceReport = () => {
       }
 
       const response = await axios.get(
-        `https://api.thelordsbrethrenchurch.org/api/attendance/${refCode}/`,
+        `https://tlbc-platform-api.onrender.com/api/attendance/${refCode}/`,
       );
       setSelectedAttendance(response.data);
     } catch (error) {

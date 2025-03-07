@@ -42,7 +42,7 @@ const AttendanceDetailsPageAdmin = () => {
 
                 setIsLoading(true);
                 const response = await axios.get(
-                    `https://api.thelordsbrethrenchurch.org/api/attendance/${refCode}/`,
+                    `https://tlbc-platform-api.onrender.com/api/attendance/${refCode}/`,
                     {
                         headers: { Authorization: `Bearer ${accessToken}` },
                       }
@@ -182,7 +182,7 @@ const AttendanceDetailsPageAdmin = () => {
         }
 
         const response = await axios.put(
-            `https://api.thelordsbrethrenchurch.org/api/attendance/${refCode}/update/`,
+            `https://tlbc-platform-api.onrender.com/api/attendance/${refCode}/update/`,
             formData,
             {
                 headers: { 

@@ -74,7 +74,7 @@ const ExpensesManagement = () => {
     const fetchAccounts = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/finance/accounts/?limit=30');
+        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/?limit=30');
         setAccounts(response.data.results);
       } catch (error) {
         setErrorMessage(error.response?.data?.detail ||'Failed to fetch accounts');
@@ -84,7 +84,7 @@ const ExpensesManagement = () => {
     };
 
     const fetchExpensesList = async (
-      url = 'https://api.thelordsbrethrenchurch.org/api/finance/expense/list/?limit=5', ) => {
+      url = 'https://tlbc-platform-api.onrender.com/api/finance/expense/list/?limit=5', ) => {
       try {
         setIsLoading(true);
         const response = await axios.get(url);
@@ -190,7 +190,7 @@ const ExpensesManagement = () => {
         formData.append('files', expenseFile);
       }
 
-      const { data } = await axios.post('https://api.thelordsbrethrenchurch.org/api/finance/expense/', formData, {
+      const { data } = await axios.post('https://tlbc-platform-api.onrender.com/api/finance/expense/', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -216,7 +216,7 @@ const ExpensesManagement = () => {
 
       // Refresh expenses list
       const fetchExpensesList = async () => {
-        const { data: refreshedData } = await axios.get('https://api.thelordsbrethrenchurch.org/api/finance/expense/list/');        
+        const { data: refreshedData } = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/expense/list/');        
         setExpensesList(refreshedData.results);
         setApprovedExpenses(refreshedData.results.filter(item => item.status === 'APPROVED'));
         setDeclinedExpenses(refreshedData.results.filter(item => item.status === 'DECLINED'));
@@ -235,14 +235,14 @@ const ExpensesManagement = () => {
     try {
       setIsLoading(true);
       const { data } = await axios.post(
-        `https://api.thelordsbrethrenchurch.org/api/finance/expense/${reference}/${action}/` );
+        `https://tlbc-platform-api.onrender.com/api/finance/expense/${reference}/${action}/` );
 
       setSuccessModal({
         message: `Expense ${action}d successfully`
       });
 
            // Refresh expenses list
-        const { data: refreshedData } = await axios.get('https://api.thelordsbrethrenchurch.org/api/finance/expense/list/');
+        const { data: refreshedData } = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/expense/list/');
         setExpensesList(refreshedData.results);
       setApprovedExpenses(refreshedData.results.filter(item => item.status === 'APPROVED'));
       setDeclinedExpenses(refreshedData.results.filter(item => item.status === 'DECLINED'));
@@ -510,9 +510,9 @@ const PaginationControls = () => {
 
       let endpoint = '';
       if (type === 'approve') {
-        endpoint = `https://api.thelordsbrethrenchurch.org/api/finance/expense/${reference}/approve/`;
+        endpoint = `https://tlbc-platform-api.onrender.com/api/finance/expense/${reference}/approve/`;
       } else if (type === 'decline') {
-        endpoint = `https://api.thelordsbrethrenchurch.org/api/finance/expense/${reference}/decline/`;
+        endpoint = `https://tlbc-platform-api.onrender.com/api/finance/expense/${reference}/decline/`;
       }
 
       const response = await axios.post(endpoint);
@@ -560,7 +560,7 @@ const PaginationControls = () => {
       formData.append('files', file);
 
       const response = await axios.patch(
-        `https://api.thelordsbrethrenchurch.org/api/finance/expense/${reference}/upload/`, 
+        `https://tlbc-platform-api.onrender.com/api/finance/expense/${reference}/upload/`, 
         formData,
         {
           headers: {
@@ -574,7 +574,7 @@ const PaginationControls = () => {
       });
 
       // Refresh expenses list
-        const { data: refreshedData } = await axios.get('https://api.thelordsbrethrenchurch.org/api/finance/expense/list/');
+        const { data: refreshedData } = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/expense/list/');
         setExpensesList(refreshedData.results);
 
       await fetchExpensesList();
@@ -661,7 +661,7 @@ const PaginationControls = () => {
 
   const handleApproveExpense = async (reference) => {
     try {
-      const response = await axios.post(`https://api.thelordsbrethrenchurch.org/api/finance/expense/${reference}/approve/`);
+      const response = await axios.post(`https://tlbc-platform-api.onrender.com/api/finance/expense/${reference}/approve/`);
       
       // Update approvals list
       const updatedApprovals = approvalsList.filter(expense => expense.reference !== reference);
@@ -678,7 +678,7 @@ const PaginationControls = () => {
 
   const handleDeclineExpense = async (reference) => {
     try {
-      const response = await axios.post(`https://api.thelordsbrethrenchurch.org/api/finance/expense/${reference}/decline/`);
+      const response = await axios.post(`https://tlbc-platform-api.onrender.com/api/finance/expense/${reference}/decline/`);
       
       // Update approvals list
       const updatedApprovals = approvalsList.filter(expense => expense.reference !== reference);

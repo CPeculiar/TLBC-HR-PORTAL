@@ -24,7 +24,7 @@ const AccountStatement = ({ selectedAccount, onClose, isOpen }) => {
 
   const fetchTransactions = async (code) => {
     try {
-      const response = await axios.get(`https://api.thelordsbrethrenchurch.org/api/finance/accounts/${code}/transactions/?limit=200`);
+      const response = await axios.get(`https://tlbc-platform-api.onrender.com/api/finance/accounts/${code}/transactions/?limit=200`);
       const { results } = response.data;
       setTransactions(results.transactions || []);
       setOpeningBalance(results.opening);

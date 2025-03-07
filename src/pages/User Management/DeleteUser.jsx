@@ -75,7 +75,7 @@ const DeleteUser = () => {
     setModalError("");
                
     try {
-      const response = await axios.post(`https://api.thelordsbrethrenchurch.org/api/users/${formData.username}/delete/`, {  
+      const response = await axios.post(`https://tlbc-platform-api.onrender.com/api/users/${formData.username}/delete/`, {  
           password: modalPassword
         },
       //   {

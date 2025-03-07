@@ -79,7 +79,7 @@ const TopUpManagement = () => {
   const fetchAccounts = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/finance/accounts/?limit=30');
+      const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/?limit=30');
       setAccounts(response.data.results);
       setIsLoading(false);
     } catch (error) {
@@ -89,7 +89,7 @@ const TopUpManagement = () => {
   };
 
    // Single fetch function that handles filtering client-side
-   const fetchTopups = async (url = 'https://api.thelordsbrethrenchurch.org/api/finance/topup/list/') => {
+   const fetchTopups = async (url = 'https://tlbc-platform-api.onrender.com/api/finance/topup/list/') => {
     try {
       setIsLoading(true);
       const response = await axios.get(url);
@@ -122,7 +122,7 @@ const TopUpManagement = () => {
   }, [activeSection]);
 
 
-  const fetchTopupList = async (url = 'https://api.thelordsbrethrenchurch.org/api/finance/topup/list/?limit=3') => {
+  const fetchTopupList = async (url = 'https://tlbc-platform-api.onrender.com/api/finance/topup/list/?limit=3') => {
     try {
       setIsLoading(true);
       const response = await axios.get(url);
@@ -149,7 +149,7 @@ const TopUpManagement = () => {
     }
   };
   
-  const fetchApprovedTopups = async (url = 'https://api.thelordsbrethrenchurch.org/api/finance/topup/list/?status=APPROVED') => {
+  const fetchApprovedTopups = async (url = 'https://tlbc-platform-api.onrender.com/api/finance/topup/list/?status=APPROVED') => {
     try {
       setIsLoading(true);
       const response = await axios.get(url);
@@ -167,7 +167,7 @@ const TopUpManagement = () => {
     }
   };
 
-  const fetchDeclinedTopups = async (url = 'https://api.thelordsbrethrenchurch.org/api/finance/topup/list/?status=DECLINED') => {
+  const fetchDeclinedTopups = async (url = 'https://tlbc-platform-api.onrender.com/api/finance/topup/list/?status=DECLINED') => {
     try {
       setIsLoading(true);
       const response = await axios.get(url);
@@ -228,7 +228,7 @@ const TopUpManagement = () => {
       formData.append('purpose', topupPurpose);
       if (topupFile) formData.append('files', topupFile);
 
-      await axios.post('https://api.thelordsbrethrenchurch.org/api/finance/topup/', formData, {
+      await axios.post('https://tlbc-platform-api.onrender.com/api/finance/topup/', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -250,7 +250,7 @@ const TopUpManagement = () => {
   const handleTopupAction = async (reference, action) => {
     try {
       setIsLoading(true);
-      await axios.post(`https://api.thelordsbrethrenchurch.org/api/finance/topup/${reference}/${action}/`);
+      await axios.post(`https://tlbc-platform-api.onrender.com/api/finance/topup/${reference}/${action}/`);
       setSuccessModal({ message: `TopUp ${action}ed successfully` });
       await fetchTopupList();
     } catch (error) {
@@ -466,9 +466,9 @@ const PaginationControls = () => {
 
       let endpoint = '';
       if (type === 'approve') {
-        endpoint = `https://api.thelordsbrethrenchurch.org/api/finance/topup/${reference}/approve/`;
+        endpoint = `https://tlbc-platform-api.onrender.com/api/finance/topup/${reference}/approve/`;
       } else if (type === 'decline') {
-        endpoint = `https://api.thelordsbrethrenchurch.org/api/finance/topup/${reference}/decline/`;
+        endpoint = `https://tlbc-platform-api.onrender.com/api/finance/topup/${reference}/decline/`;
       }
 
       const response = await axios.post(endpoint);
@@ -715,7 +715,7 @@ const PaginationControls = () => {
         }
   
         const response = await axios.post(
-          'https://api.thelordsbrethrenchurch.org/api/finance/topup/', 
+          'https://tlbc-platform-api.onrender.com/api/finance/topup/', 
           formData, 
           {
             headers: {
@@ -760,7 +760,7 @@ const PaginationControls = () => {
       // uploadFileReference.reference
 
       const response = await axios.patch(
-        `https://api.thelordsbrethrenchurch.org/api/finance/topup/${reference}/upload/`,
+        `https://tlbc-platform-api.onrender.com/api/finance/topup/${reference}/upload/`,
         formData,
         {
           headers: {

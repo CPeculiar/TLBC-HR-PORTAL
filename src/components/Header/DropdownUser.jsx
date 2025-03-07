@@ -27,7 +27,7 @@ const DropdownUser = () => {
       }
 
       const response = await axios.get(
-        "https://api.thelordsbrethrenchurch.org/api/user/",
+        "https://tlbc-platform-api.onrender.com/api/user/",
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,

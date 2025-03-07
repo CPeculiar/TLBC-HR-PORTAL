@@ -38,7 +38,7 @@ const UserSearchPage = () => {
 
 
       const response = await axios.get(
-        `https://api.thelordsbrethrenchurch.org/api/users/?page=${page}&s=${searchTerm}`,
+        `https://tlbc-platform-api.onrender.com/api/users/?page=${page}&s=${searchTerm}`,
         {
           headers: { Authorization: `Bearer ${accessToken}` },
         }

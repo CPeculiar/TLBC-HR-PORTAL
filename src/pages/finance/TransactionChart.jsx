@@ -30,7 +30,7 @@ const TransactionChart = ({ selectedAccount }) => {
 
       try {
         const response = await axios.get(
-          `https://api.thelordsbrethrenchurch.org/api/finance/accounts/${selectedAccount.code}/transactions/?limit=500`
+          `https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedAccount.code}/transactions/?limit=500`
         );
 
         // Process transactions into monthly data

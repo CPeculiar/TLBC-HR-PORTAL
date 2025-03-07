@@ -100,7 +100,7 @@ const AddReturningAdmin = () => {
     }
 
       const response = await axios.put(
-        `https://api.thelordsbrethrenchurch.org/api/attendance/${refCode}/newcomers/admin/`,
+        `https://tlbc-platform-api.onrender.com/api/attendance/${refCode}/newcomers/admin/`,
         formattedData,
         {
           params: { ref_code: refCode }, 

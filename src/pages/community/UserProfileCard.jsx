@@ -12,6 +12,7 @@ import UserFemale from '../../images/user/user-02.png';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import CoverOne from '../../images/cover/cover-01.png';
 import userSix from '../../images/user/user-06.png';
+import UserIcon from '../../images/user/user-14.png';
 import { Link } from 'react-router-dom';
 
 const UserProfileCard = ({ user, onClose }) => {
@@ -48,7 +49,7 @@ const UserProfileCard = ({ user, onClose }) => {
         <div className="h-36 w-36 mx-auto rounded-full bg-white/20 p-2 backdrop-blur sm:h-44 sm:w-44 sm:p-3">
           <div className="relative drop-shadow-2">
             <img
-              src={user.profile_picture || userSix}
+              src={user.profile_picture || UserIcon}
               alt="profile"
               className="h-32 w-32 rounded-full object-cover sm:h-40 sm:w-40"
             />

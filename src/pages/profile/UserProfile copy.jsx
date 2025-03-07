@@ -99,7 +99,7 @@ const ProfileSettings = () => {
       }
 
       const response = await axios.patch(
-        "https://api.thelordsbrethrenchurch.org/api/user/",
+        "https://tlbc-platform-api.onrender.com/api/user/",
         formDataToSend,
         {
           headers: {
@@ -145,11 +145,11 @@ const ProfileSettings = () => {
             <h2 className="text-2xl font-bold mb-5">Profile Settings</h2>
             <div className="bg-white p-6 rounded-lg shadow-md">
               <div className="mb-6">
-              {/* https://api.thelordsbrethrenchurch.org/media/${profileData.profile_picture */}
+              {/* https://tlbc-platform-api.onrender.com/media/${profileData.profile_picture */}
                 <img
                   src={
                     profileData.profile_picture
-                      ? `https://api.thelordsbrethrenchurch.org/api/user/${profileData.profile_picture}`
+                      ? `https://tlbc-platform-api.onrender.com/api/user/${profileData.profile_picture}`
                       : Image
                   }
                   alt="Profile"

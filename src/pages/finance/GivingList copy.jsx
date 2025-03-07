@@ -35,7 +35,7 @@ const GivingList = () => {
     const fetchUserInfo = async () => {
       try {
         const response = await axios.get(
-          'https://api.thelordsbrethrenchurch.org/api/user/',
+          'https://tlbc-platform-api.onrender.com/api/user/',
           { withCredentials: true }
         );
         setUserInfo(response.data);
@@ -47,7 +47,7 @@ const GivingList = () => {
   }, []);
 
 
-  const fetchGivings = async (url = 'https://api.thelordsbrethrenchurch.org/api/finance/giving/admin/list/?limit=20') => {
+  const fetchGivings = async (url = 'https://tlbc-platform-api.onrender.com/api/finance/giving/admin/list/?limit=20') => {
     setIsLoading(true);
     setError('');
     try {
@@ -67,7 +67,7 @@ const GivingList = () => {
     setSuccess('');
     try {
       const response = await axios.post(
-        `https://api.thelordsbrethrenchurch.org/api/finance/giving/admin/${reference}/`,
+        `https://tlbc-platform-api.onrender.com/api/finance/giving/admin/${reference}/`,
         {},
         { withCredentials: true }
       );
@@ -84,7 +84,7 @@ const GivingList = () => {
     setError('');
     try {
       const response = await axios.get(
-        `https://api.thelordsbrethrenchurch.org/api/finance/giving/${reference}/verify/`,
+        `https://tlbc-platform-api.onrender.com/api/finance/giving/${reference}/verify/`,
         { withCredentials: true }
       );
       
@@ -135,7 +135,7 @@ const GivingList = () => {
 
     try {
       const response = await axios.get(
-        `https://api.thelordsbrethrenchurch.org/api/finance/giving/admin/list/?initiated_after=${encodeURIComponent(
+        `https://tlbc-platform-api.onrender.com/api/finance/giving/admin/list/?initiated_after=${encodeURIComponent(
           formattedFromDate
         )}&initiated_before=${encodeURIComponent(
           formattedToDate

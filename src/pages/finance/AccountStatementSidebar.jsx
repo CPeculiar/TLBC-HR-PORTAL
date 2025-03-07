@@ -63,7 +63,7 @@ useEffect(() => {
  const fetchAccounts = async () => {
       try {
         const response = await axios.get(
-          'https://api.thelordsbrethrenchurch.org/api/finance/accounts/?limit=30'
+          'https://tlbc-platform-api.onrender.com/api/finance/accounts/?limit=30'
         );
         setAccounts(response.data.results);
     } catch (error) {
@@ -75,7 +75,7 @@ useEffect(() => {
    const fetchAccountDetails = async (code) => {
     try {
       const response = await axios.get(
-        `https://api.thelordsbrethrenchurch.org/api/finance/accounts/${code}/`
+        `https://tlbc-platform-api.onrender.com/api/finance/accounts/${code}/`
       );
       setAccountDetails(response.data);
     } catch (error) {
@@ -132,7 +132,7 @@ const calculateChannelStats = (txns) => {
       const startDate = format(new Date(dateRange.startDate), 'yyyy-MM-dd');
       const endDate = format(new Date(dateRange.endDate), 'yyyy-MM-dd');
       
-      const finalUrl = url || `https://api.thelordsbrethrenchurch.org/api/finance/accounts/${selectedAccountCode}/transactions/`;
+      const finalUrl = url || `https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedAccountCode}/transactions/`;
       const params = {
         limit: 100,
         ...(url ? {} : {

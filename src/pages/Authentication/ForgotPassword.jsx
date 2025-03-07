@@ -21,7 +21,7 @@ const ForgotPassword = () => {
 
     try {
 
-      const response = await axios.post('https://api.thelordsbrethrenchurch.org/api/password/reset/', { email });
+      const response = await axios.post('https://tlbc-platform-api.onrender.com/api/password/reset/', { email });
       setMessage('A password reset email has been sent to your email. Click on the link in the mail and follow the instructions to change your password. Blessings');
       setShowPopup(true);
       setEmail('');

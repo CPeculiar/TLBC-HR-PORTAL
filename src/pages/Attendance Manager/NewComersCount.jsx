@@ -37,7 +37,7 @@ const NewComersCount = () => {
     const fetchDetailedProfile = async (newcomer) => {
         try {
             const response = await axios.get(
-                `https://api.thelordsbrethrenchurch.org/api/attendance/${refCode}/newcomers/${newcomer.slug}/admin/`
+                `https://tlbc-platform-api.onrender.com/api/attendance/${refCode}/newcomers/${newcomer.slug}/admin/`
             );
             setDetailedProfile(response.data);
             setSelectedProfile(newcomer);
@@ -80,7 +80,7 @@ const handlePagination = async (url) => {
       try {
         setIsLoading(true);
         const response = await axios.get(
-          `https://api.thelordsbrethrenchurch.org/api/attendance/${refCode}/newcomers/search/`,
+          `https://tlbc-platform-api.onrender.com/api/attendance/${refCode}/newcomers/search/`,
           {
             params: {
               s: searchParams.name,

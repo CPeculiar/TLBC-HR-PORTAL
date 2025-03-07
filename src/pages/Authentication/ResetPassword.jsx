@@ -69,7 +69,7 @@ const ResetPassword = () => {
 
     try {
       const response = await axios.post(
-        "https://api.thelordsbrethrenchurch.org/api/password/reset/confirm/",
+        "https://tlbc-platform-api.onrender.com/api/password/reset/confirm/",
         {
           new_password: newPassword,
           key: key,

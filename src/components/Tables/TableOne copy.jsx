@@ -22,7 +22,7 @@ const TableOne = () => {
         }
 
         const response = await axios.get(
-          'https://api.thelordsbrethrenchurch.org/api/users/',
+          'https://tlbc-platform-api.onrender.com/api/users/',
           {
             headers: { Authorization: `Bearer ${accessToken}` },
           }

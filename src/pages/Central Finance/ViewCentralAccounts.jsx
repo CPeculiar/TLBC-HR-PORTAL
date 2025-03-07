@@ -45,7 +45,7 @@ const ViewCentralAccounts = () => {
       }
 
       const response = await axios.get(
-        "https://api.thelordsbrethrenchurch.org/api/finance/central/accounts/?limit=30",
+        "https://tlbc-platform-api.onrender.com/api/finance/central/accounts/?limit=30",
         {
           headers: { Authorization: `Bearer ${accessToken}` },
         }
@@ -68,7 +68,7 @@ const ViewCentralAccounts = () => {
       }
 
       const response = await axios.get(
-        `https://api.thelordsbrethrenchurch.org/api/finance/central/accounts/${code}/`,
+        `https://tlbc-platform-api.onrender.com/api/finance/central/accounts/${code}/`,
         {
           headers: { Authorization: `Bearer ${accessToken}` },
         }
@@ -103,7 +103,7 @@ const ViewCentralAccounts = () => {
         console.log("Deleting account with code:", accountToDelete.code); // For debugging
   
         const response = await axios.post(
-          `https://api.thelordsbrethrenchurch.org/api/finance/central/accounts/${accountToDelete.code}/delete/`,
+          `https://tlbc-platform-api.onrender.com/api/finance/central/accounts/${accountToDelete.code}/delete/`,
           { password: deletePassword },
           {
             headers: { Authorization: `Bearer ${accessToken}` },

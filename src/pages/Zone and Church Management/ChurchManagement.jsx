@@ -47,7 +47,7 @@ const ChurchManagement = () => {
   });
 
   // API Base URL
-  const API_BASE_URL = 'https://api.thelordsbrethrenchurch.org/api';
+  const API_BASE_URL = 'https://tlbc-platform-api.onrender.com/api';
 
    // Helper function to set and auto-clear success message
    const setSuccessMessageWithTimeout = (message, setMessageFn) => {

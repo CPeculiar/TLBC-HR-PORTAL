@@ -55,7 +55,7 @@ const UserPermissions = () => {
   
     try {
       const response = await axios.put(
-        'https://api.thelordsbrethrenchurch.org/api/users/make-admin/',
+        'https://tlbc-platform-api.onrender.com/api/users/make-admin/',
         formData,
         {
             headers: {

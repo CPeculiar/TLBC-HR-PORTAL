@@ -40,7 +40,7 @@ const GiveOffline = () => {
         throw new Error("Access token not found");
       }
 
-       const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/churches/?limit=25', {
+       const response = await axios.get('https://tlbc-platform-api.onrender.com/api/churches/?limit=25', {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         }
@@ -129,7 +129,7 @@ const GiveOffline = () => {
 
       // Initialize payment on your server
       const response = await axios.post(
-        'https://api.thelordsbrethrenchurch.org/api/finance/giving/',
+        'https://tlbc-platform-api.onrender.com/api/finance/giving/',
         formDataToSend,
         {
           headers: { 

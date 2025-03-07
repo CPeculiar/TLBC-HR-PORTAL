@@ -36,7 +36,7 @@ const ReturningNewComers = () => {
       try {
         setIsLoading(true);
         const response = await axios.get(
-          `https://api.thelordsbrethrenchurch.org/api/attendance/${refCode}/newcomers/search/`,
+          `https://tlbc-platform-api.onrender.com/api/attendance/${refCode}/newcomers/search/`,
           {
             params: {
               s: searchParams.name,
@@ -57,7 +57,7 @@ const ReturningNewComers = () => {
     const markAttendance = async (newcomer) => {
         try {
           const response = await axios.put(
-            `https://api.thelordsbrethrenchurch.org/api/attendance/${refCode}/newcomers/${newcomer.slug}/`
+            `https://tlbc-platform-api.onrender.com/api/attendance/${refCode}/newcomers/${newcomer.slug}/`
           );
           
           // Update the local state to mark attendance as taken

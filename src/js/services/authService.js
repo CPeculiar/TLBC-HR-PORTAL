@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { showToast } from '../../utils/toast';
 
-const API_URL = 'https://api.thelordsbrethrenchurch.org/api';
+const API_URL = 'https://tlbc-platform-api.onrender.com/api';
 
 const authService = {
   login: async (username, password) => {

@@ -22,7 +22,7 @@ const AddUserToGroup = () => {
   const fetchPermissions = async () => {
     try {
       const response = await axios.get(
-        'https://api.thelordsbrethrenchurch.org/api/groups/',
+        'https://tlbc-platform-api.onrender.com/api/groups/',
         {
           withCredentials: true
         }
@@ -74,7 +74,7 @@ const AddUserToGroup = () => {
     setIsLoading(true);
     try {
       const response = await axios.put(
-        `https://api.thelordsbrethrenchurch.org/api/groups/${formData.selectedPermission}/`,
+        `https://tlbc-platform-api.onrender.com/api/groups/${formData.selectedPermission}/`,
         {
           add_users: [formData.username]
         },

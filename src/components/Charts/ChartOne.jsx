@@ -147,7 +147,7 @@ const ChartOne = () => {
   const fetchData = async (initiated_after, initiated_before) => {
     try {
       setLoading(true);
-      const url = `https://api.thelordsbrethrenchurch.org/api/finance/giving/list/?initiated_after=${initiated_after}&initiated_before=${initiated_before}&limit=200`;
+      const url = `https://tlbc-platform-api.onrender.com/api/finance/giving/list/?initiated_after=${initiated_after}&initiated_before=${initiated_before}&limit=200`;
       const response = await axios.get(url);
       
       const confirmedTransactions = response.data.results.filter(item => item.confirmed);

@@ -47,11 +47,9 @@ const ChartTwo = () => {
       const dateFilter = getDateFilter();
       // const BASE_URL = import.meta.env.VITE_API_BASE_URL;
       const response = await axios.get(
-<<<<<<< HEAD
         `https://tlbc-platform-api.onrender.com/api/attendance/me/${dateFilter}`,
-=======
-        `https://api.thelordsbrethrenchurch.org/api/attendance/me/${dateFilter}`,
->>>>>>> dfc3f27a5deda41d600716fc965790772dae9a98
+
+      
         // `${BASE_URL}/api/attendance/me/${dateFilter}`,
         {
           headers: { Authorization: `Bearer ${accessToken}` },

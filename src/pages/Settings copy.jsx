@@ -155,7 +155,7 @@ const Settings = () => {
 
 
       const response = await axios.patch(
-        "https://api.thelordsbrethrenchurch.org/api/user/",
+        "https://tlbc-platform-api.onrender.com/api/user/",
         formDataToSend,
         {
           headers: {

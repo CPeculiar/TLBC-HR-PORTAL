@@ -25,7 +25,7 @@ const CentralExpensesManagement = () => {
   useEffect(() => {
     const fetchBankAccounts = async () => {
       try {
-        const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/finance/central/accounts/');
+        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/central/accounts/');
         setBankAccounts(response.data.results);
       } catch (error) {
         setErrorMessage('Failed to fetch bank accounts');
@@ -34,7 +34,7 @@ const CentralExpensesManagement = () => {
 
     const fetchExpensesList = async () => {
       try {
-        const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/finance/central/expense/list/');
+        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/central/expense/list/');
         setExpensesList(response.data.results);
         setUpdatesList(response.data.results);
         
@@ -62,7 +62,7 @@ const CentralExpensesManagement = () => {
         formData.append('files', expenseFile);
       }
 
-      const response = await axios.post('https://api.thelordsbrethrenchurch.org/api/finance/central/expense/', formData, {
+      const response = await axios.post('https://tlbc-platform-api.onrender.com/api/finance/central/expense/', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -88,7 +88,7 @@ const CentralExpensesManagement = () => {
 
   const handleApproveExpense = async (reference) => {
     try {
-      const response = await axios.post(`https://api.thelordsbrethrenchurch.org/api/finance/central/expense/${reference}/approve/`);
+      const response = await axios.post(`https://tlbc-platform-api.onrender.com/api/finance/central/expense/${reference}/approve/`);
       
       // Update approvals list
       const updatedApprovals = approvalsList.filter(expense => expense.reference !== reference);
@@ -106,7 +106,7 @@ const CentralExpensesManagement = () => {
 
   const handleDeclineExpense = async (reference) => {
     try {
-      const response = await axios.post(`https://api.thelordsbrethrenchurch.org/api/finance/central/expense/${reference}/decline/`);
+      const response = await axios.post(`https://tlbc-platform-api.onrender.com/api/finance/central/expense/${reference}/decline/`);
       
       // Update approvals list
       const updatedApprovals = approvalsList.filter(expense => expense.reference !== reference);
@@ -136,7 +136,7 @@ const CentralExpensesManagement = () => {
 
 
       const response = await axios.put(
-        `https://api.thelordsbrethrenchurch.org/api/finance/central/expense/${updateFileReference.reference}/upload/`, 
+        `https://tlbc-platform-api.onrender.com/api/finance/central/expense/${updateFileReference.reference}/upload/`, 
         formData, 
         {
           headers: {
@@ -156,7 +156,7 @@ const CentralExpensesManagement = () => {
    // Refresh the updates list
    const fetchUpdatedList = async () => {
     try {
-      const response = await axios.get('https://api.thelordsbrethrenchurch.org/api/finance/central/expense/list/');
+      const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/central/expense/list/');
       setUpdatesList(response.data.results);
     } catch (error) {
       setErrorMessage('Failed to refresh updates list');

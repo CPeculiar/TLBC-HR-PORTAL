@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import { Eye, X, PlusCircle, Trash2, Search, Filter } from "lucide-react";
+
+import UserIcon from '../../images/user/user-14.png';
 import User from '../../images/user/user-09.png';
 import UserProfileCard from './UserProfileCard';
 import UserProfileCardAdmin from '../User Management/UserProfileCardAdmin';
@@ -66,11 +68,11 @@ const AdvancedUserSearchPage = () => {
 
       try {
           const [churchResponse, zoneResponse] = await Promise.all([
-              axios.get('https://api.thelordsbrethrenchurch.org/api/churches/', {
+              axios.get('https://tlbc-platform-api.onrender.com/api/churches/', {
                   headers: { Authorization: `Bearer ${accessToken}` },
                   params: { limit: 50 }
               }),
-              axios.get('https://api.thelordsbrethrenchurch.org/api/zones/', {
+              axios.get('https://tlbc-platform-api.onrender.com/api/zones/', {
                   headers: { Authorization: `Bearer ${accessToken}` },
                   params: { limit: 20 }
               })
@@ -151,7 +153,7 @@ const AdvancedUserSearchPage = () => {
            setIsUsernameSearch(true);
            // Make the specific username API call
            const response = await axios.get(
-               `https://api.thelordsbrethrenchurch.org/api/users/${usernameField.value}/`,
+               `https://tlbc-platform-api.onrender.com/api/users/${usernameField.value}/`,
                {
                    headers: { Authorization: `Bearer ${accessToken}` }
                }
@@ -167,7 +169,7 @@ const AdvancedUserSearchPage = () => {
            setSelectedUser(response.data);
        } else {
            // Make the regular search API call
-           const url = pageUrl || 'https://api.thelordsbrethrenchurch.org/api/users/';
+           const url = pageUrl || 'https://tlbc-platform-api.onrender.com/api/users/';
            const config = {
                headers: { Authorization: `Bearer ${accessToken}` },
                params: pageUrl ? {} : params // Only include params if it's not a pagination URL
@@ -516,7 +518,7 @@ const AdvancedUserSearchPage = () => {
                     >
                       <td className="px-2 sm:px-4 py-3">
                         <img
-                          src={user.profile_picture || User}
+                          src={user.profile_picture || UserIcon }
                           alt="Profile"
                           className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
                         />
