@@ -812,7 +812,7 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                             disabled={!isEditMode}
                           />
                         </div>
-                      </div>
+                      </div> 
 
                     <div className="w-full sm:w-1/2">
                       <label

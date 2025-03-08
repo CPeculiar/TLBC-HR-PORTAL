@@ -20,6 +20,8 @@
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@heroicons/react": "^2.1.5",
     "@paystack/inline-js": "^2.22.1",
+    "@radix-ui/react-alert-dialog": "^1.1.6",
+    "@radix-ui/react-select": "^2.1.6",
     "add": "^2.0.6",
     "add-to-calendar-button-react": "^2.8.1",
     "antd": "^5.22.3",
@@ -30,8 +32,9 @@
     "clsx": "^2.1.1",
     "country-state-city": "^3.2.1",
     "date-fns": "^4.1.0",
+    "date-picker": "^0.5.0",
     "dotenv": "^16.4.7",
-    "firebase": "^11.2.0",
+    "firebase": "^11.4.0",
     "flatpickr": "^4.6.13",
     "headlessui": "^0.0.0",
     "html2pdf.js": "^0.10.2",
@@ -45,7 +48,7 @@
     "popover": "^2.4.1",
     "react": "^18.2.0",
     "react-apexcharts": "^1.4.1",
-    "react-datepicker": "^7.5.0",
+    "react-datepicker": "^7.6.0",
     "react-day-picker": "^9.5.0",
     "react-dom": "^18.2.0",
     "react-hot-toast": "^2.4.1",
@@ -58,7 +61,8 @@
     "react-toastify": "^9.1.3",
     "recharts": "^2.15.0",
     "shadcn-ui": "^0.9.4",
-    "sort-by": "^0.0.2"
+    "sort-by": "^0.0.2",
+    "tailwind-merge": "^3.0.2"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.0.3",

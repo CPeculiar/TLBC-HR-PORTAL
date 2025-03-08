@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import { Eye, X, Search, ChevronLeft, ChevronRight } from "lucide-react";
-import User from '../../images/user/user-09.png'
+import User from '../../images/user/user-14.png'
 import UserProfileCard from './UserProfileCard';
 
 const UserSearchPage = () => {

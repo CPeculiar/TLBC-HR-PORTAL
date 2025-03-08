@@ -61,6 +61,9 @@ import AboutTLBC from './pages/community/AboutTLBC';
 import LOLD from './pages/community/LOLD';
 import GivingOnline from './pages/Giving/GivingOnline';
 import EventsPage from './pages/Events/EventsPage';
+import AdminEventUpload from './pages/Events/EventUploadAdmin';
+import AdminEventManagement from './pages/Events/EventManagementAdmin';
+import EditEvent from './pages/Events/EditEvent';
 import CentralAccountDashboard from './pages/Central Finance/CentralAccountDashboard';
 import CentralAccountCreationPage from './pages/Central Finance/CentralAccountCreationPage';
 import CentralAccountStatement from './pages/Central Finance/CentralAccountStatement';
@@ -79,7 +82,6 @@ import GiveOffline from './pages/Giving/GiveOffline'
 import GivingRecords from './pages/Giving/GivingRecords';
 import CentralGivingList from './pages/Central Finance/CentralGivingList';
 import GivingList from './pages/finance/GivingList';
-import AdminEventUpload from './pages/Events/AdminEventUpload';
 import ViewChurchAccounts from './pages/finance/ViewChurchAccounts';
 import ViewCentralAccounts from './pages/Central Finance/ViewCentralAccounts';
 import FundTransfer from './pages/finance/FundTransfer';
@@ -89,6 +91,9 @@ import CentralAccountStatementSidebar from './pages/Central Finance/CentralAccou
 import TransactionChart from './pages/finance/TransactionChart';
 import ChatComponent from './components/Chat/ChatComponent';
 import UserChat from './components/Chat/UserChat';
+
+import Registration from './pages/Dashboard/Registration';
+import Profiles from './pages/Dashboard/Profiles';
 
 
 
@@ -358,7 +363,11 @@ useEffect(() => {
             {/* Events */}
       <Route path="/events" element={withDefaultLayout(<EventsPage />, "Events")} />
       <Route path="/admineventupload" element={withDefaultLayout(<AdminEventUpload  />, "Admin Events Upload")} />
+      <Route path="/admineventmgt" element={withDefaultLayout(<AdminEventManagement  />, "Admin Events Management")} />
+      <Route path="/admineditevent/:id" element={withDefaultLayout(<EditEvent  />, "Admin Edit Event")} />
 
+      <Route path="/reg" element={withDefaultLayout(<Registration  />, "Admin Edit Event")} />
+      <Route path="/profiles" element={withDefaultLayout(<Profiles  />, "Admin Edit Event")} />
 
 
             {/* User Management */}

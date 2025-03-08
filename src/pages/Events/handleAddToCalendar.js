@@ -1,51 +1,54 @@
+// src/pages/Events/handleAddToCalendar.js
+
 export const handleAddToCalendar = (event) => {
-  // Format the event details for calendar
-  const formatDate = (dateStr) => {
-    const date = new Date(dateStr);
-    return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-  };
-
-  // Parse the date string (assuming format like "Friday, 3rd January, 2025")
-  const dateStr = event.date.split(',')[1].trim() + ',' + event.date.split(',')[2].trim();
-  const startDate = new Date(dateStr);
-  
-  // Set the time if provided
-  if (event.time) {
-    const timeStr = event.time.replace('Arrival', '').trim();
-    const [hours, minutes] = timeStr.match(/\d+/g) || [0, 0];
-    const isPM = timeStr.toLowerCase().includes('pm');
-    startDate.setHours(
-      isPM ? parseInt(hours) + 12 : parseInt(hours),
-      parseInt(minutes) || 0
-    );
+  try {
+    // Parse date and time
+    const dateParts = event.date.replace(',', '').split(' ');
+    const day = parseInt(dateParts[1].replace(/\D/g, ''));
+    const month = getMonthNumber(dateParts[2].replace(',', ''));
+    const year = parseInt(dateParts[3]);
+    
+    // Format time for calendar
+    let timeString = event.time;
+    let hours = parseInt(timeString.split(':')[0]);
+    const minutes = parseInt(timeString.split(':')[1].split(' ')[0]);
+    const isPM = timeString.toLowerCase().includes('pm');
+    
+    if (isPM && hours < 12) {
+      hours += 12;
+    } else if (!isPM && hours === 12) {
+      hours = 0;
+    }
+    
+    // Create date objects for start and end (assuming 1 hour duration)
+    const startDate = new Date(year, month, day, hours, minutes);
+    const endDate = new Date(startDate);
+    endDate.setHours(endDate.getHours() + 1);
+    
+    // Format dates for calendar URL
+    const formatForCalendar = (date) => {
+      return date.toISOString().replace(/-|:|\.\d+/g, '');
+    };
+    
+    const start = formatForCalendar(startDate);
+    const end = formatForCalendar(endDate);
+    
+    // Create Google Calendar URL
+    const url = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title)}&dates=${start}/${end}&details=${encodeURIComponent(event.description)}&location=${encodeURIComponent(event.location)}`;
+    
+    // Open in new tab
+    window.open(url, '_blank');
+  } catch (error) {
+    console.error("Error adding to calendar:", error);
+    alert("Error adding to calendar. Please try again.");
   }
+};
 
-  // Set end date to 2 hours after start
-  const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
-
-  // Create the ICS file content
-  const icsContent = `BEGIN:VCALENDAR
-VERSION:2.0
-BEGIN:VEVENT
-DTSTART:${formatDate(startDate)}
-DTEND:${formatDate(endDate)}
-SUMMARY:${event.title}
-DESCRIPTION:${event.description}
-LOCATION:${event.location}
-BEGIN:VALARM
-TRIGGER:-PT24H
-ACTION:DISPLAY
-DESCRIPTION:Reminder
-END:VALARM
-END:VEVENT
-END:VCALENDAR`;
-
-  // Create and trigger download
-  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-  const link = document.createElement('a');
-  link.href = window.URL.createObjectURL(blob);
-  link.setAttribute('download', `${event.title}.ics`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+// Helper function to get month number from name
+const getMonthNumber = (monthName) => {
+  const months = {
+    'January': 0, 'February': 1, 'March': 2, 'April': 3, 'May': 4, 'June': 5,
+    'July': 6, 'August': 7, 'September': 8, 'October': 9, 'November': 10, 'December': 11
+  };
+  return months[monthName];
 };

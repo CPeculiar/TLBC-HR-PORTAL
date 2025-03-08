@@ -15,6 +15,7 @@ const firebaseConfig = {
   authDomain: "hr-portal-1e2f8.firebaseapp.com",
   projectId: "hr-portal-1e2f8",
   storageBucket: "hr-portal-1e2f8.firebasestorage.app",
+  // storageBucket: "hr-portal-1e2f8.appspot.com",  
   messagingSenderId: "498439480768",
   appId: "1:498439480768:web:0f41cff149d1407ed5d425",
   measurementId: "G-M7400EDNKZ"

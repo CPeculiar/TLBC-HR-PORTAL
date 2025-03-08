@@ -1,8 +1,12 @@
 // First install: npm install firebase
 import { useState, useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+import { getFunctions } from 'firebase/functions';
 import { getAnalytics } from "firebase/analytics";
-import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { getStorage } from "firebase/storage"; 
+import { collection, addDoc, onSnapshot, query, orderBy } from 'firebase/firestore';
 
 const firebaseConfig = {
   // You'll get these values from Firebase Console
@@ -10,14 +14,19 @@ const firebaseConfig = {
   authDomain: "hr-portal-1e2f8.firebaseapp.com",
   projectId: "hr-portal-1e2f8",
   storageBucket: "hr-portal-1e2f8.firebasestorage.app",
+  // storageBucket: "hr-portal-1e2f8.appspot.com",  
   messagingSenderId: "498439480768",
   appId: "1:498439480768:web:0f41cff149d1407ed5d425",
   measurementId: "G-M7400EDNKZ"
 };
 
-const app = initializeApp(firebaseConfig);
+export const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
-const db = getFirestore(app);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export const functions = getFunctions(app);
+export const storage = getStorage(app);
+
 
 function ChatComponent() {
   const [messages, setMessages] = useState([]);
