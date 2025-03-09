@@ -110,22 +110,22 @@ const AudioMessageList = () => {
     <>
       <Breadcrumb pageName="Audio Messages" />
 
-      <div className="p-4 md:p-6 2xl:p-10">
+      <div className="px-2 sm:px-4 md:px-6 2xl:px-10 py-4">
         <div className="mx-auto max-w-full">
           <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark dark:text-white">
-            <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <h3 className="font-medium text-black dark:text-white text-xl">
+            <div className="border-b border-stroke py-4 px-3 sm:px-6.5 dark:border-strokedark flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <h3 className="font-medium text-black dark:text-white text-lg sm:text-xl">
                 Audio Messages List
               </h3>
-              <div className="flex">
+              <div className="flex w-full md:w-auto">
                 <button
                   onClick={() => fetchMessages()}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors w-full md:w-auto flex items-center justify-center gap-2"
+                  className="px-3 py-2 text-sm sm:px-4 sm:py-2 sm:text-base bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors w-full md:w-auto flex items-center justify-center gap-2"
                   disabled={isLoading}
                 >
                   {isLoading ? (
                     <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
                       Fetching...
                     </>
                   ) : (
@@ -136,29 +136,29 @@ const AudioMessageList = () => {
             </div>
 
             {error && (
-              <Alert variant="destructive" className="mx-6 mt-4">
-                <AlertDescription className="text-red-500 dark:font-bold">
+              <Alert variant="destructive" className="mx-3 sm:mx-6 mt-4 max-w-full overflow-hidden">
+                <AlertDescription className="text-red-500 dark:font-bold text-sm sm:text-base break-words">
                   {error}
                 </AlertDescription>
               </Alert>
             )}
 
             {success && (
-              <Alert className="bg-green-100 text-green-800 mx-6 mt-4">
-                <AlertDescription>{success}</AlertDescription>
+              <Alert className="bg-green-100 text-green-800 mx-3 sm:mx-6 mt-4 max-w-full overflow-hidden">
+                <AlertDescription className="text-sm sm:text-base break-words">{success}</AlertDescription>
               </Alert>
             )}
 
-            <div className="p-4 md:p-6.5">
+            <div className="p-3 sm:p-4 md:p-6.5">
               <div className="w-full overflow-x-auto">
-                <table className="w-full table-auto border-collapse">
+                <table className="w-full table-auto border-collapse text-sm sm:text-base">
                   <thead>
                     <tr className="bg-gray/5 dark:bg-gray/5 text-center">
-                      <th className="border px-4 py-3">Title</th>
-                      <th className="border px-4 py-3">Speaker</th>
-                      <th className="border px-4 py-3">Date</th>
-                      <th className="border px-4 py-3">View</th>
-                      <th className="border px-4 py-3">Delete</th>
+                      <th className="border px-2 py-2 sm:px-4 sm:py-3">Title</th>
+                      <th className="border px-2 py-2 sm:px-4 sm:py-3">Speaker</th>
+                      <th className="border px-2 py-2 sm:px-4 sm:py-3">Date</th>
+                      <th className="border px-2 py-2 sm:px-4 sm:py-3">View</th>
+                      <th className="border px-2 py-2 sm:px-4 sm:py-3">Delete</th>
                     </tr>
                   </thead>
                   {messages?.results?.length > 0 ? (
@@ -168,25 +168,31 @@ const AudioMessageList = () => {
                           key={message.id}
                           className="border-b hover:bg-gray/90 dark:hover:bg-gray/10 text-center"
                         >
-                          <td className="border px-4 py-3">{message.title}</td>
-                          <td className="border px-4 py-3">{message.speaker}</td>
-                          <td className="border px-4 py-3">{formatDate(message.date)}</td>
-                          <td className="border px-4 py-3 text-center">
+                          <td className="border px-2 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm md:text-base break-words max-w-xs">
+                            {message.title}
+                          </td>
+                          <td className="border px-2 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm md:text-base">
+                            {message.speaker}
+                          </td>
+                          <td className="border px-2 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm md:text-base">
+                            {formatDate(message.date)}
+                          </td>
+                          <td className="border px-2 py-2 sm:px-4 sm:py-3 text-center">
                             <button
                               onClick={() => handleViewMessage(message.id)}
-                              className="p-2 text-blue-600 hover:text-blue-800 transition-colors"
+                              className="p-1 sm:p-2 text-blue-600 hover:text-blue-800 transition-colors"
                               aria-label="View message"
                             >
-                              <Eye size={20} />
+                              <Eye size={16} className="sm:w-5 sm:h-5" />
                             </button>
                           </td>
-                          <td className="border px-4 py-3 text-center">
+                          <td className="border px-2 py-2 sm:px-4 sm:py-3 text-center">
                             <button
                               onClick={() => handleDeleteClick(message)}
-                              className="p-2 text-red-600 hover:text-red-800 transition-colors"
+                              className="p-1 sm:p-2 text-red-600 hover:text-red-800 transition-colors"
                               aria-label="Delete message"
                             >
-                              <Trash2 size={20} />
+                              <Trash2 size={16} className="sm:w-5 sm:h-5" />
                             </button>
                           </td>
                         </tr>
@@ -197,7 +203,7 @@ const AudioMessageList = () => {
                       <tr>
                         <td
                           colSpan="5"
-                          className="text-center py-4 text-black/70 dark:text-white"
+                          className="text-center py-4 text-black/70 dark:text-white text-xs sm:text-sm md:text-base"
                         >
                           {isLoading
                             ? 'Loading messages...'
@@ -210,11 +216,11 @@ const AudioMessageList = () => {
               </div>
 
               {messages && (
-                <div className="flex justify-between mt-6">
+                <div className="flex justify-between mt-4 sm:mt-6">
                   <button
                     onClick={() => messages?.previous && fetchMessages(messages.previous)}
                     disabled={!messages?.previous}
-                    className={`px-4 py-2 rounded-md ${
+                    className={`px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm rounded-md ${
                       messages?.previous
                         ? 'bg-blue-600 text-white hover:bg-blue-700'
                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -225,7 +231,7 @@ const AudioMessageList = () => {
                   <button
                     onClick={() => messages?.next && fetchMessages(messages.next)}
                     disabled={!messages?.next}
-                    className={`px-4 py-2 rounded-md ${
+                    className={`px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm rounded-md ${
                       messages?.next
                         ? 'bg-blue-600 text-white hover:bg-blue-700'
                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -242,51 +248,53 @@ const AudioMessageList = () => {
 
       {/* View Message Modal */}
       <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-w-[calc(100%-2rem)] mx-auto">
           {/* Header with title and close button */}
-          <div className="w-full flex items-center justify-between px-4 border-b pb-2 mb-4">
-            <h2 className="text-xl font-semibold">Message Details</h2>
+          <div className="w-full flex items-center justify-between px-3 sm:px-4 border-b pb-2 mb-4">
+            <h2 className="text-lg sm:text-xl font-semibold">Message Details</h2>
             <button
               onClick={() => setIsViewModalOpen(false)}
               className="hover:text-black-2 dark:text-black/60 dark:hover:text-black/90"
             >
-              <X size={24} />
+              <X size={20} className="sm:w-6 sm:h-6" />
             </button>
           </div>
 
           {selectedMessage && (
-            <div className="p-4 space-y-4">
+            <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
               <div className="space-y-1">
-                <h4 className="font-bold">Title:</h4>
-                <p className="text-lg dark:text-black">{selectedMessage.title}</p>
+                <h4 className="font-bold text-sm sm:text-base">Title:</h4>
+                <p className="text-base sm:text-lg dark:text-black break-words">{selectedMessage.title}</p>
               </div>
 
               <div className="space-y-1">
-                <h4 className="font-bold">Preached by:</h4>
-                <p className="dark:text-black">{selectedMessage.speaker}</p>
+                <h4 className="font-bold text-sm sm:text-base">Preached by:</h4>
+                <p className="text-sm sm:text-base dark:text-black">{selectedMessage.speaker}</p>
               </div>
 
               <div className="space-y-1">
-                <h4 className="font-bold">Date:</h4>
-                <p className="dark:text-black">{formatDate(selectedMessage.date)}</p>
+                <h4 className="font-bold text-sm sm:text-base">Date:</h4>
+                <p className="text-sm sm:text-base dark:text-black">{formatDate(selectedMessage.date)}</p>
               </div>
 
               <div className="space-y-1">
-                <h4 className="font-bold">Type:</h4>
-                <p className="dark:text-black capitalize">{selectedMessage.type}</p>
+                <h4 className="font-bold text-sm sm:text-base">Type:</h4>
+                <p className="text-sm sm:text-base dark:text-black capitalize">{selectedMessage.type}</p>
               </div>
 
               <div className="space-y-1">
-                <h4 className="font-bold">Description:</h4>
-                <p className="dark:text-black">{selectedMessage.description || "No description available"}</p>
+                <h4 className="font-bold text-sm sm:text-base">Description:</h4>
+                <p className="text-sm sm:text-base dark:text-black break-words">
+                  {selectedMessage.description || "No description available"}
+                </p>
               </div>
 
-              <div className="flex justify-end pt-4">
+              <div className="flex justify-end pt-3 sm:pt-4">
                 <button
                   onClick={handleDownloadMessage}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2"
+                  className="px-3 py-1.5 sm:px-4 sm:py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center gap-1 sm:gap-2"
                 >
-                  <Download size={18} />
+                  <Download size={16} className="sm:w-5 sm:h-5" />
                   Download
                 </button>
               </div>
@@ -297,44 +305,44 @@ const AudioMessageList = () => {
 
       {/* Delete Confirmation Modal */}
       <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
-        <DialogContent className="sm:max-w-md">
-          <div className="w-full flex items-center justify-between px-4 border-b pb-2 mb-4">
-            <h2 className="text-xl font-semibold">Confirm Delete</h2>
+        <DialogContent className="sm:max-w-md max-w-[calc(100%-2rem)] mx-auto">
+          <div className="w-full flex items-center justify-between px-3 sm:px-4 border-b pb-2 mb-4">
+            <h2 className="text-lg sm:text-xl font-semibold">Confirm Delete</h2>
             <button
               onClick={() => setIsDeleteModalOpen(false)}
               className="hover:text-black-2 dark:text-black/60 dark:hover:text-black/90"
             >
-              <X size={24} />
+              <X size={20} className="sm:w-6 sm:h-6" />
             </button>
           </div>
 
           {messageToDelete && (
-            <div className="p-4 space-y-4">
-              <p className="dark:text-black">
+            <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
+              <p className="text-sm sm:text-base dark:text-black break-words">
                 Are you sure you want to delete the message "{messageToDelete.title}"?
                 This action cannot be undone.
               </p>
 
-              <div className="flex justify-end gap-3 pt-4">
+              <div className="flex justify-end gap-2 sm:gap-3 pt-3 sm:pt-4">
                 <button
                   onClick={() => setIsDeleteModalOpen(false)}
-                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray/95 transition-colors"
+                  className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm bg-gray-200 text-gray-800 rounded-md hover:bg-gray/95 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleConfirmDelete}
-                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors flex items-center gap-2"
+                  className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors flex items-center gap-1 sm:gap-2"
                   disabled={isDeleting}
                 >
                   {isDeleting ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" />
                       Deleting...
                     </>
                   ) : (
                     <>
-                      <Trash2 size={18} />
+                      <Trash2 size={14} className="sm:w-4 sm:h-4" />
                       Delete
                     </>
                   )}

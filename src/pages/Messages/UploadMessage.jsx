@@ -268,40 +268,42 @@ const UploadMessage = () => {
     <>
       <Breadcrumb pageName="Upload a Message" />
 
-      <div className="p-3 sm:p-4 md:p-6 2xl:p-10">
+      <div className="p-2 sm:p-3 md:p-6 2xl:p-10">
         <div className="mx-auto max-w-2xl">
-          <Card className="overflow-hidden">
-            <CardHeader className="px-4 sm:px-6">
-              <CardTitle className="text-lg sm:text-xl">Upload New Message</CardTitle>
+          <Card className="overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm">
+            <CardHeader className="px-3 py-3 sm:px-6 sm:py-4">
+              <CardTitle className="text-base sm:text-lg md:text-xl font-semibold">Upload New Message</CardTitle>
             </CardHeader>
-            <CardContent className="px-4 sm:px-6">
-              <form onSubmit={handleSubmit} className="space-y-5">
+            <CardContent className="px-3 sm:px-6 pb-4 sm:pb-6">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
                 {/* Title Field */}
                 <div>
-                  <Label htmlFor="title" className="block mb-1.5">Message Title</Label>
+                  <Label htmlFor="title" className="block mb-1 text-sm sm:text-base font-medium">Message Title</Label>
                   <div className="relative">
-                    <span className="absolute inset-y-0 left-3 flex items-center">
-                      <Edit3 className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500" />
+                    <span className="absolute inset-y-0 left-2 sm:left-3 flex items-center">
+                      <Edit3 className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-gray-500" />
                     </span>
                     <Input
                       id="title"
                       name="title"
                       value={formData.title}
                       onChange={handleInputChange}
-                      className={`w-full pl-10 sm:pl-12 ${errors.title ? 'border-red-500' : ''}`}
+                      className={`w-full pl-8 sm:pl-10 md:pl-12 py-1.5 sm:py-2 text-sm sm:text-base ${
+                        errors.title ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600'
+                      }`}
                     />
                   </div>
                   {errors.title && (
-                    <p className="mt-1 text-xs sm:text-sm text-red-500">{errors.title[0]}</p>
+                    <p className="mt-1 text-xs sm:text-sm text-red-500 font-medium">{errors.title[0]}</p>
                   )}
                 </div>
 
                 {/* Date Field */}
                 <div>
-                  <Label htmlFor="date" className="block mb-1.5">Message Date</Label>
+                  <Label htmlFor="date" className="block mb-1 text-sm sm:text-base font-medium">Message Date</Label>
                   <div className="relative">
-                    <span className="absolute inset-y-0 left-3 flex items-center">
-                      <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500" />
+                    <span className="absolute inset-y-0 left-2 sm:left-3 flex items-center">
+                      <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-gray-500" />
                     </span>
                     <input
                       type="date"
@@ -309,27 +311,31 @@ const UploadMessage = () => {
                       name="date"
                       value={date}
                       onChange={handleDateChange}
-                      className={`w-full rounded border ${errors.date ? 'border-red-500' : 'border-gray-300'} bg-gray py-2 sm:py-3 pl-10 sm:pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800`}
+                      className={`w-full rounded-md border ${
+                        errors.date ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                      } bg-transparent py-1.5 sm:py-2 pl-8 sm:pl-10 md:pl-12 pr-4 text-sm sm:text-base focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary`}
                     />
                   </div>
                   {errors.date && (
-                    <p className="mt-1 text-xs sm:text-sm text-red-500">{errors.date[0]}</p>
+                    <p className="mt-1 text-xs sm:text-sm text-red-500 font-medium">{errors.date[0]}</p>
                   )}
                 </div>
 
                 {/* Speaker Field */}
                 <div>
-                  <Label htmlFor="speaker" className="block mb-1.5">Preached By:</Label>
+                  <Label htmlFor="speaker" className="block mb-1 text-sm sm:text-base font-medium">Preached By:</Label>
                   <div className="relative">
-                    <span className="absolute inset-y-0 left-3 flex items-center">
-                      <User2 className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500" />
+                    <span className="absolute inset-y-0 left-2 sm:left-3 flex items-center">
+                      <User2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-gray-500" />
                     </span>
                     <select
                       id="speaker"
                       name="speaker"
                       value={formData.speaker}
                       onChange={handleSpeakerChange}
-                      className={`w-full rounded-md border ${errors.speaker ? 'border-red-500' : 'border-gray-300'} py-2 pl-10 sm:pl-12 pr-8 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800`}
+                      className={`w-full rounded-md border ${
+                        errors.speaker ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                      } bg-transparent py-1.5 sm:py-2 pl-8 sm:pl-10 md:pl-12 pr-8 text-sm sm:text-base focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary`}
                       style={{
                         WebkitAppearance: "none",
                         MozAppearance: "none",
@@ -347,54 +353,56 @@ const UploadMessage = () => {
                     </select>
                   </div>
                   {errors.speaker && (
-                    <p className="mt-1 text-xs sm:text-sm text-red-500">{errors.speaker[0]}</p>
+                    <p className="mt-1 text-xs sm:text-sm text-red-500 font-medium">{errors.speaker[0]}</p>
                   )}
                 </div>
 
                 {/* Description Field */}
                 <div>
-                  <Label htmlFor="description" className="block mb-1.5">Description</Label>
+                  <Label htmlFor="description" className="block mb-1 text-sm sm:text-base font-medium">Description</Label>
                   <Textarea
                     id="description"
                     name="description"
                     value={formData.description}
                     onChange={handleInputChange}
-                    className={`w-full min-h-20 sm:min-h-24 ${errors.description ? 'border-red-500' : ''}`}
+                    className={`w-full min-h-16 sm:min-h-20 md:min-h-24 text-sm sm:text-base ${
+                      errors.description ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600'
+                    }`}
                   />
                   {errors.description && (
-                    <p className="mt-1 text-xs sm:text-sm text-red-500">{errors.description[0]}</p>
+                    <p className="mt-1 text-xs sm:text-sm text-red-500 font-medium">{errors.description[0]}</p>
                   )}
                 </div>
 
                 {/* Media Type Selection */}
                 <div>
-                  <Label className="block mb-1.5">Media Type</Label>
-                  <div className="flex flex-wrap gap-2 sm:gap-4 mt-1 sm:mt-2">
+                  <Label className="block mb-1 text-sm sm:text-base font-medium">Media Type</Label>
+                  <div className="flex flex-wrap gap-2 mt-1 sm:gap-3">
                     <Button
                       type="button"
                       variant={mediaType === 'audio' ? 'default' : 'outline'}
-                      className={`flex-1 sm:flex-none flex justify-center items-center px-3 sm:px-4 py-1.5 sm:py-2 ${
+                      className={`flex-1 flex justify-center items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm ${
                         mediaType === 'audio' 
-                        ? 'bg-blue-950 text-white hover:bg-blue-800 ring-2 ring-blue-950' 
-                        : 'bg-blue-50 text-gray-700 hover:bg-gray-100'
+                        ? 'bg-blue-950 text-white hover:bg-blue-800 ring-1 sm:ring-2 ring-blue-950' 
+                        : 'bg-blue-50 text-gray-700 hover:bg-gray-100 border border-gray-300 dark:border-gray-600'
                       }`}
                       onClick={() => handleMediaTypeChange('audio')}
                     >
-                      <FileAudio className={`h-4 w-4 sm:h-5 sm:w-5 mr-1.5 sm:mr-2 ${mediaType === 'audio' ? 'text-white' : 'text-gray-500'}`} />
-                      <span className="text-sm sm:text-base">Audio</span>
+                      <FileAudio className={`h-3 w-3 sm:h-4 sm:w-4 ${mediaType === 'audio' ? 'text-white' : 'text-gray-500'}`} />
+                      <span>Audio</span>
                     </Button>
                     <Button
                       type="button"
                       variant={mediaType === 'video' ? 'default' : 'outline'}
-                      className={`flex-1 sm:flex-none flex justify-center items-center px-3 sm:px-4 py-1.5 sm:py-2 ${
+                      className={`flex-1 flex justify-center items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm ${
                         mediaType === 'video' 
-                        ? 'bg-blue-950 text-white hover:bg-blue-800 ring-2 ring-blue-950' 
-                        : 'bg-blue-50 text-gray-700 hover:bg-gray-100'
+                        ? 'bg-blue-950 text-white hover:bg-blue-800 ring-1 sm:ring-2 ring-blue-950' 
+                        : 'bg-blue-50 text-gray-700 hover:bg-gray-100 border border-gray-300 dark:border-gray-600'
                       }`}
                       onClick={() => handleMediaTypeChange('video')}
                     >
-                      <FileVideo className={`h-4 w-4 sm:h-5 sm:w-5 mr-1.5 sm:mr-2 ${mediaType === 'video' ? 'text-white' : 'text-gray-500'}`} />
-                      <span className="text-sm sm:text-base">Video</span>
+                      <FileVideo className={`h-3 w-3 sm:h-4 sm:w-4 ${mediaType === 'video' ? 'text-white' : 'text-gray-500'}`} />
+                      <span>Video</span>
                     </Button>
                   </div>
                 </div>
@@ -402,7 +410,7 @@ const UploadMessage = () => {
                 {/* Audio Upload Field */}
                 {mediaType === 'audio' && (
                   <div>
-                    <Label htmlFor="audio" className="block mb-1.5">Audio File</Label>
+                    <Label htmlFor="audio" className="block mb-1 text-sm sm:text-base font-medium">Audio File</Label>
                     <div className="mt-1">
                       <Input
                         id="audio"
@@ -411,13 +419,15 @@ const UploadMessage = () => {
                         ref={audioInputRef}
                         onChange={handleFileChange}
                         accept=".mp3,.wav,.aiff,.aac,.m4a,.ogg"
-                        className={`w-full text-sm ${errors.audio ? 'border-red-500' : ''}`}
+                        className={`w-full text-xs sm:text-sm py-1.5 ${
+                          errors.audio ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600'
+                        }`}
                       />
-                      <p className="mt-1 text-xs sm:text-sm text-gray-500">
+                      <p className="mt-1 text-xs text-gray-500">
                         Accepted formats: mp3, wav, aiff, aac, m4a, ogg
                       </p>
                       {errors.audio && (
-                        <p className="mt-1 text-xs sm:text-sm text-red-500">{errors.audio[0]}</p>
+                        <p className="mt-1 text-xs sm:text-sm text-red-500 font-medium">{errors.audio[0]}</p>
                       )}
                     </div>
                   </div>
@@ -426,7 +436,7 @@ const UploadMessage = () => {
                 {/* Video Upload Field */}
                 {mediaType === 'video' && (
                   <div>
-                    <Label htmlFor="video" className="block mb-1.5">Video File</Label>
+                    <Label htmlFor="video" className="block mb-1 text-sm sm:text-base font-medium">Video File</Label>
                     <div className="mt-1">
                       <Input
                         id="video"
@@ -435,13 +445,15 @@ const UploadMessage = () => {
                         ref={videoInputRef}
                         onChange={handleFileChange}
                         accept=".mp4,.avi,.mov,.wmv,.mkv,.avchd"
-                        className={`w-full text-sm ${errors.video ? 'border-red-500' : ''}`}
+                        className={`w-full text-xs sm:text-sm py-1.5 ${
+                          errors.video ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600'
+                        }`}
                       />
-                      <p className="mt-1 text-xs sm:text-sm text-gray-500">
+                      <p className="mt-1 text-xs text-gray-500">
                         Accepted formats: mp4, avi, mov, wmv, mkv, avchd
                       </p>
                       {errors.video && (
-                        <p className="mt-1 text-xs sm:text-sm text-red-500">{errors.video[0]}</p>
+                        <p className="mt-1 text-xs sm:text-sm text-red-500 font-medium">{errors.video[0]}</p>
                       )}
                     </div>
                   </div>
@@ -449,17 +461,17 @@ const UploadMessage = () => {
 
                 {/* File Preview */}
                 {filePreview.name && (
-                  <div className="p-3 sm:p-4 border rounded-md bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
-                    <h4 className="font-medium mb-1 sm:mb-2 text-sm sm:text-base">File Preview</h4>
-                    <p className="text-xs sm:text-sm"><span className="font-medium">Name:</span> {filePreview.name}</p>
-                    <p className="text-xs sm:text-sm"><span className="font-medium">Size:</span> {filePreview.size}</p>
-                    <p className="text-xs sm:text-sm"><span className="font-medium">Type:</span> {filePreview.type}</p>
+                  <div className="p-2 sm:p-3 border rounded-md bg-gray-50 dark:bg-gray-800 dark:border-gray-700 text-xs sm:text-sm">
+                    <h4 className="font-medium mb-1 sm:mb-2">File Preview</h4>
+                    <p><span className="font-medium">Name:</span> {filePreview.name}</p>
+                    <p><span className="font-medium">Size:</span> {filePreview.size}</p>
+                    <p><span className="font-medium">Type:</span> {filePreview.type}</p>
                   </div>
                 )}
 
                 {/* General Error */}
                 {errors.general && (
-                  <div className="p-2 sm:p-3 rounded-md bg-red-50 text-red-500 text-xs sm:text-sm">
+                  <div className="p-2 sm:p-3 rounded-md bg-red-50 text-red-600 text-xs sm:text-sm font-medium">
                     {errors.general[0]}
                   </div>
                 )}
@@ -467,7 +479,7 @@ const UploadMessage = () => {
                 {/* Submit Button */}
                 <Button 
                   type="submit" 
-                  className="w-full py-2 sm:py-3 mt-4"
+                  className="w-full py-1.5 sm:py-2 mt-2 sm:mt-4 text-sm sm:text-base font-medium"
                   disabled={isUploading}
                 >
                   {isUploading ? 'Uploading...' : 'Upload Message'}
@@ -478,8 +490,9 @@ const UploadMessage = () => {
         </div>
       </div>
 
-      {/* Styles for select hover effects */}
+      {/* Styles for better mobile responsiveness */}
       <style jsx global>{`
+        /* Improved select styling */
         select option:hover {
           background-color: #dbeafe !important;
           color: #1e40af !important;
@@ -503,17 +516,50 @@ const UploadMessage = () => {
           appearance: none;
           -webkit-appearance: none;
           -moz-appearance: none;
+          min-height: 2.5rem;
+        }
+        
+        /* Custom calendar icon for date inputs on specific browsers */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+          cursor: pointer;
+          opacity: 0.6;
+          padding: 0.2rem;
+        }
+        
+        input[type="date"]::-webkit-calendar-picker-indicator:hover {
+          opacity: 1;
         }
         
         /* Responsive file input styling */
         input[type="file"] {
-          font-size: 0.875rem;
+          font-size: 0.75rem;
+          padding: 0.375rem 0.5rem;
         }
         
-        @media (max-width: 640px) {
+        @media (min-width: 640px) {
           input[type="file"] {
-            font-size: 0.75rem;
+            font-size: 0.875rem;
+            padding: 0.5rem 0.75rem;
           }
+        }
+        
+        /* Better mobile touch targets */
+        @media (max-width: 640px) {
+          button, 
+          input, 
+          select, 
+          textarea {
+            font-size: 16px !important; /* Prevents iOS zoom on focus */
+          }
+          
+          input[type="file"]::file-selector-button {
+            padding: 0.375rem 0.5rem;
+          }
+        }
+        
+        /* Fix for dark mode */
+        .dark input[type="date"] {
+          color-scheme: dark;
         }
       `}</style>
     </>

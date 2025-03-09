@@ -111,23 +111,23 @@ const VideoMessageList = () => {
     <>
       <Breadcrumb pageName="Video Messages" />
 
-      <div className="p-4 md:p-6 2xl:p-10">
+      <div className="p-3 sm:p-4 md:p-6 2xl:p-10">
         <div className="mx-auto max-w-full">
           <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark dark:text-white">
-            <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <h3 className="font-medium text-black dark:text-white text-xl">
+            <div className="border-b border-stroke py-3 px-4 sm:px-6 dark:border-strokedark flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+              <h3 className="font-medium text-black dark:text-white text-lg sm:text-xl">
                 Video Messages List
               </h3>
-              <div className="flex">
+              <div className="flex w-full sm:w-auto">
                 <button
                   onClick={() => fetchMessages()}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors w-full md:w-auto flex items-center justify-center gap-2"
+                  className="px-3 py-1.5 sm:px-4 sm:py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors w-full flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base"
                   disabled={isLoading}
                 >
                   {isLoading ? (
                     <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      Fetching...
+                      <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                      <span className="whitespace-nowrap">Fetching...</span>
                     </>
                   ) : (
                     'Refresh Messages'
@@ -136,30 +136,33 @@ const VideoMessageList = () => {
               </div>
             </div>
 
-            {error && (
-              <Alert variant="destructive" className="mx-6 mt-4">
-                <AlertDescription className="text-red-500 dark:font-bold">
-                  {error}
-                </AlertDescription>
-              </Alert>
-            )}
+            {/* Alert containers with improved responsiveness */}
+            <div className="px-3 sm:px-6 mt-3 sm:mt-4 overflow-hidden">
+              {error && (
+                <Alert variant="destructive" className="mb-3 max-w-full overflow-hidden break-words">
+                  <AlertDescription className="text-red-500 dark:font-bold text-sm sm:text-base">
+                    {error}
+                  </AlertDescription>
+                </Alert>
+              )}
 
-            {success && (
-              <Alert className="bg-green-100 text-green-800 mx-6 mt-4">
-                <AlertDescription>{success}</AlertDescription>
-              </Alert>
-            )}
+              {success && (
+                <Alert className="bg-green-100 text-green-800 mb-3 max-w-full overflow-hidden break-words">
+                  <AlertDescription className="text-sm sm:text-base">{success}</AlertDescription>
+                </Alert>
+              )}
+            </div>
 
-            <div className="p-4 md:p-6.5">
+            <div className="p-3 sm:p-4 md:p-6">
               <div className="w-full overflow-x-auto">
                 <table className="w-full table-auto border-collapse">
                   <thead>
                     <tr className="bg-gray/5 dark:bg-gray/5 text-center">
-                      <th className="border px-4 py-3">Title</th>
-                      <th className="border px-4 py-3">Speaker</th>
-                      <th className="border px-4 py-3">Date</th>
-                      <th className="border px-4 py-3">View</th>
-                      <th className="border px-4 py-3">Delete</th>
+                      <th className="border px-2 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm">Title</th>
+                      <th className="border px-2 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm">Speaker</th>
+                      <th className="border px-2 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm">Date</th>
+                      <th className="border px-2 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm">View</th>
+                      <th className="border px-2 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm">Delete</th>
                     </tr>
                   </thead>
                   {messages?.results?.length > 0 ? (
@@ -169,25 +172,27 @@ const VideoMessageList = () => {
                           key={message.id}
                           className="border-b hover:bg-gray/90 dark:hover:bg-gray/10 text-center"
                         >
-                          <td className="border px-4 py-3">{message.title}</td>
-                          <td className="border px-4 py-3">{message.speaker}</td>
-                          <td className="border px-4 py-3">{formatDate(message.date)}</td>
-                          <td className="border px-4 py-3 text-center">
+                          <td className="border px-2 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm truncate max-w-[100px] sm:max-w-none">
+                            {message.title}
+                          </td>
+                          <td className="border px-2 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm">{message.speaker}</td>
+                          <td className="border px-2 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm">{formatDate(message.date)}</td>
+                          <td className="border px-1 py-1 sm:px-2 sm:py-2 text-center">
                             <button
                               onClick={() => handleViewMessage(message.id)}
-                              className="p-2 text-blue-600 hover:text-blue-800 transition-colors"
+                              className="p-1 sm:p-2 text-blue-600 hover:text-blue-800 transition-colors"
                               aria-label="View message"
                             >
-                              <Eye size={20} />
+                              <Eye size={16} className="sm:w-5 sm:h-5" />
                             </button>
                           </td>
-                          <td className="border px-4 py-3 text-center">
+                          <td className="border px-1 py-1 sm:px-2 sm:py-2 text-center">
                             <button
                               onClick={() => handleDeleteClick(message)}
-                              className="p-2 text-red-600 hover:text-red-800 transition-colors"
+                              className="p-1 sm:p-2 text-red-600 hover:text-red-800 transition-colors"
                               aria-label="Delete message"
                             >
-                              <Trash2 size={20} />
+                              <Trash2 size={16} className="sm:w-5 sm:h-5" />
                             </button>
                           </td>
                         </tr>
@@ -198,7 +203,7 @@ const VideoMessageList = () => {
                       <tr>
                         <td
                           colSpan="5"
-                          className="text-center py-4 text-black/70 dark:text-white"
+                          className="text-center py-4 text-black/70 dark:text-white text-xs sm:text-sm"
                         >
                           {isLoading
                             ? 'Loading messages...'
@@ -211,19 +216,19 @@ const VideoMessageList = () => {
               </div>
 
               {messages && (
-                <div className="flex justify-between mt-6">
+                <div className="flex justify-between mt-4 sm:mt-6">
                   <button
                     onClick={() => messages?.previous && fetchMessages(messages.previous)}
                     disabled={!messages?.previous || isLoading}
-                    className={`px-4 py-2 rounded-md ${
+                    className={`px-2 py-1 sm:px-4 sm:py-2 rounded-md text-xs sm:text-sm ${
                       messages?.previous && !isLoading
                         ? 'bg-blue-600 text-white hover:bg-blue-700'
                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     }`}
                   >
                     {isLoading && !messages?.next ? (
-                      <span className="flex items-center gap-2">
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                      <span className="flex items-center gap-1 sm:gap-2">
+                        <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" />
                         Loading...
                       </span>
                     ) : (
@@ -233,15 +238,15 @@ const VideoMessageList = () => {
                   <button
                     onClick={() => messages?.next && fetchMessages(messages.next)}
                     disabled={!messages?.next || isLoading}
-                    className={`px-4 py-2 rounded-md ${
+                    className={`px-2 py-1 sm:px-4 sm:py-2 rounded-md text-xs sm:text-sm ${
                       messages?.next && !isLoading
                         ? 'bg-blue-600 text-white hover:bg-blue-700'
                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     }`}
                   >
                     {isLoading && messages?.next ? (
-                      <span className="flex items-center gap-2">
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                      <span className="flex items-center gap-1 sm:gap-2">
+                        <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" />
                         Loading...
                       </span>
                     ) : (
@@ -257,51 +262,51 @@ const VideoMessageList = () => {
 
       {/* View Message Modal */}
       <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-w-[90vw] mx-auto">
           {/* Header with title and close button */}
-          <div className="w-full flex items-center justify-between px-4 border-b pb-2 mb-4">
-            <h2 className="text-xl font-semibold">Message Details</h2>
+          <div className="w-full flex items-center justify-between px-2 sm:px-4 border-b pb-2 mb-3 sm:mb-4">
+            <h2 className="text-lg sm:text-xl font-semibold">Message Details</h2>
             <button
               onClick={() => setIsViewModalOpen(false)}
               className="hover:text-black-2 dark:text-black/60 dark:hover:text-black/90"
             >
-              <X size={24} />
+              <X size={20} className="sm:w-6 sm:h-6" />
             </button>
           </div>
 
           {selectedMessage && (
-            <div className="p-4 space-y-4">
+            <div className="p-2 sm:p-4 space-y-3 sm:space-y-4 overflow-y-auto max-h-[70vh]">
               <div className="space-y-1">
-                <h4 className="font-bold">Title:</h4>
-                <p className="text-lg dark:text-black">{selectedMessage.title}</p>
+                <h4 className="font-bold text-sm sm:text-base">Title:</h4>
+                <p className="text-base sm:text-lg dark:text-black break-words">{selectedMessage.title}</p>
               </div>
 
               <div className="space-y-1">
-                <h4 className="font-bold">Preached by:</h4>
-                <p className="dark:text-black">{selectedMessage.speaker}</p>
+                <h4 className="font-bold text-sm sm:text-base">Preached by:</h4>
+                <p className="dark:text-black text-sm sm:text-base">{selectedMessage.speaker}</p>
               </div>
 
               <div className="space-y-1">
-                <h4 className="font-bold">Date:</h4>
-                <p className="dark:text-black">{formatDate(selectedMessage.date)}</p>
+                <h4 className="font-bold text-sm sm:text-base">Date:</h4>
+                <p className="dark:text-black text-sm sm:text-base">{formatDate(selectedMessage.date)}</p>
               </div>
 
               <div className="space-y-1">
-                <h4 className="font-bold">Type:</h4>
-                <p className="dark:text-black capitalize">{selectedMessage.type}</p>
+                <h4 className="font-bold text-sm sm:text-base">Type:</h4>
+                <p className="dark:text-black capitalize text-sm sm:text-base">{selectedMessage.type}</p>
               </div>
 
               <div className="space-y-1">
-                <h4 className="font-bold">Description:</h4>
-                <p className="dark:text-black">{selectedMessage.description || "No description available"}</p>
+                <h4 className="font-bold text-sm sm:text-base">Description:</h4>
+                <p className="dark:text-black text-sm sm:text-base break-words">{selectedMessage.description || "No description available"}</p>
               </div>
 
-              <div className="flex justify-end pt-4">
+              <div className="flex justify-end pt-3 sm:pt-4">
                 <button
                   onClick={handleDownloadMessage}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2"
+                  className="px-3 py-1.5 sm:px-4 sm:py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
                 >
-                  <Download size={18} />
+                  <Download size={16} className="sm:w-5 sm:h-5" />
                   Download
                 </button>
               </div>
@@ -312,44 +317,44 @@ const VideoMessageList = () => {
 
       {/* Delete Confirmation Modal */}
       <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
-        <DialogContent className="sm:max-w-md">
-          <div className="w-full flex items-center justify-between px-4 border-b pb-2 mb-4">
-            <h2 className="text-xl font-semibold">Confirm Delete</h2>
+        <DialogContent className="sm:max-w-md max-w-[90vw] mx-auto">
+          <div className="w-full flex items-center justify-between px-2 sm:px-4 border-b pb-2 mb-3 sm:mb-4">
+            <h2 className="text-lg sm:text-xl font-semibold">Confirm Delete</h2>
             <button
               onClick={() => setIsDeleteModalOpen(false)}
               className="hover:text-black-2 dark:text-black/60 dark:hover:text-black/90"
             >
-              <X size={24} />
+              <X size={20} className="sm:w-6 sm:h-6" />
             </button>
           </div>
 
           {messageToDelete && (
-            <div className="p-4 space-y-4">
-              <p className="dark:text-black">
+            <div className="p-2 sm:p-4 space-y-3 sm:space-y-4">
+              <p className="dark:text-black text-sm sm:text-base break-words">
                 Are you sure you want to delete the message "{messageToDelete.title}"?
                 This action cannot be undone.
               </p>
 
-              <div className="flex justify-end gap-3 pt-4">
+              <div className="flex justify-end gap-2 sm:gap-3 pt-3 sm:pt-4">
                 <button
                   onClick={() => setIsDeleteModalOpen(false)}
-                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray/95 transition-colors"
+                  className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-200 text-gray-800 text-xs sm:text-sm rounded-md hover:bg-gray/95 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleConfirmDelete}
-                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors flex items-center gap-2"
+                  className="px-3 py-1.5 sm:px-4 sm:py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
                   disabled={isDeleting}
                 >
                   {isDeleting ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" />
                       Deleting...
                     </>
                   ) : (
                     <>
-                      <Trash2 size={18} />
+                      <Trash2 size={16} className="sm:w-5 sm:h-5" />
                       Delete
                     </>
                   )}
