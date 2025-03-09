@@ -368,7 +368,7 @@ useEffect(() => {
          <Route path="/uploadmessage" element={withDefaultLayout(<UploadMessage />, "Upload Message")} />
          <Route path="/messagelist" element={withDefaultLayout(<MessageList />, "Message List")} />
          <Route path="/audiomessagelist" element={withDefaultLayout(<AudioMessageList />, "Audio Message List")} />
-         <Route path="/videomessagelist" element={withDefaultLayout(<VideoMessageList />, "Video Message List")} />
+         <Route path="/videomessagelist" element={withDefaultLayout(<VideoMessageList />, "Video Message List")} /> 
 
       
             {/* Events */}
