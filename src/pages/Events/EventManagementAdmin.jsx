@@ -198,7 +198,7 @@ function AdminEventManagement() {
 
                         <div className="md:w-1/2 p-4 sm:p-6 w-full">
                           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2 gap-2">
-                            <h3 className="text-xl sm:text-2xl font-semibold text-black dark:text-white break-words">
+                            <h3 className="text-lg sm:text-2xl font-semibold text-black dark:text-white break-words">
                               {event.title}
                             </h3>
                             <span className={`px-0 py-0 rounded-full text-sm md:px-2 md:py-6 font-medium ${status.color} inline-block`}>

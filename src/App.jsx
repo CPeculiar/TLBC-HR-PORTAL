@@ -94,6 +94,10 @@ import UserChat from './components/Chat/UserChat';
 
 import Registration from './pages/Dashboard/Registration';
 import Profiles from './pages/Dashboard/Profiles';
+import UploadMessage from './pages/Messages/UploadMessage';
+import MessageList from './pages/Messages/MessageList';
+import AudioMessageList from './pages/Messages/AudioMessageList';
+import VideoMessageList from './pages/Messages/VideoMessageList';
 
 
 
@@ -358,6 +362,13 @@ useEffect(() => {
       <Route path="/giveoffline" element={withDefaultLayout(<GiveOffline />, "Giving Record")} />
       <Route path="/givingrecords" element={withDefaultLayout(<GivingRecords />, "Giving Record")} />
       <Route path="/PaymentSuccess" element={withDefaultLayout(<PaymentSuccess />, "Payment Successful")} />
+
+
+         {/* Messages */}
+         <Route path="/uploadmessage" element={withDefaultLayout(<UploadMessage />, "Upload Message")} />
+         <Route path="/messagelist" element={withDefaultLayout(<MessageList />, "Message List")} />
+         <Route path="/audiomessagelist" element={withDefaultLayout(<AudioMessageList />, "Audio Message List")} />
+         <Route path="/videomessagelist" element={withDefaultLayout(<VideoMessageList />, "Video Message List")} />
 
       
             {/* Events */}

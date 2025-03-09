@@ -43,7 +43,7 @@ const TimeSelect = ({ label, options, value, onChange }) => {
       <Button
         type="button"
         variant="outline"
-        className="w-full flex items-center justify-between"
+        className="w-full flex items-center justify-between text-sm"
         onClick={() => setIsOpen(!isOpen)}
       >
         <span>{value || label}</span>
@@ -274,8 +274,8 @@ const AdminEventUpload = () => {
     <>
        <Breadcrumb pageName="Upload Event" />
 
-    <div className="p-4 md:p-6 2xl:p-10">
-      <div className="mx-auto max-w-2xl">
+       <div className="p-4 md:p-6 2xl:p-10">
+       <div className="mx-auto max-w-2xl">
         <Card>
           <CardHeader>
             <CardTitle>Upload New Event</CardTitle>
@@ -307,16 +307,16 @@ const AdminEventUpload = () => {
                     value={date}
                     onChange={handleDateChange}
                     required
-                    className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
-                  />
+                      className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
+                    />
                 </div>
               </div>
 
               <div>
                 <Label>Event Time</Label>
-                <div className="grid grid-cols-3 gap-2 sm:flex sm:items-center sm:space-x-2">
+                <div className="grid grid-cols-3 gap-1">
                   {/* Hour Select */}
-                  <div className="sm:w-24">
+                  <div>
                     <TimeSelect
                       label="Hour"
                       options={hours}
@@ -325,10 +325,8 @@ const AdminEventUpload = () => {
                     />
                   </div>
                   
-                  <span className="text-center">:</span>
-                  
                   {/* Minute Select */}
-                  <div className="sm:w-24">
+                  <div>
                     <TimeSelect
                       label="Min"
                       options={minutes}
@@ -338,7 +336,7 @@ const AdminEventUpload = () => {
                   </div>
                   
                   {/* AM/PM Select */}
-                  <div className="sm:w-24">
+                  <div>
                     <TimeSelect
                       label="AM/PM"
                       options={["AM", "PM"]}
@@ -348,9 +346,11 @@ const AdminEventUpload = () => {
                   </div>
                 </div>
                 {formData.time && (
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Selected time: {formData.time}
-                  </p>
+                <Input
+                   value={`Selected time: ${formData.time}`}
+                   className="text-sm text-muted-foreground mt-2"
+                   readOnly
+                 />
                 )}
               </div>
 
@@ -436,6 +436,7 @@ const AdminEventUpload = () => {
                   onChange={handleInputChange}
                   type="tel"
                   className="w-full"
+                  required
                 />
               </div>
 
@@ -448,6 +449,7 @@ const AdminEventUpload = () => {
                   onChange={handleInputChange}
                   type="email"
                   className="w-full"
+                  readOnly
                 />
               </div>
 
