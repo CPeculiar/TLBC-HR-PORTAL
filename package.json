@@ -25,7 +25,7 @@
     "add": "^2.0.6",
     "add-to-calendar-button-react": "^2.8.1",
     "antd": "^5.22.3",
-    "apexcharts": "^3.41.0",
+    "apexcharts": "^4.5.0",
     "axios": "^1.7.9",
     "calendar": "^0.1.1",
     "caniuse-lite": "^1.0.30001660",
