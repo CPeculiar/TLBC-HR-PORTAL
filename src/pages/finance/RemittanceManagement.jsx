@@ -533,7 +533,7 @@ const RemittanceManagement = () => {
                       {type === 'incoming' ? item.beneficiary : item.benefactor}
                     </td>
                     <td className="p-3 text-black dark:text-white">
-                      ₦{Number(item.amount).toFixed(2)}
+                      ₦{Number(item.amount).toLocaleString('en-NG')}
                     </td>
                     <td className="p-3 text-black dark:text-white">
                       {item.purpose}
@@ -842,7 +842,7 @@ const RemittanceManagement = () => {
         return remittance.benefactor;
 
       case 'amount':
-        return `₦${Number(remittance.amount).toFixed(2)}`;
+        return `₦${Number(remittance.amount).toLocaleString('en-NG')}`;
 
       case 'purpose':
         return remittance.purpose;

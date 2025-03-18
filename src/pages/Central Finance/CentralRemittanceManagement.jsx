@@ -550,7 +550,7 @@ function formatTime(timestamp) {
         return remittance.benefactor;
 
       case 'amount':
-        return `₦${Number(remittance.amount).toFixed(2)}`;
+        return `₦${Number(remittance.amount).toLocaleString('en-NG')}`;
 
       case 'purpose':
         return remittance.purpose;

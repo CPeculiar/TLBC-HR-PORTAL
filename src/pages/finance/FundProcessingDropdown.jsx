@@ -20,8 +20,15 @@ const FundProcessingDropdown = ({ fund, onProcessing, onPaid }) => {
     }
   };
 
+  const handleDeclineClick = () => {
+    if (!['PAID', 'DECLINED'].includes(fund.status)) {
+      handleFundProcessing(fund.reference, 'decline');
+    }
+  };
+
   const isProcessingDisabled = ['PAID', 'DECLINED', 'PROCESSING'].includes(fund.status);
   const isPaidDisabled = ['PAID', 'DECLINED'].includes(fund.status);
+  const isDeclineDisabled = ['PAID', 'DECLINED'].includes(fund.status);
 
   return (
     <DropdownMenu 
@@ -33,6 +40,18 @@ const FundProcessingDropdown = ({ fund, onProcessing, onPaid }) => {
         </Button>
       }
     >
+    <DropdownItem 
+            onClick={handleDeclineClick}
+            disabled={isDeclineDisabled}
+            className={`${
+              isDeclineDisabled 
+                ? 'opacity-50 cursor-not-allowed pointer-events-none' 
+                : 'cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700'
+            }`}
+          >
+            Decline
+          </DropdownItem>
+          
       <DropdownItem 
         onClick={handleProcessingClick}
         disabled={isProcessingDisabled}

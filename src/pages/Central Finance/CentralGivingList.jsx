@@ -310,6 +310,11 @@ const CentralGivingList = () => {
     }).format(amount);
   };
 
+  const formatAmount = (amount) => {
+    return `₦${Number(amount).toLocaleString('en-NG')}`;
+  };
+
+
   const clearRecords = () => {
     setGivings(null);
     setRecords([]);
@@ -455,7 +460,7 @@ const CentralGivingList = () => {
                       <tr key={record.reference} className="border-b">
                         <td className="border p-2 whitespace-normal">{formatDateTime(record.initiated_at)}</td>
                         <td className="border p-2 whitespace-normal">{record.type}</td>
-                        <td className="border p-2 whitespace-normal">{record.amount}</td>
+                        <td className="border p-2 whitespace-normal">{formatAmount(record.amount)}</td>
                         <td className="border p-2 whitespace-normal">{record.detail || 'N/A'}</td>
                         <td className="border p-2 whitespace-normal">{record.giver}</td>
                         <td className="border p-2 whitespace-normal text-center">{record.confirmed ? 'Yes' : 'No'}</td>
@@ -580,7 +585,7 @@ const CentralGivingList = () => {
                           {formatDateTime(record.initiated_at)}
                         </td>
                         <td className="border p-2">{record.type}</td>
-                        <td className="border p-2">{record.amount}</td>
+                        <td className="border p-2">{formatAmount(record.amount)}</td>
                         <td className="border p-2">{record.detail || 'N/A'}</td>
                         <td className="border p-2">{record.giver}</td>
                         <td className="border p-2 text-center">
@@ -762,7 +767,7 @@ const CentralGivingList = () => {
                       >
                        <td className="border px-4 py-3">{formatDateTime(giving.initiated_at)}</td>
                         <td className="border px-4 py-3">{giving.type}</td>
-                        <td className="border px-4 py-3">{giving.amount}</td>
+                        <td className="border px-4 py-3">{formatAmount(giving.amount)}</td>
                         <td className="border px-4 py-3">
                           {giving.detail ? giving.detail : 'N/A'}
                         </td>

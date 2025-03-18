@@ -220,6 +220,9 @@ const GivingRecords = () => {
     return format(date, 'dd/MM/yyyy hh:mm a');
   };
 
+  const formatAmount = (amount) => {
+    return `₦${Number(amount).toLocaleString('en-NG')}`;
+  };
 
   const calculateTotalsByCategory = (records) => {
     const totals = records.reduce((acc, record) => {
@@ -262,17 +265,6 @@ const GivingRecords = () => {
     }).format(amount);
   };
 
-   // Add this near the top of your return statement, after the "Fetch My Giving Records" button
-  //  const renderDownloadButton = () => (
-  //   <button
-  //     onClick={() => setShowDownloadModal(true)}
-  //     className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors ml-4"
-  //   >
-  //     <Download size={20} className="inline mr-2" />
-  //     Download Report
-  //   </button>
-  // );
-
   const renderDownloadButton = () => (
     <button
       onClick={() => setShowDownloadModal(true)}
@@ -284,73 +276,6 @@ const GivingRecords = () => {
     </button>
   );
 
-  // Add these modals to your existing JSX, after the Details Modal
-  // const renderDownloadModal = () => (
-  //   showDownloadModal && (
-  //     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-  //       <div className="bg-white dark:bg-boxdark rounded-lg p-6 max-w-md w-full mx-4">
-  //         <div className="flex justify-between items-center mb-4">
-  //           <h3 className="text-lg font-medium dark:text-white">Select Date Range</h3>
-  //           <button
-  //             onClick={() => {
-  //               setShowDownloadModal(false);
-  //               setDownloadError('');
-  //               setFromDate('');
-  //               setToDate('');
-  //             }}
-  //             className="text-gray-500 hover:text-gray-700"
-  //           >
-  //             <X size={20} />
-  //           </button>
-  //         </div>
-
-  //         {downloadError && (
-  //           <div className="mb-4 p-3 bg-red-100 text-red-600 rounded-md">
-  //             {downloadError}
-  //           </div>
-  //         )}
-
-  //         <div className="space-y-4">
-  //           <div>
-  //             <label className="block mb-2 dark:text-white">From Date:</label>
-  //             <input
-  //               type="date"
-  //               value={fromDate}
-  //               onChange={(e) => setFromDate(e.target.value)}
-  //               className="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white"
-  //             />
-  //           </div>
-  //           <div>
-  //             <label className="block mb-2 dark:text-white">To Date:</label>
-  //             <input
-  //               type="date"
-  //               value={toDate}
-  //               onChange={(e) => setToDate(e.target.value)}
-  //               className="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white"
-  //             />
-  //           </div>
-  //           <div className="flex justify-end gap-4">
-  //             <button
-  //               onClick={() => {
-  //                 setShowDownloadModal(false);
-  //                 setDownloadError('');
-  //               }}
-  //               className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
-  //             >
-  //               Cancel
-  //             </button>
-  //             <button
-  //               onClick={handleDownloadRequest}
-  //               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-  //             >
-  //               Generate Report
-  //             </button>
-  //           </div>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   )
-  // );
 
   const renderDownloadModal = () => (
     showDownloadModal && (
@@ -419,126 +344,6 @@ const GivingRecords = () => {
     )
   );
 
-//   const renderReportModal = () => (
-//     showReportModal && downloadData && (
-//       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-//         <div className="bg-white dark:bg-boxdark rounded-lg p-6 max-w-6xl w-full mx-4 max-h-[90vh] overflow-y-auto mt-28">
-//           <div className="flex justify-between items-center mb-4">
-//             <h3 className="text-lg font-medium dark:text-white">Generated Report</h3>
-//             <button
-//               onClick={() => setShowReportModal(false)}
-//               className="text-gray-500 hover:text-gray-700"
-//             >
-//               <X size={20} />
-//             </button>
-//           </div>
-
-//           <div id="report-content" className="space-y-6">
-//             <div className="text-center space-y-2">
-//               <h2 className="text-2xl font-bold dark:text-white">
-//                 Giving Records Report
-//               </h2>
-//               {userInfo && (
-//                 <>
-//                   <p className="dark:text-white font-semibold">
-//                     Name: {userInfo.first_name} {userInfo.last_name}
-//                   </p>
-//                   <p className="dark:text-white font-semibold">Church: {userInfo.church}</p>
-//                 </>
-//               )}
-//               <p className="dark:text-white font-semibold">
-//                 Period: {format(new Date(fromDate), 'dd/MM/yyyy')} -{' '}
-//                 {format(new Date(toDate), 'dd/MM/yyyy')}
-//               </p>
-//             </div>
-
-//             {downloadData.results?.length > 0 ? (
-//               <>
-//             <table className="w-full border-collapse border dark:text-white">
-//               <thead>
-//                 <tr className="bg-gray/10 dark:bg-gray/5 text-center">
-//                   <th className="border p-2">Type</th>
-//                   <th className="border p-2">Amount (₦)</th>
-//                   <th className="border p-2">Church</th>
-//                   <th className="border p-2">Details</th>
-//                   <th className="border p-2">Date</th>
-//                   <th className="border p-2">Confirmed</th>
-//                 </tr>
-//               </thead>
-//               <tbody>
-//                 {downloadData.results?.map((record) => (
-//                   <tr key={record.reference} className="border-b text-center">
-//                     <td className="border p-2">{record.type}</td>
-//                     <td className="border p-2">{record.amount}</td>
-//                     <td className="border p-2">{record.church}</td>
-//                     <td className="border p-2">{record.detail || 'N/A'}</td>
-//                     <td className="border p-2">
-//                       {formatDateTime(record.initiated_at)}
-//                     </td>
-//                     <td className="border p-2 text-center">
-//                       {record.confirmed ? 'Yes' : 'No'}
-//                     </td>
-//                   </tr>
-//                 ))}
-//               </tbody>
-//             </table>
-
-
-//  {/* Totals Section */}
-//  <div className="border rounded-lg p-4 dark:text-white">
-//                   <h3 className="font-bold text-lg mb-4">Summary</h3>
-//                   {(() => {
-//                     const totals = calculateTotalsByCategory(downloadData.results);
-//                     return (
-//                       <div className="space-y-2">
-//                         <div className="grid grid-cols-2 gap-4 border-b pb-2">
-//                           <span>Stewardship/Tithe:</span>
-//                           <span className="text-right">{formatCurrency(totals.stewardshipTithe)}</span>
-//                         </div>
-//                         <div className="grid grid-cols-2 gap-4 border-b pb-2">
-//                           <span>Offering:</span>
-//                           <span className="text-right">{formatCurrency(totals.offering)}</span>
-//                         </div>
-//                         <div className="grid grid-cols-2 gap-4 border-b pb-2">
-//                           <span>Project:</span>
-//                           <span className="text-right">{formatCurrency(totals.project)}</span>
-//                         </div>
-//                         <div className="grid grid-cols-2 gap-4 border-b pb-2">
-//                           <span>Welfare:</span>
-//                           <span className="text-right">{formatCurrency(totals.welfare)}</span>
-//                         </div>
-//                         <div className="grid grid-cols-2 gap-4 pt-2 font-bold">
-//                           <span>Grand Total:</span>
-//                           <span className="text-right">{formatCurrency(totals.grandTotal)}</span>
-//                         </div>
-//                       </div>
-//                     );
-//                   })()}
-//                 </div>
-//               </>
-//             ) : (
-//               <div className="text-center py-8 text-gray-600 dark:text-gray-300">
-//                 No data found for the selected period.
-//               </div>
-//             )}
-//           </div>
-
-//           {downloadData.results?.length > 0 && (
-//           <div className="mt-6 flex justify-end">
-//             <button
-//               onClick={generatePDF}
-//               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-//             >
-//               <Download size={20} className="inline mr-2" />
-//               Download PDF
-//             </button>
-//           </div>
-//           )}
-//         </div>
-//       </div>
-//     )
-//   );
-
 const renderReportModal = () => (
   showReportModal && downloadData && (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2">
@@ -590,7 +395,7 @@ const renderReportModal = () => (
                     {downloadData.results?.map((record) => (
                       <tr key={record.reference} className="border-b text-center">
                         <td className="border p-1 md:p-2">{record.type}</td>
-                        <td className="border p-1 md:p-2">{record.amount}</td>
+                        <td className="border p-1 md:p-2">{formatAmount(record.amount)}</td>
                         <td className="border p-1 md:p-2">{record.church}</td>
                         <td className="border p-1 md:p-2">{record.detail || 'N/A'}</td>
                         <td className="border p-1 md:p-2">
@@ -714,7 +519,7 @@ const renderReportModal = () => (
                       {records.results?.map((record) => (
                         <tr key={record.reference} className="border-b dark:border-gray/50">
                           <td className="px-2 py-2 md:px-4 md:py-3">{record.type}</td>
-                          <td className="px-2 py-2 md:px-4 md:py-3">{record.amount}</td>
+                          <td className="px-2 py-2 md:px-4 md:py-3">{formatAmount(record.amount)}</td>
                           <td className="px-2 py-2 md:px-4 md:py-3">{record.church}</td>
                           <td className="px-2 py-2 md:px-4 md:py-3">{record.detail ? record.detail : 'N/A'}</td>
                           <td className="px-2 py-2 md:px-4 md:py-3">{formatDateTime(record.initiated_at)}</td>
@@ -885,7 +690,7 @@ const renderReportModal = () => (
                   </tr>
                   <tr className="border-b">
                     <td className="py-2 font-medium">Amount</td>
-                    <td>{selectedRecord.amount}</td>
+                    <td>{formatAmount(selectedRecord.amount)}</td>
                   </tr>
                   <tr className="border-b">
                     <td className="py-2 font-medium">Church</td>

@@ -507,7 +507,7 @@ const formatDate = (dateString) => {
    const renderApprovedExpenses = () => {
     const columns = [
       { header: 'Account Name', key: 'account', render: (row) => row.account.account_name },
-      { header: 'Amount', key: 'amount', render: (row) => `₦${Number(row.amount).toFixed(2)}` },
+      { header: 'Amount', key: 'amount', render: (row) => `₦${Number(row.amount).toLocaleString('en-NG')}` },
       { header: 'Purpose', key: 'purpose' },
       { header: 'Status', key: 'status' },
       { header: 'Initiator', key: 'initiator', render: (row) => extractName(row.initiator) },
@@ -549,7 +549,7 @@ const formatDate = (dateString) => {
   const renderDeclinedExpenses = () => {
     const columns = [
       { header: 'Account Name', key: 'account', render: (row) => row.account.account_name },
-      { header: 'Amount', key: 'amount', render: (row) => `₦${Number(row.amount).toFixed(2)}` },
+      { header: 'Amount', key: 'amount', render: (row) => `₦${Number(row.amount).toLocaleString('en-NG')}` },
       { header: 'Purpose', key: 'purpose' },
       { header: 'Status', key: 'status' },
       { header: 'Initiator', key: 'initiator', render: (row) => extractName(row.initiator) },
@@ -625,7 +625,7 @@ const formatDate = (dateString) => {
           return expense.account.account_name;
   
         case 'amount':
-          return `₦${Number(expense.amount).toFixed(2)}`;
+          return `₦${Number(expense.amount).toLocaleString('en-NG')}`;
   
         case 'purpose':
           return expense.purpose;

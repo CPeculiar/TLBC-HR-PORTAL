@@ -240,6 +240,10 @@ const GivingList = () => {
     return format(date, 'dd/MM/yyyy hh:mm a');
   };
  
+  const formatAmount = (amount) => {
+    return `₦${Number(amount).toLocaleString('en-NG')}`;
+  };
+
    const handleViewFile = (files) => {
     if (files.length === 1) {
       window.open(files[0], '_blank');
@@ -255,22 +259,6 @@ const GivingList = () => {
       setSuccess('');
     }, 5000);
   };
-
-
-  
-
-  // const generatePDF = () => {
-  //   const element = document.getElementById('report-content');
-  //   const opt = {
-  //     margin: 1,
-  //     filename: `church-giving-report-${format(new Date(), 'yyyy-MM-dd')}.pdf`,
-  //     image: { type: 'jpeg', quality: 0.98 },
-  //     html2canvas: { scale: 2 },
-  //     jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-  //   };
-
-  //   html2pdf().set(opt).from(element).save();
-  // };
 
 
   const calculateTotalsByCategory = (records) => {
@@ -406,47 +394,6 @@ const GivingList = () => {
     )
   );
 
-  // Update the table rows to include loading states
-  const renderTableRows = (giving) => (
-    <tr key={giving.reference} className="border-b hover:bg-gray/90 dark:hover:bg-gray/10 text-center">
-      {/* ... [Previous columns remain the same until the action buttons] ... */}
-      <td className="border px-4 py-3 text-center">
-        <button
-          onClick={() => handleVerify(giving.reference)}
-          disabled={isVerifying === giving.reference}
-          className="p-2 text-blue-600 hover:text-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isVerifying === giving.reference ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
-          ) : (
-            <CheckCircle size={20} />
-          )}
-        </button>
-      </td>
-      <td className="border px-4 py-3 text-center">
-        {giving.auditor ? (
-          <span className="text-green-600">Approved</span>
-        ) : (
-          <button
-            onClick={() => handleApprove(giving.reference)}
-            disabled={isApproving === giving.reference}
-            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 justify-center mx-auto"
-          >
-            {isApproving === giving.reference ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Approving...
-              </>
-            ) : (
-              'Approve'
-            )}
-          </button>
-        )}
-      </td>
-    </tr>
-  );
-
-
   const renderReportContent = () => {
      // Return early if downloadData is null or undefined
      if (!downloadData) {
@@ -500,7 +447,7 @@ const GivingList = () => {
                     <tr key={record.reference} className="border-b">
                       <td className="border p-2 whitespace-normal">{formatDateTime(record.initiated_at)}</td>
                       <td className="border p-2 whitespace-normal">{record.type}</td>
-                      <td className="border p-2 whitespace-normal">{record.amount}</td>
+                      <td className="border p-2 whitespace-normal">{formatAmount(record.amount)}</td>
                       <td className="border p-2 whitespace-normal">{record.detail || 'N/A'}</td>
                       <td className="border p-2 whitespace-normal">{record.giver}</td>
                       <td className="border p-2 whitespace-normal text-center">{record.confirmed ? 'Yes' : 'No'}</td>
@@ -572,129 +519,6 @@ const GivingList = () => {
     );
   };
 
-  const renderReportModal = () => (
-    showReportModal && downloadData && (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white dark:bg-boxdark rounded-lg p-6 max-w-6xl w-full mx-4 max-h-[90vh] overflow-y-auto mt-28">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-medium dark:text-white">Generated Report</h3>
-            <button
-              onClick={() => setShowReportModal(false)}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              <X size={20} />
-            </button>
-          </div>
-
-          <div id="report-content" className="space-y-6">
-            <div className="text-center space-y-2">
-              <h2 className="text-2xl font-bold dark:text-white">
-                Church Giving Records Report
-              </h2>
-              {userInfo && (
-                <>
-                  <p className="dark:text-white font-semibold">Church: {userInfo.church}</p>
-                </>
-              )}
-              <p className="dark:text-white font-semibold">
-                Period: {format(new Date(fromDate), 'dd/MM/yyyy')} -{' '}
-                {format(new Date(toDate), 'dd/MM/yyyy')}
-              </p>
-            </div>
-
-            {downloadData.results?.length > 0 ? (
-              <>
-                <table className="w-full border-collapse border dark:text-white">
-                  <thead>
-                    <tr className="bg-gray/10 dark:bg-gray/5 text-center">
-                    <th className="border p-2">Date of Giving</th>
-                      <th className="border p-2">Type</th>
-                      <th className="border p-2">Amount (₦)</th>
-                      <th className="border p-2">Details</th>
-                      <th className="border p-2">Giver</th>
-                      <th className="border p-2">Confirmed?</th>
-                      <th className="border p-2">Confirmed By</th>
-                      <th className="border p-2">Confirmed Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {downloadData.results?.map((record) => (
-                      <tr key={record.reference} className="border-b text-center">
-                      <td className="border p-2">
-                          {formatDateTime(record.initiated_at)}
-                        </td>
-                        <td className="border p-2">{record.type}</td>
-                        <td className="border p-2">{record.amount}</td>
-                        <td className="border p-2">{record.detail || 'N/A'}</td>
-                        <td className="border p-2">{record.giver}</td>
-                        <td className="border p-2 text-center">
-                          {record.confirmed ? 'Yes' : 'No'}
-                        </td>
-                        <td className="border p-2">
-                          {record.auditor ? record.auditor.split('(')[0] : 'N/A'}
-                        </td>
-                        <td className="border p-2">
-                          {formatDateTime(record.confirmation_date)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-
-                <div className="border rounded-lg p-4 dark:text-white">
-                  <h3 className="font-bold text-lg mb-4">Summary</h3>
-                  {(() => {
-                    const totals = calculateTotalsByCategory(downloadData.results);
-                    return (
-                      <div className="space-y-2">
-                        <div className="grid grid-cols-2 gap-4 border-b pb-2">
-                          <span>Stewardship:</span>
-                          <span className="text-right">{formatCurrency(totals.stewardshipTithe)}</span>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4 border-b pb-2">
-                          <span>Offering:</span>
-                          <span className="text-right">{formatCurrency(totals.offering)}</span>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4 border-b pb-2">
-                          <span>Project:</span>
-                          <span className="text-right">{formatCurrency(totals.project)}</span>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4 border-b pb-2">
-                          <span>Welfare:</span>
-                          <span className="text-right">{formatCurrency(totals.welfare)}</span>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4 pt-2 font-bold">
-                          <span>Grand Total:</span>
-                          <span className="text-right">{formatCurrency(totals.grandTotal)}</span>
-                        </div>
-                      </div>
-                    );
-                  })()}
-                </div>
-              </>
-            ) : (
-              <div className="text-center py-8 text-gray-600 dark:text-gray-300">
-                No data found for the selected period.
-              </div>
-            )}
-          </div>
-
-          {downloadData.results?.length > 0 && (
-            <div className="mt-6 flex justify-end">
-              <button
-                onClick={generatePDF}
-               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                           >
-                             <Download size={20} className="inline mr-2 " />
-                             Download PDF
-                           </button>
-                         </div>
-                         )}
-                       </div>
-                     </div>
-                   )
- );
-   
  const renderReportModals = () => (
   <Dialog 
     open={showReportModal} 
@@ -803,7 +627,7 @@ const GivingList = () => {
                       <tr key={giving.reference} className="border-b hover:bg-gray/90 dark:hover:bg-gray/10 text-center dark:text-gray/70">
                       <td className="border px-4 py-3">{formatDateTime(giving.initiated_at)}</td>
                         <td className="border px-4 py-3">{giving.type}</td>
-                        <td className="border px-4 py-3">{giving.amount}</td>
+                        <td className="border px-4 py-3">{formatAmount(giving.amount)}</td>
                         <td className="border px-4 py-3">{giving.detail ? giving.detail : 'N/A'}</td>
                         <td className="border px-4 py-3">{giving.giver}</td>
                         <td className="border px-4 py-3">

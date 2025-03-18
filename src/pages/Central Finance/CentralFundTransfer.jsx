@@ -349,42 +349,6 @@ const CentralFundTransfer = () => {
         </Card>
       </div>
 
-      
-    {/*  Success Modal */}
-       {/* {showTransferSuccess && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-          <div className="absolute inset-0 bg-black bg-opacity-50"></div>
-          <div className="relative bg-white dark:bg-boxdark rounded-lg p-6 max-w-md w-full shadow-xl">
-            <div className="text-center">
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
-                <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-              </div>
-              
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                Transfer Successful!
-              </h3>
-              
-              <div className="mt-4 text-left">
-                <p className="text-sm text-gray-500 dark:text-gray-300">
-                  From: {transferSuccessDetails.fromAccount}<br />
-                  To: {transferSuccessDetails.toAccount}<br />
-                  Amount: ₦{transferSuccessDetails.amount}<br />
-                  Purpose: {transferSuccessDetails.purpose}
-                </p>
-              </div>
-
-              <button
-                onClick={resetForm}
-                className="mt-6 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors duration-200"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )} */}
     </>
   );
 };
