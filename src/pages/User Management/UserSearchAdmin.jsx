@@ -4,7 +4,8 @@ import axios from "axios";
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import { Eye, X, Search, ChevronLeft, ChevronRight, Edit } from "lucide-react";
 import User from '../../images/user/user-09.png'
-import UserProfileCard from '../community/UserProfileCard';
+import UserIcon from '../../images/user/user-14.png';
+import UserProfileCard from '../community/UserProfileCard'; 
 
 const UserSearchAdmin = ({  deleteUser }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -249,7 +250,7 @@ const UserSearchAdmin = ({  deleteUser }) => {
                     > 
                       <td className="px-4 py-3">
                         <img
-                          src={user.profile_picture || User}
+                          src={user.profile_picture || UserIcon}
                           alt="Profile"
                           className="w-10 h-10 rounded-full object-cover"
                         />

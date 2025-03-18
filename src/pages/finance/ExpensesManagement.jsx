@@ -18,12 +18,8 @@ const ExpensesManagement = () => {
   const [expensePurpose, setExpensePurpose] = useState('');
   const [expenseFile, setExpenseFile] = useState(null);
   const [expensesList, setExpensesList] = useState([]);
-  const [approvalsList, setApprovalsList] = useState([]);
-  const [updatesList, setUpdatesList] = useState([]);
-  const [updateFileReference, setUpdateFileReference] = useState(null);
   const [successModal, setSuccessModal] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
-  const [selectedExpenseReference, setSelectedExpenseReference] = useState(null);
 
    const [approvedExpenses, setApprovedExpenses] = useState([]);
    const [declinedExpenses, setDeclinedExpenses] = useState([]);
@@ -34,12 +30,9 @@ const ExpensesManagement = () => {
   //  const [pagination, setPagination] = useState({});
 
     const [error, setError] = useState('');
-     const [success, setSuccess] = useState('');
-     const [isModalOpen, setIsModalOpen] = useState(false);
      const [selectedFiles, setSelectedFiles] = useState([]);
    
      // Add new state for file upload
-     const [uploadingFile, setUploadingFile] = useState(null);
      const [uploadError, setUploadError] = useState('');
      const [isViewModalOpen, setIsViewModalOpen] = useState(false);
    
@@ -55,19 +48,10 @@ const ExpensesManagement = () => {
        previous: null
      });
 
-      const [uploadFileReference, setUploadFileReference] = useState(null);
-       const [currentIncomingPage, setCurrentIncomingPage] = useState(1);
-       const [currentOutgoingPage, setCurrentOutgoingPage] = useState(1);
-       const [incomingPagination, setIncomingPagination] = useState({});
-       const [outgoingPagination, setOutgoingPagination] = useState({});
-
-   
   {/*Fetch initial data*/}
     useEffect(() => {
       fetchAccounts();
     fetchExpensesList();
-    // renderApprovedExpenses();
-    // renderDeclinedExpenses();
     }, []);
 
 
@@ -84,7 +68,7 @@ const ExpensesManagement = () => {
     };
 
     const fetchExpensesList = async (
-      url = 'https://tlbc-platform-api.onrender.com/api/finance/expense/list/?limit=5', ) => {
+      url = 'https://tlbc-platform-api.onrender.com/api/finance/expense/list/?limit=10', ) => {
       try {
         setIsLoading(true);
         const response = await axios.get(url);
@@ -113,7 +97,16 @@ const ExpensesManagement = () => {
         });
    
       } catch (error) {
-        setErrorMessage(error.response?.data?.detail ||'Failed to fetch expenses list');
+       // Improved error handling
+    if (error.response?.status === 500) {
+      setErrorMessage('Server error. Please contact support.');
+    } else if (error.response?.data?.detail) {
+      setErrorMessage(error.response.data.detail);
+    } else if (error.response?.data?.non_field_errors) {
+      setErrorMessage(error.response.data.non_field_errors[0]);
+    } else {
+      setErrorMessage('Failed to fetch expenses. Please try again.');
+    }
       } finally {
         setIsLoading(false);
       }
@@ -123,41 +116,6 @@ const ExpensesManagement = () => {
           fetchExpensesList();
       }, [activeSection]);
  
-
- const handlePagination = async (type, direction) => {
-    try {
-      setIsLoading(true);
-      const pagination =
-        type ===  'approve' ? incomingPagination : outgoingPagination;
-      const url = direction === 'next' ? pagination.next : pagination.previous;
-
-      if (!url) return;
-
-      const response = await axios.get(url);
-
-      if (type === 'approve') {
-        setExpensesList(response.data.results);
-        setIncomingPagination({
-          count: response.data.count,
-          next: response.data.next,
-          previous: response.data.previous,
-        });
-      } else {
-        setExpensesList(response.data.results);
-        setOutgoingPagination({
-          count: response.data.count,
-          next: response.data.next,
-          previous: response.data.previous,
-        });
-      }
-
-      setIsLoading(false);
-    } catch (error) {
-      setErrorMessage(`Failed to load ${type} expenses`);
-      setIsLoading(false);
-    }
-  };
-
 
   const handleCreateExpenses = async (e) => {
     e.preventDefault();
@@ -171,7 +129,7 @@ const ExpensesManagement = () => {
       setErrorMessage('Please enter a valid amount');
       return;
     }
-    if (!purpose) {
+    if (!expensePurpose) {
       setErrorMessage('Please enter a purpose for the expenses');
       return;
     }
@@ -227,184 +185,6 @@ const ExpensesManagement = () => {
     } finally {
       setIsLoading(false);
   }
-};
-
-
-  // Handle Approve/Decline
-  const handleExpenseAction = async (reference, action) => {
-    try {
-      setIsLoading(true);
-      const { data } = await axios.post(
-        `https://tlbc-platform-api.onrender.com/api/finance/expense/${reference}/${action}/` );
-
-      setSuccessModal({
-        message: `Expense ${action}d successfully`
-      });
-
-           // Refresh expenses list
-        const { data: refreshedData } = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/expense/list/');
-        setExpensesList(refreshedData.results);
-      setApprovedExpenses(refreshedData.results.filter(item => item.status === 'APPROVED'));
-      setDeclinedExpenses(refreshedData.results.filter(item => item.status === 'DECLINED'));
-
-    } catch (error) {
-      setErrorMessage(error.response?.data?.non_field_errors?.[0] || 
-                     error.response?.data?.detail || 
-                     `Failed to ${action} expense`);
-    } finally {
-      setIsLoading(false);
-      setUpdateFileReference(null);
-      setUploadingFile(null);
-    }
-  };
-
-  // Render functions
-  const renderTable = (data, type) => {
-
-  const columns = [
-    'Date',
-    'Time',
-    'Account Name',
-    'Amount',
-    'Purpose',
-    'Initiator',
-    'Status',
-    'Approved By',
-    'Approved On',
-    'Documents',
-    'Action',
-    'Uploads',
-
-  ];
- 
-  return (
-    <div className="w-full overflow-x-auto">
-        {data.length === 0 ? (
-          <div className="text-center p-4 text-gray-500 dark:text-gray-400">
-            No remittances found
-          </div>
-        ) : (
-          <>
-          <table className="w-full bg-white dark:bg-boxdark shadow-md rounded-lg overflow-hidden">
-              <thead className="bg-blue-50 dark:bg-blue-900">
-                <tr>
-                  {columns.map((column) => (
-                    <th
-                      key={column}
-                      className="p-3 text-left text-xs font-medium text-blue-700 dark:text-blue-200 uppercase tracking-wider whitespace-nowrap"
-                    >
-                 {column}
-                    </th>
-                  ))}
-                </tr>
-        </thead>
-        <tbody>
-                {data.map((item) => (
-                  <tr
-                    key={item.reference}
-                    className="border-b border-stroke dark:border-strokedark hover:bg-gray-50 dark:hover:bg-blue-900/50 transition-colors"
-                  >
-                    <td className="p-3 text-black dark:text-white">
-                {formatDate(item.initiated_at)}
-              </td>
-              <td className="p-3 text-black dark:text-white">{formatTime(item.initiated_at)}</td>
-              <td className="p-3 text-black dark:text-white">{item.account.account_name}</td>
-              <td className="p-3 text-black dark:text-white">`₦${Number(item.amount).toFixed(2)}`</td>
-              <td className="p-3 text-black dark:text-white">{item.purpose}</td>
-              <td className="p-3 text-black dark:text-white">{item.initiator?.split('(')[0]}</td>
-              
-              {/* <td className="px-6 py-4">₦{parseFloat(item.amount).toLocaleString()}</td> */}
-                
-              <td className="p-3 text-black dark:text-white">
-                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                  ${item.status === 'APPROVED' ? 'bg-green-100 text-green-800' : 
-                  item.status === 'DECLINED' ? 'bg-red-100 text-red-800' : 
-                  'bg-yellow-100 text-yellow-800'}`}>
-                  {item.status}
-                </span>
-              </td>
-              <td className="p-3 text-black dark:text-white">{item.auditor?.split('(')[0]}</td>
-              <td className="p-3 text-black dark:text-white">
-                {formatDate(item.approved_at)}
-              </td>
-
-              <td className="p-3 text-black dark:text-white">
-                {item.files && item.files?.length > 0 ? (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleViewFile(item.files)}
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                ) : 'No files'}
-              </td>
-              <td className="px-6 py-4">
-                <DropdownMenu
-                  trigger={
-                    <Button variant="ghost" size="sm">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  }
-                >
-                  <DropdownItem
-                    onClick={() => handleExpenseAction(item.reference, 'approve')}
-                    disabled={item.status !== 'PROCESSING'}
-                    className={`${item.status !== 'PROCESSING' ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  >
-                    Approve
-                  </DropdownItem>
-                  <DropdownItem
-                    onClick={() => handleExpenseAction(item.reference, 'decline')}
-                    disabled={item.status !== 'PROCESSING'}
-                    className={`${item.status !== 'PROCESSING' ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  >
-                    Decline
-                  </DropdownItem>
-                </DropdownMenu>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <div className="flex justify-between items-center p-4 bg-blue-50 dark:bg-blue-900">
-              <span className="text-sm text-blue-700 dark:text-blue-200">
-                Total:{' '}
-                {type === 'incoming'
-                  ? incomingPagination.count
-                  : outgoingPagination.count}
-              </span>
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => handlePagination(type, 'previous')}
-                  disabled={
-                    type === 'incoming'
-                      ? !incomingPagination.previous
-                      : !outgoingPagination.previous
-                  }
-                  className="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded disabled:bg-blue-300 dark:disabled:bg-blue-800"
-                >
-                  Previous
-                </button>
-                <button
-                  onClick={() => handlePagination(type, 'next')}
-                  disabled={
-                    type === 'incoming'
-                      ? !incomingPagination.next
-                      : !outgoingPagination.next
-                  }
-                  className="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded disabled:bg-blue-300 dark:disabled:bg-blue-800"
-                >
-                  Next
-                </button>
-              </div>
-            </div>
-
-      </>
-    )}
-    </div>
-  );
 };
 
 // Pagination controls
@@ -519,7 +299,7 @@ const PaginationControls = () => {
 
       setSuccessModal({
         message:
-          response.data.message || 'TopUp status updated successfully',
+          response.data.message || 'Expenses status updated successfully',
       });
 
       // Refresh funds list
@@ -659,125 +439,6 @@ const PaginationControls = () => {
 );
 
 
-  const handleApproveExpense = async (reference) => {
-    try {
-      const response = await axios.post(`https://tlbc-platform-api.onrender.com/api/finance/expense/${reference}/approve/`);
-      
-      // Update approvals list
-      const updatedApprovals = approvalsList.filter(expense => expense.reference !== reference);
-      setApprovalsList(updatedApprovals);
-
-      setSuccessModal({
-        message: response.data.message || 'Expense approved successfully',
-        // details: { reference }
-      });
-    } catch (error) {
-      setErrorMessage(error.response?.data?.message || 'Failed to approve expense');
-    }
-  };
-
-  const handleDeclineExpense = async (reference) => {
-    try {
-      const response = await axios.post(`https://tlbc-platform-api.onrender.com/api/finance/expense/${reference}/decline/`);
-      
-      // Update approvals list
-      const updatedApprovals = approvalsList.filter(expense => expense.reference !== reference);
-      setApprovalsList(updatedApprovals);
-
-      setSuccessModal({
-        message: response.data.message || 'Expense declined successfully',
-        // details: { reference }
-      });
-    } catch (error) {
-      setErrorMessage(error.response?.data?.message || 'Failed to decline expense');
-    }
-  };
-
- // Responsive design improvements
- const buttonStyle = "inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-all duration-300";
- 
-  // Render sections with improved responsiveness
-  const renderCreateExpenses = () => (
-    <Card className="w-full max-w-md mx-auto">
-    <CardHeader>
-      <CardTitle className="flex items-center justify-center text-2xl text-blue-600 dark:text-blue-400">
-        <PlusCircle className="mr-2" /> Create Expense Request
-      </CardTitle>
-    </CardHeader>
-    <CardContent>
-      <form onSubmit={handleCreateExpenses} className="space-y-4">
-      <div className="space-y-4">
-        <select 
-            value={selectedAccount} 
-            onChange={(e) => setSelectedAccount(e.target.value)}
-            className="w-full p-3 border rounded dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 transition-all dark:bg-form-input dark:border-form-strokedark dark:text-white"
-          >
-            <option value="">Select Account</option>
-            {accounts.map(account => (
-              <option key={account.code} value={account.code}>
-                {account.account_name}
-              </option>
-            ))}
-          </select>
-
-        <div className="relative">
-            <input 
-            type="number" 
-            value={expenseAmount}
-            onChange={(e) => setExpenseAmount(e.target.value)}
-            className="w-full p-3 pl-10 border rounded dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 transition-all dark:bg-form-input dark:border-form-strokedark dark:text-white"
-            placeholder="Enter amount"
-          />
-        </div>
-
-          <input 
-            type="text" 
-            value={expensePurpose}
-            onChange={(e) => setExpensePurpose(e.target.value)}
-            className="w-full p-3 border rounded dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 transition-all dark:bg-form-input dark:border-form-strokedark dark:text-white"
-            placeholder="Enter purpose"
-          />
-
-          <div className="border-2 border-dashed p-4 rounded-lg text-center">  
-          <input 
-            type="file" 
-            onChange={(e) => setExpenseFile(e.target.files[0])}
-            className="hidden"
-              id="expense-file-upload"
-            />
-            <label 
-              htmlFor="expense-file-upload"
-              className="w-full flex items-center justify-center p-3 border-2 border-dashed border-blue-500 rounded-lg cursor-pointer hover:border-blue-600 transition-all dark:border-blue-400"
-            >
-              <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                                <span className="mt-2 block text-sm text-gray-600 dark:text-gray-400">
-              {expenseFile ? expenseFile.name : 'Upload Supporting Document'}
-              </span>
-            </label>
-          </div>
-
-          <button 
-            type="submit"
-            disabled={isLoading}
-            className={`w-full text-white p-3 rounded-lg transition-all transform hover:scale-105 flex items-center justify-center ${
-              isLoading 
-                ? 'bg-blue-300 dark:bg-blue-800 cursor-not-allowed' 
-                : 'bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700'
-            }`}
-          >
-            {isLoading ? (
-              <RefreshCw className="animate-spin mr-2" size={18} />
-            ) : (
-              <PlusCircle className="mr-2" size={18} />
-            )}
-            {isLoading ? 'Creating...' : 'Create Expense Request'}
-          </button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
-  );
-
   // Helper function to extract name from email
 const extractName = (fullString) => {
   if (!fullString) return 'N/A';
@@ -841,43 +502,6 @@ const formatDate = (dateString) => {
     </div>
   );
 
-    // Updated Button styling for disabled state
-    const getButtonStyles = (isDisabled) => {
-      if (isDisabled) {
-        return 'bg-gray-200 text-gray-400 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500';
-      }
-      return 'bg-primary hover:bg-primary/80 text-white dark:hover:bg-primary/70';
-    };
-
-  
-    // File Upload Modal
-    const FileUploadModal = ({ onClose, onUpload, reference }) => (
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-        <div className="bg-white dark:bg-boxdark p-6 rounded-xl shadow-xl max-w-md w-full mx-4">
-          <h2 className="text-2xl font-bold mb-4 text-black dark:text-white">Upload File</h2>
-          <input 
-            type="file"
-            onChange={(e) => setUploadFile(e.target.files[0])}
-            className="mb-4"
-          />
-          <div className="flex justify-end space-x-2">
-            <button 
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-            >
-              Cancel
-            </button>
-            <button 
-              onClick={() => onUpload(reference)}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              Upload
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  
 
    // Render Approved Expenses Section
    const renderApprovedExpenses = () => {
@@ -966,8 +590,7 @@ const formatDate = (dateString) => {
     // Style configuration
     const tableHeaderClass =
       'border px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray/70 uppercase tracking-wider';
-    const tableCellClass =
-      'border px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray/70 text-center';
+    const tableCellClass = 'border px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white text-center';
   
     // Define table columns based on section
     const getTableColumns = (section) => {
@@ -1164,23 +787,26 @@ const formatDate = (dateString) => {
             <h1 className="text-2xl font-semibold text-gray-900 dark:text-white"></h1>
 
                 {/* Tab Navigation */}
-            <div className="w-full lg:w-auto flex overflow-x-auto lg:overflow-visible space-x-2 bg-gray-100 dark:bg-navy-800 p-1 rounded-lg"> 
-          {['create-expense', 'expenses-list', 'approved-expenses', 'declined-expenses'].map((section) => (
-            <Button
-              key={section}
-              onClick={() => setActiveSection(section)}
-              variant={activeSection === section ? 'default' : 'outline'}
-              className={`${
-                    activeSection === section
-                      ? 'bg-primary/70 dark:bg-primary/60 text-primary shadow-sm'
-                      : 'text-gray-600 dark:text-gray-300 hover:text-white dark:hover:bg-blue-900 hover:bg-blue-800'
-                  } px-4 py-2 rounded-md transition-all`}
-                >
-              {section.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-            </Button>
-          ))}
-        </div>  
-        </div>     
+        <div className="w-full overflow-x-auto">
+  <div className="flex flex-wrap gap-2 md:flex-nowrap">
+    {['create-expense', 'expenses-list', 'approved-expenses', 'declined-expenses'].map((section) => (
+      <Button
+        key={section}
+        onClick={() => setActiveSection(section)}
+        variant={activeSection === section ? 'default' : 'outline'}
+        className={`
+          ${activeSection === section
+            ? 'bg-primary/70 dark:bg-primary/30 text-primary shadow-sm'
+            : 'text-gray-600 dark:text-gray-300 hover:text-white dark:hover:bg-blue-900 hover:bg-blue-800'}
+          flex-1 min-w-[150px] whitespace-nowrap text-xs md:text-sm py-2 px-3 md:px-4 transition-all
+        `}
+      >
+        {section.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+      </Button>
+    ))}
+  </div>
+</div>
+</div>
 
             {/* Main Content Area */}
           <div className="space-y-6 overflow-hidden">
@@ -1264,7 +890,7 @@ const formatDate = (dateString) => {
 
             {activeSection === 'expenses-list' && (
 
-              <Card>
+              <Card className='bg-white dark:bg-navy-800 border-0 shadow-lg overflow-hidden dark:bg-boxdark'>
                 {/* <Card className="bg-white dark:bg-navy-800 border-0 shadow-lg overflow-hidden dark:bg-boxdark"> */}
                 <div className="w-full overflow-x-auto rounded-lg shadow-lg">
                   <table className="w-full min-w-[800px]">

@@ -98,7 +98,11 @@ import UploadMessage from './pages/Messages/UploadMessage';
 import MessageList from './pages/Messages/MessageList';
 import AudioMessageList from './pages/Messages/AudioMessageList';
 import VideoMessageList from './pages/Messages/VideoMessageList';
-
+import SuspendUser from './pages/User Management/SuspendUser';
+import UnSuspendUser from './pages/User Management/UnSuspendUser';
+import MediaPlayer from './pages/Messages/MediaPlayer';
+import { MediaProvider } from './pages/Messages/MediaContext';
+import AdminMessageList from './pages/Messages/AdminMessageList';
 
 
 function App() {
@@ -182,6 +186,7 @@ useEffect(() => {
 
 
   return (
+    <MediaProvider>
     <BrowserRouter>
     <>
       <Routes>
@@ -367,8 +372,12 @@ useEffect(() => {
          {/* Messages */}
          <Route path="/uploadmessage" element={withDefaultLayout(<UploadMessage />, "Upload Message")} />
          <Route path="/messagelist" element={withDefaultLayout(<MessageList />, "Message List")} />
+         <Route path="/adminmessagelist" element={withDefaultLayout(<AdminMessageList />, "Admin Message List")} />
+         <Route path="/media-player" element={withDefaultLayout(<MediaPlayer />, "Message List")} />
+         
          <Route path="/audiomessagelist" element={withDefaultLayout(<AudioMessageList />, "Audio Message List")} />
          <Route path="/videomessagelist" element={withDefaultLayout(<VideoMessageList />, "Video Message List")} /> 
+
 
       
             {/* Events */}
@@ -384,6 +393,8 @@ useEffect(() => {
             {/* User Management */}
       <Route path="/onboardUser" element={withDefaultLayout(<OnboardUser />, "Onboard New User")} />
       <Route path="/deleteUser" element={withDefaultLayout(<DeleteUser />, "Delete User")} />
+      <Route path="/suspendUser" element={withDefaultLayout(<SuspendUser />, "Suspend User")} />
+      <Route path="/unsuspendUser" element={withDefaultLayout(<UnSuspendUser />, "Unsuspend User")} />
       <Route path="/userPermissions" element={withDefaultLayout(<UserPermissions />, "User Permissions")} />
       <Route path="/userSearchAdmin" element={withDefaultLayout(<UserSearchAdmin />, "Admin User Search")} />
       <Route path="/edituserdetailsform" element={withDefaultLayout(<EditUserDetailsForm />, "Edit User's Details Form")} />
@@ -408,9 +419,10 @@ useEffect(() => {
       <Route path="/transactions" element={withDefaultLayout(<Transactions />, "Create Church Account")} />
       
     </Routes>
-   
     </>
     </BrowserRouter>
+
+    </MediaProvider>
   );
 }
 

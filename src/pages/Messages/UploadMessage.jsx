@@ -259,7 +259,7 @@ const UploadMessage = () => {
       
     } catch (error) {
       console.error("Error uploading message:", error);
-      setErrors({ general: ['Failed to upload message. Please try again.'] });
+      setErrors( error.response?.data?.detail || { general: ['Failed to upload message. Please try again.'] });
       setIsUploading(false);
     }
   };
@@ -328,29 +328,15 @@ const UploadMessage = () => {
                     <span className="absolute inset-y-0 left-2 sm:left-3 flex items-center">
                       <User2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-gray-500" />
                     </span>
-                    <select
+                    <Input
                       id="speaker"
                       name="speaker"
                       value={formData.speaker}
-                      onChange={handleSpeakerChange}
-                      className={`w-full rounded-md border ${
-                        errors.speaker ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                      } bg-transparent py-1.5 sm:py-2 pl-8 sm:pl-10 md:pl-12 pr-8 text-sm sm:text-base focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary`}
-                      style={{
-                        WebkitAppearance: "none",
-                        MozAppearance: "none",
-                        appearance: "none",
-                        backgroundImage: "url(\"data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")",
-                        backgroundRepeat: "no-repeat",
-                        backgroundPosition: "right 0.5rem center",
-                        backgroundSize: "1rem",
-                      }}
-                    >
-                      <option value="" disabled>Select the minister</option>
-                      {speakerNames.map((name) => (
-                        <option key={name} value={name}>{name}</option>
-                      ))}
-                    </select>
+                      onChange={handleInputChange}
+                      className={`w-full pl-8 sm:pl-10 md:pl-12 py-1.5 sm:py-2 text-sm sm:text-base ${
+                        errors.speaker ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600'
+                      }`}  
+                    />
                   </div>
                   {errors.speaker && (
                     <p className="mt-1 text-xs sm:text-sm text-red-500 font-medium">{errors.speaker[0]}</p>

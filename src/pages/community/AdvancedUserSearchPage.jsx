@@ -3,9 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import { Eye, X, PlusCircle, Trash2, Search, Filter } from "lucide-react";
-
 import UserIcon from '../../images/user/user-14.png';
-import User from '../../images/user/user-09.png';
 import UserProfileCard from './UserProfileCard';
 import UserProfileCardAdmin from '../User Management/UserProfileCardAdmin';
 
@@ -39,7 +37,7 @@ const STATES = [
     "Lagos", "Nasarawa", "Niger", "Ogun", "Ondo", "Osun", 
     "Oyo", "Plateau", "Rivers", "Sokoto", "Taraba", "Yobe", "Zamfara"
   ];
-  
+   
 
 const AdvancedUserSearchPage = () => {
     const [searchFields, setSearchFields] = useState([]);

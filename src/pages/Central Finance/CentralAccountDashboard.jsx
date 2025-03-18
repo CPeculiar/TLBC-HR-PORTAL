@@ -35,6 +35,13 @@ const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 const [passwordVisible, setPasswordVisible] = useState(false);
 const [errors, setErrors] = useState({});
 
+// Add these new state variables at the top of your component
+const [incomeData, setIncomeData] = useState({ weekly: 0, monthly: 0, yearly: 0, allTime: 0 });
+const [expenseData, setExpenseData] = useState({ weekly: 0, monthly: 0, yearly: 0, allTime: 0 });
+const [incomeTimePeriod, setIncomeTimePeriod] = useState('monthly');
+const [expenseTimePeriod, setExpenseTimePeriod] = useState('monthly');
+const [isLoadingIncome, setIsLoadingIncome] = useState(false);
+const [isLoadingExpenses, setIsLoadingExpenses] = useState(false);
 
   // Add new state for transfer form
    const [transferAmount, setTransferAmount] = useState('');
@@ -251,6 +258,113 @@ const handleDeleteAccount = async () => {
 };
 
 
+// Add this function to fetch and process transactions
+const fetchTransactionsForAccount = async (accountCode) => {
+  if (!accountCode) return;
+  
+  setIsLoadingIncome(true);
+  setIsLoadingExpenses(true);
+  
+  try {
+    let allTransactions = [];
+    let nextUrl = `https://tlbc-platform-api.onrender.com/api/finance/central/accounts/${accountCode}/transactions/?limit=100`;
+    
+    // Fetch all pages of transactions
+    while (nextUrl) {
+      const response = await axios.get(nextUrl);
+      const data = response.data;
+      
+      if (data.results && data.results.transactions) {
+        allTransactions = [...allTransactions, ...data.results.transactions];
+      }
+      
+      nextUrl = data.next;
+    }
+    
+    // Process transactions for different time periods
+    const now = new Date();
+    const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+    
+    let weeklyIncome = 0;
+    let monthlyIncome = 0;
+    let yearlyIncome = 0;
+    let allTimeIncome = 0;
+    
+    let weeklyExpenses = 0;
+    let monthlyExpenses = 0;
+    let yearlyExpenses = 0;
+    let allTimeExpenses = 0;
+    
+    allTransactions.forEach(transaction => {
+      const transactionDate = new Date(transaction.date);
+      const amount = parseFloat(transaction.amount);
+      
+      if (transaction.type === "CREDIT") {
+        // Income calculations
+        allTimeIncome += amount;
+        
+        if (transactionDate >= startOfYear) {
+          yearlyIncome += amount;
+        }
+        
+        if (transactionDate >= startOfMonth) {
+          monthlyIncome += amount;
+        }
+        
+        if (transactionDate >= startOfWeek) {
+          weeklyIncome += amount;
+        }
+      } else if (transaction.type === "DEBIT") {
+        // Expense calculations
+        allTimeExpenses += amount;
+        
+        if (transactionDate >= startOfYear) {
+          yearlyExpenses += amount;
+        }
+        
+        if (transactionDate >= startOfMonth) {
+          monthlyExpenses += amount;
+        }
+        
+        if (transactionDate >= startOfWeek) {
+          weeklyExpenses += amount;
+        }
+      }
+    });
+    
+    setIncomeData({
+      weekly: weeklyIncome,
+      monthly: monthlyIncome,
+      yearly: yearlyIncome,
+      allTime: allTimeIncome
+    });
+    
+    setExpenseData({
+      weekly: weeklyExpenses,
+      monthly: monthlyExpenses,
+      yearly: yearlyExpenses,
+      allTime: allTimeExpenses
+    });
+    
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    showMessage('error', 'Error fetching transaction data');
+  } finally {
+    setIsLoadingIncome(false);
+    setIsLoadingExpenses(false);
+  }
+};
+
+// Add this useEffect to fetch transaction data when account changes
+useEffect(() => {
+  if (selectedAccount?.code) {
+    fetchTransactionsForAccount(selectedAccount.code);
+  }
+}, [selectedAccount]);
+
+
 const handleInputChangeDelete = (e) => {
   const { name, value } = e.target;
  
@@ -429,6 +543,15 @@ const fetchTransactions = async () => {
     const errorMsg = error.response?.data?.non_field_errors?.[0] || 'Error fetching transactions';
     showMessage('error', errorMsg);
   }
+};
+
+const handleTimePeriodChange = (period, cardType) => {
+  if (cardType === 'Income') {
+    setIncomeTimePeriod(period);
+  } else if (cardType === 'Expenses') {
+    setExpenseTimePeriod(period);
+  }
+  console.log(`${cardType} time period changed to: ${period}`);
 };
 
   // Verify account details for update
@@ -626,13 +749,6 @@ const fetchTransactions = async () => {
     }
   };
 
-
-    const handleTimePeriodChange = (period, cardType) => {
-      // You can add logic here to fetch data based on the selected time period
-      console.log(`${cardType} time period changed to: ${period}`);
-    };
-
-
     // Handle transfer submission
   const handleTransfer = async () => {
     if (!selectedDefaultAccount || !beneficiaryAccount || !transferAmount || !transferPurpose) {
@@ -804,10 +920,10 @@ const fetchTransactions = async () => {
             {/* Cards */}
             <div className="bg-blue-50 dark:bg-boxdark rounded-lg p-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Cards title="Monthly Expenses" value={`₦${expenses.toFixed(2)}` || '₦0.00'} bgColor="bg-gradient-to-r from-orange-300 to-red-400" onTimePeriodChange={(period) => handleTimePeriodChange(period, 'Expenses')} />
-            <Cards title="Monthly Income" value={`₦${accountDetails?.balance || '0.00'}`} bgColor="bg-gradient-to-r from-blue-300 to-blue-500" onTimePeriodChange={(period) => handleTimePeriodChange(period, 'Income')} />
-            <Cards title="Account Balance" value={`₦${accountDetails?.balance || '0.00'}`} icon="💰" bgColor="bg-gradient-to-r from-green-300 to-teal-500" />
-            <Cards title="Transaction History" value={transactions.length.toString()} icon="📜" bgColor="bg-gradient-to-r from-yellow-300 to-yellow-500" />
+            <Cards title="Expenses" value={isLoadingExpenses ? "Loading..." : `₦${expenseData[expenseTimePeriod].toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`} bgColor="bg-gradient-to-r from-orange-300 to-red-400" timePeriod={expenseTimePeriod} onTimePeriodChange={(period) => handleTimePeriodChange(period, 'Expenses')}   />
+            <Cards title="Income" value={isLoadingIncome ? "Loading..." : `₦${incomeData[incomeTimePeriod].toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`} bgColor="bg-gradient-to-r from-blue-300 to-blue-500" timePeriod={incomeTimePeriod} onTimePeriodChange={(period) => handleTimePeriodChange(period, 'Income')}  />
+            <Cards title="Account Balance" value={`₦${parseFloat(accountDetails?.balance || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`} icon="💰" bgColor="bg-gradient-to-r from-green-300 to-teal-500" />
+             <Cards title="Transaction History" value={transactions.length.toString()} icon="📜" bgColor="bg-gradient-to-r from-yellow-300 to-yellow-500" />
             <Cards title="Fund Pending Approvals" value={fundPendingCount.toString()} icon="⏳" bgColor="bg-gradient-to-r from-pink-300 to-purple-400" />
             <Cards title="Remittance Pending Approvals" value={remittancePendingCount.toString()} icon="⏳" bgColor="bg-gradient-to-r from-cyan-300 to-sky-400" />
             <Cards title="Expenses Pending Approvals" value={expensesPendingCount.toString()} icon="⏳" bgColor="bg-gradient-to-r from-lime-300 to-green-400" />
@@ -963,7 +1079,7 @@ const fetchTransactions = async () => {
                   <div className="p-2 bg-white dark:bg-gray-800 rounded">
                     <p className="text-sm text-black dark:text-black">
                       <strong>Current Balance:</strong><br />
-                      ₦{verifiedAccountDetails.balance}
+                      ₦{parseFloat(verifiedAccountDetails.balance).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                     </p>
                   </div>
                 </div>
@@ -1076,7 +1192,7 @@ const fetchTransactions = async () => {
           <div className="p-2 bg-white dark:bg-gray-800 rounded">
             <p className="text-sm text-black dark:text-black">
               <strong>Current Balance:</strong><br />
-              ₦{deleteVerifiedDetails.balance}
+              ₦{parseFloat(deleteVerifiedDetails.balance).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
             </p>
           </div>
         </div>
@@ -1233,7 +1349,7 @@ const fetchTransactions = async () => {
             <tr key={transaction.reference} className="border-b border-stroke dark:border-strokedark hover:bg-blue-50 dark:hover:bg-boxdark/60">
               <td className="p-4 text-sm text-black dark:text-white">{formattedDate}</td>
               <td className="p-4 text-sm text-black dark:text-white">{transaction.account.account_name}</td>
-              <td className="p-4 text-sm text-black dark:text-white">₦{transaction.amount}</td>
+              <td className="p-4 text-sm text-black dark:text-white">₦{parseFloat(transaction.amount).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
               <td className="p-4 text-sm text-black dark:text-white">{transaction.purpose}</td>
               <td className="p-4 text-black dark:text-white">
                 <span 
@@ -1288,46 +1404,62 @@ const fetchTransactions = async () => {
 };
 
 
-const Cards = ({ title, value, icon, bgColor }) => {
-  const [timePeriod, setTimePeriod] = useState('monthly');
-
+const Cards = ({ title, value, icon, bgColor, timePeriod, onTimePeriodChange }) => {
   const handleTimePeriodChange = (e) => {
-    setTimePeriod(e.target.value);
-  };
-
-  const getAdjustedTitle = () => {
-    switch(timePeriod) {
-      case 'weekly':
-        return title.replace('Monthly', 'Weekly');
-      case 'yearly':
-        return title.replace('Monthly', 'Yearly');
-      default:
-        return title;
+    if (onTimePeriodChange) {
+      onTimePeriodChange(e.target.value);
     }
   };
 
-  const isFilterableCard = title === 'Monthly Expenses' || title === 'Monthly Income';
+  const getAdjustedTitle = () => {
+    if (!timePeriod || !title.includes('Income') && !title.includes('Expenses')) {
+      return title;
+    }
+    
+    const baseTitle = title.replace('Monthly ', '').replace('Weekly ', '').replace('Yearly ', '').replace('All Time ', '');
+    
+    switch(timePeriod) {
+      case 'weekly':
+        return `Weekly ${baseTitle}`;
+      case 'monthly':
+        return `Monthly ${baseTitle}`;
+      case 'yearly':
+        return `Yearly ${baseTitle}`;
+      case 'allTime':
+        return `All Time ${baseTitle}`;
+      default:
+        return `${baseTitle}`;
+    }
+  };
+
+  const isFilterableCard = title.includes('Expenses') || title.includes('Income');
 
   return (
     <div className={`${bgColor} rounded-lg p-6 text-white relative`}>
-    <div className="flex justify-between items-center mb-4">
-      <h3 className="text-lg font-semibold">{getAdjustedTitle()}</h3>
-      {isFilterableCard && (
-        <select 
-          className="absolute top-2 right-2 bg-white/20 text-white rounded px-1 py-1 text-xs outline-none dark:bg-boxdark/20"
-          value={timePeriod} 
-          onChange={handleTimePeriodChange}
-        >
-          <option value="weekly" className="text-black dark:text-white">Weekly</option>
-          <option value="monthly" className="text-black dark:text-white">Monthly</option>
-          <option value="yearly" className="text-black dark:text-white">Yearly</option>
-        </select>
-      )}
-      <span className="text-2xl">{icon}</span>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-semibold">{getAdjustedTitle()}</h3>
+        {isFilterableCard && (
+          <select 
+            className="absolute top-2 right-2 bg-white/20 text-white rounded px-1 py-1 text-xs outline-none dark:bg-boxdark/20"
+            value={timePeriod} 
+            onChange={handleTimePeriodChange}
+          >
+            <option value="weekly" className="text-black dark:text-white">Weekly</option>
+            <option value="monthly" className="text-black dark:text-white">Monthly</option>
+            <option value="yearly" className="text-black dark:text-white">Yearly</option>
+            <option value="allTime" className="text-black dark:text-white">All Time</option>
+          </select>
+        )}
+        <span className="text-2xl">{icon}</span>
+      </div>
+      {/* <p className="text-3xl font-bold">{value}</p> */}
+      <p className="text-3xl font-bold">
+      {typeof value === 'string' && value.includes('₦') 
+        ? value.replace('₦', '₦').replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+        : value}
+    </p>
     </div>
-    <p className="text-3xl font-bold">{value}</p>
-  </div>
-);
+  );
 };
  
 export default CentralAccountDashboard;

@@ -116,11 +116,6 @@ const RemittanceManagement = () => {
       setTotalPages(Math.ceil(response.data.count / response.data.limit));
       setNextPageUrl(response.data.next);
       setPrevPageUrl(response.data.previous);
-      // setOutgoingPagination({
-      //   count: response.data.count,
-      //   next: response.data.next,
-      //   previous: response.data.previous
-      // });
       setIsLoading(false);
     } catch (error) {
       setErrorMessage('Failed to fetch outgoing remittances');
@@ -443,24 +438,6 @@ const RemittanceManagement = () => {
     });
   };
 
-  // NavButton component now handles sidebar closure
-  const NavButton = ({ section, icon: Icon }) => (
-    <button
-      onClick={() => {
-        setActiveSection(section);
-        // Close mobile menu when a nav item is clicked
-        setIsMobileMenuOpen(false);
-      }}
-      className={`w-full p-3 text-left flex items-center ${
-        activeSection === section
-          ? 'bg-blue-500 text-white dark:bg-blue-600'
-          : 'hover:bg-blue-100 text-blue-700 dark:hover:bg-blue-800 dark:text-blue-200'
-      }`}
-    >
-      <Icon className="mr-2" />
-      {section.replace('-', ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
-    </button>
-  );
 
   // Updated Button styling for disabled state
   const getButtonStyles = (isDisabled) => {
@@ -469,102 +446,6 @@ const RemittanceManagement = () => {
     }
     return 'bg-primary hover:bg-primary/80 text-white dark:hover:bg-primary/70';
   };
-
-  // Render Create Remittance Section
-  const renderCreateRemittance = () => (
-    <div className="w-full max-w-md mx-auto bg-white dark:bg-boxdark shadow-md rounded-lg p-6 border border-stroke dark:border-strokedark">
-      <h2 className="text-2xl mb-6 font-bold text-blue-600 dark:text-blue-400 text-center flex items-center justify-center">
-        <PlusCircle className="mr-2" /> Create Remittance Request
-      </h2>
-
-      {/* Error Message Display */}
-      {errorMessage && (
-        <div
-          className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded relative mb-4"
-          role="alert"
-        >
-          <span className="block sm:inline">{errorMessage}</span>
-        </div>
-      )}
-
-      <div className="space-y-4">
-        <select
-          value={selectedBeneficiary}
-          onChange={(e) => {
-            setSelectedBeneficiary(e.target.value);
-            setErrorMessage(null); // Clear error when user starts selecting
-          }}
-          className="w-full p-3 border rounded-md border-stroke bg-transparent text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-        >
-          <option value="">Select Beneficiary Church</option>
-          {churches.map((church) => (
-            <option key={church.slug} value={church.slug}>
-              {church.name}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={selectedBenefactor}
-          onChange={(e) => {
-            setSelectedBenefactor(e.target.value);
-            setErrorMessage(null); // Clear error when user starts selecting
-          }}
-          className="w-full p-3 border rounded-md border-stroke bg-transparent text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-        >
-          <option value="">Select Benefactor Church</option>
-          {churches.map((church) => (
-            <option key={church.slug} value={church.slug}>
-              {church.name}
-            </option>
-          ))}
-        </select>
-
-        <input
-          type="number"
-          placeholder="Amount"
-          value={remittanceAmount}
-          onChange={(e) => {
-            setRemittanceAmount(e.target.value);
-            setErrorMessage(null); // Clear error when user starts typing
-          }}
-          className="w-full p-3 border rounded-md border-stroke bg-transparent text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-        />
-
-        <input
-          type="text"
-          placeholder="Purpose"
-          value={remittancePurpose}
-          onChange={(e) => {
-            setRemittancePurpose(e.target.value);
-            setErrorMessage(null); // Clear error when user starts typing
-          }}
-          className="w-full p-3 border rounded-md border-stroke bg-transparent text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-        />
-
-        <div className="flex items-center space-x-4">
-          <input
-            type="file"
-            onChange={(e) => setRemittanceFile(e.target.files[0])}
-            className="flex-grow file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700 dark:file:bg-blue-900 dark:file:text-blue-200 hover:file:bg-blue-100 dark:hover:file:bg-blue-800"
-          />
-        </div>
-
-        <button
-          onClick={handleCreateRemittance}
-          disabled={isLoading}
-          className={`w-full text-white p-3 rounded-md transition-colors flex items-center justify-center ${
-            isLoading
-              ? 'bg-blue-300 dark:bg-blue-700 cursor-not-allowed'
-              : 'bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700'
-          }`}
-        >
-          <PlusCircle className="mr-2" />{' '}
-          {isLoading ? 'Processing...' : 'Create Remittance Request'}
-        </button>
-      </div>
-    </div>
-  );
 
   // Pagination Handlers
   const handlePagination = async (type, direction) => {
@@ -791,73 +672,6 @@ const RemittanceManagement = () => {
             </div>
           </>
         )}
-      </div>
-    );
-  };
-
-  // Render Incoming and Outgoing Remittance Sections
-  const renderIncomingRemittance = () => (
-    <div className="w-full">
-      <h2 className="text-2xl mb-6 font-bold text-blue-600 text-center flex items-center justify-center">
-        <FileText className="mr-2" /> Incoming Remittance
-      </h2>
-      {renderTable(incomingRemittances, 'incoming')}
-    </div>
-  );
-
-  const renderOutgoingRemittance = () => (
-    <div className="w-full">
-      <h2 className="text-2xl mb-6 font-bold text-blue-600 text-center flex items-center justify-center">
-        <FileText className="mr-2" /> Outgoing Remittance
-      </h2>
-      {renderTable(outgoingRemittances, 'outgoing')}
-    </div>
-  );
-
-  // Success Modal Component
-  const SuccessModal = () => {
-    if (!successModal) return null;
-
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white dark:bg-boxdark p-6 rounded-lg shadow-xl max-w-md w-full border border-stroke dark:border-strokedark">
-          <div className="flex items-center justify-center mb-4 text-green-500 dark:text-green-400">
-            <CheckCircle size={48} />
-          </div>
-          <h2 className="text-2xl font-bold text-center mb-4 text-green-700 dark:text-green-400">
-            Success
-          </h2>
-          <p className="text-center mb-4 text-black dark:text-white">
-            {successModal.message}
-          </p>
-
-          {successModal.details && (
-            <div className="bg-gray-100 dark:bg-blue-900 p-4 rounded-md mb-4">
-              {successModal.details.benefactor && (
-                <p className="text-black dark:text-white">
-                  Benefactor: {successModal.details.benefactor}
-                </p>
-              )}
-              {successModal.details.amount && (
-                <p className="text-black dark:text-white">
-                  Amount: ₦{successModal.details.amount}
-                </p>
-              )}
-              {successModal.details.purpose && (
-                <p className="text-black dark:text-white">
-                  Purpose: {successModal.details.purpose}
-                </p>
-              )}
-            </div>
-          )}
-
-          <button
-            onClick={() => setSuccessModal(null)}
-            className="w-full bg-blue-500 dark:bg-blue-600 text-white p-3 rounded-md hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors"
-          >
-            Close
-          </button>
-        </div>
       </div>
     );
   };
@@ -1269,7 +1083,7 @@ const RemittanceManagement = () => {
 
             {(activeSection === 'incoming-remittance' ||
               activeSection === 'outgoing-remittance') && (
-              <Card>
+               <Card className='bg-white dark:bg-navy-800 border-0 shadow-lg overflow-hidden dark:bg-boxdark'>
                 {/* <Card className="bg-white dark:bg-navy-800 border-0 shadow-lg overflow-hidden dark:bg-boxdark"> */}
                 <div className="w-full overflow-x-auto rounded-lg shadow-lg">
                   <table className="w-full min-w-[800px]">

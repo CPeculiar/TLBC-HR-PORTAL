@@ -50,7 +50,8 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
     previous_offices: '',
     suspension_record: '',
     wfs_graduation_year: '',
-    enrolled_in_wfs: false,
+    wts_graduation_year: null,
+    tlsom_graduation_year: null,
     bio: '',
     facebook_link: null,
     instagram_link: null,
@@ -1079,7 +1080,6 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                     </div>
                   </div>
 
-
                   <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
                     <div className="w-full sm:w-1/2">
                       <label
@@ -1199,6 +1199,54 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                         name="wfs_graduation_year"
                         placeholder="WFS graduation year"
                         value={formData.wfs_graduation_year}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    </div>
+                  </div>
+
+                <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
+                    <div className="w-full sm:w-1/2">
+                      <label
+                        className="mb-3 block text-sm font-medium text-black dark:text-white"
+                        htmlFor="wts_graduation_year"
+                      >
+                        Workers Training School Graduation Year
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-4.5 top-4">
+                        <Calendar className="h-5 w-5 text-gray-500" />
+                        </span>
+                        <input
+                          className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
+                          type="text"
+                          id="wts_graduation_year"
+                          name="wts_graduation_year"
+                          placeholder="WTS graduation year"
+                          value={formData.wts_graduation_year}
+                          onChange={handleChange}
+                        />
+                      </div>
+                    </div> 
+
+                    <div className="w-full sm:w-1/2">
+                      <label
+                        className="mb-3 block text-sm font-medium text-black dark:text-white"
+                        htmlFor="tlsom_graduation_year"
+                      >
+                        TLOSOM Graduation Year
+                      </label>
+                      <div className='relative'>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2">
+                            <Calendar className="h-5 w-5 text-gray-500" />
+                          </span>
+                      <input
+                        className="w-full rounded border border-gray-300 bg-gray py-3 pl-12 pr-4 text-sm focus:border-primary focus:outline-none dark:border-gray-600 dark:bg-gray-800"
+                        type="tel"
+                        id="tlsom_graduation_year"
+                        name="tlsom_graduation_year"
+                        placeholder="TLOSOM graduation year"
+                        value={formData.tlsom_graduation_year}
                         onChange={handleChange}
                       />
                     </div>

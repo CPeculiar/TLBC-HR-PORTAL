@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Eye, Trash2, X, Loader2, Calendar, User, FileText, Headphones as HeadphonesIcon, Video as VideoIcon, Play } from 'lucide-react';
@@ -12,7 +12,108 @@ import {
   DialogTitle,
 } from '../../components/ui/dialog';
 
-const VideoMessageList = () => {
+// Protected Media Component to prevent downloads
+const ProtectedMedia = ({ type, source, title }) => {
+  const mediaRef = useRef(null);
+  
+  // Prevent right-click context menu
+  const preventContextMenu = (e) => {
+    e.preventDefault();
+    return false;
+  };
+  
+  // Prevent keyboard shortcuts for saving
+  const preventKeyboardShortcuts = (e) => {
+    // Prevent Ctrl+S, Command+S, Ctrl+Shift+S, etc.
+    if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
+      e.preventDefault();
+      return false;
+    }
+  };
+  
+  // Prevent drag events which could be used to save
+  const preventDrag = (e) => {
+    e.preventDefault();
+    return false;
+  };
+  
+  useEffect(() => {
+    // Add event listeners to prevent downloads
+    document.addEventListener('keydown', preventKeyboardShortcuts);
+    document.addEventListener('contextmenu', preventContextMenu);
+    
+    // Add event listeners to the media element when it's available
+    if (mediaRef.current) {
+      mediaRef.current.addEventListener('dragstart', preventDrag);
+      mediaRef.current.addEventListener('contextmenu', preventContextMenu);
+    }
+    
+    return () => {
+      // Clean up event listeners
+      document.removeEventListener('keydown', preventKeyboardShortcuts);
+      document.removeEventListener('contextmenu', preventContextMenu);
+      
+      if (mediaRef.current) {
+        mediaRef.current.removeEventListener('dragstart', preventDrag);
+        mediaRef.current.removeEventListener('contextmenu', preventContextMenu);
+      }
+    };
+  }, []);
+  
+  return (
+    <div className="protected-media-wrapper">
+      {type === 'audio' ? (
+        <audio 
+          ref={mediaRef}
+          src={source} 
+          controls 
+          controlsList="nodownload nofullscreen noremoteplayback" 
+          onContextMenu={preventContextMenu}
+          onDragStart={preventDrag}
+          className="w-full"
+          title={title}
+        >
+          Your browser does not support the audio element.
+        </audio>
+      ) : (
+        <video 
+          ref={mediaRef}
+          src={source} 
+          controls 
+          controlsList="nodownload nofullscreen noremoteplayback" 
+          onContextMenu={preventContextMenu}
+          onDragStart={preventDrag}
+          className="w-full"
+          title={title}
+          playsInline
+        >
+          Your browser does not support the video element.
+        </video>
+      )}
+      <style jsx>{`
+        .protected-media-wrapper {
+          position: relative;
+          user-select: none;
+          -webkit-user-select: none;
+          -webkit-touch-callout: none;
+        }
+        
+        .protected-media-wrapper::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          z-index: 1;
+          pointer-events: none;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+const AdminMessageList = () => {
   const [messages, setMessages] = useState(null);
   const [messagesWithDetails, setMessagesWithDetails] = useState([]);
   const [selectedMessage, setSelectedMessage] = useState(null);
@@ -28,7 +129,21 @@ const VideoMessageList = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const fetchMessages = async (url = 'https://tlbc-platform-api.onrender.com/api/sermons/list/video/?limit=15') => {
+  // Prevent downloads from the page
+  useEffect(() => {
+    const preventDownload = (e) => {
+      // Prevent Ctrl+S, Command+S
+      if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
+        e.preventDefault();
+        return false;
+      }
+    };
+    
+    document.addEventListener('keydown', preventDownload);
+    return () => document.removeEventListener('keydown', preventDownload);
+  }, []);
+
+  const fetchMessages = async (url = 'https://tlbc-platform-api.onrender.com/api/sermons/list/?limit=15') => {
     setIsLoading(true);
     setError('');
     try {
@@ -157,7 +272,8 @@ const VideoMessageList = () => {
         speaker: selectedMessage.speaker || 'Unknown Speaker',
         type: selectedMessage.type || 'unknown',
         messageId: selectedMessage.id,
-        disableDownload: 'true'
+        disableDownload: 'true',
+        protectedMode: 'true' // New parameter to enable protected mode
       });
       
       navigate(`/media-player?${params.toString()}`);
@@ -257,7 +373,7 @@ const VideoMessageList = () => {
 
   return (
     <>
-      <Breadcrumb pageName="Video Message Library" />
+      <Breadcrumb pageName="Message Library" />
 
       <div className="p-2 sm:p-4 md:p-6 2xl:p-10 bg-gray-50 dark:bg-boxdark min-h-screen">
         <div className="mx-auto max-w-7xl">
@@ -268,7 +384,7 @@ const VideoMessageList = () => {
                   <HeadphonesIcon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
                 <h3 className="font-semibold text-black dark:text-white text-lg sm:text-xl md:text-2xl">
-                  Video Message Library
+                  Message Library
                 </h3>
               </div>
               <div className="flex w-full md:w-auto">
@@ -289,19 +405,22 @@ const VideoMessageList = () => {
               </div>
             </div>
 
-            {error && (
-              <Alert variant="destructive" className="mx-4 sm:mx-6 mt-4 max-w-full overflow-hidden">
-                <AlertDescription className="text-red-500 dark:font-bold text-sm truncate">
-                  {error}
-                </AlertDescription>
-              </Alert>
-            )}
+            {/* Improved error message container to prevent overflow */}
+            <div className="px-4 sm:px-6 mt-4">
+              {error && (
+                <Alert variant="destructive" className="max-w-full">
+                  <AlertDescription className="text-red-500 dark:font-bold text-sm break-words">
+                    {error}
+                  </AlertDescription>
+                </Alert>
+              )}
 
-            {success && (
-              <Alert className="bg-green-100 text-green-800 mx-4 sm:mx-6 mt-4 max-w-full overflow-hidden">
-                <AlertDescription className="text-sm truncate">{success}</AlertDescription>
-              </Alert>
-            )}
+              {success && (
+                <Alert className="bg-green-100 text-green-800 max-w-full">
+                  <AlertDescription className="text-sm break-words">{success}</AlertDescription>
+                </Alert>
+              )}
+            </div>
 
             <div className="p-4 sm:p-6">
               {isContentLoading ? (
@@ -410,8 +529,8 @@ const VideoMessageList = () => {
 
       {/* View Message Modal */}
       <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
-        <DialogContent className="sm:max-w-lg max-w-[92vw] overflow-hidden bg-white p-0">
-          {selectedMessage && (
+      <DialogContent className="sm:max-w-lg w-[95vw] max-w-[95vw] sm:w-full overflow-hidden bg-white p-0">
+      {selectedMessage && (
             <>
               {/* Banner at the top with message type */}
               <div className={`w-full h-10 ${selectedMessage.type === 'audio' ? 'bg-purple-600' : 'bg-red-600'} flex items-center justify-center`}>
@@ -439,10 +558,10 @@ const VideoMessageList = () => {
                 </button>
               </div>
 
-              <div className="px-4 sm:px-6 pb-6 space-y-4 overflow-y-auto max-h-[70vh]">
+              <div className="px-4 sm:px-6 pb-6 space-y-4 overflow-y-auto max-h-[60vh] sm:max-h-[70vh]">
                 <div className="flex items-center text-gray-700">
                   <User className="mr-2 h-4 w-4 flex-shrink-0" />
-                  <p className="text-sm font-medium truncate">{selectedMessage.speaker || "Unknown Speaker"}</p>
+                  <p className="text-sm font-medium break-words">{selectedMessage.speaker || "Unknown Speaker"}</p>
                 </div>
                 
                 <div className="flex items-center text-gray-700">
@@ -541,4 +660,4 @@ const VideoMessageList = () => {
   );
 };
 
-export default VideoMessageList;
+export default AdminMessageList;

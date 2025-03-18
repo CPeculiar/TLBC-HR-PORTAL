@@ -253,7 +253,7 @@ const GivingOnline = () => {
               <option value="OFFERING">Offering</option>
               <option value="PROJECT">Project</option>
               <option value="WELFARE">Welfare</option>
-              <option value="OTHERS">Others</option>
+              <option value="OTHER">Others</option>
             </select>
           </div>
 
