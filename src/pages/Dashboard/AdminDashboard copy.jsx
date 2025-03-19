@@ -5,9 +5,15 @@ import Loader from '../../common/Loader';
 import authService from '../../js/services/authService';
 import CardDataStats from '../../components/CardDataStats';
 import ChartOne from '../../components/Charts/ChartOne';
+import ChartThree from '../../components/Charts/ChartThree';
 import ChartTwo from '../../components/Charts/ChartTwo';
+import ChatCard from '../../components/Chat/ChatCard';
+import MapOne from '../../components/Maps/MapOne';
 import TableOne from '../../components/Tables/TableOne';
+import { Eye, EyeOff } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card';
 import MaskedCardDataStats from '../../components/MaskedCardDataStats';
+import UserChat from '../../components/Chat/UserChat';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -26,15 +32,16 @@ const AdminDashboard = () => {
         offering: 0,
         stewardship: 0
       });
+    const [showModal, setShowModal] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
+  
     useEffect(() => {
       fetchAttendanceData();
       fetchFinancialData();
     }, [timeRange]);
 
-    const fetchFinancialData = async (url = 'https://tlbc-platform-api.onrender.com/api/finance/giving/list/?limit=100') => {
+    const fetchFinancialData = async (url = 'https://tlbc-platform-api.onrender.com/api/finance/giving/list/?limit=1000') => {
         try {
           const accessToken = localStorage.getItem("accessToken");
           if (!accessToken) {
@@ -173,6 +180,14 @@ const AdminDashboard = () => {
       return `₦${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     };
   
+    const formatDate = (dateString) => {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    };
+
   useEffect(() => {
     const accessToken = localStorage.getItem('accessToken');
     if (!accessToken) {
@@ -223,20 +238,21 @@ const fetchDashboardData = async () => {
 };
 
 fetchDashboardData();
+
   }, [navigate]);
 
   // Handle loading and error states
-    if (loading) {
-      return <div className="flex justify-center items-center h-screen"><Loader/></div>;
-    }
+  if (loading) {
+    return <div><Loader/></div>;
+  }
 
   if (error) {
-    return <div className="p-4 text-center text-red-500">Error loading dashboard data. Please try again later.</div>;
+    return <div>Error loading dashboard data. Please try again later.</div>;
   }
 
   return (
     <>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 2xl:gap-7.5">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-5 2xl:gap-7.5">
       {/* <CardDataStats title="Total Users" total="100" rate="2.35%" levelUp> */}
       <CardDataStats title="Total Users" total={totalUsers.toString()}>
           <svg
@@ -356,7 +372,7 @@ fetchDashboardData();
         </CardDataStats>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:gap-7.5 mt-6">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-3 2xl:gap-7.5 mt-6">
       {/* <CardDataStats title="Total Users" total="100" rate="2.35%" levelUp> */}
       <CardDataStats title="My Total Attendance" total={rawData.count}>
           <svg
@@ -403,6 +419,8 @@ fetchDashboardData();
             />
           </svg>
           </MaskedCardDataStats>
+        
+        
 
         <MaskedCardDataStats title="My Total Offering" total={formatCurrency(financialData.offering)}
          isMaskable={true}
@@ -430,10 +448,11 @@ fetchDashboardData();
       <div className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
         <ChartOne />
         <ChartTwo />
-        {/* <div className="col-span-12 xl:col-span-8"> */}
-        <div className="col-span-12">
+        <div className="col-span-12 xl:col-span-8">
           <TableOne />
         </div>
+        <ChatCard />
+        {/* <UserChat /> */}
       </div>
     </>
   );

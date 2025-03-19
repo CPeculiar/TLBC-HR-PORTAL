@@ -154,7 +154,6 @@ const AdminEventUpload = () => {
     // If Workers Meeting is selected, set default image
     if (selectedEventType === "Workers Meeting" && !defaultImageUsed) {
       // This would typically be a fetch to get the default image
-      // For now, we'll just set a flag to indicate default image would be used
       setDefaultImageUsed(true);
       
       // Clear file input if it has a value
@@ -170,7 +169,6 @@ const AdminEventUpload = () => {
       // For now, we'll just update the form data to indicate default image is used
       setFormData(prev => ({
         ...prev,
-        image: WorkersMeetingIMG  // This would be replaced with the actual file
       }));
     } else if (selectedEventType !== "Workers Meeting" && defaultImageUsed) {
         // Reset if changing from Workers Meeting to another type
@@ -254,9 +252,35 @@ const AdminEventUpload = () => {
 
       // If using the default workers meeting image
       if (defaultImageUsed) {  
-        // In a real implementation, you would use a reference to the stored default image
-        // downloadURL = '/assets/images/WorkersMeetingIMG.jpg';
-        downloadURL = WorkersMeetingIMG ;
+       // Upload the default image to Firebase Storage instead of just using the local path
+  const defaultImageFile = await fetch(WorkersMeetingIMG).then(r => r.blob());
+  const safeFileName = "workers_meeting_default.jpg";
+  const storageRef = ref(storage, `events/${Date.now()}_${safeFileName}`);
+  
+  const uploadTask = uploadBytesResumable(storageRef, defaultImageFile);
+  
+  // Handle the upload of default image
+  await new Promise((resolve, reject) => {
+    uploadTask.on('state_changed',
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log('Upload is ' + progress + '% done');
+      },
+      (error) => {
+        console.error("Error uploading default image:", error);
+        reject(error);
+        setIsUploading(false);
+      },
+      async () => {
+        try {
+          downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      }
+    );
+  });
       } else {
       // 1. Get a safe filename by removing spaces and special characters
       const safeFileName = formData.image.name.replace(/[^a-zA-Z0-9.]/g, '_');

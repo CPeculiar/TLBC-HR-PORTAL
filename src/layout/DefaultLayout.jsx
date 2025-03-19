@@ -60,7 +60,7 @@ const DefaultLayout = ({ children }) => {
 
   const handleContactEmail = () => {
     // Open email client without logging out first
-    window.open("mailto:info@thelordsbrethren.org", "_blank");
+    window.open("mailto:support@thelordsbrethrenchurch.org", "_blank");
   };
 
   // Show loader while checking account status
