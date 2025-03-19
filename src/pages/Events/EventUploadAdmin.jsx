@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Phone, Mail, User2, Calendar } from 'lucide-react';
+import { MapPin, Phone, Mail, User2, Calendar, Video, CalendarPlus } from 'lucide-react';
 import { format } from "date-fns";
 import { cn } from "../../components/ui/cn";
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -12,6 +12,7 @@ import { db, storage } from '../../js/services/firebaseConfig';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
+import WorkersMeetingIMG from '../../images/programs/Workers_Meeting.jpg';
 
 
 // Enhanced time select component with custom dropdown arrow
@@ -97,7 +98,16 @@ const AdminEventUpload = () => {
 
   const conductorNames = Object.keys(conductorData);
 
+  // Available event types
+  const eventTypes = [
+    "Sunday Service", 
+    "Midweek Service", 
+    "Workers Meeting", 
+    "Central Programs"
+  ];
+
   const [formData, setFormData] = useState({
+    eventType: '',
     title: '',
     conductor: '',
     time: '',
@@ -105,11 +115,14 @@ const AdminEventUpload = () => {
     description: '',
     contact: '',
     email: 'info@thelordsbrethrenchurch.org',
-    image: null
+    image: null,
+    meetingLink: ''
   });
   
   const [previewUrl, setPreviewUrl] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+  const [defaultImageUsed, setDefaultImageUsed] = useState(false);
+  const fileInputRef = useRef(null);
   
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -130,12 +143,54 @@ const AdminEventUpload = () => {
     }));
   };
   
+  const handleEventTypeChange = (e) => {
+    const selectedEventType = e.target.value;
+    
+    setFormData(prev => ({
+      ...prev,
+      eventType: selectedEventType
+    }));
+
+    // If Workers Meeting is selected, set default image
+    if (selectedEventType === "Workers Meeting" && !defaultImageUsed) {
+      // This would typically be a fetch to get the default image
+      // For now, we'll just set a flag to indicate default image would be used
+      setDefaultImageUsed(true);
+      
+      // Clear file input if it has a value
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      
+      // Set a placeholder for the default image
+      // setPreviewUrl('/assets/images/WorkersMeetingIMG.jpg');
+       setPreviewUrl(WorkersMeetingIMG);
+      
+      // In a real implementation, you would fetch the actual image file
+      // For now, we'll just update the form data to indicate default image is used
+      setFormData(prev => ({
+        ...prev,
+        image: WorkersMeetingIMG  // This would be replaced with the actual file
+      }));
+    } else if (selectedEventType !== "Workers Meeting" && defaultImageUsed) {
+        // Reset if changing from Workers Meeting to another type
+        setDefaultImageUsed(false);
+        setPreviewUrl('');
+        setFormData(prev => ({
+          ...prev,
+          image: null
+        }));
+      }
+    };
+
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       // Create a URL for the file preview
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
+      setDefaultImageUsed(false);
       
       // Store the file object itself
       setFormData(prev => ({
@@ -178,7 +233,7 @@ const AdminEventUpload = () => {
       return;
     }
     
-    if (!formData.image) {
+    if (!formData.image && !defaultImageUsed) {
       alert('Please select an image');
       return;
     }
@@ -187,10 +242,22 @@ const AdminEventUpload = () => {
       alert('Please select a time for the event');
       return;
     }
+
+    if (formData.eventType === "Workers Meeting" && !formData.meetingLink) {
+      alert('Please provide a Google Meet link for the Workers Meeting');
+      return;
+    }
     
     try {
       setIsUploading(true);
-      
+      let downloadURL;
+
+      // If using the default workers meeting image
+      if (defaultImageUsed) {  
+        // In a real implementation, you would use a reference to the stored default image
+        // downloadURL = '/assets/images/WorkersMeetingIMG.jpg';
+        downloadURL = WorkersMeetingIMG ;
+      } else {
       // 1. Get a safe filename by removing spaces and special characters
       const safeFileName = formData.image.name.replace(/[^a-zA-Z0-9.]/g, '_');
       const storageRef = ref(storage, `events/${Date.now()}_${safeFileName}`);
@@ -199,6 +266,7 @@ const AdminEventUpload = () => {
       const uploadTask = uploadBytesResumable(storageRef, formData.image);
       
       // Handle the upload
+      await new Promise((resolve, reject) => {
       uploadTask.on('state_changed', 
         (snapshot) => {
           // Track progress if needed
@@ -208,17 +276,27 @@ const AdminEventUpload = () => {
         (error) => {
           console.error("Error uploading image:", error);
           alert("Error uploading image. Please try again.");
+          reject(error);
           setIsUploading(false);
         },
         async () => {
           try {
             // Upload completed successfully, now get download URL
-            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            resolve();
+          } catch (error) {
+            reject(error);
+          }
+        }
+      );
+    });
+  }
             
             // 3. Save event data to Firestore
             const eventDate = new Date(date); // Convert string date to Date object
             
             const eventData = {
+              eventType: formData.eventType,
               title: formData.title,
               conductor: formData.conductor,
               date: date, // Store the raw date string
@@ -229,6 +307,7 @@ const AdminEventUpload = () => {
               contact: formData.contact,
               email: formData.email,
               imageURL: downloadURL,
+              meetingLink: formData.meetingLink || null,
               createdAt: serverTimestamp()
             };
             
@@ -237,14 +316,16 @@ const AdminEventUpload = () => {
             
             // Reset form
             setFormData({
+              eventType: '',
               title: '',
               conductor: '',
               time: '',
               location: '',
               description: '',
               contact: '',
-              email: '',
-              image: null
+              email: 'info@thelordsbrethrenchurch.org',
+              image: null,
+              meetingLink: ''
             });
             setDate("");
             setSelectedHour("");
@@ -252,6 +333,7 @@ const AdminEventUpload = () => {
             setSelectedPeriod("PM");
             setPreviewUrl('');
             setIsUploading(false);
+            setDefaultImageUsed(false);
             
             alert("Event added successfully!");
             // Navigate back to events page
@@ -262,13 +344,6 @@ const AdminEventUpload = () => {
             setIsUploading(false);
           }
         }
-      );
-    } catch (error) {
-      console.error("Error adding event:", error);
-      alert("Error adding event. Please try again.");
-      setIsUploading(false);
-    }
-  };
   
   return (
     <>
@@ -282,6 +357,33 @@ const AdminEventUpload = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+                  <Label htmlFor="eventType">Event Type</Label>
+                  <select
+                    id="eventType"
+                    name="eventType"
+                    value={formData.eventType}
+                    onChange={handleEventTypeChange}
+                    required
+                    className="w-full rounded-md border border-gray-300 py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800"
+                    style={{
+                      WebkitAppearance: "none",
+                      MozAppearance: "none",
+                      appearance: "none",
+                      backgroundImage: "url(\"data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")",
+                      backgroundRepeat: "no-repeat",
+                      backgroundPosition: "right 0.5rem center",
+                      backgroundSize: "1rem",
+                      paddingRight: "2rem"
+                    }}
+                  >
+                    <option value="" disabled>Select event type</option>
+                    {eventTypes.map((type) => (
+                      <option key={type} value={type} className="hover:bg-blue-100">{type}</option>
+                    ))}
+                  </select>
+                </div>
+
               <div>
                 <Label htmlFor="title">Event Title</Label>
                 <Input
@@ -378,7 +480,6 @@ const AdminEventUpload = () => {
                 />
               </div>
 
-              
               <div>
                 <Label htmlFor="conductor">Conductor's Name</Label>
                 <select
@@ -453,17 +554,54 @@ const AdminEventUpload = () => {
                 />
               </div>
 
+              {formData.eventType === "Workers Meeting" && (
+                <div>
+                    <Label htmlFor="meetingLink">Google Meet Link</Label>
+                    <Input
+                      id="meetingLink"
+                      name="meetingLink"
+                      value={formData.meetingLink}
+                      onChange={handleInputChange}
+                      placeholder="https://meet.google.com/xxx-xxxx-xxx"
+                      required
+                      className="w-full"
+                    />
+                  </div>
+                )}
+
               <div>
                 <Label htmlFor="image">Event Image</Label>
+                {formData.eventType === "Workers Meeting" && defaultImageUsed ? (
+                  <div className="flex items-center space-x-2">
+                      <p className="text-sm text-muted-foreground">Using default Workers Meeting image</p>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          setDefaultImageUsed(false);
+                          setPreviewUrl('');
+                          setFormData(prev => ({
+                            ...prev,
+                            image: null
+                          }));
+                        }}
+                      >
+                        Change Image
+                      </Button>
+                    </div>
+                  ) : (
                 <Input
                   id="image"
                   name="image"
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
-                  required
+                  required={!defaultImageUsed}
                   className="w-full"
+                  ref={fileInputRef}
                 />
+                 )}
                 {previewUrl && (
                   <div className="mt-4">
                     <img
@@ -475,6 +613,7 @@ const AdminEventUpload = () => {
                 )}
               </div>
 
+              <div className="flex flex-col space-y-4">
               <Button 
                 type="submit" 
                 className="w-full"
@@ -482,6 +621,33 @@ const AdminEventUpload = () => {
               >
                 {isUploading ? 'Uploading...' : 'Upload Event'}
               </Button>
+
+              {/* This section shows a preview of what the event buttons would look like */}
+              {formData.eventType && (
+                    <div className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
+                      <h3 className="text-sm font-medium mb-2">Event Action Buttons Preview:</h3>
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        {formData.eventType === "Workers Meeting" && (
+                          <Button 
+                            type="button" 
+                            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto"
+                          >
+                            <Video className="h-4 w-4" />
+                            Join Meeting
+                          </Button>
+                        )}
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          className="flex items-center gap-2 border-blue-600 text-blue-600 hover:bg-blue-50 hover:text-blue-700 w-full sm:w-auto"
+                        >
+                          <CalendarPlus className="h-4 w-4" />
+                          Add to Calendar
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
             </form>
           </CardContent>
         </Card>
@@ -491,5 +657,6 @@ const AdminEventUpload = () => {
     </>
   );
 };
+
 
 export default AdminEventUpload;

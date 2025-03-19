@@ -153,6 +153,23 @@ function EventsPage() {
                           </div>
                         </div>
 
+                        <div className="flex flex-col sm:flex-row gap-3">
+        {/* Add Join Meeting button only for Workers Meeting events */}
+        {event.eventType === "Workers Meeting" && event.meetingLink && (
+          <a
+            href={event.meetingLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center rounded bg-blue-600 py-3 px-6 text-center font-medium text-white hover:bg-blue-700"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="23 7 16 12 23 17 23 7"></polygon>
+              <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+            </svg>
+            Join Meeting
+          </a>
+        )}
+
                         <button
                           onClick={() => handleAddToCalendar(event)}
                           className="inline-flex items-center justify-center rounded bg-primary py-3 px-6 text-center font-medium text-white hover:bg-opacity-90"
@@ -160,7 +177,8 @@ function EventsPage() {
                           Add to my Calendar
                         </button>
                       </div>
-                    </div>
+                  </div>
+                  </div>
                   ))}
                 </div>
               ) : (
