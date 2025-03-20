@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Phone, Mail, User2, Calendar, Video, CalendarPlus } from 'lucide-react';
-import { format } from "date-fns";
-import { cn } from "../../components/ui/cn";
+import { Calendar, Video, CalendarPlus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
 import { Textarea } from '../../components/ui/textarea';
@@ -580,13 +578,13 @@ const AdminEventUpload = () => {
 
               {formData.eventType === "Workers Meeting" && (
                 <div>
-                    <Label htmlFor="meetingLink">Google Meet Link</Label>
+                    <Label htmlFor="meetingLink">Meeting Link</Label>
                     <Input
                       id="meetingLink"
                       name="meetingLink"
                       value={formData.meetingLink}
                       onChange={handleInputChange}
-                      placeholder="https://meet.google.com/xxx-xxxx-xxx"
+                      placeholder="Enter the meeting link here"
                       required
                       className="w-full"
                     />

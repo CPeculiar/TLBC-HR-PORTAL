@@ -121,8 +121,7 @@ const ChartTwo = () => {
     return (
       <div 
   // className="fixed inset-0 bg-black  bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto"
-  className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto ml-0 lg:ml-[200px]"
-
+  className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto ml-0 lg:ml-[280px]"
   onClick={handleOutsideClick}
   // style={{ marginLeft: '280px' }}
 >

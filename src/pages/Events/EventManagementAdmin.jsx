@@ -87,6 +87,7 @@ function AdminEventManagement() {
    };
 
   const handleAddEvent = () => {
+    
     navigate('/admineventupload');
   };
 

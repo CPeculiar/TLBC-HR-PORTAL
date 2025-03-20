@@ -1,14 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Calendar } from 'lucide-react';
-import { format } from "date-fns";
-import { cn } from "../../components/ui/cn";
-// import { Calendar } from "../../components/ui/calender";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "../../components/ui/popover";
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
 import { Textarea } from '../../components/ui/textarea';
@@ -102,23 +94,34 @@ const EditEvent = () => {
     };
   
     const conductorNames = Object.keys(conductorData);
+   
+    // Available event types
+    const eventTypes = [
+      "Sunday Service", 
+      "Midweek Service", 
+      "Workers Meeting", 
+      "Central Programs"
+    ];
   
   const [date, setDate] = useState(null);
   const [formData, setFormData] = useState({
+    eventType: '',
     title: '',
     conductor: '',
     time: '',
     location: '',
     description: '',
     contact: '',
-    email: '',
-    image: null
+    email: 'info@thelordsbrethrenchurch.org',
+    image: null,
+    meetingLink: ''
   });
   
   const [currentImageURL, setCurrentImageURL] = useState('');
   const [previewUrl, setPreviewUrl] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [defaultImageUsed, setDefaultImageUsed] = useState(false);
   
   useEffect(() => {
     if (id) {
@@ -167,6 +170,7 @@ const EditEvent = () => {
         setSelectedPeriod(timeComponents.period);
 
         setFormData({
+          eventType: eventData.eventType || '',
           title: eventData.title || '',
           conductor: eventData.conductor || '',
           time: eventData.time || '',
@@ -174,7 +178,8 @@ const EditEvent = () => {
           description: eventData.description || '',
           contact: eventData.contact || '',
           email: eventData.email || '',
-          image: null
+          image: null,
+          meetingLink: eventData.meetingLink || ''    
         });
         
         if (eventData.imageURL) {
@@ -227,6 +232,43 @@ const EditEvent = () => {
     }
   };
 
+   const handleEventTypeChange = (e) => {
+      const selectedEventType = e.target.value;
+      
+      setFormData(prev => ({
+        ...prev,
+        eventType: selectedEventType
+      }));
+  
+      // If Workers Meeting is selected, set default image
+      if (selectedEventType === "Workers Meeting" && !defaultImageUsed) {
+        // This would typically be a fetch to get the default image
+        setDefaultImageUsed(true);
+        
+        // Clear file input if it has a value
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        
+        // Set a placeholder for the default image
+         setPreviewUrl(WorkersMeetingIMG);
+        
+        // In a real implementation, you would fetch the actual image file
+        // For now, we'll just update the form data to indicate default image is used
+        setFormData(prev => ({
+          ...prev,
+        }));
+      } else if (selectedEventType !== "Workers Meeting" && defaultImageUsed) {
+          // Reset if changing from Workers Meeting to another type
+          setDefaultImageUsed(false);
+          setPreviewUrl('');
+          setFormData(prev => ({
+            ...prev,
+            image: null
+          }));
+        }
+      };
+
     // Handle date input change
     const handleDateChange = (e) => {
       setDate(e.target.value);
@@ -251,27 +293,6 @@ const EditEvent = () => {
       useEffect(() => {
         handleTimeChange();
       }, [selectedHour, selectedMinute, selectedPeriod]);
-
-
-  // const formatEventDate = (date) => {
-  //   if (!date) return '';
-  //   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  //   const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    
-  //   const dayName = days[date.getDay()];
-  //   const day = date.getDate();
-  //   const month = months[date.getMonth()];
-  //   const year = date.getFullYear();
-    
-  //   // Function to add ordinal suffix
-  //   const getOrdinal = (n) => {
-  //     const s = ['th', 'st', 'nd', 'rd'];
-  //     const v = n % 100;
-  //     return n + (s[(v - 20) % 10] || s[v] || s[0]);
-  //   };
-  
-  //   return `${dayName}, ${getOrdinal(day)} ${month}, ${year}`;
-  // };
   
   const formatEventDate = (dateStr) => {
     if (!dateStr) return '';
@@ -309,6 +330,11 @@ const EditEvent = () => {
       alert('Please select a time for the event');
       return;
     }
+
+    if (formData.eventType === "Workers Meeting" && !formData.meetingLink) {
+      alert('Please provide a Google Meet link for the Workers Meeting');
+      return;
+    }
     
     try {
       setIsUploading(true);
@@ -341,6 +367,7 @@ const EditEvent = () => {
       const formattedDate = formatEventDate(eventDate);
       
       const eventData = {
+        eventType: formData.eventType,
         title: formData.title,
         conductor: formData.conductor,
         date: formattedDate,
@@ -349,7 +376,8 @@ const EditEvent = () => {
         location: formData.location,
         description: formData.description,
         contact: formData.contact,
-        email: formData.email
+        email: formData.email,
+        meetingLink: formData.meetingLink
       };
 
       // Only update image if a new one was uploaded
@@ -392,6 +420,33 @@ const EditEvent = () => {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
+               <div>
+                                <Label htmlFor="eventType">Event Type</Label>
+                                <select
+                                  id="eventType"
+                                  name="eventType"
+                                  value={formData.eventType}
+                                  onChange={handleEventTypeChange}
+                                  required
+                                  className="w-full rounded-md border border-gray-300 py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800"
+                                  style={{
+                                    WebkitAppearance: "none",
+                                    MozAppearance: "none",
+                                    appearance: "none",
+                                    backgroundImage: "url(\"data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")",
+                                    backgroundRepeat: "no-repeat",
+                                    backgroundPosition: "right 0.5rem center",
+                                    backgroundSize: "1rem",
+                                    paddingRight: "2rem"
+                                  }}
+                                >
+                                  <option value="" disabled>Select event type</option>
+                                  {eventTypes.map((type) => (
+                                    <option key={type} value={type} className="hover:bg-blue-100">{type}</option>
+                                  ))}
+                                </select>
+                              </div>
+
                 <div>
                   <Label htmlFor="title">Event Title</Label>
                   <Input
@@ -402,32 +457,6 @@ const EditEvent = () => {
                     required
                   />
                 </div>
-  
-                {/* <div>
-                  <Label>Event Date</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !date && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {date ? formatEventDate(date) : "Select date"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={date}
-                        onSelect={setDate}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div> */}
   
                 <div>
                   <Label htmlFor="date">Event Date</Label>
@@ -510,79 +539,6 @@ const EditEvent = () => {
                     required
                   />
                 </div>
-  
-                {/* <div>
-                  <Label htmlFor="conductor">Conductor's Name</Label>
-                  <Input
-                    id="conductor"
-                    name="conductor"
-                    value={formData.conductor}
-                    onChange={handleInputChange}
-                    placeholder="Pastor Name"
-                    required
-                  />
-                </div> */}
-
-         {/* <div>
-                <Label htmlFor="conductor">Conductor's Name</Label>
-                <select
-                  id="conductor"
-                  name="conductor"
-                  value={formData.conductor}
-                  onChange={handleConductorChange}
-                  required
-                  className="w-full rounded-md border border-gray-300 py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800"
-                  style={{
-                    WebkitAppearance: "none",
-                    MozAppearance: "none",
-                    appearance: "none",
-                    backgroundImage: "url(\"data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")",
-                    backgroundRepeat: "no-repeat",
-                    backgroundPosition: "right 0.5rem center",
-                    backgroundSize: "1rem",
-                    paddingRight: "2rem"
-                  }}
-                >
-                  <option value="" disabled>Select a conductor</option>
-                  {conductorNames.map((name) => (
-                    <option key={name} value={name} className="hover:bg-blue-100">{name}</option>
-                  ))}
-                </select>
-
-                
-                <style jsx global>{`
-                  select option:hover {
-                    background-color: #dbeafe !important;
-                    color: #1e40af !important;
-                  }
-                  
-                
-                  select:hover option:hover {
-                    background-color: #dbeafe !important;
-                    color: #1e40af !important;
-                  }
-                  
-              
-                  select option:checked,
-                  select option:focus {
-                    background: linear-gradient(#dbeafe, #dbeafe);
-                    color: #1e40af !important;
-                  }
-                `}</style>
-              </div> */}
-
-
-                {/* <div>
-                  <Label htmlFor="contact">Contact Number</Label>
-                  <Input
-                    id="contact"
-                    name="contact"
-                    value={formData.contact}
-                    onChange={handleInputChange}
-                    type="tel"
-                  />
-                </div>
-   */}
 
          <div>
                   <Label htmlFor="conductor">Conductor's Name</Label>
@@ -635,6 +591,21 @@ const EditEvent = () => {
                   />
                 </div>
   
+      {formData.eventType === "Workers Meeting" && (
+                  <div>
+                      <Label htmlFor="meetingLink">Meeting Link</Label>
+                      <Input
+                        id="meetingLink"
+                        name="meetingLink"
+                        value={formData.meetingLink}
+                        onChange={handleInputChange}
+                        placeholder="Enter the meeting link here"
+                        required
+                        className="w-full"
+                      />
+                    </div>
+                  )}
+
                 <div>
                   <Label htmlFor="image">Event Image</Label>
                   <div className="mb-2 text-sm text-gray-500">
@@ -686,14 +657,3 @@ const EditEvent = () => {
 };
 
 export default EditEvent;
-
-
-{/* <Button
-type="button"
-variant="outline"
-className="w-full justify-between"
-onClick={() => setIsOpen(!isOpen)}
->
-{value || label}
-<span className="ml-2">▼</span>
-</Button> */}
