@@ -40,15 +40,18 @@ function EventsPage() {
       
       const eventsData = [];
       querySnapshot.forEach((doc) => {
-        eventsData.push({
-          id: doc.id,
-          ...doc.data(),
-          // Format data to match your component expectations
-          Conductor: `Conductor: ${doc.data().conductor}`,
-          Contact: doc.data().contact,
-          Email: doc.data().email,
-          image: doc.data().imageURL
-        });
+        // Skip events with the type "Workers Meeting"
+        if (doc.data().eventType !== "Workers Meeting") {
+          eventsData.push({
+            id: doc.id,
+            ...doc.data(),
+            // Format data to match your component expectations
+            Conductor: `Conductor: ${doc.data().conductor}`,
+            Contact: doc.data().contact,
+            Email: doc.data().email,
+            image: doc.data().imageURL
+          });
+        }
       });
       
       setEvents(eventsData);
@@ -77,16 +80,7 @@ function EventsPage() {
             <div className="flex justify-between items-center border-b border-stroke py-4 px-6.5 dark:border-strokedark">
               <h3 className="font-medium text-xl text-black dark:text-white">
                 Central Events
-              </h3>
-              
-              {/* {isAdmin && (
-                <button
-                  onClick={handleAddEvent}
-                  className="inline-flex items-center justify-center rounded bg-primary py-2 px-4 text-center font-medium text-white hover:bg-opacity-90"
-                >
-                  Add New Event
-                </button>
-              )} */}
+              </h3>     
             </div>
 
             <div className="p-6.5">
@@ -154,31 +148,15 @@ function EventsPage() {
                         </div>
 
                         <div className="flex flex-col sm:flex-row gap-3">
-        {/* Add Join Meeting button only for Workers Meeting events */}
-        {event.eventType === "Workers Meeting" && event.meetingLink && (
-          <a
-            href={event.meetingLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center rounded bg-blue-600 py-3 px-6 text-center font-medium text-white hover:bg-blue-700"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="23 7 16 12 23 17 23 7"></polygon>
-              <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
-            </svg>
-            Join Meeting
-          </a>
-        )}
-
-                        <button
-                          onClick={() => handleAddToCalendar(event)}
-                          className="inline-flex items-center justify-center rounded bg-primary py-3 px-6 text-center font-medium text-white hover:bg-opacity-90"
-                        >
-                          Add to my Calendar
-                        </button>
+                          <button
+                            onClick={() => handleAddToCalendar(event)}
+                            className="inline-flex items-center justify-center rounded bg-primary py-3 px-6 text-center font-medium text-white hover:bg-opacity-90"
+                          >
+                            Add to my Calendar
+                          </button>
+                        </div>
                       </div>
-                  </div>
-                  </div>
+                    </div>
                   ))}
                 </div>
               ) : (

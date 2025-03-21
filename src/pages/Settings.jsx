@@ -12,6 +12,7 @@ import { nigerianStates } from '../utils/nigerianStates';
 import ProfilePicture from './ProfilePicture';
 import { BiMap } from "react-icons/bi";
 import { FaFlag, FaCity, FaFileAlt, FaClipboardCheck } from "react-icons/fa";
+import UserIcon from '../images/user/user-14.png';
 
 const Settings = ({ onUpdateSuccess, onFileSelect }) => {
   const [isEditMode, setIsEditMode] = useState(false);
@@ -1637,12 +1638,12 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
                       onClick={handleViewImage}
                     >
                       <img
-                        src={profileData?.profile_picture ||  userThree }
+                        src={profileData?.profile_picture ||  UserIcon }
                         alt="User"
                         className="h-full w-full object-cover"
                          onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = userThree;
+                      e.target.src = UserIcon;
                     }}
                       />
                     </div>

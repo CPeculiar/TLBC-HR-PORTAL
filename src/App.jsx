@@ -103,6 +103,8 @@ import UnSuspendUser from './pages/User Management/UnSuspendUser';
 import MediaPlayer from './pages/Messages/MediaPlayer';
 import { MediaProvider } from './pages/Messages/MediaContext';
 import AdminMessageList from './pages/Messages/AdminMessageList';
+import WorkersMeeting from './pages/Events/WorkersMeeting';
+import DepartmentsPage from './pages/community/DepartmentsPage';
 
 
 function App() {
@@ -322,6 +324,7 @@ useEffect(() => {
       <Route path="/UserSearchPage" element={withDefaultLayout(<UserSearchPage />, "Search Members")} />
       <Route path="/UserProfileCard" element={withDefaultLayout(<UserProfileCard />, "User Profile Card")} />
       <Route path="/AboutTLBC" element={withDefaultLayout(<AboutTLBC />, "About TLBC")} />
+      <Route path="/departments" element={withDefaultLayout(<DepartmentsPage />, "Departments")} />
 
 
       <Route path="/comingsoon" element={withDefaultLayout(<LOLD />, "Coming soon")} />
@@ -385,6 +388,7 @@ useEffect(() => {
       <Route path="/admineventupload" element={withDefaultLayout(<AdminEventUpload  />, "Admin Events Upload")} />
       <Route path="/admineventmgt" element={withDefaultLayout(<AdminEventManagement  />, "Admin Events Management")} />
       <Route path="/admineditevent/:id" element={withDefaultLayout(<EditEvent  />, "Admin Edit Event")} />
+      <Route path="/workersmeeting" element={withDefaultLayout(<WorkersMeeting  />, "Workers Meeting Event")} />
 
       <Route path="/reg" element={withDefaultLayout(<Registration  />, "Admin Edit Event")} />
       <Route path="/profiles" element={withDefaultLayout(<Profiles  />, "Admin Edit Event")} />

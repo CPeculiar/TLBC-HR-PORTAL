@@ -1,15 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from '../components/ui/card';
 import axios from 'axios';
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import CoverOne from '../images/cover/cover-01.png';
 import userSix from '../images/user/user-06.png';
+import UserIcon from '../images/user/user-14.png';
 
 const Profiles = () => {
   const navigate = useNavigate();
@@ -189,7 +184,7 @@ const Profiles = () => {
           <div className="relative z-30 mx-auto -mt-22 h-30 w-full max-w-30 rounded-full bg-white/20 p-1 backdrop-blur sm:h-44 sm:max-w-44 sm:p-3">
             <div className="relative drop-shadow-2">
               <img
-                src={profileData.profile_picture || userSix}
+                src={profileData.profile_picture || UserIcon}
                 alt="profile"
                 className="h-32 w-32 rounded-full object-cover sm:h-44 sm:w-40"
                 onClick={handleImageClick}
