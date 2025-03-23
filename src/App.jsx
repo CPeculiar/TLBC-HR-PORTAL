@@ -105,6 +105,8 @@ import { MediaProvider } from './pages/Messages/MediaContext';
 import AdminMessageList from './pages/Messages/AdminMessageList';
 import WorkersMeeting from './pages/Events/WorkersMeeting';
 import DepartmentsPage from './pages/community/DepartmentsPage';
+import AdminDevotionalUpload from './pages/community/AdminDevotionalUpload';
+import DevotionalReader from './pages/community/DevotionalReader';
 
 
 function App() {
@@ -326,8 +328,11 @@ useEffect(() => {
       <Route path="/AboutTLBC" element={withDefaultLayout(<AboutTLBC />, "About TLBC")} />
       <Route path="/departments" element={withDefaultLayout(<DepartmentsPage />, "Departments")} />
 
-
       <Route path="/comingsoon" element={withDefaultLayout(<LOLD />, "Coming soon")} />
+
+      <Route path="/lold" element={withDefaultLayout(<AdminDevotionalUpload />, "LOLD Upload")} />
+      <Route path="/loldReader" element={withDefaultLayout(<DevotionalReader />, "LOLD Reader")} />
+      <Route path="/devotional/:id" element={withDefaultLayout(<DevotionalReader />, "LOLD Reader")} />
 
       
         {/* Zone Management */}

@@ -42,6 +42,7 @@
     "jspdf-autotable": "^3.8.4",
     "jsvectormap": "^1.6.0",
     "lucide-react": "^0.454.0",
+    "mammoth": "^1.9.0",
     "match-sorter": "^6.3.1",
     "npm": "^10.9.2",
     "popover": "^2.4.1",
