@@ -1,607 +1,721 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Eye, X, Trash2 } from 'lucide-react';
+import { Eye, X, Trash2,  Menu  } from 'lucide-react';
 
 const ChurchManagement = () => {
-   // Separate loading states for different actions
-   const [loading, setLoading] = useState(false);
-   const [loadingZones, setLoadingZones] = useState(false);
-   const [loadingChurches, setLoadingChurches] = useState(false);
-   const [loadingAddZone, setLoadingAddZone] = useState(false);
-   const [loadingAddChurch, setLoadingAddChurch] = useState(false);
-   const [loadingEditZone, setLoadingEditZone] = useState(false);
-   const [loadingEditChurch, setLoadingEditChurch] = useState(false);
-   const [loadingDeleteZone, setLoadingDeleteZone] = useState(false);
-   const [loadingDeleteChurch, setLoadingDeleteChurch] = useState(false);
- 
-   // Separate success and error messages for different sections
-   const [zonesSuccessMessage, setZonesSuccessMessage] = useState(null);
-   const [churchesSuccessMessage, setChurchesSuccessMessage] = useState(null);
-   const [zonesErrorMessage, setZonesErrorMessage] = useState(null);
-   const [churchesErrorMessage, setChurchesErrorMessage] = useState(null);
-   const [addZoneSuccessMessage, setAddZoneSuccessMessage] = useState(null);
-   const [addChurchSuccessMessage, setAddChurchSuccessMessage] = useState(null);
-   const [addZoneErrorMessage, setAddZoneErrorMessage] = useState(null);
-   const [addChurchErrorMessage, setAddChurchErrorMessage] = useState(null);
-   const [editZoneSuccessMessage, setEditZoneSuccessMessage] = useState(null);
-   const [editChurchSuccessMessage, setEditChurchSuccessMessage] = useState(null);
-   const [editZoneErrorMessage, setEditZoneErrorMessage] = useState(null);
-   const [editChurchErrorMessage, setEditChurchErrorMessage] = useState(null);
-   const [deleteZoneSuccessMessage, setDeleteZoneSuccessMessage] = useState(null);
-   const [deleteChurchSuccessMessage, setDeleteChurchSuccessMessage] = useState(null);
-   const [deleteZoneErrorMessage, setDeleteZoneErrorMessage] = useState(null);
-   const [deleteChurchErrorMessage, setDeleteChurchErrorMessage] = useState(null);
- 
-   // Other existing states remain the same
-   const [zones, setZones] = useState([]);
-   const [churches, setChurches] = useState([]);
-   const [zoneName, setZoneName] = useState('');
-   const [churchName, setChurchName] = useState('');
-   const [zoneSlug, setZoneSlug] = useState('');
-   const [selectedZone, setSelectedZone] = useState('');
-   const [selectedChurch, setSelectedChurch] = useState('');
-   const [editZoneName, setEditZoneName] = useState('');
-   const [editChurchName, setEditChurchName] = useState('');
-   const [deleteZoneSlug, setDeleteZoneSlug] = useState('');
-   const [deleteChurchSlug, setDeleteChurchSlug] = useState('');
-   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
-   const [showChurchesModal, setShowChurchesModal] = useState(false);
-   const [zoneChurches, setZoneChurches] = useState([]);
-   const [error, setError] = useState('');
-   const [pagination, setPagination] = useState({
-     currentPage: 1,
-     count: 0,
-     next: null,
-     previous: null
-   });
+  // States for Church Management
+  const [loading, setLoading] = useState(false);
+  const [loadingChurches, setLoadingChurches] = useState(false);
+  const [loadingAddChurch, setLoadingAddChurch] = useState(false);
+  const [loadingEditChurch, setLoadingEditChurch] = useState(false);
+  const [loadingDeleteChurch, setLoadingDeleteChurch] = useState(false);
 
-   // API base URL
+  // Mobile Menu State
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState(null);
+  const [initialLoad, setInitialLoad] = useState(true);
+
+
+  // Success and Error Messages
+  const [churchesSuccessMessage, setChurchesSuccessMessage] = useState(null);
+  const [churchesErrorMessage, setChurchesErrorMessage] = useState(null);
+  const [addChurchSuccessMessage, setAddChurchSuccessMessage] = useState(null);
+  const [addChurchErrorMessage, setAddChurchErrorMessage] = useState(null);
+  const [editChurchSuccessMessage, setEditChurchSuccessMessage] = useState(null);
+  const [editChurchErrorMessage, setEditChurchErrorMessage] = useState(null);
+  const [deleteChurchSuccessMessage, setDeleteChurchSuccessMessage] = useState(null);
+  const [deleteChurchErrorMessage, setDeleteChurchErrorMessage] = useState(null);
+
+  // Church Management States
+  const [churches, setChurches] = useState([]);
+  const [zones, setZones] = useState([]);
+  const [churchName, setChurchName] = useState('');
+  const [selectedChurch, setSelectedChurch] = useState('');
+  const [selectedZone, setSelectedZone] = useState('');
+  const [editChurchName, setEditChurchName] = useState('');
+  const [deleteChurchSlug, setDeleteChurchSlug] = useState('');
+  const [selectedChurchDetails, setSelectedChurchDetails] = useState(null);
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
+  const [showChurchDetailsModal, setShowChurchDetailsModal] = useState(false);
+
+  // Pagination
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    count: 0,
+    next: null,
+    previous: null
+  });
+
+  // API Base URL
   const API_BASE_URL = 'https://tlbc-platform-api.onrender.com/api';
- 
-   // Fetch zones on component load
+
+   // Helper function to set and auto-clear success message
+   const setSuccessMessageWithTimeout = (message, setMessageFn) => {
+    setMessageFn(message);
+    
+    // Set a timeout to clear the message after 5 seconds
+    const timeoutId = setTimeout(() => {
+      setMessageFn(null);
+    }, 5000);
+
+    // Return the timeoutId in case you want to clear it manually
+    return timeoutId;
+  };
+  
+  // Fetch Zones and Churches on Component Load
   useEffect(() => {
-    const fetchInitialZones = async () => {
+    const fetchInitialData = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/churches/`);
-        setZones(response.data.results); // Save zones silently
-        setChurches(response.data.results); // Save Churches silently
+        // Fetch Zones
+        const zonesResponse = await axios.get(`${API_BASE_URL}/zones/`);
+        setZones(zonesResponse.data.results);
+
+        // Fetch Churches
+        const churchesResponse = await axios.get(`${API_BASE_URL}/churches/`);
+        setChurches(churchesResponse.data.results);
         setPagination({
-          count: response.data.count,
-          next: response.data.next,
-          previous: response.data.previous,
+          count: churchesResponse.data.count,
+          next: churchesResponse.data.next,
+          previous: churchesResponse.data.previous,
           currentPage: 1,
         });
+        setLoading(false);
       } catch (error) {
-        console.error('Failed to fetch initial zones:', error);
+        console.error('Failed to fetch initial data:', error);
+        setLoading(false);
       }
     };
-    fetchInitialZones();
-  }, []); // Runs once on component mount
+    fetchInitialData();
+  }, []);
 
-
-   // Clear messages after 5 seconds
-   useEffect(() => {
-     const timeouts = [
-       { message: zonesSuccessMessage, setter: setZonesSuccessMessage },
-       { message: zonesErrorMessage, setter: setZonesErrorMessage },
-       { message: addZoneSuccessMessage, setter: setAddZoneSuccessMessage },
-       { message: addZoneErrorMessage, setter: setAddZoneErrorMessage },
-       { message: editZoneSuccessMessage, setter: setEditZoneSuccessMessage },
-       { message: editZoneErrorMessage, setter: setEditZoneErrorMessage },
-       { message: deleteZoneSuccessMessage, setter: setDeleteZoneSuccessMessage },
-       { message: deleteZoneErrorMessage, setter: setDeleteZoneErrorMessage } 
-     ];
- 
-     const clearTimeouts = timeouts.map(({ message, setter }) => {
-       if (message) {
-         return setTimeout(() => setter(null), 5000);
-       }
-       return null;
-     });
- 
-     return () => {
-       clearTimeouts.forEach(timeout => {
-         if (timeout) clearTimeout(timeout);
-       });
-     };
-   }, [
-     zonesSuccessMessage, 
-     zonesErrorMessage, 
-     addZoneSuccessMessage, 
-     addZoneErrorMessage,
-     editZoneSuccessMessage,
-     editZoneErrorMessage,
-     deleteZoneSuccessMessage,
-     deleteZoneErrorMessage
-   ]);
-
-
-  // Fetch Church
-  const fetchZones = async (url = `${API_BASE_URL}/churches/`) => {
-    setLoadingZones(true);
-    setZonesSuccessMessage(null);
-    setZonesErrorMessage(null);
-
-    setLoadingChurches(true);
-    setChurchesSuccessMessage(null);
-    setChurchesErrorMessage(null);
-    try {
-     const response = await axios.get(`${API_BASE_URL}/churches/`);
-      setZones(response.data.results);
-      setZonesSuccessMessage('Zones retrieved successfully');
-      
-      setChurches(response.data.results);
-      setChurchesSuccessMessage('List of Churches retrieved successfully');
-      setPagination({
-        count: response.data.count,
-        next: response.data.next,
-        previous: response.data.previous,
-        currentPage: pagination.currentPage
-      });
-      setLoadingZones(false);
-    } catch (err) {
-      setZonesErrorMessage('Failed to fetch zones');
-      setLoadingZones(false);
-    }
+  // Section Selection Handler
+  const handleSectionChange = (section) => {
+    setActiveSection(section);
+    setInitialLoad(false);
+    setIsMobileMenuOpen(false);
   };
 
-  // View Zone Churches
-  const handleViewZoneChurches = async (slug) => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/churches/${slug}/`);
-      setZoneChurches(response.data);
-      setShowChurchesModal(true);
-    } catch (err) {
-      setError('Failed to fetch churches');
-      setZonesErrorMessage('Failed to fetch zones');
-    }
-  };
-
-  // Add New Zone
-  const handleAddZone = async (e) => {
+  // Add New Church
+  const handleAddChurch = async (e) => {
     e.preventDefault();
-    setLoadingAddZone(true);
-    setAddZoneSuccessMessage(null);
-    setAddZoneErrorMessage(null);
+    setLoadingAddChurch(true);
+    setAddChurchSuccessMessage(null);
+    setAddChurchErrorMessage(null);
 
     try {
-      await axios.post(`${API_BASE_URL}/zones/`, {
-        name: zoneName,
-        zone: zoneSlug
-      });
-      
-      setAddZoneSuccessMessage('New zone successfully added');
-      setZoneName('');
-      // Optionally refresh zone list
-      fetchZones();
-    } catch (err) {
-        setAddZoneErrorMessage('Failed to add zone. Please try again.');
-    } finally {
-        setLoadingAddZone(false);
-    }
-  };
-
-  // Edit Zone
-  const handleEditZone = async (e) => {
-    e.preventDefault();
-    setLoadingEditZone(true);
-    setEditZoneSuccessMessage(null);
-    setEditZoneErrorMessage(null);
-
-    try {
-      // Find the slug of the selected zone
+      // Find the zone slug for the selected zone
       const selectedZoneData = zones.find(zone => zone.name === selectedZone);
       
       if (!selectedZoneData) {
-        setError('Please select a zone');
+        setAddChurchErrorMessage('Please select a zone');
         return;
       }
 
-      await axios.put(`${API_BASE_URL}/zones/${selectedZoneData.slug}/`, {
-        name: editZoneName,
-        zone: zoneSlug
+      await axios.post(`${API_BASE_URL}/churches/`, {
+        name: churchName,
+        zone: selectedZoneData.slug
       });
       
-      setEditZoneSuccessMessage('Zone updated successfully');
+      setSuccessMessageWithTimeout('New church successfully added', setAddChurchSuccessMessage);
+      setChurchName('');
       setSelectedZone('');
-      setEditZoneName('');
-      fetchZones();
+      
+      // Refresh churches list
+      const response = await axios.get(`${API_BASE_URL}/churches/`);
+      setChurches(response.data.results);
     } catch (err) {
-      setEditZoneErrorMessage('Failed to update zone. Please try again.');
+      setAddChurchErrorMessage('Failed to add church. Please try again.');
     } finally {
-      setLoadingEditZone(false);
+      setLoadingAddChurch(false);
     }
   };
 
+  // Edit Church
+  const handleEditChurch = async (e) => {
+    e.preventDefault();
+    setLoadingEditChurch(true);
+    setEditChurchSuccessMessage(null);
+    setEditChurchErrorMessage(null);
 
-  // Initiate Delete Zone
-  const initiateDeleteZone = () => {
-    if (deleteZoneSlug) {
+    try {
+      // Find the selected church's slug
+      const selectedChurchData = churches.find(church => church.name === selectedChurch);
+      
+      // Find the zone slug for the selected zone
+      const selectedZoneData = zones.find(zone => zone.name === selectedZone);
+      
+      if (!selectedChurchData) {
+        setEditChurchErrorMessage('Please select a church');
+        return;
+      }
+
+      if (!selectedZoneData) {
+        setEditChurchErrorMessage('Please select a zone');
+        return;
+      }
+
+      await axios.put(`${API_BASE_URL}/churches/${selectedChurchData.slug}/`, {
+        name: editChurchName,
+        zone: selectedZoneData.slug
+      });
+      
+      // Use the new timeout function
+      setSuccessMessageWithTimeout('Church updated successfully', setEditChurchSuccessMessage);
+      setSelectedChurch('');
+      setEditChurchName('');
+      setSelectedZone('');
+      
+      // Refresh churches list
+      const response = await axios.get(`${API_BASE_URL}/churches/`);
+      setChurches(response.data.results);
+    } catch (err) {
+      setEditChurchErrorMessage('Failed to update church. Please try again.');
+    } finally {
+      setLoadingEditChurch(false);
+    }
+  };
+
+  // View Church Details
+  const handleViewChurchDetails = async (slug) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/churches/${slug}/`);
+      setSelectedChurchDetails(response.data);
+      setShowChurchDetailsModal(true);
+    } catch (err) {
+      setChurchesErrorMessage('Failed to fetch church details');
+    }
+  };
+
+  // Initiate Delete Church
+  const initiateDeleteChurch = () => {
+    if (deleteChurchSlug) {
       setShowDeleteConfirmModal(true);
     }
   };
 
-  // Confirm Delete Zone
-  const confirmDeleteZone = async () => {
-    setLoadingDeleteZone(true);
-    setDeleteZoneErrorMessage('');
-    setDeleteZoneSuccessMessage('');
+  // Confirm Delete Church
+  const confirmDeleteChurch = async () => {
+    setLoadingDeleteChurch(true);
+    setDeleteChurchErrorMessage('');
+    setDeleteChurchSuccessMessage('');
 
     try {
-      // Find the slug of the selected zone
-      const selectedZoneData = zones.find(zone => zone.name === deleteZoneSlug);
+      // Find the church slug
+      const selectedChurchData = churches.find(church => church.name === deleteChurchSlug);
       
-      if (!selectedZoneData) {
-        setError('Please select a zone to delete');
+      if (!selectedChurchData) {
+        setDeleteChurchErrorMessage('Please select a church to delete');
         return;
       }
 
-      await axios.delete(`${API_BASE_URL}/zones/${selectedZoneData.slug}/`);
+      await axios.delete(`${API_BASE_URL}/churches/${selectedChurchData.slug}/`);
       
-      setDeleteZoneSuccessMessage('Zone deleted successfully');
-      setDeleteZoneSlug('');
+      // Use the new timeout function
+      setSuccessMessageWithTimeout('Church deleted successfully', setDeleteChurchSuccessMessage);
+      setDeleteChurchSlug('');
       setShowDeleteConfirmModal(false);
-      fetchZones();
+      
+      // Refresh churches list
+      const response = await axios.get(`${API_BASE_URL}/churches/`);
+      setChurches(response.data.results);
     } catch (err) {
-      setDeleteZoneErrorMessage('Failed to delete zone. Please try again.');
+      setDeleteChurchErrorMessage('Failed to delete church. Please try again.');
     } finally {
-      setLoadingDeleteZone(false);
+      setLoadingDeleteChurch(false);
     }
   };
 
-  // Cancel Delete
-  const cancelDelete = () => {
-    setShowDeleteConfirmModal(false);
-    setDeleteZoneSlug('');
-  };
-
-  // Delete Zone
-  const handleDeleteZone = async (e) => {
-    e.preventDefault();
-    setLoadingDeleteZone(true);
-    setDeleteZoneErrorMessage('');
-    setDeleteZoneSuccessMessage('');
-
-    try {
-      // Find the slug of the selected zone
-      const selectedZoneData = zones.find(zone => zone.name === deleteZoneSlug);
-      
-      if (!selectedZoneData) {
-        setError('Please select a zone to delete');
-        return;
-      }
-
-      await axios.delete(`${API_BASE_URL}/zones/${selectedZoneData.slug}/`);
-      
-      setDeleteZoneSuccessMessage('Zone deleted successfully');
-      setDeleteZoneSlug('');
-      fetchZones();
-    } catch (err) {
-     setDeleteZoneErrorMessage('Failed to delete zone. Please try again.');
-    } finally {
-      setLoadingDeleteZone(false);
-    }
-  };
-
-  // Handle Next Page
-  const handleNextPage = () => {
+  // Pagination Handlers
+  const handleNextPage = async () => {
     if (pagination.next) {
-      fetchZones(pagination.next);
-      setPagination(prev => ({
-        ...prev,
-        currentPage: prev.currentPage + 1
-      }));
+      try {
+        const response = await axios.get(pagination.next);
+        setChurches(response.data.results);
+        setPagination({
+          count: response.data.count,
+          next: response.data.next,
+          previous: response.data.previous,
+          currentPage: pagination.currentPage + 1
+        });
+      } catch (err) {
+        setChurchesErrorMessage('Failed to load next page');
+      }
     }
   };
 
-  // Handle Previous Page
-  const handlePrevPage = () => {
+  const handlePrevPage = async () => {
     if (pagination.previous) {
-      fetchZones(pagination.previous);
-      setPagination(prev => ({
-        ...prev,
-        currentPage: prev.currentPage - 1
-      }));
+      try {
+        const response = await axios.get(pagination.previous);
+        setChurches(response.data.results);
+        setPagination({
+          count: response.data.count,
+          next: response.data.next,
+          previous: response.data.previous,
+          currentPage: pagination.currentPage - 1
+        });
+      } catch (err) {
+        setChurchesErrorMessage('Failed to load previous page');
+      }
     }
   };
 
+  // Mobile Section Selection
+  const handleMobileSectionChange = (section) => {
+    setActiveSection(section);
+    setIsMobileMenuOpen(false);
+    setInitialLoad(false);
+  };
+
+   // Mobile Menu Toggle
+   const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  // Render loading state
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
 
   return (
     <div className="container mx-auto px-4 py-6">
-    <div className="rounded-lg border border-gray-200 bg-white shadow-md dark:border-strokedark dark:bg-boxdark">
-      {/* Get Zone List Section */}
-      {/* <div className="border-b border-gray-200 p-4 dark:border-strokedark"> */}
-      <div className="border-gray-200 p-4 dark:border-strokedark">
-        {/* <h3 className="text-lg font-semibold text-black dark:text-white">Get Zone List</h3> */}
-        {/* <button
-          onClick={fetchZones}
-          disabled={loadingZones}
-          className="mt-4 w-full rounded bg-primary px-4 py-3 text-white transition-colors duration-300 hover:bg-opacity-90 disabled:bg-opacity-50 sm:max-w-xs"
+     {/* Mobile Menu Toggle */}
+     <div className="md:hidden flex justify-between items-center mb-4">
+     <h2 className="text-xl font-bold text-black dark:text-white">Church Management</h2>
+     <button 
+          onClick={toggleMobileMenu} 
+          className="text-primary dark:text-white"
         >
-          {loadingZones ? 'Loading...' : 'Get the List of Zones'}
-        </button> */}
-        {zonesSuccessMessage && (
-            <div className="mt-2 rounded bg-green-50 p-2 text-sm text-green-600">
-              {zonesSuccessMessage}
-            </div>
-          )}
-          {zonesErrorMessage && (
-            <div className="mt-2 rounded bg-red-50 p-2 text-sm text-red-600">
-              {zonesErrorMessage}
-            </div>
-          )}
+          <Menu size={24} />
+        </button>
       </div>
 
-
-          {/* Zone List Section */}
-          {zones.length > 0 && (
-          <div className="border-b border-gray-200 p-4 dark:border-strokedark">
-            <h3 className="text-xl text-center font-semibold text-black dark:text-white">List of Zones</h3>
-            <div className="mt-4 overflow-x-auto">
-              <table className="w-full table-auto">
-                <thead>
-                  <tr className="bg-gray-100 text-left dark:bg-meta-4">
-                    <th className="px-4 py-2">Our Zones</th>
-                    <th className="px-4 py-2">View</th>
-                  </tr>
-                </thead>
-                <tbody>
-                {zones.map((zone) => (
-                    <tr key={zone.slug} className=" dark:border-strokedark">
-                      <td className="px-4 py-3">{zone.name}</td>
-                      <td className="px-4 py-3">
-                        <button 
-                          onClick={() => handleViewZoneChurches(zone.slug)} 
-                          className="text-primary hover:text-opacity-70"
-                        >
-                          <Eye size={20} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
- {/* Pagination Section */}
- {zones.length > 0 && (
-          <div className="flex flex-col items-center justify-between p-4 sm:flex-row">
-            <span className="mb-2 text-sm text-gray-600 dark:text-gray-300 sm:mb-0">
-              Total Zones: {zones.length} of {pagination.count}
-            </span>
-            <div className="flex flex-wrap justify-center gap-2 sm:justify-end">
-              <button
-                className="rounded-md bg-red-500 px-4 py-2 text-sm font-medium text-white transition-colors duration-300 hover:bg-red-600"
-                onClick={() => setZones([])}
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 bg-white dark:bg-boxdark z-50 overflow-y-auto">
+          <div className="p-4">
+            <button 
+              onClick={toggleMobileMenu} 
+              className="absolute top-4 right-4 text-black dark:text-white"
               >
-                Close
-              </button>
-              
-              <button
-                className={`rounded-md px-4 py-2 text-sm font-medium text-white transition-colors duration-300 ${
-                  pagination.currentPage === 1 || loading 
-                    ? 'bg-gray-400 cursor-not-allowed' 
-                    : 'bg-primary hover:bg-primary-dark'
-                }`}
-                onClick={handlePrevPage}
-                disabled={!pagination.previous || loading}
-              >
-                Previous
-              </button>
-              <button
-                className={`rounded-md px-4 py-2 text-sm font-medium text-white transition-colors duration-300 ${
-                  !pagination.next || loading 
-                    ? 'bg-gray-400 cursor-not-allowed' 
-                    : 'bg-primary hover:bg-primary-dark'
-                }`}
-                onClick={handleNextPage}
-                disabled={!pagination.next || loading}
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        )}
-
-
-        {/* Add New Zone Section */}
-        <div className="border-b border-stroke p-4 dark:border-strokedark">
-          <h3 className="font-medium text-black dark:text-white">Add New Zone</h3>
-          <form onSubmit={handleAddZone} className="mt-4">
-            <div className="mb-4">
-              <input
-                type="text"
-                value={zoneName}
-                onChange={(e) => setZoneName(e.target.value)}
-                placeholder="Enter Name of the new Zone"
-                required
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loadingAddZone}
-              className="w-full flex justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90 disabled:bg-opacity-50"
-            >
-              {loadingAddZone ? 'Adding...' : 'Add Zone'}
+              <X size={24} />
             </button>
-            {addZoneSuccessMessage && (
+            <h2 className="text-xl font-bold mb-6 mt-10 text-black dark:text-white">Sections</h2>
+            <div className="space-y-4">
+              <button 
+                onClick={() => handleMobileSectionChange('add')}
+                className={`w-full p-3 text-left rounded ${
+                  activeSection === 'add' 
+                    ? 'bg-primary text-white' 
+                    : 'bg-gray-100 text-black dark:bg-meta-4 dark:text-white'
+                }`}
+              >
+                Add New Church
+              </button>
+              <button 
+                onClick={() => handleMobileSectionChange('edit')}
+                className={`w-full p-3 text-left rounded ${
+                  activeSection === 'add' 
+                    ? 'bg-primary text-white' 
+                    : 'bg-gray-100 text-black dark:bg-meta-4 dark:text-white'
+                }`}
+              >
+                Edit Church
+              </button>
+              <button 
+                onClick={() => handleMobileSectionChange('delete')}
+                className={`w-full p-3 text-left rounded ${
+                  activeSection === 'add' 
+                    ? 'bg-primary text-white' 
+                    : 'bg-gray-100 text-black dark:bg-meta-4 dark:text-white'
+                }`}
+              >
+                Delete Church
+              </button>
+              <button 
+                onClick={() => handleMobileSectionChange('list')}
+                className={`w-full p-3 text-left rounded ${
+                  activeSection === 'add' 
+                    ? 'bg-primary text-white' 
+                    : 'bg-gray-100 text-black dark:bg-meta-4 dark:text-white'
+                }`}
+              >
+                Church List
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="grid md:grid-cols-4 gap-6">
+        {/* Sidebar for Desktop */}
+        <div className="hidden md:block col-span-1 bg-gray-100 dark:bg-meta-4 p-4 rounded-lg h-fit">
+          <h3 className="text-lg font-semibold mb-4 text-black dark:text-white">Sections</h3>
+          <div className="space-y-2">
+            <button 
+              onClick={() => handleSectionChange('add')}
+              className={`w-full p-3 text-left rounded ${
+                activeSection === 'add' 
+                  ? 'bg-primary text-white' 
+                  : 'hover:bg-gray-200 dark:hover:bg-meta-4 text-black dark:text-white'
+              }`}
+            >
+              Add New Church
+            </button>
+            <button 
+              onClick={() => handleSectionChange('edit')}
+              className={`w-full p-3 text-left rounded ${
+                activeSection === 'add' 
+                  ? 'bg-primary text-white' 
+                  : 'hover:bg-gray-200 dark:hover:bg-meta-4 text-black dark:text-white'
+              }`}
+            >
+              Edit Church
+            </button>
+            <button 
+              onClick={() => handleSectionChange('delete')}
+              className={`w-full p-3 text-left rounded ${
+                activeSection === 'add' 
+                  ? 'bg-primary text-white' 
+                  : 'hover:bg-gray-200 dark:hover:bg-meta-4 text-black dark:text-white'
+              }`}
+            >
+              Delete Church
+            </button>
+            <button 
+              onClick={() => handleSectionChange('list')}
+              className={`w-full p-3 text-left rounded ${
+                activeSection === 'add' 
+                  ? 'bg-primary text-white' 
+                  : 'hover:bg-gray-200 dark:hover:bg-meta-4 text-black dark:text-white'
+              }`}
+            >
+              Church List
+            </button>
+          </div>
+        </div>
+
+        {/* Main Content Area */}
+        <div className="col-span-full md:col-span-3">
+        <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+        {/* Conditionally Render Sections */}
+            {(initialLoad || activeSection === 'add') && (
+              <div className="border-b border-stroke p-4 dark:border-strokedark">
+                <h3 className="font-medium text-black dark:text-white">Add New Church</h3>
+                       {/* Add Church Form (same as before) */}
+                <form onSubmit={handleAddChurch} className="mt-4">
+                  {/* Form inputs remain the same */}
+                  <div className="grid grid-cols-1 gap-4">
+                    <input
+                      type="text"
+                      value={churchName}
+                      onChange={(e) => setChurchName(e.target.value)}
+                      placeholder="Enter Church Name"
+                      required
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      />
+                    <select
+                      value={selectedZone}
+                      onChange={(e) => setSelectedZone(e.target.value)}
+                      required
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                    >
+                      <option value="" disabled>Select Zone</option>
+                      {zones.map((zone) => (
+                        <option key={zone.slug} value={zone.name}>
+                          {zone.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={loadingAddChurch}
+                    className="mt-4 w-full flex justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90 disabled:bg-opacity-50 dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  >
+                    {loadingAddChurch ? 'Adding...' : 'Add Church'}
+                  </button>
+            {addChurchSuccessMessage && (
               <div className="mt-2 rounded bg-green-50 p-2 text-sm text-green-600">
-                {addZoneSuccessMessage}
+                {addChurchSuccessMessage}
               </div>
             )}
-            {addZoneErrorMessage && (
+            {addChurchErrorMessage && (
               <div className="mt-2 rounded bg-red-50 p-2 text-sm text-red-600">
-                {addZoneErrorMessage}
+                {addChurchErrorMessage}
               </div>
             )}
           </form>
         </div>
+            )}
 
-      
-
-        {/* Edit Zone Section */}
-        <div className="border-b border-stroke p-4 dark:border-strokedark">
-          <h3 className="font-medium text-black dark:text-white">Edit Zone</h3>
-          <form onSubmit={handleEditZone} className="mt-4">
+         {/* Similar changes for Edit and Delete sections */}
+         {(initialLoad || activeSection === 'edit') && (
+          <div className="border-b border-stroke p-4 dark:border-strokedark">
+          <h3 className="font-medium text-black dark:text-white">Edit Church</h3>
+          <form onSubmit={handleEditChurch} className="mt-4">
             <div className="mb-4">
               <select
-                value={selectedZone}
-                onChange={(e) => setSelectedZone(e.target.value)}
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
-              >
-                <option value="">Select Zone</option>
-                {zones.map((zone) => (
-                  <option key={zone.slug} value={zone.name}>
-                    {zone.name}
+                value={selectedChurch}
+                onChange={(e) => setSelectedChurch(e.target.value)}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                >
+                <option value="">Select Church</option>
+                {churches.map((church) => (
+                  <option key={church.slug} value={church.name}>
+                    {church.name}
                   </option>
                 ))}
               </select>
             </div>
-            {selectedZone && (
-              <div className="mb-4">
-                <input
-                  type="text"
-                  value={editZoneName}
-                  onChange={(e) => setEditZoneName(e.target.value)}
-                  placeholder="Enter New Zone Name"
-                  required
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
-                />
-              </div>
+            {selectedChurch && (
+              <>
+                <div className="mb-4">
+                  <input
+                    type="text"
+                    value={editChurchName}
+                    onChange={(e) => setEditChurchName(e.target.value)}
+                    placeholder="Enter New Church Name"
+                    required
+                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      />
+                </div>
+                <div className="mb-4">
+                  <select
+                    value={selectedZone}
+                    onChange={(e) => setSelectedZone(e.target.value)}
+                    required
+                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                    >
+                    <option value="">Select Zone</option>
+                    {zones.map((zone) => (
+                      <option key={zone.slug} value={zone.name}>
+                        {zone.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </>
             )}
             <button
               type="submit"
-              disabled={loadingEditZone || !selectedZone}
-              className="w-full flex justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90 disabled:bg-opacity-50"
+              disabled={loadingEditChurch || !selectedChurch}
+              className="w-full flex justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90 disabled:bg-opacity-50 dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
             >
-              {loadingEditZone ? 'Updating...' : 'Update Zone'}
+              {loadingEditChurch ? 'Updating...' : 'Update Church'}
             </button>
-            {editZoneSuccessMessage && (
+            {editChurchSuccessMessage && (
               <div className="mt-2 rounded bg-green-50 p-2 text-sm text-green-600">
-                {editZoneSuccessMessage}
+                {editChurchSuccessMessage}
               </div>
             )}
-            {editZoneErrorMessage && (
+            {editChurchErrorMessage && (
               <div className="mt-2 rounded bg-red-50 p-2 text-sm text-red-600">
-                {editZoneErrorMessage}
+                {editChurchErrorMessage}
               </div>
             )}
           </form>
         </div>
+         )}
 
-
-        {/* Delete Zone Section */}
-        <div className="p-4">
-          <h3 className="font-medium text-black dark:text-white">Delete Zone</h3>
-          <form className="mt-4">
-            <div className="mb-4">
-              <select
-                value={deleteZoneSlug}
-                onChange={(e) => setDeleteZoneSlug(e.target.value)}
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+        {/* Delete Church Section */}
+        {(initialLoad || activeSection === 'delete') && (
+          <div className="border-b border-stroke p-4 dark:border-strokedark">
+          <h3 className="font-medium text-black dark:text-white">Delete Church</h3>
+          <div className="mt-4">
+            <select
+              value={deleteChurchSlug}
+              onChange={(e) => setDeleteChurchSlug(e.target.value)}
+              className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
               >
-                <option value="">Select Zone to Delete</option>
-                {zones.map((zone) => (
-                  <option key={zone.slug} value={zone.name}>
-                    {zone.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+              <option value="">Select Church to Delete</option>
+              {churches.map((church) => (
+                <option key={church.slug} value={church.name}>
+                  {church.name}
+                </option>
+              ))}
+            </select>
             <button
-              type="button"
-              onClick={initiateDeleteZone}
-              disabled={loadingDeleteZone || !deleteZoneSlug}
-              className="w-full flex justify-center rounded bg-red-500 p-3 font-medium text-white hover:bg-opacity-90 disabled:bg-opacity-50"
+              onClick={initiateDeleteChurch}
+              disabled={!deleteChurchSlug}
+              className="mt-4 w-full flex justify-center items-center rounded bg-red-500 p-3 font-medium text-white hover:bg-red-600 disabled:bg-opacity-50 dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
             >
-              {loadingDeleteZone ? 'Deleting...' : 'Delete Zone'}
+              <Trash2 className="mr-2" /> Delete Church
             </button>
-             {/* Error and Success Messages */}
-            {deleteZoneSuccessMessage && (
+            {deleteChurchSuccessMessage && (
               <div className="mt-2 rounded bg-green-50 p-2 text-sm text-green-600">
-                {deleteZoneSuccessMessage}
+                {deleteChurchSuccessMessage}
               </div>
             )}
-            {deleteZoneErrorMessage && (
+            {deleteChurchErrorMessage && (
               <div className="mt-2 rounded bg-red-50 p-2 text-sm text-red-600">
-                {deleteZoneErrorMessage}
+                {deleteChurchErrorMessage}
               </div>
             )}
-          </form>
+          </div>
+        </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteConfirmModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto bg-black bg-opacity-50 p-4">
+          <div className="relative w-full max-w-md mx-auto">
+            <div className="relative flex flex-col w-full bg-white rounded-lg shadow-xl dark:bg-boxdark">
+             {/* Modal Header */}
+        <div className="flex items-center justify-center p-4 border-b dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Confirm Delete</h3>
         </div>
 
-      </div>
-
-      {/* Delete Confirmation Modal */}
-      {showDeleteConfirmModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl dark:bg-boxdark">
-            <h3 className="mb-4 text-lg font-semibold text-black dark:text-white">
-              Confirm Zone Deletion
-            </h3>
-            <p className="mb-4 text-gray-600 dark:text-gray-300">
-              Are you sure you want to delete the zone "{deleteZoneSlug}"? 
+        {/* Modal Content */}
+        <div className="p-6 text-center">
+          <div className="mb-4">
+            <p className="text-sm text-gray-600 dark:text-gray-300 dark:text-white">
+              Are you sure you want to delete this church?
+            </p>
+            <p className="text-xs text-gray-500 mt-2 dark:text-gray-400 dark:text-white">
               This action cannot be undone.
             </p>
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={cancelDelete}
-                className="rounded px-4 py-2 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-meta-4"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmDeleteZone}
-                className="rounded bg-red-500 px-4 py-2 text-white transition-colors hover:bg-red-600"
-              >
-                Confirm Delete
-              </button>
-            </div>
           </div>
         </div>
-      )}
 
+        {/* Modal Actions */}
+        <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-2 p-4 border-t dark:border-gray-700">
+          <button
+            type="button"
+            onClick={confirmDeleteChurch}
+            disabled={loadingDeleteChurch}
+            className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-900"
+          >
+            {loadingDeleteChurch ? 'Deleting...' : 'Confirm Delete'}
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowDeleteConfirmModal(false)}
+            className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-gray-500 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 hover:text-gray-900 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
-      {/* Churches Modal */}
-      {showChurchesModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl dark:bg-boxdark">
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-black dark:text-white">
-                Churches in this Zone
-              </h3>
-              <button 
-                onClick={() => setShowChurchesModal(false)}
-                className="text-gray-600 hover:text-gray-900 dark:text-gray-300"
-              >
-                <X size={24} />
-              </button>
-            </div>
-            {zoneChurches.length > 0 ? (
-              <ul className="space-y-2">
-                {zoneChurches.map((church) => (
-                  <li 
-                    key={church.slug} 
-                    className="rounded bg-gray-100 p-2 dark:bg-meta-4"
+           {/* Church List Section (continued) */}
+           {(initialLoad || activeSection === 'list') && (
+            <div className="border-b border-stroke p-4 dark:border-strokedark">
+                <h3 className="text-xl text-center font-semibold text-black dark:text-white">
+                  List of Churches
+                </h3>
+                <div className="mt-4 overflow-x-auto">
+                  <table className="w-full table-auto text-sm">
+                    <thead>
+                      <tr className="bg-gray-100 text-left dark:bg-meta-4">
+                        <th className="p-2 sm:px-4 sm:py-2 text-black dark:text-white">Church Name</th>
+                        <th className="p-2 sm:px-4 sm:py-2 text-black dark:text-white">Zone</th>
+                        <th className="p-2 sm:px-4 sm:py-2 text-black dark:text-white">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-black dark:text-white">
+                      {churches.map((church) => (
+                        <tr key={church.slug} className="border-b dark:border-strokedark">
+                          <td className="p-2 sm:px-4 sm:py-3 text-black dark:text-white">{church.name}</td>
+                          <td className="p-2 sm:px-4 sm:py-3 text-black dark:text-white">{church.zone}</td>
+                          <td className="p-2 sm:px-4 sm:py-3 text-black dark:text-white">
+                            <button 
+                              onClick={() => handleViewChurchDetails(church.slug)} 
+                              className="text-blue-500 hover:text-blue-700"
+                            >
+                              <Eye size={20} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+          {/* Pagination Controls */}
+          <div className="flex flex-col sm:flex-row justify-between items-center mt-4 px-4 space-y-2 sm:space-y-0">
+                  <button 
+                    onClick={handlePrevPage} 
+                    disabled={!pagination.previous}
+                    className="px-4 py-2 bg-primary text-white rounded disabled:opacity-50 w-full sm:w-auto dark:text-white"
                   >
-                    {church.name}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-gray-600 dark:text-gray-300">
-                No churches found in this zone.
-              </p>
+                    Previous
+                  </button>
+                  <span className="text-sm text-gray-600 dark:text-white">
+                    Page {pagination.currentPage} of {Math.ceil(pagination.count / 10)}
+                  </span>
+                  <button 
+                    onClick={handleNextPage} 
+                    disabled={!pagination.next}
+                    className="px-4 py-2 bg-primary text-white rounded disabled:opacity-50 w-full sm:w-auto dark:text-white"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
             )}
           </div>
         </div>
-      )}
+      </div>
 
+       {/* Church Details Modal */}
+ {showChurchDetailsModal && selectedChurchDetails && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto bg-black bg-opacity-50 p-4">
+          <div className="relative w-full max-w-md mx-auto">
+            <div className="relative flex flex-col w-full bg-white rounded-lg shadow-xl dark:bg-boxdark max-h-[90vh] overflow-y-auto">
+              {/* Modal Header */}
+        <div className="flex items-center justify-between p-4 border-b dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Church Details</h3>
+          <button
+            onClick={() => setShowChurchDetailsModal(false)}
+            className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-700 dark:hover:text-white"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* Modal Content */}
+        <div className="p-4 space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Church Name</p>
+              <p className="text-base font-semibold text-gray-900 dark:text-white">
+                {selectedChurchDetails.name}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Zone</p>
+              <p className="text-base font-semibold text-gray-900 dark:text-white">
+                {selectedChurchDetails.zone}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Modal Footer */}
+        <div className="flex justify-end p-4 border-t dark:border-gray-700 space-x-2">
+          <button
+            onClick={() => setShowChurchDetailsModal(false)}
+            className="px-4 py-2 text-sm font-medium text-gray-500 bg-white rounded-lg text-red-500 border border-gray-200 hover:bg-red-500 hover:text-white focus:ring-4 focus:outline-none focus:ring-primary-300 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+          >
+            Close
+          </button>
+        </div>
+      </div>
     </div>
+  </div>
+)}
+
+      </div>
+
   );
 };
 

@@ -7,7 +7,6 @@ import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import { format, parse } from 'date-fns';
 import html2pdf from 'html2pdf.js';
-import Logo from '../../../public/android-chrome-192x192.png';
 
 const AccountStatementSidebar = () => {
   const [accounts, setAccounts] = useState([]);
@@ -19,7 +18,8 @@ const AccountStatementSidebar = () => {
   const [closingBalance, setClosingBalance] = useState('0.00');
   const [channelStats, setChannelStats] = useState({
     credit: { count: 0, inflow: 0, percentage: 0 },
-    debit: { count: 0, outflow: 0, percentage: 0 }
+    debit: { count: 0, outflow: 0, percentage: 0 },
+    charges: 0
   });
 
   const [dateRange, setDateRange] = useState({
@@ -95,10 +95,12 @@ const calculateChannelStats = (txns) => {
     } else {
       acc[type].outflow += parseFloat(tx.amount);
     }
+    acc.charges += parseFloat(tx.charge || 0);
     return acc;
   }, {
     credit: { count: 0, inflow: 0, outflow: 0 },
-    debit: { count: 0, inflow: 0, outflow: 0 }
+    debit: { count: 0, inflow: 0, outflow: 0 },
+    charges: 0 
   });
 
   const total = stats.credit.count + stats.debit.count;
@@ -204,6 +206,7 @@ const calculateChannelStats = (txns) => {
     setChannelStats({
       credit: { count: 0, inflow: 0, percentage: 0 },
       debit: { count: 0, outflow: 0, percentage: 0 },
+      charges: 0
     });
     setDateRange({
       startDate: format(new Date().setDate(1), 'yyyy-MM-dd'),
@@ -255,6 +258,10 @@ const calculateChannelStats = (txns) => {
           <p style="color: #666; font-size: 14px;">Debits</p>
           <p style="font-weight: bold; font-size: 18px; color: #ef4444;">${formatAmount(transactions.debits)}</p>
         </div>
+         <div style="padding: 15px; background: #fffbeb; border-radius: 8px;">
+          <p style="color: #666; font-size: 14px;">Charges</p>
+          <p style="font-weight: bold; font-size: 18px; color: #f59e0b;">${formatAmount(channelStats.charges)}</p>
+        </div>
         <div style="padding: 15px; background: #faf5ff; border-radius: 8px;">
           <p style="color: #666; font-size: 14px;">Closing Balance</p>
           <p style="font-weight: bold; font-size: 18px;">${formatAmount(transactions.closing)}</p>
@@ -277,6 +284,7 @@ const calculateChannelStats = (txns) => {
               <th style="border: 1px solid #e5e7eb; padding: 8px; text-align: right;">Opening Balance</th>
               <th style="border: 1px solid #e5e7eb; padding: 8px; text-align: right;">Debits</th>
               <th style="border: 1px solid #e5e7eb; padding: 8px; text-align: right;">Credits</th>
+              <th style="border: 1px solid #e5e7eb; padding: 8px; text-align: right;">Charges</th>
               <th style="border: 1px solid #e5e7eb; padding: 8px; text-align: right;">Closing Balance</th>
             </tr>
           </thead>
@@ -288,6 +296,7 @@ const calculateChannelStats = (txns) => {
               <td style="border: 1px solid #e5e7eb; padding: 8px; text-align: right;">${formatAmount(transactions.opening)}</td>
               <td style="border: 1px solid #e5e7eb; padding: 8px; text-align: right;">${formatAmount(channelStats.debit.outflow)}</td>
               <td style="border: 1px solid #e5e7eb; padding: 8px; text-align: right;">${formatAmount(channelStats.credit.inflow)}</td>
+              <td style="border: 1px solid #e5e7eb; padding: 8px; text-align: right;">${formatAmount(channelStats.charges)}</td>
               <td style="border: 1px solid #e5e7eb; padding: 8px; text-align: right;">${formatAmount(transactions.closing)}</td>
             </tr>
           </tbody>
@@ -352,6 +361,7 @@ const calculateChannelStats = (txns) => {
               <th style="border: 1px solid #e5e7eb; padding: 8px; text-align: left;">Reference</th>
               <th style="border: 1px solid #e5e7eb; padding: 8px; text-align: right;">Debit</th>
               <th style="border: 1px solid #e5e7eb; padding: 8px; text-align: right;">Credit</th>
+              <th style="border: 1px solid #e5e7eb; padding: 8px; text-align: right;">Charge</th>
               <th style="border: 1px solid #e5e7eb; padding: 8px; text-align: right;">Balance</th>
             </tr>
           </thead>
@@ -363,6 +373,7 @@ const calculateChannelStats = (txns) => {
                 <td style="border: 1px solid #e5e7eb; padding: 8px;">${tx.reference}</td>
                 <td style="border: 1px solid #e5e7eb; padding: 8px; text-align: right;">${tx.type === 'DEBIT' ? formatAmount(tx.amount) : ''}</td>
                 <td style="border: 1px solid #e5e7eb; padding: 8px; text-align: right;">${tx.type === 'CREDIT' ? formatAmount(tx.amount) : ''}</td>
+                <td style="border: 1px solid #e5e7eb; padding: 8px; text-align: right;">${formatAmount(tx.charge)}</td>
                 <td style="border: 1px solid #e5e7eb; padding: 8px; text-align: right;">${formatAmount(tx.balance)}</td>
               </tr>
             `).join('')}
@@ -417,16 +428,8 @@ const calculateChannelStats = (txns) => {
             ))
           : 'An error occurred'}
          </AlertDescription>
-            {/* <AlertDescription>
-              {Object.entries(errors).map(([key, value]) => (
-                <div key={key} className="mb-1">
-                  {formatErrorMessage(value)}
-                </div>
-              ))}
-            </AlertDescription> */}
           </Alert>
         )}
-
 
       {/* <form onSubmit={handleSubmit} className="space-y-4"> */}
       <form onSubmit={(e) => {
@@ -538,6 +541,10 @@ const calculateChannelStats = (txns) => {
                 <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Debits</p>
                 <p className="text-lg sm:text-xl font-bold text-red-600 dark:text-red-400">{formatAmount(transactions.debits)}</p>
               </div>
+              <div className="p-3 sm:p-4 bg-yellow-50 rounded-lg dark:bg-yellow-900">
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Charges</p>
+              <p className="text-lg sm:text-xl font-bold text-yellow-600 dark:text-yellow-400">{formatAmount(channelStats.charges)}</p>
+            </div>
               <div className="p-3 sm:p-4 bg-purple-50 rounded-lg dark:bg-purple-900">
                 <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Closing Balance</p>
                 <p className="text-lg sm:text-xl font-bold">{formatAmount(transactions.closing)}</p>
@@ -558,6 +565,7 @@ const calculateChannelStats = (txns) => {
                       <th className="border p-2 text-right">Opening Balance</th>
                       <th className="border p-2 text-right">Debits</th>
                       <th className="border p-2 text-right">Credits</th>
+                      <th className="border p-2 text-right">Charges</th>
                       <th className="border p-2 text-right">Closing Balance</th>
                     </tr>
                   </thead>
@@ -569,6 +577,7 @@ const calculateChannelStats = (txns) => {
                       <td className="border p-2 text-right">{formatAmount(transactions.opening)}</td>
                       <td className="border p-2 text-right">{formatAmount(channelStats.debit.outflow)}</td>
                       <td className="border p-2 text-right">{formatAmount(channelStats.credit.inflow)}</td>
+                      <td className="border p-2 text-right">{formatAmount(channelStats.charges)}</td>
                       <td className="border p-2 text-right">{formatAmount(transactions.closing)}</td>
                     </tr>
                   </tbody>
@@ -658,6 +667,7 @@ const calculateChannelStats = (txns) => {
                         <th className="border p-2 text-left text-xs sm:text-sm">Reference</th>
                         <th className="border p-2 text-right text-xs sm:text-sm">Debit</th>
                         <th className="border p-2 text-right text-xs sm:text-sm">Credit</th>
+                        <th className="border p-2 text-right text-xs sm:text-sm">Charge</th>
                         <th className="border p-2 text-right text-xs sm:text-sm">Balance</th>
                   </tr>
                 </thead>
@@ -675,6 +685,7 @@ const calculateChannelStats = (txns) => {
                       <td className="border p-2 text-right">
                         {tx.type === 'CREDIT' ? formatAmount(tx.amount) : ''}
                       </td>
+                      <td className="border p-2 text-right">{formatAmount(tx.charge)}</td>
                       <td className="border p-2 text-right">{formatAmount(tx.balance)}</td>
                     </tr>
                   ))}

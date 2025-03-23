@@ -4,6 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import AccountStatement from './AccountStatement';
+import TransactionChart from './TransactionChart';
 
 const FinanceDashboard = () => {
   // State for accounts
@@ -34,18 +35,18 @@ const [passwordVisible, setPasswordVisible] = useState(false);
 const [errors, setErrors] = useState({});
 const [modalError, setModalError] = useState("");
 
+// Add these new state variables at the top of your component
+const [incomeData, setIncomeData] = useState({ weekly: 0, monthly: 0, yearly: 0, allTime: 0 });
+const [expenseData, setExpenseData] = useState({ weekly: 0, monthly: 0, yearly: 0, allTime: 0 });
+const [incomeTimePeriod, setIncomeTimePeriod] = useState('monthly');
+const [expenseTimePeriod, setExpenseTimePeriod] = useState('monthly');
+const [isLoadingIncome, setIsLoadingIncome] = useState(false);
+const [isLoadingExpenses, setIsLoadingExpenses] = useState(false);
 
-  // Add new state for transfer form
-   const [transferAmount, setTransferAmount] = useState('');
-   const [transferPurpose, setTransferPurpose] = useState('');
-   const [beneficiaryAccount, setBeneficiaryAccount] = useState('');
-   const [isTransferring, setIsTransferring] = useState(false);
-   const [showTransferSuccess, setShowTransferSuccess] = useState(false);
-   const [transferSuccessDetails, setTransferSuccessDetails] = useState('');
-   const [transferError, setTransferError] = useState('');
-
-   // State for default account
-   const [selectedDefaultAccount, setSelectedDefaultAccount] = useState('');
+ // Separate state for default account section
+ const [selectedDefaultAccount, setSelectedDefaultAccount] = useState('');
+ const [defaultAccountDetails, setDefaultAccountDetails] = useState(null);
+ const [isVerifyingDefaultAccount, setIsVerifyingDefaultAccount] = useState(false);
 
    // Add new states for default account selections
 const [accountSelections, setAccountSelections] = useState([
@@ -85,8 +86,7 @@ const [accountSelections, setAccountSelections] = useState([
     }
   ];
 
-
-   // Add this state in FinanceDashboard component
+   //state for Account Statement
 const [showStatement, setShowStatement] = useState(false);
 
    const [fundPendingCount, setFundPendingCount] = useState(0);
@@ -208,6 +208,115 @@ const verifyDeleteAccountDetails = () => {
   setDeleteVerifiedDetails(account);
 };
 
+
+// Add this function to fetch and process transactions
+const fetchTransactionsForAccount = async (accountCode) => {
+  if (!accountCode) return;
+  
+  setIsLoadingIncome(true);
+  setIsLoadingExpenses(true);
+  
+  try {
+    let allTransactions = [];
+    let nextUrl = `https://tlbc-platform-api.onrender.com/api/finance/accounts/${accountCode}/transactions/?limit=100`;
+    
+    // Fetch all pages of transactions
+    while (nextUrl) {
+      const response = await axios.get(nextUrl);
+      const data = response.data;
+      
+      if (data.results && data.results.transactions) {
+        allTransactions = [...allTransactions, ...data.results.transactions];
+      }
+      
+      nextUrl = data.next;
+    }
+    
+    // Process transactions for different time periods
+    const now = new Date();
+    const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+    
+    let weeklyIncome = 0;
+    let monthlyIncome = 0;
+    let yearlyIncome = 0;
+    let allTimeIncome = 0;
+    
+    let weeklyExpenses = 0;
+    let monthlyExpenses = 0;
+    let yearlyExpenses = 0;
+    let allTimeExpenses = 0;
+    
+    allTransactions.forEach(transaction => {
+      const transactionDate = new Date(transaction.date);
+      const amount = parseFloat(transaction.amount);
+      
+      if (transaction.type === "CREDIT") {
+        // Income calculations
+        allTimeIncome += amount;
+        
+        if (transactionDate >= startOfYear) {
+          yearlyIncome += amount;
+        }
+        
+        if (transactionDate >= startOfMonth) {
+          monthlyIncome += amount;
+        }
+        
+        if (transactionDate >= startOfWeek) {
+          weeklyIncome += amount;
+        }
+      } else if (transaction.type === "DEBIT") {
+        // Expense calculations
+        allTimeExpenses += amount;
+        
+        if (transactionDate >= startOfYear) {
+          yearlyExpenses += amount;
+        }
+        
+        if (transactionDate >= startOfMonth) {
+          monthlyExpenses += amount;
+        }
+        
+        if (transactionDate >= startOfWeek) {
+          weeklyExpenses += amount;
+        }
+      }
+    });
+    
+    setIncomeData({
+      weekly: weeklyIncome,
+      monthly: monthlyIncome,
+      yearly: yearlyIncome,
+      allTime: allTimeIncome
+    });
+    
+    setExpenseData({
+      weekly: weeklyExpenses,
+      monthly: monthlyExpenses,
+      yearly: yearlyExpenses,
+      allTime: allTimeExpenses
+    });
+    
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    showMessage('error', 'Error fetching transaction data');
+  } finally {
+    setIsLoadingIncome(false);
+    setIsLoadingExpenses(false);
+  }
+};
+
+// Add this useEffect to fetch transaction data when account changes
+useEffect(() => {
+  if (selectedAccount?.code) {
+    fetchTransactionsForAccount(selectedAccount.code);
+  }
+}, [selectedAccount]);
+
+
+
 //Delete Account
 const handleDeleteAccount = async () => {
   if (!deletePassword) {
@@ -227,6 +336,7 @@ const handleDeleteAccount = async () => {
     if (response.status === 204) {
       setShowDeleteConfirmModal(false);
       setShowDeleteSuccessModal(true);
+      fetchAccounts();
       // Refresh accounts list if needed
     }
   } catch (error) {
@@ -236,6 +346,8 @@ const handleDeleteAccount = async () => {
         setDeleteError("Unable to delete account, please contact support");
       } else if (error.response.data.detail) {
         setDeleteError(error.response.data.detail);
+      } else if (error.response?.data?.non_field_errors?.[0]) {
+        setDeleteError(error.response.data.non_field_errors[0]);
       } else {
         setDeleteError(formatErrorMessage(error.response.data));
       }
@@ -535,7 +647,7 @@ const fetchTransactions = async () => {
         }
         return acc;
       }, {});
-
+ 
       const response = await axios.patch(
         `https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedDefaultAccount}/`,
         updates,
@@ -580,30 +692,7 @@ const fetchTransactions = async () => {
     }
   };
 
-   // Add debugging for verification
-   const verifyDefaultAccountDetails = async () => {
-    if (!selectedDefaultAccount) {
-      showMessage('error', 'Please select an account first');
-      return;
-    }
-
-    setIsVerifyingAccount(true);
-    setVerifiedAccountDetails(null);
-
-    try {
-      console.log('Verifying account:', selectedDefaultAccount); // For debugging
-      const response = await axios.get(`https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedDefaultAccount}/`);
-      console.log('Verification response:', response.data); // For debugging
-      setVerifiedAccountDetails(response.data);
-    } catch (error) {
-      console.error('Verification error:', error); // For debugging
-      const errorMsg = handleErrorMessage(error);
-      showMessage('error', errorMsg);
-    } finally {
-      setIsVerifyingAccount(false);
-    }
-  };
-
+  
   // Update account selection to store the code
   const handleAccountSelect = async (e) => {
     const selectedCode = e.target.value;
@@ -625,64 +714,35 @@ const fetchTransactions = async () => {
   };
 
 
-    const handleTimePeriodChange = (period, cardType) => {
-      // You can add logic here to fetch data based on the selected time period
-      console.log(`${cardType} time period changed to: ${period}`);
-    };
+  const handleTimePeriodChange = (period, cardType) => {
+    if (cardType === 'Income') {
+      setIncomeTimePeriod(period);
+    } else if (cardType === 'Expenses') {
+      setExpenseTimePeriod(period);
+    }
+    console.log(`${cardType} time period changed to: ${period}`);
+  };
 
-
-    // Handle transfer submission
-  const handleTransfer = async () => {
-    if (!selectedDefaultAccount || !beneficiaryAccount || !transferAmount || !transferPurpose) {
-      setTransferError('Please fill in all required fields');
+    // Verify default account details
+  const verifyDefaultAccountDetails = async () => {
+    if (!selectedDefaultAccount) {
+      showMessage('error', 'Please select an account first');
       return;
     }
 
-    setIsTransferring(true);
-    setTransferError('');
+    setIsVerifyingDefaultAccount(true);
+  setDefaultAccountDetails(null);
 
     try {
-      const response = await axios.post(
-        'https://tlbc-platform-api.onrender.com/api/finance/accounts/transfer/',
-        {
-          from_account: selectedDefaultAccount,
-          to_account: beneficiaryAccount,
-          amount: transferAmount,
-          purpose: transferPurpose
-        }
-      );
-
-      // Set success details
-      setTransferSuccessDetails({
-        fromAccount: accounts.find(acc => acc.code === selectedDefaultAccount)?.account_name,
-        toAccount: accounts.find(acc => acc.code === beneficiaryAccount)?.account_name,
-        amount: transferAmount,
-        purpose: transferPurpose
-      });
-      
-      // Show success modal
-      setShowTransferSuccess(true);
-      
-      // Reset form
-      setTransferAmount('');
-      setTransferPurpose('');
-      setBeneficiaryAccount('');
-      
-      // Refresh account details
-      await fetchAccounts();
-      if (selectedDefaultAccount) {
-        await verifyDefaultAccountDetails();
-      }
+      const response = await axios.get(`https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedDefaultAccount}/`);
+      setDefaultAccountDetails(response.data);
     } catch (error) {
-      const errorMsg = error.response?.data?.message || 
-                      error.response?.data?.detail ||
-                      'Transfer failed. Please try again.';
-      setTransferError(errorMsg);
+      const errorMsg = handleErrorMessage(error);
+      showMessage('error', errorMsg);
     } finally {
-      setIsTransferring(false);
+      setIsVerifyingDefaultAccount(false);
     }
   };
-
 
      // Helper function to generate success message
   const generateSuccessMessage = (updates) => {
@@ -712,7 +772,8 @@ const fetchTransactions = async () => {
     
   return (
     <>
- <Breadcrumb pageName="Account Management" className="text-black dark:text-white px-4 sm:px-6 lg:px-8" />
+     <div className="min-h-screen bg-gray-50 dark:bg-boxdark">
+ <Breadcrumb pageName="Account Management" className="text-black dark:text-white p-4 lg:px-8" />
     
     {/* Loading Overlay */}
     {isLoading && (
@@ -726,7 +787,8 @@ const fetchTransactions = async () => {
 
 {/* Success Modal */}
 {showSuccessModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
+  <div className="bg-white dark:bg-boxdark rounded-lg p-6 w-full max-w-md mx-auto">
           <div className="absolute inset-0 bg-black bg-opacity-50"></div>
           <div className="relative bg-white dark:bg-boxdark rounded-lg p-6 max-w-md w-full shadow-xl transform transition-all">
             <div className="text-center">
@@ -759,18 +821,19 @@ const fetchTransactions = async () => {
             </div>
           </div>
         </div>
+        </div>
       )}
 
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="container mx-auto px-4 lg:px-8 py-4 lg:py-6 space-y-6">
       {/* Message Handling */}
-      <div className="fixed top-4 right-4 z-50 space-y-2 w-full max-w-sm">
+      <div className="fixed top-4 right-4 z-50 w-full max-w-sm px-4">
         {successMessage && (
-          <div className="bg-green-500 text-white p-4 rounded shadow-lg">
+          <div className="bg-green-500 text-white p-4 rounded shadow-lg mb-2 animate-fade-in">
             {successMessage}
           </div>
         )}
         {errorMessage && (
-          <div className="bg-red-500 text-white p-4 rounded shadow-lg">
+          <div className="bg-red-500 text-white p-4 rounded shadow-lg animate-fade-in">
             {errorMessage}
           </div>
         )}
@@ -778,15 +841,15 @@ const fetchTransactions = async () => {
 
 
       {/* Account Selection */}
-      <div className="mb-6">
-        <h2 className="text-xl sm:text-2xl font-bold text-center text-black dark:text-white mb-4">
+      <div className="w-full max-w-3xl mx-auto">
+            <h2 className="text-xl md:text-2xl font-bold text-center text-black dark:text-white mb-4">
           {selectedAccount ? `Hello, ${selectedAccount.account_name} ( ${selectedAccount.church} )` : 'Select an Account'}
         </h2>
         <select 
           onChange={handleAccountSelect}
           value={selectedAccount?.code || ''}
           className="w-full rounded border border-stroke bg-white dark:border-strokedark dark:bg-boxdark p-3 text-black dark:text-white"
-        >
+          >
           <option value="" disabled>Select Account</option>
           {accounts.map(account => (
             <option key={account.code} value={account.code}>
@@ -797,11 +860,11 @@ const fetchTransactions = async () => {
       </div>
 
             {/* Cards */}
-      <div className="p-4 sm:p-6 bg-blue-50 dark:bg-boxdark rounded-lg">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-              <Cards title="Monthly Expenses" value={`₦${expenses.toFixed(2)}` || '₦0.00'} bgColor="bg-gradient-to-r from-orange-300 to-red-400" onTimePeriodChange={(period) => handleTimePeriodChange(period, 'Expenses')} />
-            <Cards title="Monthly Income" value={`₦${accountDetails?.balance || '0.00'}`} bgColor="bg-gradient-to-r from-blue-300 to-blue-500" onTimePeriodChange={(period) => handleTimePeriodChange(period, 'Income')} />
-            <Cards title="Account Balance" value={`₦${accountDetails?.balance || '0.00'}`} icon="💰" bgColor="bg-gradient-to-r from-green-300 to-teal-500" />
+            <div className="bg-blue-50 dark:bg-boxdark rounded-lg p-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Cards title="Expenses" value={isLoadingExpenses ? "Loading..." : `₦${expenseData[expenseTimePeriod].toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`} bgColor="bg-gradient-to-r from-orange-300 to-red-400" timePeriod={expenseTimePeriod} onTimePeriodChange={(period) => handleTimePeriodChange(period, 'Expenses')}   />
+            <Cards title="Income" value={isLoadingIncome ? "Loading..." : `₦${incomeData[incomeTimePeriod].toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`} bgColor="bg-gradient-to-r from-blue-300 to-blue-500" timePeriod={incomeTimePeriod} onTimePeriodChange={(period) => handleTimePeriodChange(period, 'Income')}  />
+            <Cards title="Account Balance" value={`₦${parseFloat(accountDetails?.balance || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`} icon="💰" bgColor="bg-gradient-to-r from-green-300 to-teal-500" />
             <Cards title="Transaction History" value={transactions.length.toString()} icon="📜" bgColor="bg-gradient-to-r from-yellow-300 to-yellow-500" />
             <Cards title="Fund Pending Approvals" value={fundPendingCount.toString()} icon="⏳" bgColor="bg-gradient-to-r from-pink-300 to-purple-400" />
             <Cards title="Remittance Pending Approvals" value={remittancePendingCount.toString()} icon="⏳" bgColor="bg-gradient-to-r from-cyan-300 to-sky-400" />
@@ -812,10 +875,10 @@ const fetchTransactions = async () => {
 
 
       {/* Update and Make Default Accounts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Update Account Section */}
-        <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-6">
-            <h3 className="text-xl font-bold mb-4 text-black dark:text-white">Update Account Details</h3>
+        <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-4 md:p-6">
+        <h3 className="text-lg md:text-xl font-bold mb-4 text-black dark:text-white">Update Account Details</h3>
             <div className="space-y-4">
             <select 
               value={selectedAccount?.code || ''}
@@ -902,16 +965,16 @@ const fetchTransactions = async () => {
 
 
         {/* Make Default Account Section */}
-        <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-4 sm:p-6">
-          <h3 className="text-lg sm:text-xl font-bold mb-4 text-black dark:text-white">Select Default Account</h3>
+        <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-4 md:p-6">
+          <h3 className="text-lg md:text-xl font-bold mb-4 text-black dark:text-white">Set a Default Account</h3>
           <div className="space-y-4">
             {/* Account Selection Dropdown */}
             <div className="flex flex-col space-y-2">
               <select 
-                value={selectedDefaultAccount}
+                  value={selectedDefaultAccount}
                 onChange={(e) => {
                   setSelectedDefaultAccount(e.target.value);
-                  setVerifiedAccountDetails(null);
+                  setDefaultAccountDetails(null);
                 }}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-4 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
               >
@@ -924,41 +987,41 @@ const fetchTransactions = async () => {
               </select>
 
               <button 
-                onClick={verifyDefaultAccountDetails}
-                disabled={!selectedDefaultAccount || isVerifyingAccount}
+                 onClick={verifyDefaultAccountDetails}
+                 disabled={!selectedDefaultAccount || isVerifyingDefaultAccount}
                 className="w-full bg-blue-500 text-white rounded p-3 disabled:opacity-50 hover:bg-blue-600 transition-colors duration-200 dark:border-form-strokedark dark:bg-blue-500 dark:hover:bg-blue-800 dark:text-white dark:focus:border-primary"
               >
-                {isVerifyingAccount ? 'Verifying...' : 'Verify Account Details'}
+                 {isVerifyingDefaultAccount ? 'Verifying...' : 'Verify Account Details'}
               </button>
             </div>
 
-            {/* Verified Account Details */}
-            {verifiedAccountDetails && (
+             {/* Default Account verified details display */}
+             {defaultAccountDetails && (
               <div className="mt-4 p-4 bg-blue-50 dark:bg-boxdark rounded-lg">
                 <h4 className="text-lg font-semibold mb-3 text-black dark:text-white">Account Details</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                   <div className="p-2 bg-white dark:bg-gray-800 rounded">
                     <p className="text-sm text-black dark:text-black">
-                      <strong>Account Name:</strong><br />
-                      {verifiedAccountDetails.account_name}
+                    <strong>Account Name:</strong><br />
+                    {defaultAccountDetails.account_name}
                     </p>
                   </div>
                   <div className="p-2 bg-white dark:bg-gray-800 rounded">
                     <p className="text-sm text-black dark:text-black">
                       <strong>Account Number:</strong><br />
-                      {verifiedAccountDetails.account_number}
+                      {defaultAccountDetails.account_number}
                     </p>
                   </div>
                   <div className="p-2 bg-white dark:bg-gray-800 rounded">
                     <p className="text-sm text-black dark:text-black">
                       <strong>Bank:</strong><br />
-                      {verifiedAccountDetails.bank_name}
+                      {defaultAccountDetails.bank_name}
                     </p>
                   </div>
                   <div className="p-2 bg-white dark:bg-gray-800 rounded">
                     <p className="text-sm text-black dark:text-black">
                       <strong>Current Balance:</strong><br />
-                      ₦{verifiedAccountDetails.balance}
+                    ₦{parseFloat(defaultAccountDetails.balance).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                     </p>
                   </div>
                 </div>
@@ -1012,251 +1075,6 @@ const fetchTransactions = async () => {
             )}
           </div>
         </div>
-
-         {/* Funds Transfer Section */}
-         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-4 sm:p-6">
-          <h3 className="text-lg sm:text-xl font-bold mb-4 text-black dark:text-white">Funds Transfer</h3>
-          
-          {/* From Account Selection */}
-    <div className="space-y-4">
-      <div className="flex flex-col space-y-2">
-        <label className="text-black dark:text-white">From Account</label>
-        <select 
-          value={selectedDefaultAccount}
-          onChange={(e) => {
-            setSelectedDefaultAccount(e.target.value);
-            setVerifiedAccountDetails(null);
-          }}
-          className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-4 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-        >
-          <option value="">Select Sending Account</option>
-          {accounts.map(account => (
-            <option key={account.code} value={account.code}>
-              {account.account_name} - {account.bank_name}
-            </option>
-          ))}
-        </select>
-
-        <button 
-          onClick={verifyDefaultAccountDetails}
-          disabled={!selectedDefaultAccount || isVerifyingAccount}
-          className="w-full bg-blue-500 text-white rounded p-3 disabled:opacity-50 hover:bg-blue-600 transition-colors duration-200"
-        >
-          {isVerifyingAccount ? 'Verifying...' : 'Verify Sending Account'}
-        </button>
-      </div>
-
-      {/* Verified Account Details */}
-      {verifiedAccountDetails && (
-        <div className="mt-4 p-4 bg-blue-50 dark:bg-boxdark rounded-lg">
-          <h4 className="text-lg font-semibold mb-3 text-black dark:text-white">Sending Account Details</h4>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-            <div className="p-2 bg-white dark:bg-gray-800 rounded">
-              <p className="text-sm text-black dark:text-black">
-                <strong>Account Name:</strong><br />
-                {verifiedAccountDetails.account_name}
-              </p>
-            </div>
-            <div className="p-2 bg-white dark:bg-gray-800 rounded">
-              <p className="text-sm text-black dark:text-black">
-                <strong>Account Number:</strong><br />
-                {verifiedAccountDetails.account_number}
-              </p>
-            </div>
-            <div className="p-2 bg-white dark:bg-gray-800 rounded">
-              <p className="text-sm text-black dark:text-black">
-                <strong>Bank:</strong><br />
-                {verifiedAccountDetails.bank_name}
-              </p>
-            </div>
-            <div className="p-2 bg-white dark:bg-gray-800 rounded">
-              <p className="text-sm text-black dark:text-black">
-                <strong>Available Balance:</strong><br />
-                ₦{verifiedAccountDetails.balance}
-              </p>
-            </div>
-          </div>
-
-          {/* Transfer Form */}
-          <div className="space-y-4 mt-6">
-            <div>
-              <label className="text-black dark:text-white block mb-2">To Account</label>
-              <select
-                value={beneficiaryAccount}
-                onChange={(e) => setBeneficiaryAccount(e.target.value)}
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-4 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-              >
-                <option value="">Select Receiving Account</option>
-                {accounts
-                  .filter(account => account.code !== selectedDefaultAccount)
-                  .map(account => (
-                    <option key={account.code} value={account.code}>
-                      {account.account_name} - {account.bank_name}
-                    </option>
-                  ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="text-black dark:text-white block mb-2">Amount (₦)</label>
-              <input
-                type="number"
-                value={transferAmount}
-                onChange={(e) => setTransferAmount(e.target.value)}
-                placeholder="Enter amount"
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-4 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-              />
-            </div>
-
-            <div>
-              <label className="text-black dark:text-white block mb-2">Purpose</label>
-              <input
-                type="text"
-                value={transferPurpose}
-                onChange={(e) => setTransferPurpose(e.target.value)}
-                placeholder="Enter transfer purpose"
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-4 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-              />
-            </div>
-
-            {transferError && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-                {transferError}
-              </div>
-            )}
-
-            <button 
-            onClick={() => {
-              setSelectedDefaultAccount('');
-              setVerifiedAccountDetails(null);
-            }}
-            className="w-full bg-blue-500 text-white rounded p-3 hover:bg-blue-700 transition-colors duration-200"
-          >
-            Cancel
-          </button>
-
-            <button
-              onClick={handleTransfer}
-              disabled={isTransferring || !selectedDefaultAccount || !beneficiaryAccount || !transferAmount || !transferPurpose}
-              className="w-full bg-blue-500 text-white rounded p-3 hover:bg-blue-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isTransferring ? 'Processing Transfer...' : 'Transfer Funds'}
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  </div>
-
-  {/* Transfer Success Modal */}
-  {showTransferSuccess && (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-      <div className="absolute inset-0 bg-black bg-opacity-50"></div>
-      <div className="relative bg-white dark:bg-boxdark rounded-lg p-6 max-w-md w-full shadow-xl">
-        <div className="text-center">
-          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
-            <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-            </svg>
-          </div>
-          
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            Transfer Successful!
-          </h3>
-          
-          <div className="mt-4 text-left">
-            <p className="text-sm text-gray-500 dark:text-gray-300">
-              From: {transferSuccessDetails.fromAccount}<br />
-              To: {transferSuccessDetails.toAccount}<br />
-              Amount: ₦{transferSuccessDetails.amount}<br />
-              Purpose: {transferSuccessDetails.purpose}
-            </p>
-          </div>
-
-          <button
-            onClick={() => setShowTransferSuccess(false)}
-            className="mt-6 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors duration-200"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  )}
-
-
-      {/* Update Account Section */}
-      {/* <div className="mt-6 p-6 border rounded-lg">
-        <h3 className="text-xl font-bold mb-4">Update Account</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <select 
-            value={selectedAccount?.code || ''}
-            onChange={(e) => {
-              const account = accounts.find(acc => acc.code === e.target.value);
-              setSelectedAccount(account);
-            }}
-            className="w-full rounded border border-blue-300 p-2"
-          >
-            {accounts.map(account => (
-              <option key={account.code} value={account.code}>
-                {account.account_name} - {account.bank_name}
-              </option>
-            ))}
-          </select>
-
-          <select 
-            value={updateBankCode}
-            onChange={(e) => setUpdateBankCode(e.target.value)}
-            className="w-full rounded border border-blue-300 p-2"
-          >
-            <option value="">Select Bank</option>
-            {banks.map(bank => (
-              <option key={bank.bank_code} value={bank.bank_code}>
-                {bank.bank_name}
-              </option>
-            ))}
-          </select>
-
-          <input 
-            type="text" 
-            value={updateAccountNumber}
-            onChange={(e) => {
-              setUpdateAccountNumber(e.target.value);
-              setVerifiedAccountName('');
-              setIsUpdateButtonDisabled(true);
-            }}
-            placeholder="Enter Account Number"
-            maxLength="10"
-            className="w-full rounded border border-blue-300 p-2"
-          />
-
-          <button 
-            onClick={verifyAccountDetails}
-            className="w-full bg-blue-500 text-white rounded p-2"
-          >
-            Verify Account
-          </button>
-        </div>
-
-        {verifiedAccountName && (
-          <div className="mt-4">
-            <p>Account Name: <strong>{verifiedAccountName}</strong></p>
-          </div>
-        )}
-
-        {updateError && (
-          <p className="text-red-500 mt-2">{updateError}</p>
-        )}
-
-        <button 
-          onClick={handleUpdateAccount}
-          disabled={isUpdateButtonDisabled}
-          className="mt-4 w-full bg-blue-500 text-white rounded p-2 disabled:opacity-50"
-        >
-          Update Account
-        </button>
-      </div> */}
-
 
  {/* Delete Account Section */}
 <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-4 sm:p-6">
@@ -1315,7 +1133,7 @@ const fetchTransactions = async () => {
           <div className="p-2 bg-white dark:bg-gray-800 rounded">
             <p className="text-sm text-black dark:text-black">
               <strong>Current Balance:</strong><br />
-              ₦{deleteVerifiedDetails.balance}
+              ₦{parseFloat(deleteVerifiedDetails.balance).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
             </p>
           </div>
         </div>
@@ -1435,6 +1253,7 @@ const fetchTransactions = async () => {
           setShowDeleteSuccessModal(false);
           setSelectedAccountToDelete('');
           setDeleteVerifiedDetails(null);
+          fetchAccounts();
         }}
       >
         Close
@@ -1445,32 +1264,35 @@ const fetchTransactions = async () => {
 
 
       {/* Recent Transactions Table */}
-      <div className="mb-6">
-  <h3 className="text-xl font-bold mb-4 text-black dark:text-white">Recent Transactions</h3>
+    <div className="w-full overflow-hidden rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+       <h3 className="text-lg md:text-xl font-bold p-4 text-black dark:text-white border-b border-stroke dark:border-strokedark">
+             Recent Transactions
+       </h3>
   <div className="overflow-x-auto">
-    <table className="w-full border-collapse">
+  <table className="w-full min-w-[800px]">
       <thead>
-        <tr className="bg-blue-100 dark:bg-boxdark">
-          <th className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">Date</th>
-          <th className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">Account Name</th>
-          <th className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">Amount</th>
-          <th className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">Purpose</th>
-          <th className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">Status</th>
-        </tr>
+      <tr className="bg-blue-50 dark:bg-boxdark">
+                    <th className="p-4 text-left text-sm font-medium text-black dark:text-white">Date</th>
+                    <th className="p-4 text-left text-sm font-medium text-black dark:text-white">Account Name</th>
+                    <th className="p-4 text-left text-sm font-medium text-black dark:text-white">Amount</th>
+                    <th className="p-4 text-left text-sm font-medium text-black dark:text-white">Purpose</th>
+                    <th className="p-4 text-left text-sm font-medium text-black dark:text-white">Status</th>
+                  </tr>
       </thead>
       <tbody>
-        {transactions.map((transaction) => {
+      {transactions.length > 0 ? (
+        transactions.map((transaction) => {
           // Format the date
           const date = new Date(transaction.initiated_at);
           const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
           
           return (
-            <tr key={transaction.reference} className="hover:bg-blue-50 dark:hover:bg-boxdark">
-              <td className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">{formattedDate}</td>
-              <td className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">{transaction.account.account_name}</td>
-              <td className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">₦{transaction.amount}</td>
-              <td className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">{transaction.purpose}</td>
-              <td className="border border-stroke dark:border-strokedark p-2 text-black dark:text-white">
+            <tr key={transaction.reference} className="border-b border-stroke dark:border-strokedark hover:bg-blue-50 dark:hover:bg-boxdark/60">
+              <td className="p-4 text-sm text-black dark:text-white">{formattedDate}</td>
+              <td className="p-4 text-sm text-black dark:text-white">{transaction.account.account_name}</td>
+              <td className="p-4 text-sm text-black dark:text-white">₦{parseFloat(transaction.amount).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+              <td className="p-4 text-sm text-black dark:text-white">{transaction.purpose}</td>
+              <td className="p-4 text-black dark:text-white">
                 <span 
                   className={`px-2 py-1 rounded text-xs font-semibold ${
                     transaction.status === 'APPROVED' ? 'bg-green-100 text-green-800' :
@@ -1483,46 +1305,26 @@ const fetchTransactions = async () => {
               </td>
             </tr>
           );
-        })}
+        })
+      ) : (
+        <tr>
+            <td colSpan="5" className="text-center text-gray-500 dark:text-gray-400 p-4">
+              No transactions to display
+            </td>
+          </tr>
+        )}
       </tbody>
     </table>
     {/* Account */}
-  
-       {/* Add this button after the Recent Transactions section */}
-       
-<div className="mt-4 mb-6">
-  <button
-    onClick={() => setShowStatement(true)}
-    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-  >
-    Generate Account Statement
-  </button>
-</div>
-
-{showStatement && (
-  <AccountStatement
-   selectedAccount={selectedAccount}
-  isOpen={showStatement}
-  onClose={() => setShowStatement(false)}
-  />
-)}
   </div>
 </div>
 
-       {/* Bar Chart */}
-       <div className="h-80 mb-6">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="expenses" fill="#3B82F6" />
-              <Bar dataKey="income" fill="#10B981" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+
+<div className="h-[300px] md:h-[400px] lg:h-[500px]">
+        <TransactionChart selectedAccount={selectedAccount} />
+</div>
+
+
       </div>
       </div>
 
@@ -1535,52 +1337,71 @@ const fetchTransactions = async () => {
         </div>
       </div>
     )}
+
+
+    </div>
     
     </>
   );
 };
 
 
-const Cards = ({ title, value, icon, bgColor }) => {
-  const [timePeriod, setTimePeriod] = useState('monthly');
-
+const Cards = ({ title, value, icon, bgColor, timePeriod, onTimePeriodChange }) => {
   const handleTimePeriodChange = (e) => {
-    setTimePeriod(e.target.value);
-  };
-
-  const getAdjustedTitle = () => {
-    switch(timePeriod) {
-      case 'weekly':
-        return title.replace('Monthly', 'Weekly');
-      case 'yearly':
-        return title.replace('Monthly', 'Yearly');
-      default:
-        return title;
+    if (onTimePeriodChange) {
+      onTimePeriodChange(e.target.value);
     }
   };
 
-  const isFilterableCard = title === 'Monthly Expenses' || title === 'Monthly Income';
+  const getAdjustedTitle = () => {
+    if (!timePeriod || !title.includes('Income') && !title.includes('Expenses')) {
+      return title;
+    }
+    
+    const baseTitle = title.replace('Monthly ', '').replace('Weekly ', '').replace('Yearly ', '').replace('All Time ', '');
+    
+    switch(timePeriod) {
+      case 'weekly':
+        return `Weekly ${baseTitle}`;
+      case 'monthly':
+        return `Monthly ${baseTitle}`;
+      case 'yearly':
+        return `Yearly ${baseTitle}`;
+      case 'allTime':
+        return `All Time ${baseTitle}`;
+      default:
+        return `${baseTitle}`;
+    }
+  };
+
+  const isFilterableCard = title.includes('Expenses') || title.includes('Income');
 
   return (
     <div className={`${bgColor} rounded-lg p-6 text-white relative`}>
-    <div className="flex justify-between items-center mb-4">
-      <h3 className="text-lg font-semibold">{getAdjustedTitle()}</h3>
-      {isFilterableCard && (
-        <select 
-          className="absolute top-2 right-2 bg-white/20 text-white rounded px-1 py-1 text-xs outline-none dark:bg-boxdark/20"
-          value={timePeriod} 
-          onChange={handleTimePeriodChange}
-        >
-          <option value="weekly" className="text-black dark:text-white">Weekly</option>
-          <option value="monthly" className="text-black dark:text-white">Monthly</option>
-          <option value="yearly" className="text-black dark:text-white">Yearly</option>
-        </select>
-      )}
-      <span className="text-2xl">{icon}</span>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-semibold">{getAdjustedTitle()}</h3>
+        {isFilterableCard && (
+          <select 
+            className="absolute top-2 right-2 bg-white/20 text-white rounded px-1 py-1 text-xs outline-none dark:bg-boxdark/20"
+            value={timePeriod} 
+            onChange={handleTimePeriodChange}
+          >
+            <option value="weekly" className="text-black dark:text-white">Weekly</option>
+            <option value="monthly" className="text-black dark:text-white">Monthly</option>
+            <option value="yearly" className="text-black dark:text-white">Yearly</option>
+            <option value="allTime" className="text-black dark:text-white">All Time</option>
+          </select>
+        )}
+        <span className="text-2xl">{icon}</span>
+      </div>
+      {/* <p className="text-3xl font-bold">{value}</p> */}
+      <p className="text-3xl font-bold">
+      {typeof value === 'string' && value.includes('₦') 
+        ? value.replace('₦', '₦').replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+        : value}
+    </p>
     </div>
-    <p className="text-3xl font-bold">{value}</p>
-  </div>
-);
+  );
 };
- 
+
 export default FinanceDashboard;

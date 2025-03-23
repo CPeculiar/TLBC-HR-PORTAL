@@ -78,6 +78,13 @@ const AdvancedUserSearchPage = () => {
   fetchChurchesAndZones();
 }, []);
 
+  // Color constants
+  const primaryColor = '#3c50e0';
+  const secondaryColor = '#4d0099';
+  const textColor = '#333';
+  const borderColor = '#ccc';
+  const backgroundColor = '#f5f5f5';
+
   // Available search field options
   const SEARCH_FIELDS = [
     { key: 'username', label: 'Username', type: 'username' }, 
@@ -107,73 +114,94 @@ const AdvancedUserSearchPage = () => {
     setError(null);
     setIsLoading(true);
     setIsUsernameSearch(false);
+    
+        // Add this at the beginning of your fetchUsers function
+const testErrorMode = true; // Toggle this to test error state
+if (testErrorMode) {
+  setError("This is a test error message. The API request was not actually made.");
+  setIsLoading(false);
+  return; // Stop execution to prevent the actual API call
+}
 
-try {
-  const accessToken = localStorage.getItem("accessToken");
-  if (!accessToken) {
-      alert("Access token not found. Please login first.");
-      navigate("/");
-      return;
-  }
- 
-// Check if we're searching by username
-const usernameField = searchFields.find(field => field.key === 'username');
-if (usernameField && usernameField.value) {
-    setIsUsernameSearch(true);
-    // Make the specific username API call
-    const response = await axios.get(
-        `https://tlbc-platform-api.onrender.com/api/users/${usernameField.value}/`,
-        {
-            headers: { Authorization: `Bearer ${accessToken}` }
+    try {
+        const accessToken = localStorage.getItem("accessToken");
+        if (!accessToken) {
+            alert("Access token not found. Please login first.");
+            navigate("/");
+            return;
         }
-    );
-    setUsers([response.data]); // Set as array with single user
-    setTotalPages(1);
-    setNextPageUrl(null);
-    setPreviousPageUrl(null);
-    setTotalCount(1);
-    // Automatically show the profile card for username search
-    setSelectedUser(response.data);
-} else {
-    // Make the regular search API call
-    const url = pageUrl || 'https://tlbc-platform-api.onrender.com/api/users/';
-    const config = {
-        headers: { Authorization: `Bearer ${accessToken}` },
-        params: pageUrl ? {} : params // Only include params if it's not a pagination URL
-    };
 
-    const response = await axios.get(url, config);
-    const data = response.data;
+       // Convert church and zone to their respective slugs
+    //    if (params.church) {
+    //     const churchSlug = churches.find(church => church.name === params.church)?.slug;
+    //     if (churchSlug) params.church = churchSlug;
+    // }
 
-     setUsers(data.results || []);
-     setTotalCount(data.count || 0);
-     setTotalPages(data.count ? Math.ceil(data.count / data.limit) : 1);
-     setNextPageUrl(data.next);
-     setPreviousPageUrl(data.previous);
+    // if (params.zone) {
+    //     const zoneSlug = zones.find(zone => zone.name === params.zone)?.slug;
+    //     if (zoneSlug) params.zone = zoneSlug;
+    // }
+    
+       // Check if we're searching by username
+       const usernameField = searchFields.find(field => field.key === 'username');
+       if (usernameField && usernameField.value) {
+           setIsUsernameSearch(true);
+           // Make the specific username API call
+           const response = await axios.get(
+               `https://tlbc-platform-api.onrender.com/api/users/${usernameField.value}/`,
+               {
+                   headers: { Authorization: `Bearer ${accessToken}` }
+               }
+           );
+           setUsers([response.data]); // Set as array with single user
+           setTotalPages(1);
+           setNextPageUrl(null);
+           setPreviousPageUrl(null);
+           setTotalCount(1);
+           // Automatically show the profile card for username search
+           setSelectedUser(response.data);
+       } else {
+           // Make the regular search API call
+           const url = pageUrl || 'https://tlbc-platform-api.onrender.com/api/users/';
+           const config = {
+               headers: { Authorization: `Bearer ${accessToken}` },
+               params: pageUrl ? {} : params // Only include params if it's not a pagination URL
+           };
+      
+           const response = await axios.get(url, config);
+           const data = response.data;
 
-      // Update current page based on URL if available
-      if (pageUrl) {
-       const pageMatch = pageUrl.match(/page=(\d+)/);
-       if (pageMatch && pageMatch[1]) {
-           setCurrentPage(parseInt(pageMatch[1]));
-       }
-   } else {
-       setCurrentPage(1);
-   }
-   }
-     setIsLoading(false);
-   } catch (error) {
-     console.error('Error fetching users:', error);
+            setUsers(data.results || []);
+            setTotalCount(data.count || 0);
+            setTotalPages(data.count ? Math.ceil(data.count / data.limit) : 1);
+            setNextPageUrl(data.next);
+            setPreviousPageUrl(data.previous);
 
-     setUsers([]);
-     setTotalPages(1);
-     setIsLoading(false);
-     setNextPageUrl(null);
-     setPreviousPageUrl(null);
-     setTotalCount(0);
-   }
- };
-     
+             // Update current page based on URL if available
+             if (pageUrl) {
+              const pageMatch = pageUrl.match(/page=(\d+)/);
+              if (pageMatch && pageMatch[1]) {
+                  setCurrentPage(parseInt(pageMatch[1]));
+              }
+          } else {
+              setCurrentPage(1);
+          }
+          }
+            setIsLoading(false);
+          } catch (error) {
+            console.error('Error fetching users:', error);
+
+            setUsers([]);
+            setTotalPages(1);
+            setIsLoading(false);
+
+            setNextPageUrl(null);
+            setPreviousPageUrl(null);
+            setTotalCount(0);
+          }
+        };
+
+        
           // Update the pagination handlers
     const handlePrevPage = () => {
       if (previousPageUrl) {
@@ -188,6 +216,10 @@ if (usernameField && usernameField.value) {
       setCurrentPage(prev => prev + 1);
   }
   };
+
+  const hasPagination = () => {
+    return nextPageUrl !== null || previousPageUrl !== null;
+};
 
       // Add a new search field
       const addSearchField = () => {
@@ -256,16 +288,7 @@ if (usernameField && usernameField.value) {
   if (error) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full relative">
-        {/* Close button */}
-        <button 
-          onClick={() => setError(null)} 
-          className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 transition-colors duration-200"
-          aria-label="Close"
-        >
-          <X size={24} />
-        </button>
-
+      <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full">
         <div className="text-center">
           <div className="bg-red-100 text-red-700 p-4 rounded-md mb-4">
             <h2 className="text-2xl font-bold mb-4">Error Occurred</h2>

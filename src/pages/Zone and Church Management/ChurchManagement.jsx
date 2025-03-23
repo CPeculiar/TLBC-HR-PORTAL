@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Eye, X, Trash2,  Menu  } from 'lucide-react';
+import { Eye, X, Trash2, Menu, ChevronLeft, ChevronRight, Plus, Edit, RefreshCw } from 'lucide-react';
 
 const ChurchManagement = () => {
   // States for Church Management
@@ -12,9 +12,8 @@ const ChurchManagement = () => {
 
   // Mobile Menu State
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState(null);
+  const [activeSection, setActiveSection] = useState('list');
   const [initialLoad, setInitialLoad] = useState(true);
-
 
   // Success and Error Messages
   const [churchesSuccessMessage, setChurchesSuccessMessage] = useState(null);
@@ -49,8 +48,8 @@ const ChurchManagement = () => {
   // API Base URL
   const API_BASE_URL = 'https://tlbc-platform-api.onrender.com/api';
 
-   // Helper function to set and auto-clear success message
-   const setSuccessMessageWithTimeout = (message, setMessageFn) => {
+  // Helper function to set and auto-clear success message
+  const setSuccessMessageWithTimeout = (message, setMessageFn) => {
     setMessageFn(message);
     
     // Set a timeout to clear the message after 5 seconds
@@ -65,6 +64,7 @@ const ChurchManagement = () => {
   // Fetch Zones and Churches on Component Load
   useEffect(() => {
     const fetchInitialData = async () => {
+      setLoading(true);
       try {
         // Fetch Zones
         const zonesResponse = await axios.get(`${API_BASE_URL}/zones/`);
@@ -79,9 +79,10 @@ const ChurchManagement = () => {
           previous: churchesResponse.data.previous,
           currentPage: 1,
         });
-        setLoading(false);
       } catch (error) {
         console.error('Failed to fetch initial data:', error);
+        setChurchesErrorMessage('Failed to load data. Please try again.');
+      } finally {
         setLoading(false);
       }
     };
@@ -108,6 +109,7 @@ const ChurchManagement = () => {
       
       if (!selectedZoneData) {
         setAddChurchErrorMessage('Please select a zone');
+        setLoadingAddChurch(false);
         return;
       }
 
@@ -146,11 +148,13 @@ const ChurchManagement = () => {
       
       if (!selectedChurchData) {
         setEditChurchErrorMessage('Please select a church');
+        setLoadingEditChurch(false);
         return;
       }
 
       if (!selectedZoneData) {
         setEditChurchErrorMessage('Please select a zone');
+        setLoadingEditChurch(false);
         return;
       }
 
@@ -159,7 +163,6 @@ const ChurchManagement = () => {
         zone: selectedZoneData.slug
       });
       
-      // Use the new timeout function
       setSuccessMessageWithTimeout('Church updated successfully', setEditChurchSuccessMessage);
       setSelectedChurch('');
       setEditChurchName('');
@@ -205,12 +208,12 @@ const ChurchManagement = () => {
       
       if (!selectedChurchData) {
         setDeleteChurchErrorMessage('Please select a church to delete');
+        setLoadingDeleteChurch(false);
         return;
       }
 
       await axios.delete(`${API_BASE_URL}/churches/${selectedChurchData.slug}/`);
       
-      // Use the new timeout function
       setSuccessMessageWithTimeout('Church deleted successfully', setDeleteChurchSuccessMessage);
       setDeleteChurchSlug('');
       setShowDeleteConfirmModal(false);
@@ -228,6 +231,7 @@ const ChurchManagement = () => {
   // Pagination Handlers
   const handleNextPage = async () => {
     if (pagination.next) {
+      setLoadingChurches(true);
       try {
         const response = await axios.get(pagination.next);
         setChurches(response.data.results);
@@ -239,12 +243,15 @@ const ChurchManagement = () => {
         });
       } catch (err) {
         setChurchesErrorMessage('Failed to load next page');
+      } finally {
+        setLoadingChurches(false);
       }
     }
   };
 
   const handlePrevPage = async () => {
     if (pagination.previous) {
+      setLoadingChurches(true);
       try {
         const response = await axios.get(pagination.previous);
         setChurches(response.data.results);
@@ -256,466 +263,656 @@ const ChurchManagement = () => {
         });
       } catch (err) {
         setChurchesErrorMessage('Failed to load previous page');
+      } finally {
+        setLoadingChurches(false);
       }
     }
   };
 
-  // Mobile Section Selection
-  const handleMobileSectionChange = (section) => {
-    setActiveSection(section);
-    setIsMobileMenuOpen(false);
-    setInitialLoad(false);
-  };
-
-   // Mobile Menu Toggle
-   const toggleMobileMenu = () => {
+  // Mobile Menu Toggle
+  const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
   // Render loading state
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-primary"></div>
+      <div className="flex justify-center items-center min-h-screen bg-gray-50 dark:bg-boxdark">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mb-4"></div>
+          <p className="text-primary font-medium dark:text-white">Loading church data...</p>
+        </div>
       </div>
     );
   }
 
-
   return (
-    <div className="container mx-auto px-4 py-6">
-     {/* Mobile Menu Toggle */}
-     <div className="md:hidden flex justify-between items-center mb-4">
-     <h2 className="text-xl font-bold text-black dark:text-white">Church Management</h2>
-     <button 
-          onClick={toggleMobileMenu} 
-          className="text-primary dark:text-white"
-        >
-          <Menu size={24} />
-        </button>
+    <div className="min-h-screen bg-gray-50 dark:bg-boxdark">
+      <div className="container mx-auto px-4 py-6">
+        {/* Header */}
+        <div className="mb-6 flex justify-between items-center">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">
+            Church Management
+          </h1>
+          <button 
+            onClick={toggleMobileMenu} 
+            className="md:hidden flex items-center justify-center p-2 rounded-lg bg-white text-primary shadow-sm dark:bg-meta-4 dark:text-white"
+          >
+            <Menu size={24} />
+          </button>
+        </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden fixed inset-0 bg-gray-900 bg-opacity-75 z-50 overflow-hidden mt-20">
+            <div className="absolute inset-0 overflow-y-auto bg-white dark:bg-boxdark">
+              <div className="p-4">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-bold text-gray-800 dark:text-white">Menu</h2>
+                  <button 
+                    onClick={toggleMobileMenu}
+                    className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-meta-4 text-gray-600 dark:text-white"
+                  >
+                    <X size={24} />
+                  </button>
+                </div>
+                
+                <nav className="space-y-3">
+                  <button 
+                    onClick={() => handleSectionChange('list')}
+                    className={`w-full flex items-center p-3 rounded-lg transition-colors ${
+                      activeSection === 'list' 
+                        ? 'bg-primary text-white' 
+                        : 'bg-gray-100 text-gray-800 dark:bg-meta-4 dark:text-white'
+                    }`}
+                  >
+                    <Eye size={20} className="mr-3" />
+                    <span className="font-medium">Church List</span>
+                  </button>
+                  
+                  <button 
+                    onClick={() => handleSectionChange('add')}
+                    className={`w-full flex items-center p-3 rounded-lg transition-colors ${
+                      activeSection === 'add' 
+                        ? 'bg-primary text-white' 
+                        : 'bg-gray-100 text-gray-800 dark:bg-meta-4 dark:text-white'
+                    }`}
+                  >
+                    <Plus size={20} className="mr-3" />
+                    <span className="font-medium">Add Church</span>
+                  </button>
+                  
+                  <button 
+                    onClick={() => handleSectionChange('edit')}
+                    className={`w-full flex items-center p-3 rounded-lg transition-colors ${
+                      activeSection === 'edit' 
+                        ? 'bg-primary text-white' 
+                        : 'bg-gray-100 text-gray-800 dark:bg-meta-4 dark:text-white'
+                    }`}
+                  >
+                    <Edit size={20} className="mr-3" />
+                    <span className="font-medium">Edit Church</span>
+                  </button>
+                  
+                  <button 
+                    onClick={() => handleSectionChange('delete')}
+                    className={`w-full flex items-center p-3 rounded-lg transition-colors ${
+                      activeSection === 'delete' 
+                        ? 'bg-primary text-white' 
+                        : 'bg-gray-100 text-gray-800 dark:bg-meta-4 dark:text-white'
+                    }`}
+                  >
+                    <Trash2 size={20} className="mr-3" />
+                    <span className="font-medium">Delete Church</span>
+                  </button>
+                </nav>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="grid md:grid-cols-12 gap-6">
+          {/* Sidebar for Desktop */}
+          <div className="hidden md:block md:col-span-3 lg:col-span-2">
+            <div className="bg-white dark:bg-boxdark rounded-lg shadow-sm sticky top-6">
+              <div className="py-4 px-2">
+                <h3 className="px-4 text-sm font-semibold uppercase text-gray-500 dark:text-gray-400 mb-4">Navigation</h3>
+                <nav className="space-y-2">
+                  <button 
+                    onClick={() => handleSectionChange('list')}
+                    className={`w-full flex items-center p-3 text-left rounded-lg transition-colors ${
+                      activeSection === 'list' 
+                        ? 'bg-primary bg-opacity-10 text-primary font-medium' 
+                        : 'text-gray-700 hover:bg-gray-100 dark:text-white dark:hover:bg-meta-4'
+                    }`}
+                  >
+                    <Eye size={18} className="mr-3" />
+                    <span>Church List</span>
+                  </button>
+                  
+                  <button 
+                    onClick={() => handleSectionChange('add')}
+                    className={`w-full flex items-center p-3 text-left rounded-lg transition-colors ${
+                      activeSection === 'add' 
+                        ? 'bg-primary bg-opacity-10 text-primary font-medium' 
+                        : 'text-gray-700 hover:bg-gray-100 dark:text-white dark:hover:bg-meta-4'
+                    }`}
+                  >
+                    <Plus size={18} className="mr-3" />
+                    <span>Add Church</span>
+                  </button>
+                  
+                  <button 
+                    onClick={() => handleSectionChange('edit')}
+                    className={`w-full flex items-center p-3 text-left rounded-lg transition-colors ${
+                      activeSection === 'edit' 
+                        ? 'bg-primary bg-opacity-10 text-primary font-medium' 
+                        : 'text-gray-700 hover:bg-gray-100 dark:text-white dark:hover:bg-meta-4'
+                    }`}
+                  >
+                    <Edit size={18} className="mr-3" />
+                    <span>Edit Church</span>
+                  </button>
+                  
+                  <button 
+                    onClick={() => handleSectionChange('delete')}
+                    className={`w-full flex items-center p-3 text-left rounded-lg transition-colors ${
+                      activeSection === 'delete' 
+                        ? 'bg-primary bg-opacity-10 text-primary font-medium' 
+                        : 'text-gray-700 hover:bg-gray-100 dark:text-white dark:hover:bg-meta-4'
+                    }`}
+                  >
+                    <Trash2 size={18} className="mr-3" />
+                    <span>Delete Church</span>
+                  </button>
+                </nav>
+              </div>
+            </div>
+          </div>
+
+          {/* Main Content Area */}
+          <div className="md:col-span-9 lg:col-span-10">
+            {/* Church List Section */}
+            {activeSection === 'list' && (
+              <div className="bg-white dark:bg-boxdark rounded-lg shadow-sm">
+                <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-xl font-bold text-gray-800 dark:text-white">Church Directory</h2>
+                    <button 
+                      onClick={() => {
+                        // Refresh church list
+                        const fetchChurches = async () => {
+                          setLoadingChurches(true);
+                          try {
+                            const response = await axios.get(`${API_BASE_URL}/churches/`);
+                            setChurches(response.data.results);
+                            setPagination({
+                              count: response.data.count,
+                              next: response.data.next,
+                              previous: response.data.previous,
+                              currentPage: 1,
+                            });
+                            setSuccessMessageWithTimeout('Churches refreshed', setChurchesSuccessMessage);
+                          } catch (error) {
+                            setChurchesErrorMessage('Failed to refresh church list');
+                          } finally {
+                            setLoadingChurches(false);
+                          }
+                        };
+                        fetchChurches();
+                      }}
+                      className="flex items-center p-2 rounded-lg text-primary hover:bg-gray-100 dark:hover:bg-meta-4"
+                    >
+                      <RefreshCw size={18} className={loadingChurches ? "animate-spin" : ""} />
+                    </button>
+                  </div>
+
+                  {/* Church List Table */}
+                  <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                      <thead className="bg-gray-50 dark:bg-meta-4">
+                        <tr>
+                          <th scope="col" className="px-4 py-3.5 text-left text-xs font-semibold text-gray-700 uppercase dark:text-gray-300">
+                            Church Name
+                          </th>
+                          <th scope="col" className="px-4 py-3.5 text-left text-xs font-semibold text-gray-700 uppercase dark:text-gray-300">
+                            Zone
+                          </th>
+                          <th scope="col" className="px-4 py-3.5 text-center text-xs font-semibold text-gray-700 uppercase dark:text-gray-300">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-boxdark">
+                        {churches.length > 0 ? (
+                          churches.map((church) => (
+                            <tr key={church.slug} className="hover:bg-gray-50 dark:hover:bg-meta-4 transition-colors">
+                              <td className="px-4 py-3.5 text-sm text-gray-900 dark:text-white">
+                                {church.name}
+                              </td>
+                              <td className="px-4 py-3.5 text-sm text-gray-900 dark:text-white">
+                                {church.zone}
+                              </td>
+                              <td className="px-4 py-3.5 text-sm text-center">
+                                <button 
+                                  onClick={() => handleViewChurchDetails(church.slug)} 
+                                  className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30"
+                                >
+                                  <Eye size={16} />
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan="3" className="px-4 py-4 text-sm text-center text-gray-500 dark:text-gray-400">
+                              No churches found
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Pagination Controls */}
+                  {churches.length > 0 && (
+                    <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
+                      <div className="text-sm text-gray-700 dark:text-gray-300">
+                        Showing {churches.length} of {pagination.count} churches
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <button 
+                          onClick={handlePrevPage} 
+                          disabled={!pagination.previous || loadingChurches}
+                          className="flex items-center justify-center px-3 py-2 text-sm font-medium rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-boxdark dark:text-white dark:border-gray-600 dark:hover:bg-meta-4"
+                        >
+                          <ChevronLeft size={16} className="mr-1" />
+                          Previous
+                        </button>
+                        <span className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-white">
+                          Page {pagination.currentPage} of {Math.ceil(pagination.count / 10) || 1}
+                        </span>
+                        <button 
+                          onClick={handleNextPage} 
+                          disabled={!pagination.next || loadingChurches}
+                          className="flex items-center justify-center px-3 py-2 text-sm font-medium rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-boxdark dark:text-white dark:border-gray-600 dark:hover:bg-meta-4"
+                        >
+                          Next
+                          <ChevronRight size={16} className="ml-1" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Success/Error Messages */}
+                  {churchesSuccessMessage && (
+                    <div className="mt-4 p-3 rounded-md bg-green-50 text-green-700 text-sm dark:bg-green-900/20 dark:text-green-400">
+                      {churchesSuccessMessage}
+                    </div>
+                  )}
+                  {churchesErrorMessage && (
+                    <div className="mt-4 p-3 rounded-md bg-red-50 text-red-700 text-sm dark:bg-red-900/20 dark:text-red-400">
+                      {churchesErrorMessage}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Add Church Section */}
+            {activeSection === 'add' && (
+              <div className="bg-white dark:bg-boxdark rounded-lg shadow-sm">
+                <div className="p-6">
+                  <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-6">Add New Church</h2>
+                  
+                  <form onSubmit={handleAddChurch} className="space-y-6">
+                    <div>
+                      <label htmlFor="churchName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Church Name
+                      </label>
+                      <input
+                        id="churchName"
+                        type="text"
+                        value={churchName}
+                        onChange={(e) => setChurchName(e.target.value)}
+                        placeholder="Enter church name"
+                        required
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent placeholder-gray-400 dark:border-gray-600 dark:bg-boxdark dark:text-white dark:placeholder-gray-500"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label htmlFor="zoneSelect" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Church Zone
+                      </label>
+                      <select
+                        id="zoneSelect"
+                        value={selectedZone}
+                        onChange={(e) => setSelectedZone(e.target.value)}
+                        required
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:border-gray-600 dark:bg-boxdark dark:text-white"
+                      >
+                        <option value="" disabled>Select a zone</option>
+                        {zones.map((zone) => (
+                          <option key={zone.slug} value={zone.name}>
+                            {zone.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <button
+                        type="submit"
+                        disabled={loadingAddChurch}
+                        className="w-full flex items-center justify-center px-4 py-3 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        {loadingAddChurch ? (
+                          <>
+                            <RefreshCw size={18} className="animate-spin mr-2" />
+                            Adding Church...
+                          </>
+                        ) : (
+                          <>
+                            <Plus size={18} className="mr-2" />
+                            Add New Church
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    
+                    {/* Success/Error Messages */}
+                    {addChurchSuccessMessage && (
+                      <div className="p-3 rounded-md bg-green-50 text-green-700 text-sm dark:bg-green-900/20 dark:text-green-400">
+                        {addChurchSuccessMessage}
+                      </div>
+                    )}
+                    {addChurchErrorMessage && (
+                      <div className="p-3 rounded-md bg-red-50 text-red-700 text-sm dark:bg-red-900/20 dark:text-red-400">
+                        {addChurchErrorMessage}
+                      </div>
+                    )}
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {/* Edit Church Section */}
+            {activeSection === 'edit' && (
+              <div className="bg-white dark:bg-boxdark rounded-lg shadow-sm">
+                <div className="p-6">
+                  <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-6">Edit Church</h2>
+                  
+                  <form onSubmit={handleEditChurch} className="space-y-6">
+                    <div>
+                      <label htmlFor="selectChurch" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Select Church to Edit
+                      </label>
+                      <select
+                        id="selectChurch"
+                        value={selectedChurch}
+                        onChange={(e) => {
+                          const church = churches.find(c => c.name === e.target.value);
+                          setSelectedChurch(e.target.value);
+                          if (church) {
+                            setEditChurchName(church.name);
+                            setSelectedZone(church.zone);
+                          }
+                        }}
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:border-gray-600 dark:bg-boxdark dark:text-white"
+                      >
+                        <option value="">Select a church</option>
+                        {churches.map((church) => (
+                          <option key={church.slug} value={church.name}>
+                            {church.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    {selectedChurch && (
+                      <>
+                        <div>
+                          <label htmlFor="editChurchName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            New Church Name
+                          </label>
+                          <input
+                            id="editChurchName"
+                            type="text"
+                            value={editChurchName}
+                            onChange={(e) => setEditChurchName(e.target.value)}
+                            placeholder="New church name"
+                            required
+                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent placeholder-gray-400 dark:border-gray-600 dark:bg-boxdark dark:text-white dark:placeholder-gray-500"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label htmlFor="editZoneSelect" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            New Zone
+                          </label>
+                          <select
+                            id="editZoneSelect"
+                            value={selectedZone}
+                            onChange={(e) => setSelectedZone(e.target.value)}
+                            required
+                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:border-gray-600 dark:bg-boxdark dark:text-white"
+                          >
+                            <option value="" disabled>Select a zone</option>
+                            {zones.map((zone) => (
+                              <option key={zone.slug} value={zone.name}>
+                                {zone.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        
+                        <div>
+                          <button
+                            type="submit"
+                            disabled={loadingEditChurch}
+                            className="w-full flex items-center justify-center px-4 py-3 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          >
+                            {loadingEditChurch ? (
+                              <>
+                                <RefreshCw size={18} className="animate-spin mr-2" />
+                                Updating Church...
+                              </>
+                            ) : (
+                              <>
+                                <Edit size={18} className="mr-2" />
+                                Update Church
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </>
+                    )}
+                    
+                    {/* Success/Error Messages */}
+                    {editChurchSuccessMessage && (
+                      <div className="p-3 rounded-md bg-green-50 text-green-700 text-sm dark:bg-green-900/20 dark:text-green-400">
+                        {editChurchSuccessMessage}
+                      </div>
+                    )}
+                    {editChurchErrorMessage && (
+                      <div className="p-3 rounded-md bg-red-50 text-red-700 text-sm dark:bg-red-900/20 dark:text-red-400">
+                        {editChurchErrorMessage}
+                      </div>
+                    )}
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {/* Delete Church Section */}
+            {activeSection === 'delete' && (
+              <div className="bg-white dark:bg-boxdark rounded-lg shadow-sm">
+                <div className="p-6">
+                  <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-6">Delete Church</h2>
+                  
+                  <div className="space-y-6">
+                    <div>
+                      <label htmlFor="deleteChurchSelect" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Select Church to Delete
+                      </label>
+                      <select
+                        id="deleteChurchSelect"
+                        value={deleteChurchSlug}
+                        onChange={(e) => setDeleteChurchSlug(e.target.value)}
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:border-gray-600 dark:bg-boxdark dark:text-white"
+                      >
+                        <option value="">Select a church</option>
+                        {churches.map((church) => (
+                          <option key={church.slug} value={church.name}>
+                            {church.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <button
+                        onClick={initiateDeleteChurch}
+                        disabled={!deleteChurchSlug || loadingDeleteChurch}
+                        className="w-full flex items-center justify-center px-4 py-3 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        {loadingDeleteChurch ? (
+                          <>
+                            <RefreshCw size={18} className="animate-spin mr-2" />
+                            Deleting...
+                          </>
+                        ) : (
+                          <>
+                            <Trash2 size={18} className="mr-2" />
+                            Delete Church
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    
+                    {/* Success/Error Messages */}
+                    {deleteChurchSuccessMessage && (
+                      <div className="p-3 rounded-md bg-green-50 text-green-700 text-sm dark:bg-green-900/20 dark:text-green-400">
+                        {deleteChurchSuccessMessage}
+                      </div>
+                    )}
+                    {deleteChurchErrorMessage && (
+                      <div className="p-3 rounded-md bg-red-50 text-red-700 text-sm dark:bg-red-900/20 dark:text-red-400">
+                        {deleteChurchErrorMessage}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 bg-white dark:bg-boxdark z-50 overflow-y-auto">
-          <div className="p-4">
-            <button 
-              onClick={toggleMobileMenu} 
-              className="absolute top-4 right-4 text-black dark:text-white"
-              >
-              <X size={24} />
-            </button>
-            <h2 className="text-xl font-bold mb-6 mt-10 text-black dark:text-white">Sections</h2>
-            <div className="space-y-4">
-              <button 
-                onClick={() => handleMobileSectionChange('add')}
-                className={`w-full p-3 text-left rounded ${
-                  activeSection === 'add' 
-                    ? 'bg-primary text-white' 
-                    : 'bg-gray-100 text-black dark:bg-meta-4 dark:text-white'
-                }`}
-              >
-                Add New Church
-              </button>
-              <button 
-                onClick={() => handleMobileSectionChange('edit')}
-                className={`w-full p-3 text-left rounded ${
-                  activeSection === 'add' 
-                    ? 'bg-primary text-white' 
-                    : 'bg-gray-100 text-black dark:bg-meta-4 dark:text-white'
-                }`}
-              >
-                Edit Church
-              </button>
-              <button 
-                onClick={() => handleMobileSectionChange('delete')}
-                className={`w-full p-3 text-left rounded ${
-                  activeSection === 'add' 
-                    ? 'bg-primary text-white' 
-                    : 'bg-gray-100 text-black dark:bg-meta-4 dark:text-white'
-                }`}
-              >
-                Delete Church
-              </button>
-              <button 
-                onClick={() => handleMobileSectionChange('list')}
-                className={`w-full p-3 text-left rounded ${
-                  activeSection === 'add' 
-                    ? 'bg-primary text-white' 
-                    : 'bg-gray-100 text-black dark:bg-meta-4 dark:text-white'
-                }`}
-              >
-                Church List
-              </button>
+      {/* Church Details Modal */}
+      {showChurchDetailsModal && selectedChurchDetails && (
+        <div className="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="relative w-full max-w-md mx-auto rounded-lg shadow-lg overflow-hidden">
+            <div className="bg-white dark:bg-boxdark max-h-[90vh] overflow-y-auto">
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+                  Church Details
+                </h3>
+                <button
+                  onClick={() => setShowChurchDetailsModal(false)}
+                  className="p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary rounded-full"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              
+              {/* Modal Body */}
+              <div className="p-6">
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Church Name</p>
+                    <p className="mt-1 text-base font-semibold text-gray-900 dark:text-white">
+                      {selectedChurchDetails.name}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Zone</p>
+                    <p className="mt-1 text-base font-semibold text-gray-900 dark:text-white">
+                      {selectedChurchDetails.zone}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Modal Footer */}
+              <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+                <button
+                  onClick={() => setShowChurchDetailsModal(false)}
+                  className="w-full flex items-center justify-center px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary dark:border-gray-600 dark:bg-meta-4 dark:text-white dark:hover:bg-gray-700"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      <div className="grid md:grid-cols-4 gap-6">
-        {/* Sidebar for Desktop */}
-        <div className="hidden md:block col-span-1 bg-gray-100 dark:bg-meta-4 p-4 rounded-lg h-fit">
-          <h3 className="text-lg font-semibold mb-4 text-black dark:text-white">Sections</h3>
-          <div className="space-y-2">
-            <button 
-              onClick={() => handleSectionChange('add')}
-              className={`w-full p-3 text-left rounded ${
-                activeSection === 'add' 
-                  ? 'bg-primary text-white' 
-                  : 'hover:bg-gray-200 dark:hover:bg-meta-4 text-black dark:text-white'
-              }`}
-            >
-              Add New Church
-            </button>
-            <button 
-              onClick={() => handleSectionChange('edit')}
-              className={`w-full p-3 text-left rounded ${
-                activeSection === 'add' 
-                  ? 'bg-primary text-white' 
-                  : 'hover:bg-gray-200 dark:hover:bg-meta-4 text-black dark:text-white'
-              }`}
-            >
-              Edit Church
-            </button>
-            <button 
-              onClick={() => handleSectionChange('delete')}
-              className={`w-full p-3 text-left rounded ${
-                activeSection === 'add' 
-                  ? 'bg-primary text-white' 
-                  : 'hover:bg-gray-200 dark:hover:bg-meta-4 text-black dark:text-white'
-              }`}
-            >
-              Delete Church
-            </button>
-            <button 
-              onClick={() => handleSectionChange('list')}
-              className={`w-full p-3 text-left rounded ${
-                activeSection === 'add' 
-                  ? 'bg-primary text-white' 
-                  : 'hover:bg-gray-200 dark:hover:bg-meta-4 text-black dark:text-white'
-              }`}
-            >
-              Church List
-            </button>
-          </div>
-        </div>
-
-        {/* Main Content Area */}
-        <div className="col-span-full md:col-span-3">
-        <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-        {/* Conditionally Render Sections */}
-            {(initialLoad || activeSection === 'add') && (
-              <div className="border-b border-stroke p-4 dark:border-strokedark">
-                <h3 className="font-medium text-black dark:text-white">Add New Church</h3>
-                       {/* Add Church Form (same as before) */}
-                <form onSubmit={handleAddChurch} className="mt-4">
-                  {/* Form inputs remain the same */}
-                  <div className="grid grid-cols-1 gap-4">
-                    <input
-                      type="text"
-                      value={churchName}
-                      onChange={(e) => setChurchName(e.target.value)}
-                      placeholder="Enter Church Name"
-                      required
-                      className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                      />
-                    <select
-                      value={selectedZone}
-                      onChange={(e) => setSelectedZone(e.target.value)}
-                      required
-                      className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                    >
-                      <option value="" disabled>Select Zone</option>
-                      {zones.map((zone) => (
-                        <option key={zone.slug} value={zone.name}>
-                          {zone.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={loadingAddChurch}
-                    className="mt-4 w-full flex justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90 disabled:bg-opacity-50 dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  >
-                    {loadingAddChurch ? 'Adding...' : 'Add Church'}
-                  </button>
-            {addChurchSuccessMessage && (
-              <div className="mt-2 rounded bg-green-50 p-2 text-sm text-green-600">
-                {addChurchSuccessMessage}
-              </div>
-            )}
-            {addChurchErrorMessage && (
-              <div className="mt-2 rounded bg-red-50 p-2 text-sm text-red-600">
-                {addChurchErrorMessage}
-              </div>
-            )}
-          </form>
-        </div>
-            )}
-
-         {/* Similar changes for Edit and Delete sections */}
-         {(initialLoad || activeSection === 'edit') && (
-          <div className="border-b border-stroke p-4 dark:border-strokedark">
-          <h3 className="font-medium text-black dark:text-white">Edit Church</h3>
-          <form onSubmit={handleEditChurch} className="mt-4">
-            <div className="mb-4">
-              <select
-                value={selectedChurch}
-                onChange={(e) => setSelectedChurch(e.target.value)}
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                >
-                <option value="">Select Church</option>
-                {churches.map((church) => (
-                  <option key={church.slug} value={church.name}>
-                    {church.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {selectedChurch && (
-              <>
-                <div className="mb-4">
-                  <input
-                    type="text"
-                    value={editChurchName}
-                    onChange={(e) => setEditChurchName(e.target.value)}
-                    placeholder="Enter New Church Name"
-                    required
-                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                      />
-                </div>
-                <div className="mb-4">
-                  <select
-                    value={selectedZone}
-                    onChange={(e) => setSelectedZone(e.target.value)}
-                    required
-                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                    >
-                    <option value="">Select Zone</option>
-                    {zones.map((zone) => (
-                      <option key={zone.slug} value={zone.name}>
-                        {zone.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </>
-            )}
-            <button
-              type="submit"
-              disabled={loadingEditChurch || !selectedChurch}
-              className="w-full flex justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90 disabled:bg-opacity-50 dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-            >
-              {loadingEditChurch ? 'Updating...' : 'Update Church'}
-            </button>
-            {editChurchSuccessMessage && (
-              <div className="mt-2 rounded bg-green-50 p-2 text-sm text-green-600">
-                {editChurchSuccessMessage}
-              </div>
-            )}
-            {editChurchErrorMessage && (
-              <div className="mt-2 rounded bg-red-50 p-2 text-sm text-red-600">
-                {editChurchErrorMessage}
-              </div>
-            )}
-          </form>
-        </div>
-         )}
-
-        {/* Delete Church Section */}
-        {(initialLoad || activeSection === 'delete') && (
-          <div className="border-b border-stroke p-4 dark:border-strokedark">
-          <h3 className="font-medium text-black dark:text-white">Delete Church</h3>
-          <div className="mt-4">
-            <select
-              value={deleteChurchSlug}
-              onChange={(e) => setDeleteChurchSlug(e.target.value)}
-              className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-              >
-              <option value="">Select Church to Delete</option>
-              {churches.map((church) => (
-                <option key={church.slug} value={church.name}>
-                  {church.name}
-                </option>
-              ))}
-            </select>
-            <button
-              onClick={initiateDeleteChurch}
-              disabled={!deleteChurchSlug}
-              className="mt-4 w-full flex justify-center items-center rounded bg-red-500 p-3 font-medium text-white hover:bg-red-600 disabled:bg-opacity-50 dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-            >
-              <Trash2 className="mr-2" /> Delete Church
-            </button>
-            {deleteChurchSuccessMessage && (
-              <div className="mt-2 rounded bg-green-50 p-2 text-sm text-green-600">
-                {deleteChurchSuccessMessage}
-              </div>
-            )}
-            {deleteChurchErrorMessage && (
-              <div className="mt-2 rounded bg-red-50 p-2 text-sm text-red-600">
-                {deleteChurchErrorMessage}
-              </div>
-            )}
-          </div>
-        </div>
-        )}
-
-        {/* Delete Confirmation Modal */}
-        {showDeleteConfirmModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto bg-black bg-opacity-50 p-4">
-          <div className="relative w-full max-w-md mx-auto">
-            <div className="relative flex flex-col w-full bg-white rounded-lg shadow-xl dark:bg-boxdark">
-             {/* Modal Header */}
-        <div className="flex items-center justify-center p-4 border-b dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Confirm Delete</h3>
-        </div>
-
-        {/* Modal Content */}
-        <div className="p-6 text-center">
-          <div className="mb-4">
-            <p className="text-sm text-gray-600 dark:text-gray-300 dark:text-white">
-              Are you sure you want to delete this church?
-            </p>
-            <p className="text-xs text-gray-500 mt-2 dark:text-gray-400 dark:text-white">
-              This action cannot be undone.
-            </p>
-          </div>
-        </div>
-
-        {/* Modal Actions */}
-        <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-2 p-4 border-t dark:border-gray-700">
-          <button
-            type="button"
-            onClick={confirmDeleteChurch}
-            disabled={loadingDeleteChurch}
-            className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-900"
-          >
-            {loadingDeleteChurch ? 'Deleting...' : 'Confirm Delete'}
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowDeleteConfirmModal(false)}
-            className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-gray-500 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 hover:text-gray-900 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
-
-           {/* Church List Section (continued) */}
-           {(initialLoad || activeSection === 'list') && (
-            <div className="border-b border-stroke p-4 dark:border-strokedark">
-                <h3 className="text-xl text-center font-semibold text-black dark:text-white">
-                  List of Churches
-                </h3>
-                <div className="mt-4 overflow-x-auto">
-                  <table className="w-full table-auto text-sm">
-                    <thead>
-                      <tr className="bg-gray-100 text-left dark:bg-meta-4">
-                        <th className="p-2 sm:px-4 sm:py-2 text-black dark:text-white">Church Name</th>
-                        <th className="p-2 sm:px-4 sm:py-2 text-black dark:text-white">Zone</th>
-                        <th className="p-2 sm:px-4 sm:py-2 text-black dark:text-white">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody className="text-black dark:text-white">
-                      {churches.map((church) => (
-                        <tr key={church.slug} className="border-b dark:border-strokedark">
-                          <td className="p-2 sm:px-4 sm:py-3 text-black dark:text-white">{church.name}</td>
-                          <td className="p-2 sm:px-4 sm:py-3 text-black dark:text-white">{church.zone}</td>
-                          <td className="p-2 sm:px-4 sm:py-3 text-black dark:text-white">
-                            <button 
-                              onClick={() => handleViewChurchDetails(church.slug)} 
-                              className="text-blue-500 hover:text-blue-700"
-                            >
-                              <Eye size={20} />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-          {/* Pagination Controls */}
-          <div className="flex flex-col sm:flex-row justify-between items-center mt-4 px-4 space-y-2 sm:space-y-0">
-                  <button 
-                    onClick={handlePrevPage} 
-                    disabled={!pagination.previous}
-                    className="px-4 py-2 bg-primary text-white rounded disabled:opacity-50 w-full sm:w-auto dark:text-white"
-                  >
-                    Previous
-                  </button>
-                  <span className="text-sm text-gray-600 dark:text-white">
-                    Page {pagination.currentPage} of {Math.ceil(pagination.count / 10)}
-                  </span>
-                  <button 
-                    onClick={handleNextPage} 
-                    disabled={!pagination.next}
-                    className="px-4 py-2 bg-primary text-white rounded disabled:opacity-50 w-full sm:w-auto dark:text-white"
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-       {/* Church Details Modal */}
- {showChurchDetailsModal && selectedChurchDetails && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto bg-black bg-opacity-50 p-4">
-          <div className="relative w-full max-w-md mx-auto">
-            <div className="relative flex flex-col w-full bg-white rounded-lg shadow-xl dark:bg-boxdark max-h-[90vh] overflow-y-auto">
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirmModal && (
+        <div className="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="relative w-full max-w-sm mx-auto rounded-lg shadow-lg overflow-hidden">
+            <div className="bg-white dark:bg-boxdark">
               {/* Modal Header */}
-        <div className="flex items-center justify-between p-4 border-b dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Church Details</h3>
-          <button
-            onClick={() => setShowChurchDetailsModal(false)}
-            className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-700 dark:hover:text-white"
-          >
-            <X size={20} />
-          </button>
-        </div>
-
-        {/* Modal Content */}
-        <div className="p-4 space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Church Name</p>
-              <p className="text-base font-semibold text-gray-900 dark:text-white">
-                {selectedChurchDetails.name}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Zone</p>
-              <p className="text-base font-semibold text-gray-900 dark:text-white">
-                {selectedChurchDetails.zone}
-              </p>
+              <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 className="text-lg font-semibold text-center text-gray-800 dark:text-white">
+                  Confirm Delete
+                </h3>
+              </div>
+              
+              {/* Modal Body */}
+              <div className="p-6 text-center">
+                <div className="mx-auto w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-4">
+                  <Trash2 className="h-6 w-6 text-red-600" />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Are you sure?</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  You are about to delete this church. This action cannot be undone.
+                </p>
+              </div>
+              
+              {/* Modal Footer */}
+              <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex flex-col-reverse sm:flex-row gap-2 sm:justify-end">
+                <button
+                  onClick={() => setShowDeleteConfirmModal(false)}
+                  className="w-full sm:w-auto px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary dark:border-gray-600 dark:bg-meta-4 dark:text-white dark:hover:bg-gray-700"
+                >
+                  Cancel
+                </button>
+                
+                <button
+                  onClick={confirmDeleteChurch}
+                  disabled={loadingDeleteChurch}
+                  className="w-full sm:w-auto flex items-center justify-center px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loadingDeleteChurch ? (
+                    <>
+                      <RefreshCw size={16} className="animate-spin mr-2" />
+                      Deleting...
+                    </>
+                  ) : (
+                    "Yes, Delete"
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
-
-        {/* Modal Footer */}
-        <div className="flex justify-end p-4 border-t dark:border-gray-700 space-x-2">
-          <button
-            onClick={() => setShowChurchDetailsModal(false)}
-            className="px-4 py-2 text-sm font-medium text-gray-500 bg-white rounded-lg text-red-500 border border-gray-200 hover:bg-red-500 hover:text-white focus:ring-4 focus:outline-none focus:ring-primary-300 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
-          >
-            Close
-          </button>
-        </div>
-      </div>
+      )}
     </div>
-  </div>
-)}
-
-      </div>
-
   );
 };
 

@@ -387,8 +387,6 @@ const formatErrorMessage = (error) => {
   return error;
 };
 
-
-
 // Modify useEffect to include new fetch calls
 useEffect(() => {
   const fetchAllData = async () => {
@@ -442,17 +440,6 @@ const handleErrorMessage = (error) => {
   }
   return 'An unexpected error occurred';
 };
-
-
-  // Chart data (example data, replace with actual data from API)
-  const chartData = [
-    { month: 'Jan', expenses: 4000, income: 2400 },
-    { month: 'Feb', expenses: 3000, income: 1398 },
-    { month: 'Mar', expenses: 2000, income: 9800 },
-    { month: 'Apr', expenses: 2780, income: 3908 },
-    { month: 'May', expenses: 1890, income: 4800 },
-    { month: 'Jun', expenses: 2390, income: 3800 },
-  ];
 
   // Show message with timeout
   const showMessage = (type, message) => {
@@ -528,9 +515,7 @@ const handleErrorMessage = (error) => {
   }
 };
 
-
    // Fetch transactions
-   // Update the fetch function
 const fetchTransactions = async () => {
   try {
     const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/expense/list/');
@@ -925,7 +910,7 @@ const fetchTransactions = async () => {
             <button 
               onClick={verifyAccountDetails}
               disabled={isVerifyingAccount}
-              className="w-full bg-blue-500 text-white rounded p-2 disabled:opacity-50 dark:border-form-strokedark dark:bg-blue-500 dark:hover:bg-blue-800   dark:text-white dark:focus:border-primary"
+              className="w-full bg-blue-500 hover:bg-blue-800 text-white rounded p-2 disabled:opacity-50 dark:border-form-strokedark dark:bg-blue-500 dark:hover:bg-blue-800   dark:text-white dark:focus:border-primary"
             >
               {isVerifyingAccount ? 'Verifying...' : 'Verify Account'}
             </button>
@@ -940,6 +925,22 @@ const fetchTransactions = async () => {
               <p className="text-red-500">{updateError}</p>
             )}
 
+      {/* Cancel button for Update Account */}
+      <button 
+        onClick={() => {
+          setUpdateAccountNumber('');
+          setUpdateBankCode('');
+          setVerifiedAccountName('');
+          setIsUpdateButtonDisabled(true);
+          setUpdateError(null);
+        }}
+        // disabled={isUpdateButtonDisabled || isUpdatingAccount}
+        className="w-full bg-red-500 hover:bg-red-800 text-white rounded p-2 disabled:opacity-50 dark:border-form-strokedark
+        dark:bg-blue-500 dark:hover:bg-blue-800 dark:text-white dark:focus:border-primary transition-colors duration-200"
+        >
+        Cancel
+      </button>
+
             <button 
               onClick={handleUpdateAccount}
               disabled={isUpdateButtonDisabled || isUpdatingAccount}
@@ -949,17 +950,17 @@ const fetchTransactions = async () => {
             </button>
 
              {/* Add conditional rendering for success and error messages */}
-{successMessage && (
-  <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-    {successMessage}
-  </div>
-)}
+      {successMessage && (
+        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+          {successMessage}
+        </div>
+      )}
 
-{errorMessage && (
-  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-    {errorMessage}
-  </div>
-)}
+      {errorMessage && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          {errorMessage}
+        </div>
+      )}
           </div>
         </div>
 
@@ -1062,6 +1063,20 @@ const fetchTransactions = async () => {
                   >
                     Add Another Field
                   </button>
+
+                  {/* Cancel button for Default Account */}
+          <button 
+            onClick={() => {
+              setSelectedDefaultAccount('');
+              setDefaultAccountDetails(null);
+              setAccountSelections([{ id: 1, selection: '' }]);
+            }}
+            // disabled={isUpdateButtonDisabled || isUpdatingAccount}
+            className="w-full bg-red-500 hover:bg-red-800 text-white rounded p-2 disabled:opacity-50 dark:border-form-strokedark
+            dark:bg-blue-500 dark:hover:bg-blue-800 dark:text-white dark:focus:border-primary transition-colors duration-200 mt-3"
+            >
+            Cancel
+          </button>
 
                   <button 
       onClick={handleSubmitDefaultSettings}

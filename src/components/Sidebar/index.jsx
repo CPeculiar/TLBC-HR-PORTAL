@@ -3,7 +3,6 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import authService from '../../js/services/authService';
 import SidebarLinkGroup from './SidebarLinkGroup';
-import TLBCFullLogo from '../../images/logo/tlbc-full-logo.svg'; 
 import LogoBG from '../../assets/images/TLBC_LOGO_removebg.png';
 
 
@@ -81,7 +80,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
       } catch (error) {
         console.error('Error fetching permissions:', error);
         if (error.response?.status === 401) {
-          navigate('/signin');
+          navigate('/');
         }
       }
     };
@@ -150,8 +149,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
     }
   };
 
-
-
    // close on click outside
    useEffect(() => {
     const clickHandler = ({ target }) => {
@@ -201,15 +198,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
     }
 
   }, []);
-
-  // In the Sidebar component
-// useEffect(() => {
-//   const userInfo = authService.getUserInfo();
-//   console.log('User Info:', userInfo);
-//   console.log('User Role:', userRole);
-//   console.log('Is Admin:', isAdmin());
-// }, [userRole]);
-
 
   return (
     <aside
@@ -383,32 +371,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                         }`}
                       >
                         <ul className="mt-4 mb-5.5 flex flex-col gap-2.5 pl-6">
-                        {/* {isSuperAdmin() && (
-                          <li>
-                            <NavLink
-                              to="/createattendance"
-                              className={({ isActive }) =>
-                                'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
-                                (isActive && '!text-white')
-                              }
-                            >
-                              Create Attendance
-                            </NavLink>
-                          </li>
-                        )} */}
-
-                          {/* <li>
-                            <NavLink
-                              to="/forms"
-                              className={({ isActive }) =>
-                                'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
-                                (isActive && '!text-white')
-                              }
-                            >
-                              First Timers Form
-                            </NavLink>
-                          </li> */}
-
                           <li>
                             <NavLink
                               to="/markattendance"
@@ -1024,11 +986,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                 </NavLink>
               </li>
               {/* <!-- Menu Item Settings --> */}
-
             </ul>
           </div>
-
-          
+         
 
           {/* Admin Section - Show if user has any admin permissions or required roles */}
           {(shouldShowSidebarItem('attendance') || 
@@ -1170,10 +1130,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
               {/* <!-- Menu Item Finance Management ends --> */}
 
 
-
-
    {/* <!-- Menu Item Finance Management Starts --> */}
-   {/* {shouldShowSidebarItem('finance') || isSuperAdmin() && ( */}
    {(shouldShowSidebarItem('expense') || 
                   shouldShowSidebarItem('fund') || 
                 shouldShowSidebarItem('giving') || 
@@ -1418,28 +1375,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                             </NavLink>
                           )}
                           </li>
-                          {/* <li>
-                            <NavLink
-                              to="#"
-                              className={({ isActive }) =>
-                                'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
-                                (isActive && '!text-white')
-                              }
-                            >
-                           Approvals
-                            </NavLink>
-                          </li> */}
-                          {/* <li>
-                            <NavLink
-                              to="#"
-                              className={({ isActive }) =>
-                                'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
-                                (isActive && '!text-white')
-                              }
-                            >
-                            Reports
-                            </NavLink>
-                          </li> */}
                         </ul>
                       </div>
                       {/* <!-- Dropdown Menu End --> */}
@@ -1449,7 +1384,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
               </SidebarLinkGroup>
             )}
               {/* <!-- Menu Item Finance Management ends --> */}
-
              
              
                {/* <!-- Menu Item Central Finance Starts --> */}
@@ -1641,28 +1575,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                            Central Givings
                             </NavLink>
                           </li>
-                          {/* <li>
-                            <NavLink
-                              to="#"
-                              className={({ isActive }) =>
-                                'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
-                                (isActive && '!text-white')
-                              }
-                            >
-                           Approvals
-                            </NavLink>
-                          </li> */}
-                          {/* <li>
-                            <NavLink
-                              to="#"
-                              className={({ isActive }) =>
-                                'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
-                                (isActive && '!text-white')
-                              }
-                            >
-                            Reports
-                            </NavLink>
-                          </li> */}
                         </ul>
                       </div>
                       {/* <!-- Dropdown Menu End --> */}
@@ -1789,7 +1701,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
               {/* <!-- Menu Item Events Management ends --> */}
 
 
-
               {/* <!-- Menu Item  Message Management Starts --> */}
               {(shouldShowSidebarItem('message') ||  
                 isAdmin() ||
@@ -1908,8 +1819,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                     </SidebarLinkGroup>
             )}
               {/* <!-- Menu Item  Message Management ends --> */}
-
-
 
 
         {/* <!-- Menu Item User Management Starts --> */}
@@ -2359,7 +2268,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                                 </li>
                                 <li>
                                   <NavLink
-                                    to="#"
+                                    to="/departments"
                                     className={({ isActive }) =>
                                       'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
                                       (isActive && '!text-white')
