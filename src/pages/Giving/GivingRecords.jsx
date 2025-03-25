@@ -243,6 +243,8 @@ const GivingRecords = () => {
         acc.project += amount;
       } else if (type.includes('welfare')) {
         acc.welfare += amount;
+      } else if (type.includes('other')) {
+        acc.other += amount;
       }
 
       return acc;
@@ -250,10 +252,11 @@ const GivingRecords = () => {
       stewardshipTithe: 0,
       offering: 0,
       project: 0,
-      welfare: 0
+      welfare: 0,
+      other: 0
     });
 
-    totals.grandTotal = totals.stewardshipTithe + totals.offering + totals.project + totals.welfare;
+    totals.grandTotal = totals.stewardshipTithe + totals.offering + totals.project + totals.welfare + totals.other;
     return totals;
   };
 
@@ -432,6 +435,10 @@ const renderReportModal = () => (
                       <div className="grid grid-cols-2 gap-4 border-b pb-2">
                         <span>Welfare:</span>
                         <span className="text-right">{formatCurrency(totals.welfare)}</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 border-b pb-2">
+                        <span>Others:</span>
+                        <span className="text-right">{formatCurrency(totals.other)}</span>
                       </div>
                       <div className="grid grid-cols-2 gap-4 pt-2 font-bold">
                         <span>Grand Total:</span>

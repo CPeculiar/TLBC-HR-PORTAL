@@ -288,6 +288,8 @@ const CentralGivingList = () => {
         acc.project += amount;
       } else if (type.includes('welfare')) {
         acc.welfare += amount;
+      } else if (type.includes('other')) {
+        acc.other += amount;
       }
 
       return acc;
@@ -295,10 +297,11 @@ const CentralGivingList = () => {
       stewardshipTithe: 0,
       offering: 0,
       project: 0,
-      welfare: 0
+      welfare: 0,
+      other: 0
     });
 
-    totals.grandTotal = totals.stewardshipTithe + totals.offering + totals.project + totals.welfare;
+    totals.grandTotal = totals.stewardshipTithe + totals.offering + totals.project + totals.welfare + totals.other;
     return totals;
   };
 
@@ -480,10 +483,11 @@ const CentralGivingList = () => {
                   return (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {Object.entries({
-                        'Stewardship/Tithe': totals.stewardshipTithe,
+                        'Stewardship': totals.stewardshipTithe,
                         'Offering': totals.offering,
                         'Project': totals.project,
                         'Welfare': totals.welfare,
+                        'Others': totals.other,
                         'Grand Total': totals.grandTotal
                       }).map(([label, value]) => (
                         <div key={label} className="border-b pb-2 flex justify-between">
@@ -623,6 +627,10 @@ const CentralGivingList = () => {
                         <div className="grid grid-cols-2 gap-4 border-b pb-2">
                           <span>Welfare:</span>
                           <span className="text-right">{formatCurrency(totals.welfare)}</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 border-b pb-2">
+                          <span>Others:</span>
+                          <span className="text-right">{formatCurrency(totals.other)}</span>
                         </div>
                         <div className="grid grid-cols-2 gap-4 pt-2 font-bold">
                           <span>Grand Total:</span>
