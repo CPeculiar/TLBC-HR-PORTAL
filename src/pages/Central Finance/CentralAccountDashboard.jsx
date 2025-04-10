@@ -192,7 +192,7 @@ const fetchTopupPendingApprovals = async () => {
 // Define fetch functions
 const fetchAccounts = async () => {
   try {
-    const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/central/accounts/?limit=30');
+    const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/central/accounts/?limit=50');
     setAccounts(response.data.results);
     
     // Set default account if exists
@@ -219,50 +219,55 @@ const fetchBanks = async () => {
   }
 };
 
-const fetchChargesForAccount = async (accountCode) => {
+const fetchChargesForAccount = async (accountCode, timePeriod = 'monthly') => {
   if (!accountCode) return;
   
   setIsLoadingCharges(true);
   
   try {
-    let response = await axios.get(`https://tlbc-platform-api.onrender.com/api/finance/accounts/${accountCode}/transactions/`);
-    const transactionsData = response.data.results;
+    let allTransactions = [];
+    let nextUrl = `https://tlbc-platform-api.onrender.com/api/finance/central/accounts/${accountCode}/transactions/?limit=100`;
     
-    // Process charges for different time periods
+    // Fetch all pages of transactions
+    while (nextUrl) {
+      const response = await axios.get(nextUrl);
+      const data = response.data;
+      
+      if (data.results && data.results.transactions) {
+        allTransactions = [...allTransactions, ...data.results.transactions];
+      }
+      
+      nextUrl = data.next;
+    }
+    
+    // Determine date range based on time period
     const now = new Date();
-    const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfYear = new Date(now.getFullYear(), 0, 1);
+    let startDate;
+    switch (timePeriod) {
+      case 'weekly':
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+        break;
+      case 'monthly':
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        break;
+      case 'yearly':
+        startDate = new Date(now.getFullYear(), 0, 1);
+        break;
+      case 'allTime':
+      default:
+        startDate = new Date(0); // Beginning of time
+    }
     
-    let weeklyCharges = 0;
-    let monthlyCharges = 0;
-    let yearlyCharges = 0;
-    let allTimeCharges = 0;
-    
-    transactionsData.transactions.forEach(transaction => {
-      const transactionDate = new Date(transaction.date);
-      const charge = parseFloat(transaction.charge);
-      
-      allTimeCharges += charge;
-      
-      if (transactionDate >= startOfYear) {
-        yearlyCharges += charge;
-      }
-      
-      if (transactionDate >= startOfMonth) {
-        monthlyCharges += charge;
-      }
-      
-      if (transactionDate >= startOfWeek) {
-        weeklyCharges += charge;
-      }
-    });
+    // Calculate total charges
+    const filteredCharges = allTransactions
+      .filter(transaction => new Date(transaction.date) >= startDate)
+      .reduce((total, transaction) => total + parseFloat(transaction.charge || '0'), 0);
     
     setChargesData({
-      weekly: weeklyCharges,
-      monthly: monthlyCharges,
-      yearly: yearlyCharges,
-      allTime: allTimeCharges
+      weekly: timePeriod === 'weekly' ? filteredCharges : 0,
+      monthly: timePeriod === 'monthly' ? filteredCharges : 0,
+      yearly: timePeriod === 'yearly' ? filteredCharges : 0,
+      allTime: timePeriod === 'allTime' ? filteredCharges : 0
     });
     
   } catch (error) {
@@ -318,7 +323,6 @@ const handleDeleteAccount = async () => {
     
   }
 };
-
 
 // Add this function to fetch and process transactions
 const fetchTransactionsForAccount = async (accountCode) => {
@@ -430,7 +434,7 @@ useEffect(() => {
   // Update the useEffect for fetching charges to respond to time period changes
   useEffect(() => {
     if (selectedAccount?.code) {
-      fetchChargesForAccount(selectedAccount.code);
+      fetchChargesForAccount(selectedAccount.code, chargesTimePeriod);
     }
   }, [selectedAccount, chargesTimePeriod]);
 
@@ -460,7 +464,6 @@ const formatErrorMessage = (error) => {
   }
   return error;
 };
-
 
 // Modify useEffect to include new fetch calls
 useEffect(() => {

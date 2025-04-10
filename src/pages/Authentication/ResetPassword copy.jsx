@@ -1,28 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from "axios";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [key, setKey] = useState("");
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
   const [errors, setErrors] = useState({});
-  const [key, setKey] = useState("");
 
- // Extract key from URL on component mount
- useEffect(() => {
-  const queryParams = new URLSearchParams(location.search);
-  const keyParam = queryParams.get('key');
-  if (keyParam) {
-    setKey(keyParam);
-  }
-}, [location]);
 
   // Effect to check password match in real-time
   useEffect(() => {
@@ -74,15 +67,6 @@ const ResetPassword = () => {
       return;
     }
 
-      // Check if key exists
-      if (!key) {
-        setMessage("Reset key is missing. Please use the link from your email.");
-        setShowPopup(true);
-        return;
-      }
-
-      setIsLoading(true);
-
     try {
       const response = await axios.post(
         "https://tlbc-platform-api.onrender.com/api/password/reset/confirm/",
@@ -121,7 +105,7 @@ const ResetPassword = () => {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
           <div className="relative">
-          <label htmlFor="new-password" className="mb-2.5 block font-medium text-black  dark:text-white">New Password</label>
+          <label htmlFor="old-password" className="mb-2.5 block font-medium text-black  dark:text-white">New Password</label>
             <div className="relative">
               <input
               type={showNewPassword ? "text" : "password"}
@@ -208,7 +192,25 @@ const ResetPassword = () => {
               </div>
             </div>
 
-            {message && !showPopup && (
+           <div className="relative">
+           <label htmlFor="confirm-password" className="mb-2.5 block font-medium text-black dark:text-white">Key</label>
+        <div className="relative">
+              <input
+              type="text"
+              id="key"
+              value={key}
+              onChange={(e) => {
+                handleInputChange(e, setKey);
+                 setMessage('');   
+              }}
+              className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                placeholder="Enter key"
+                required
+              />
+            </div>
+            </div>
+
+            {message && (
               <p className="text-red-500 text-xs mt-1">{message}</p>
             )}
           </div>
@@ -217,12 +219,15 @@ const ResetPassword = () => {
            type="submit"
               disabled={isLoading}
               className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white transition duration-150 ease-in-out 
-              ${isLoading ? "bg-indigo-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              ${isLoading ? "bg-gray-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               }`}>
               {isLoading ? 'Resetting...' : 'Reset Password'}
             </button>
           </div>
         </form>
+        {message && (
+        <div className="mt-4 p-3 bg-red-100 rounded-md">{message}</div>
+      )}
 
        {showPopup && (
           <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" id="my-modal">

@@ -119,6 +119,15 @@ const [isUpdatingAccount, setIsUpdatingAccount] = useState(false);
  const [verifiedAccountDetails, setVerifiedAccountDetails] = useState(null);
 //  const [isVerifyingAccount, setIsVerifyingAccount] = useState(false);
 
+const [chargesData, setChargesData] = useState({ 
+  weekly: 0, 
+  monthly: 0, 
+  yearly: 0, 
+  allTime: 0 
+});
+const [chargesTimePeriod, setChargesTimePeriod] = useState('monthly');
+const [isLoadingCharges, setIsLoadingCharges] = useState(false);
+
 // Add new fetch functions for pending approvals
 const fetchFundPendingApprovals = async () => {
   try {
@@ -175,7 +184,7 @@ const fetchTopupPendingApprovals = async () => {
 // Define fetch functions
 const fetchAccounts = async () => {
   try {
-    const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/?limit=30');
+    const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/?limit=50');
     setAccounts(response.data.results);
     
     // Set default account if exists
@@ -202,12 +211,64 @@ const fetchBanks = async () => {
   }
 };
 
+const fetchChargesForAccount = async (accountCode) => {
+  if (!accountCode) return;
+  
+  setIsLoadingCharges(true);
+  
+  try {
+    let response = await axios.get(`https://tlbc-platform-api.onrender.com/api/finance/accounts/${accountCode}/transactions/?limit=100`);
+    const transactionsData = response.data.results;
+    
+    // Process charges for different time periods
+    const now = new Date();
+    const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+    
+    let weeklyCharges = 0;
+    let monthlyCharges = 0;
+    let yearlyCharges = 0;
+    let allTimeCharges = 0;
+    
+    transactionsData.transactions.forEach(transaction => {
+      const transactionDate = new Date(transaction.date);
+      const charge = parseFloat(transaction.charge);
+      
+      allTimeCharges += charge;
+      
+      if (transactionDate >= startOfYear) {
+        yearlyCharges += charge;
+      }
+      
+      if (transactionDate >= startOfMonth) {
+        monthlyCharges += charge;
+      }
+      
+      if (transactionDate >= startOfWeek) {
+        weeklyCharges += charge;
+      }
+    });
+    
+    setChargesData({
+      weekly: weeklyCharges,
+      monthly: monthlyCharges,
+      yearly: yearlyCharges,
+      allTime: allTimeCharges
+    });
+    
+  } catch (error) {
+    console.error('Error fetching charges:', error);
+    showMessage('error', 'Error fetching charges data');
+  } finally {
+    setIsLoadingCharges(false);
+  }
+};
 
 const verifyDeleteAccountDetails = () => {
   const account = accounts.find(acc => acc.code === selectedAccountToDelete);
   setDeleteVerifiedDetails(account);
 };
-
 
 // Add this function to fetch and process transactions
 const fetchTransactionsForAccount = async (accountCode) => {
@@ -312,9 +373,16 @@ const fetchTransactionsForAccount = async (accountCode) => {
 useEffect(() => {
   if (selectedAccount?.code) {
     fetchTransactionsForAccount(selectedAccount.code);
+    fetchChargesForAccount(selectedAccount.code);
   }
 }, [selectedAccount]);
 
+  // Update the useEffect for fetching charges to respond to time period changes
+  useEffect(() => {
+    if (selectedAccount?.code) {
+      fetchChargesForAccount(selectedAccount.code);
+    }
+  }, [selectedAccount, chargesTimePeriod]);
 
 
 //Delete Account
@@ -387,8 +455,6 @@ const formatErrorMessage = (error) => {
   return error;
 };
 
-
-
 // Modify useEffect to include new fetch calls
 useEffect(() => {
   const fetchAllData = async () => {
@@ -442,17 +508,6 @@ const handleErrorMessage = (error) => {
   }
   return 'An unexpected error occurred';
 };
-
-
-  // Chart data (example data, replace with actual data from API)
-  const chartData = [
-    { month: 'Jan', expenses: 4000, income: 2400 },
-    { month: 'Feb', expenses: 3000, income: 1398 },
-    { month: 'Mar', expenses: 2000, income: 9800 },
-    { month: 'Apr', expenses: 2780, income: 3908 },
-    { month: 'May', expenses: 1890, income: 4800 },
-    { month: 'Jun', expenses: 2390, income: 3800 },
-  ];
 
   // Show message with timeout
   const showMessage = (type, message) => {
@@ -528,9 +583,7 @@ const handleErrorMessage = (error) => {
   }
 };
 
-
    // Fetch transactions
-   // Update the fetch function
 const fetchTransactions = async () => {
   try {
     const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/expense/list/');
@@ -719,6 +772,8 @@ const fetchTransactions = async () => {
       setIncomeTimePeriod(period);
     } else if (cardType === 'Expenses') {
       setExpenseTimePeriod(period);
+    } else if (cardType === 'Charges') {
+      setChargesTimePeriod(period);
     }
     console.log(`${cardType} time period changed to: ${period}`);
   };
@@ -864,8 +919,9 @@ const fetchTransactions = async () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <Cards title="Expenses" value={isLoadingExpenses ? "Loading..." : `₦${expenseData[expenseTimePeriod].toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`} bgColor="bg-gradient-to-r from-orange-300 to-red-400" timePeriod={expenseTimePeriod} onTimePeriodChange={(period) => handleTimePeriodChange(period, 'Expenses')}   />
             <Cards title="Income" value={isLoadingIncome ? "Loading..." : `₦${incomeData[incomeTimePeriod].toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`} bgColor="bg-gradient-to-r from-blue-300 to-blue-500" timePeriod={incomeTimePeriod} onTimePeriodChange={(period) => handleTimePeriodChange(period, 'Income')}  />
+            <Cards title="Charges" value={isLoadingCharges ? "Loading..." : `₦${chargesData[chargesTimePeriod].toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`} bgColor="bg-gradient-to-r from-purple-300 to-indigo-500" timePeriod={chargesTimePeriod} onTimePeriodChange={(period) => handleTimePeriodChange(period, 'Charges')} />
             <Cards title="Account Balance" value={`₦${parseFloat(accountDetails?.balance || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`} icon="💰" bgColor="bg-gradient-to-r from-green-300 to-teal-500" />
-            <Cards title="Transaction History" value={transactions.length.toString()} icon="📜" bgColor="bg-gradient-to-r from-yellow-300 to-yellow-500" />
+            {/* <Cards title="Charges" value={isLoadingCharges ? "Loading..." : `₦${chargesData[chargesTimePeriod].toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`} bgColor="bg-gradient-to-r from-purple-300 to-indigo-500" timePeriod={chargesTimePeriod} onTimePeriodChange={(period) => {setChargesTimePeriod(period); console.log(`Charges time period changed to: ${period}`); }} /> */}           
             <Cards title="Fund Pending Approvals" value={fundPendingCount.toString()} icon="⏳" bgColor="bg-gradient-to-r from-pink-300 to-purple-400" />
             <Cards title="Remittance Pending Approvals" value={remittancePendingCount.toString()} icon="⏳" bgColor="bg-gradient-to-r from-cyan-300 to-sky-400" />
             <Cards title="Expenses Pending Approvals" value={expensesPendingCount.toString()} icon="⏳" bgColor="bg-gradient-to-r from-lime-300 to-green-400" />
@@ -925,7 +981,7 @@ const fetchTransactions = async () => {
             <button 
               onClick={verifyAccountDetails}
               disabled={isVerifyingAccount}
-              className="w-full bg-blue-500 text-white rounded p-2 disabled:opacity-50 dark:border-form-strokedark dark:bg-blue-500 dark:hover:bg-blue-800   dark:text-white dark:focus:border-primary"
+              className="w-full bg-blue-500 hover:bg-blue-800 text-white rounded p-2 disabled:opacity-50 dark:border-form-strokedark dark:bg-blue-500 dark:hover:bg-blue-800   dark:text-white dark:focus:border-primary"
             >
               {isVerifyingAccount ? 'Verifying...' : 'Verify Account'}
             </button>
@@ -939,6 +995,22 @@ const fetchTransactions = async () => {
             {updateError && (
               <p className="text-red-500">{updateError}</p>
             )}
+
+      {/* Cancel button for Update Account */}
+      <button 
+        onClick={() => {
+          setUpdateAccountNumber('');
+          setUpdateBankCode('');
+          setVerifiedAccountName('');
+          setIsUpdateButtonDisabled(true);
+          setUpdateError(null);
+        }}
+        // disabled={isUpdateButtonDisabled || isUpdatingAccount}
+        className="w-full bg-red-500 hover:bg-red-800 text-white rounded p-2 disabled:opacity-50 dark:border-form-strokedark
+        dark:bg-blue-500 dark:hover:bg-blue-800 dark:text-white dark:focus:border-primary transition-colors duration-200"
+        >
+        Cancel
+      </button>
 
             <button 
               onClick={handleUpdateAccount}
@@ -1062,6 +1134,20 @@ const fetchTransactions = async () => {
                   >
                     Add Another Field
                   </button>
+
+                  {/* Cancel button for Default Account */}
+          <button 
+            onClick={() => {
+              setSelectedDefaultAccount('');
+              setDefaultAccountDetails(null);
+              setAccountSelections([{ id: 1, selection: '' }]);
+            }}
+            // disabled={isUpdateButtonDisabled || isUpdatingAccount}
+            className="w-full bg-red-500 hover:bg-red-800 text-white rounded p-2 disabled:opacity-50 dark:border-form-strokedark
+            dark:bg-blue-500 dark:hover:bg-blue-800 dark:text-white dark:focus:border-primary transition-colors duration-200 mt-3"
+            >
+            Cancel
+          </button>
 
                   <button 
       onClick={handleSubmitDefaultSettings}
@@ -1354,7 +1440,7 @@ const Cards = ({ title, value, icon, bgColor, timePeriod, onTimePeriodChange }) 
   };
 
   const getAdjustedTitle = () => {
-    if (!timePeriod || !title.includes('Income') && !title.includes('Expenses')) {
+    if (!timePeriod || !title.includes('Income') && !title.includes('Expenses') && !title.includes('Charges')) {
       return title;
     }
     
@@ -1374,7 +1460,7 @@ const Cards = ({ title, value, icon, bgColor, timePeriod, onTimePeriodChange }) 
     }
   };
 
-  const isFilterableCard = title.includes('Expenses') || title.includes('Income');
+  const isFilterableCard = title.includes('Expenses') || title.includes('Income') || title.includes('Charges');
 
   return (
     <div className={`${bgColor} rounded-lg p-6 text-white relative`}>

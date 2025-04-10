@@ -190,32 +190,6 @@ const Profiles = () => {
                 onClick={handleImageClick}
               />
 
-              {/* {showImageOptions && (
-                <div className="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg z-50">
-                  <ul>
-                    <li 
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={handleViewImage}
-                    >
-                      View Image
-                    </li>
-                    <li 
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={handleUploadImage}
-                    >
-                      Upload Image
-                    </li>
-                  </ul>
-                </div>
-              )}
-              <input
-                type="file"
-                ref={fileInputRef}
-                className="hidden"
-                accept="image/jpeg,image/png,image/gif"
-                onChange={handleFileChange}
-              /> */}
-
               <label
                 htmlFor="profile"
                 className="absolute bottom-0 right-0 flex h-8.5 w-8.5 cursor-pointer items-center justify-center rounded-full bg-primary text-white hover:bg-opacity-90 sm:bottom-2 sm:right-2"

@@ -69,7 +69,8 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
     'Central': 'central',
     'TLBC Awka': 'tlbc-awka',
     'TLBC Ekwulobia': 'tlbc-ekwulobia',
-    'TLBC Ihiala': 'tlbc-ihiala',
+    'TLBC Ihiala': 'tlbc-ihiala', 
+    'TLBC Mbaukwu': 'tlbc-mbaukwu',
     'TLBC Nnewi': 'tlbc-nnewi',
     'TLBC Onitsha': 'tlbc-onitsha',
     'TLBCM Agulu': 'tlbcm-agulu',
@@ -77,15 +78,14 @@ const Settings = ({ onUpdateSuccess, onFileSelect }) => {
     'TLBCM COOU Uli': 'tlbcm-coou-uli',
     'TLBCM FUTO': 'tlbcm-futo',
     'TLBCM IMSU': 'tlbcm-imsu',
-    'TLBCM Mbaukwu': 'tlbcm-mbaukwu',
     'TLBCM Mgbakwu': 'tlbcm-mgbakwu',
     'TLBCM NAU': 'tlbcm-nau',
     'TLBCM Nekede': 'tlbcm-nekede',
     'TLBCM Oko': 'tlbcm-oko',
     'TLBCM Okofia': 'tlbcm-okofia',
     'TLBCM UNILAG': 'tlbcm-unilag',
-    'TLTN Awka': 'tltn-awka',
     'TLTN Agulu': 'tltn-agulu',
+    'TLTN Awka': 'tltn-awka'
   };
 
   useEffect(() => {

@@ -463,12 +463,13 @@ const GivingList = () => {
             </div>
 
       {/* Summary Section */}
-      <div className="border rounded-lg p-4 print:break-inside-avoid">
+      <div className="border rounded-lg p-4 dark:text-white print:break-inside-avoid">
               <h3 className="font-bold text-lg mb-4">Summary</h3>
               {(() => {
                 const totals = calculateTotalsByCategory(downloadData.results);
                 return (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-2">
                     {Object.entries({
                       'Stewardship': totals.stewardshipTithe,
                       'Offering': totals.offering,
@@ -477,11 +478,12 @@ const GivingList = () => {
                       'Others': totals.other,
                       'Grand Total': totals.grandTotal
                     }).map(([label, value]) => (
-                      <div key={label} className="border-b pb-2 flex justify-between">
-                        <span className="font-medium">{label}:</span>
-                        <span>{formatCurrency(value)}</span>
+                      <div key={label} className="border-b pb-2 grid grid-cols-[1fr,auto] gap-2 items-baseline">
+                      <span className="font-medium break-words whitespace-normal overflow-wrap-break-word">{label}:</span>
+                 <span className="text-right break-words whitespace-normal overflow-wrap-break-word">{formatCurrency(value)}</span>
                       </div>
                     ))}
+                  </div>
                   </div>
                 );
               })()}

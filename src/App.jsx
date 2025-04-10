@@ -58,7 +58,7 @@ import AccountStatement from './pages/finance/AccountStatement';
 import EditUserDetailsForm from './pages/User Management/EditUserDetailsForm';
 import UserDashboard from './pages/Dashboard/UserDashboard';
 import AboutTLBC from './pages/community/AboutTLBC';
-import LOLD from './pages/community/LOLD';
+import LOLD from './pages/LOLD/LOLD';
 import GivingOnline from './pages/Giving/GivingOnline';
 import EventsPage from './pages/Events/EventsPage';
 import AdminEventUpload from './pages/Events/EventUploadAdmin';
@@ -105,8 +105,9 @@ import { MediaProvider } from './pages/Messages/MediaContext';
 import AdminMessageList from './pages/Messages/AdminMessageList';
 import WorkersMeeting from './pages/Events/WorkersMeeting';
 import DepartmentsPage from './pages/community/DepartmentsPage';
-import AdminDevotionalUpload from './pages/community/AdminDevotionalUpload';
-import DevotionalReader from './pages/community/DevotionalReader';
+import DevotionalReader from './pages/LOLD/DevotionalReader';
+import AdminLOLDUpload from './pages/LOLD/AdminLOLDUpload';
+import AdminLOLDMgt from './pages/LOLD/AdminLOLDMgt';
 
 
 function App() {
@@ -330,9 +331,11 @@ useEffect(() => {
 
       <Route path="/comingsoon" element={withDefaultLayout(<LOLD />, "Coming soon")} />
 
-      <Route path="/lold" element={withDefaultLayout(<AdminDevotionalUpload />, "LOLD Upload")} />
+       {/* LOLD */}
+      <Route path="/lold" element={withDefaultLayout(<AdminLOLDUpload />, "LOLD Upload")} />
       <Route path="/loldReader" element={withDefaultLayout(<DevotionalReader />, "LOLD Reader")} />
       <Route path="/devotional/:id" element={withDefaultLayout(<DevotionalReader />, "LOLD Reader")} />
+      <Route path="/loldAdminMgt" element={withDefaultLayout(<AdminLOLDMgt />, "LOLD Reader")} />
 
       
         {/* Zone Management */}
@@ -389,7 +392,7 @@ useEffect(() => {
 
       
             {/* Events */}
-      <Route path="/events" element={withDefaultLayout(<EventsPage />, "Events")} />
+      <Route path="/church-events" element={withDefaultLayout(<EventsPage />, "Events")} />
       <Route path="/admineventupload" element={withDefaultLayout(<AdminEventUpload  />, "Admin Events Upload")} />
       <Route path="/admineventmgt" element={withDefaultLayout(<AdminEventManagement  />, "Admin Events Management")} />
       <Route path="/admineditevent/:id" element={withDefaultLayout(<EditEvent  />, "Admin Edit Event")} />

@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
-import AccountStatement from './AccountStatement';
 import TransactionChart from './TransactionChart';
 
 const FinanceDashboard = () => {
@@ -32,8 +29,6 @@ const [deletePassword, setDeletePassword] = useState('');
 const [deleteError, setDeleteError] = useState('');
 const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 const [passwordVisible, setPasswordVisible] = useState(false);
-const [errors, setErrors] = useState({});
-const [modalError, setModalError] = useState("");
 
 // Add these new state variables at the top of your component
 const [incomeData, setIncomeData] = useState({ weekly: 0, monthly: 0, yearly: 0, allTime: 0 });
@@ -86,9 +81,6 @@ const [accountSelections, setAccountSelections] = useState([
     }
   ];
 
-   //state for Account Statement
-const [showStatement, setShowStatement] = useState(false);
-
    const [fundPendingCount, setFundPendingCount] = useState(0);
   const [remittancePendingCount, setRemittancePendingCount] = useState(0);
   const [expensesPendingCount, setExpensesPendingCount] = useState(0);
@@ -97,8 +89,6 @@ const [showStatement, setShowStatement] = useState(false);
 
   // State for dashboard data
   const [expenses, setExpenses] = useState(0);
-
-  const [pendingApprovals, setPendingApprovals] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -114,10 +104,6 @@ const [showStatement, setShowStatement] = useState(false);
   // Add new states for loading
 const [isVerifyingAccount, setIsVerifyingAccount] = useState(false);
 const [isUpdatingAccount, setIsUpdatingAccount] = useState(false);
-
- // Add new state for verified account details
- const [verifiedAccountDetails, setVerifiedAccountDetails] = useState(null);
-//  const [isVerifyingAccount, setIsVerifyingAccount] = useState(false);
 
 const [chargesData, setChargesData] = useState({ 
   weekly: 0, 
@@ -184,7 +170,7 @@ const fetchTopupPendingApprovals = async () => {
 // Define fetch functions
 const fetchAccounts = async () => {
   try {
-    const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/?limit=30');
+    const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/?limit=50');
     setAccounts(response.data.results);
     
     // Set default account if exists
@@ -211,50 +197,55 @@ const fetchBanks = async () => {
   }
 };
 
-const fetchChargesForAccount = async (accountCode) => {
+const fetchChargesForAccount = async (accountCode, timePeriod = 'monthly') => {
   if (!accountCode) return;
   
   setIsLoadingCharges(true);
   
   try {
-    let response = await axios.get(`https://tlbc-platform-api.onrender.com/api/finance/accounts/${accountCode}/transactions/`);
-    const transactionsData = response.data.results;
+    let allTransactions = [];
+    let nextUrl = `https://tlbc-platform-api.onrender.com/api/finance/accounts/${accountCode}/transactions/?limit=100`;
     
-    // Process charges for different time periods
+    // Fetch all pages of transactions
+    while (nextUrl) {
+      const response = await axios.get(nextUrl);
+      const data = response.data;
+      
+      if (data.results && data.results.transactions) {
+        allTransactions = [...allTransactions, ...data.results.transactions];
+      }
+      
+      nextUrl = data.next;
+    }
+    
+    // Determine date range based on time period
     const now = new Date();
-    const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfYear = new Date(now.getFullYear(), 0, 1);
+    let startDate;
+    switch (timePeriod) {
+      case 'weekly':
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+        break;
+      case 'monthly':
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        break;
+      case 'yearly':
+        startDate = new Date(now.getFullYear(), 0, 1);
+        break;
+      case 'allTime':
+      default:
+        startDate = new Date(0); // Beginning of time
+    }
     
-    let weeklyCharges = 0;
-    let monthlyCharges = 0;
-    let yearlyCharges = 0;
-    let allTimeCharges = 0;
-    
-    transactionsData.transactions.forEach(transaction => {
-      const transactionDate = new Date(transaction.date);
-      const charge = parseFloat(transaction.charge);
-      
-      allTimeCharges += charge;
-      
-      if (transactionDate >= startOfYear) {
-        yearlyCharges += charge;
-      }
-      
-      if (transactionDate >= startOfMonth) {
-        monthlyCharges += charge;
-      }
-      
-      if (transactionDate >= startOfWeek) {
-        weeklyCharges += charge;
-      }
-    });
+    // Calculate total charges
+    const filteredCharges = allTransactions
+      .filter(transaction => new Date(transaction.date) >= startDate)
+      .reduce((total, transaction) => total + parseFloat(transaction.charge || '0'), 0);
     
     setChargesData({
-      weekly: weeklyCharges,
-      monthly: monthlyCharges,
-      yearly: yearlyCharges,
-      allTime: allTimeCharges
+      weekly: timePeriod === 'weekly' ? filteredCharges : 0,
+      monthly: timePeriod === 'monthly' ? filteredCharges : 0,
+      yearly: timePeriod === 'yearly' ? filteredCharges : 0,
+      allTime: timePeriod === 'allTime' ? filteredCharges : 0
     });
     
   } catch (error) {
@@ -269,7 +260,6 @@ const verifyDeleteAccountDetails = () => {
   const account = accounts.find(acc => acc.code === selectedAccountToDelete);
   setDeleteVerifiedDetails(account);
 };
-
 
 // Add this function to fetch and process transactions
 const fetchTransactionsForAccount = async (accountCode) => {
@@ -381,7 +371,7 @@ useEffect(() => {
   // Update the useEffect for fetching charges to respond to time period changes
   useEffect(() => {
     if (selectedAccount?.code) {
-      fetchChargesForAccount(selectedAccount.code);
+      fetchChargesForAccount(selectedAccount.code, chargesTimePeriod);
     }
   }, [selectedAccount, chargesTimePeriod]);
 
@@ -426,19 +416,6 @@ const handleDeleteAccount = async () => {
   } finally {
     setIsDeletingAccount(false);
     
-  }
-};
-
-
-const handleInputChangeDelete = (e) => {
-  const { name, value } = e.target;
- 
-  if (errors[name]) {
-    setErrors(prev => {
-      const newErrors = { ...prev };
-      delete newErrors[name];
-      return newErrors;
-    });
   }
 };
 
@@ -643,23 +620,6 @@ const fetchTransactions = async () => {
     setIsUpdatingAccount(false);
   }
 };
-  
-    // Handle make default account
-    const handleMakeDefaultAccount = async () => {
-      try {
-        await axios.put(`https://tlbc-platform-api.onrender.com/api/finance/accounts/${selectedDefaultAccount}/make-default/`);
-        
-        // Refresh accounts 
-        const response = await axios.get('https://tlbc-platform-api.onrender.com/api/finance/accounts/?limit=30');
-        setAccounts(response.data.results);
-        
-        // Show success message
-        showMessage('success', 'Default account updated successfully');
-      } catch (error) {
-        const errorMsg = error.response?.data?.non_field_errors?.[0] || 'Failed to make account default';
-        showMessage('error', errorMsg);
-      }
-    };
 
     // Handle adding new selection field
   const addAccountSelection = () => {
@@ -1348,7 +1308,6 @@ const fetchTransactions = async () => {
     </div>
   </div>
 )}
-
 
       {/* Recent Transactions Table */}
     <div className="w-full overflow-hidden rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">

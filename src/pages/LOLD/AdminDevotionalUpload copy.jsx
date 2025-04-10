@@ -12,7 +12,7 @@ import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import { mammoth } from 'mammoth';
 
-const AdminDevotionalUpload = () => {
+const AdminDevotionalUpload = () => { 
   const navigate = useNavigate();
   const [date, setDate] = useState("");
   const [formData, setFormData] = useState({

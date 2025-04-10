@@ -437,25 +437,7 @@ const ProfileSettings = () => {
        {Object.keys(fieldLabels).map(key => 
                   key !== "profile_picture" && key !== "email" && renderField(key, fieldLabels[key])
                 )}                
-                {/* <div>
-                <label className="block mb-2 capitalize text-sm font-medium text-gray-700">Church:</label>
-                <select
-                    name="church"
-                    value={getChurchDisplayName(formData.church) || "" }
-                    onChange={handleChange}
-                    className="w-full p-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                  >
-                    <option value="" disabled>Select a church</option>
-                    {Object.keys(churchOptions).map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                  </div> */}
-
                 
-
                   <div className="md:col-span-2 flex flex-col sm:flex-row justify-between items-center mt-6">
                 <button
                   type="submit"
