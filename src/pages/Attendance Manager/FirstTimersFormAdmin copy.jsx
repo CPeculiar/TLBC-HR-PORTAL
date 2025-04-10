@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
+import { Download } from 'lucide-react';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 
 const FirstTimersFormAdmin = () => {
@@ -21,7 +22,8 @@ const FirstTimersFormAdmin = () => {
     marital_status: "",
     interested_department: "",
     first_visit_date: "",
-    first_time: true
+    first_time: true,
+    profile_picture: null,
   });
 
   const [errors, setErrors] = useState({});
@@ -30,8 +32,8 @@ const FirstTimersFormAdmin = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target;
-  
-    if (name === 'first_time') {
+    
+   if (name === 'first_time') {
       // Convert the string value to boolean
       const boolValue = value === 'true';
       setFormData(prev => ({
@@ -49,6 +51,11 @@ const FirstTimersFormAdmin = () => {
           // Reset interested_department when not a member
           ...(boolValue ? {} : { interested_department: '' })
         }));
+      } else if (type === 'file') {
+        setFormData(prev => ({
+          ...prev,
+          profile_picture: files[0]
+        }));  
   } else {
       setFormData(prev => ({
         ...prev,
@@ -71,7 +78,14 @@ const FirstTimersFormAdmin = () => {
 
   // Create a copy of formData for submission
   const submissionData = { ...formData };
-    
+  
+    // Append all form fields to FormData
+    // Object.keys(formData).forEach(key => {
+    //   if (formData[key] !== null && formData[key] !== undefined) {
+    //     submissionData.append(key, formData[key]);
+    //   }
+    // });
+
   // If first_time is true, remove first_visit_date from submission
   if (submissionData.first_time === true) {
     delete submissionData.first_visit_date;
@@ -97,10 +111,12 @@ const FirstTimersFormAdmin = () => {
           params: { ref_code: refCode }, 
           headers: { 
             Authorization: `Bearer ${accessToken}`, 
-            'Content-Type': 'application/json',
+            "Content-Type": "multipart/form-data",
           },
+          
         } 
       );
+
       setSuccessMessage(response.data.message || 'Successfully submitted!');
       alert(response.data.message);
 
@@ -109,6 +125,7 @@ const FirstTimersFormAdmin = () => {
       setSuccessMessage('');
     }, 5000);
 
+      
       setFormData({
         first_name: '',
         last_name: '',
@@ -117,6 +134,7 @@ const FirstTimersFormAdmin = () => {
         gender: '',
         birth_date: '',
         address: '',
+        profile_picture: null,
         occupation: '',
         invited_by: '',
         want_to_be_member: '',
@@ -124,7 +142,7 @@ const FirstTimersFormAdmin = () => {
         interested_department: '',
         first_visit_date: '',
         first_time: true
-      });
+      }); 
     } catch (error) {
       if (error.response) {
         if (error.response.data.detail) {
@@ -134,7 +152,8 @@ const FirstTimersFormAdmin = () => {
         }
       } else {
         setErrors({ message: 'An unexpected error occurred. Please try again.' });
-      }    
+      }
+    
       setTimeout(() => {
         setErrors({});
       }, 10000);
@@ -159,7 +178,7 @@ const FirstTimersFormAdmin = () => {
           <form onSubmit={handleSubmit}>
             <div className="p-6.5">
 
-              {/* First Time */}
+              {/* First Time - Moved to top */}
               <div className="mb-4.5">
                 <label className="mb-2.5 block text-black dark:text-white">
                   Are you a First Timer? <span className="text-red-500">*</span>
@@ -201,6 +220,8 @@ const FirstTimersFormAdmin = () => {
                   )}
                 </div>
               )}
+
+
 
               {/* First Name */}
               <div className="mb-4.5">
@@ -338,8 +359,8 @@ const FirstTimersFormAdmin = () => {
                 )}
               </div>
 
-                      {/* Profile Picture */}
-                  {/* <div className="mb-4.5">
+              {/* Profile Picture */}
+              <div className="mb-4.5">
                 <label className="mb-2.5 block text-black dark:text-white">
                   Profile Picture
                 </label>
@@ -354,7 +375,8 @@ const FirstTimersFormAdmin = () => {
                 {errors.profile_picture && (
                   <p className="mt-1 text-sm text-red-500">{errors.profile_picture[0]}</p>
                 )}
-              </div> */} 
+              </div>
+
 
               {/* Occupation */}
               <div className="mb-4.5">
@@ -414,7 +436,7 @@ const FirstTimersFormAdmin = () => {
                 )}
               </div>
 
-              {/* Conditionally render Interested Department */}
+             {/* Conditionally render Interested Department */}
              {formData.want_to_be_member === true && (
               <div className="mb-4.5">
                 <label className="mb-2.5 block text-black dark:text-white">
@@ -473,7 +495,7 @@ const FirstTimersFormAdmin = () => {
                   <p className="mt-1 text-sm text-red-500">{errors.marital_status[0]}</p>
                 )}
               </div>
-             
+
               {/* Global Error Message */}
               {errors.message && (
                 <div className="mb-4 rounded-md bg-red-50 p-4 text-sm text-red-500">

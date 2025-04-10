@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Download } from 'lucide-react';
-import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
+import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb'; 
 
 const FirstTimersForm = () => {
   const location = useLocation();
@@ -439,13 +439,6 @@ const FirstTimersForm = () => {
               )}
 
               {/* Submit Button */}
-              {/* <button
-                type="submit"
-                disabled={isLoading}
-                className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90 disabled:bg-opacity-50"
-              >
-                {isLoading ? "Submitting..." : "Register"}
-              </button> */}
               <button
               type="submit"
               disabled={isLoading}
