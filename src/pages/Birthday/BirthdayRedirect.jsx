@@ -13,7 +13,7 @@ const BirthdayRedirect = () => {
     const birthdayMessage = 'Happy Birthday Peculiar 🎉. This is your year of Exponential Growth. We are grateful to God for the gift you are to us. Happy birthday to you. We love you';
     
     // Format URLs for different services (using the api.whatsapp.com format)
-    const whatsappUrl = `https://api.whatsapp.com/send/?phone=${phoneNumber}&text=${encodeURIComponent(birthdayMessage)}&type=phone_number&app_absent=0`;
+    const whatsappUrl = `https://api.whatsapp.com/send/?phone=${phoneNumber}&text=${encodeURIComponent(birthdayMessage)}`;
     
     // Create a clickable link that we'll programmatically click
     const link = document.createElement('a');
@@ -37,7 +37,7 @@ const BirthdayRedirect = () => {
   // Get phone number for the fallback buttons
   const searchParams = new URLSearchParams(location.search);
   const phoneNumber = searchParams.get('phone') || '2347065649583';
-  const birthdayMessage = 'Happy Birthday! 🎉 Wishing you a wonderful day filled with joy and blessings.';
+  const birthdayMessage = 'Happy Birthday Peculiar 🎉. This is your year of Exponential Growth. We are grateful to God for the gift you are to us. Happy birthday to you. We love you';
   
 //   const whatsappUrl = `https://api.whatsapp.com/send/?phone=${phoneNumber}&text=${encodeURIComponent(birthdayMessage)}&type=phone_number&app_absent=0`;
 const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(birthdayMessage)}`;
