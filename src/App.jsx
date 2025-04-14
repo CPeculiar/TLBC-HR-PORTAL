@@ -108,6 +108,7 @@ import DepartmentsPage from './pages/community/DepartmentsPage';
 import DevotionalReader from './pages/LOLD/DevotionalReader';
 import AdminLOLDUpload from './pages/LOLD/AdminLOLDUpload';
 import AdminLOLDMgt from './pages/LOLD/AdminLOLDMgt';
+import BirthdayRedirect from './pages/Birthday/BirthdayRedirect';
 
 
 function App() {
@@ -263,6 +264,14 @@ useEffect(() => {
         </>
      }
        />
+
+  <Route path="/birthday-redirect" element={
+          <>
+            <PageTitle title="Signup | TLBC Portal" />
+            <BirthdayRedirect />
+          </>
+        }
+      />
 
 
 
