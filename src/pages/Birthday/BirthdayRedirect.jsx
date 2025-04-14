@@ -47,7 +47,6 @@ const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${e
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4 text-center">
       <div className="max-w-md bg-white p-8 rounded-lg shadow-md">
         <h1 className="text-2xl font-bold text-blue-600 mb-4">TLBC International</h1>
-        <p className="text-lg mb-6">Attempting to open WhatsApp...</p>
         
         {!showFallback ? (
           <div className="w-12 h-12 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto"></div>
@@ -66,7 +65,7 @@ const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${e
                   console.log('WhatsApp button clicked');
                 }}
               >
-                Open in WhatsApp
+                Send on WhatsApp
               </a>
               <a 
                 href={smsUrl}
