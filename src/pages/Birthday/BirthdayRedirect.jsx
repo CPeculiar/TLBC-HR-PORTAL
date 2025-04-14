@@ -10,7 +10,7 @@ const BirthdayRedirect = () => {
     // Get phone number from URL parameter or use default
     const searchParams = new URLSearchParams(location.search);
     const phoneNumber = searchParams.get('phone') || '2347065649583'; // Default example number
-    const birthdayMessage = 'Happy Birthday! 🎉 Wishing you a wonderful day filled with joy and blessings.';
+    const birthdayMessage = 'Happy Birthday Peculiar 🎉. This is your year of Exponential Growth. We are grateful to God for the gift you are to us. Happy birthday to you. We love you';
     
     // Format URLs for different services (using the api.whatsapp.com format)
     const whatsappUrl = `https://api.whatsapp.com/send/?phone=${phoneNumber}&text=${encodeURIComponent(birthdayMessage)}&type=phone_number&app_absent=0`;
@@ -39,7 +39,8 @@ const BirthdayRedirect = () => {
   const phoneNumber = searchParams.get('phone') || '2347065649583';
   const birthdayMessage = 'Happy Birthday! 🎉 Wishing you a wonderful day filled with joy and blessings.';
   
-  const whatsappUrl = `https://api.whatsapp.com/send/?phone=${phoneNumber}&text=${encodeURIComponent(birthdayMessage)}&type=phone_number&app_absent=0`;
+//   const whatsappUrl = `https://api.whatsapp.com/send/?phone=${phoneNumber}&text=${encodeURIComponent(birthdayMessage)}&type=phone_number&app_absent=0`;
+const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(birthdayMessage)}`;
   const smsUrl = `sms:${phoneNumber}?body=${encodeURIComponent(birthdayMessage)}`;
 
   return (
@@ -55,6 +56,7 @@ const BirthdayRedirect = () => {
             <p className="mb-4">Please choose how you'd like to send your birthday message:</p>
             <div className="flex flex-wrap justify-center gap-4">
               <a 
+                // href={whatsappUrl}
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
