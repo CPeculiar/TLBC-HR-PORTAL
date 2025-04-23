@@ -157,7 +157,7 @@ const handleCreateTopup = async () => {
     formData.append('purpose', topupPurpose);
     if (topupFile) formData.append('files', topupFile);
 
-    await axios.post('https://tlbc-platform-api.onrender.com/api/finance/topup/', formData, {
+    await axios.post('https://tlbc-platform-api.onrender.com/api/finance/central/topup/', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
