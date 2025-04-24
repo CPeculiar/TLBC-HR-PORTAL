@@ -30,9 +30,6 @@ const NewComersCount = () => {
         limit: 10
     });
     
-    // Create a reference to the profile card element
-    const profileCardRef = useRef(null);
-    
     const showAlert = (message, type) => {
       setAlert({ show: true, message, type });
       setTimeout(() => setAlert({ show: false, message: "", type: "" }), 3000);
@@ -130,23 +127,17 @@ const NewComersCount = () => {
         setIsLoading(false);
       }
     };
+
+    // Create a reference to the profile card element
+    const profileCardRef = useRef(null);
     
     // Function to handle profile clicks in the results table
     const handleProfileClick = (newcomer) => {
         fetchDetailedProfile(newcomer);
     };
 
-    // Profile Modal Component - Fixed and moved outside the handleProfileClick function
     const ProfileModal = ({ newcomer }) => {
         if (!detailedProfile) return null;
-        
-        // Prevent body scroll when modal is open
-        useEffect(() => {
-            document.body.style.overflow = 'hidden';
-            return () => {
-                document.body.style.overflow = 'auto';
-            };
-        }, []);
 
         // Ref for the displayed profile image
         const displayedImageRef = useRef(null);
@@ -252,8 +243,8 @@ const NewComersCount = () => {
                 
                 // Get the cached image or fallback
                 const profileImageSource = cachedImage || 
-                                        sessionStorage.getItem('cached_profile_image') ||
-                                        null;
+                                           sessionStorage.getItem('cached_profile_image') ||
+                                           null;
                 
                 // Create a clone for capture
                 const clone = profileCardRef.current.cloneNode(true);
@@ -347,12 +338,12 @@ const NewComersCount = () => {
             });
         };
 
-        // Return the modal content
         return (
-            <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[1000] overflow-y-auto pt-60 sm:pt-70 md:pt-16 md:pl-16 lg:pl-64">
-                <div className="min-h-screen w-full flex items-center justify-center py-4 px-2 sm:px-4">
-                    {/* Modal container with improved positioning */}
-                    <div className="w-full max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden my-4"> 
+            <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 overflow-y-auto">
+                <div className="min-h-screen w-full flex items-center justify-center py-12 px-2 sm:px-4 md:py-16">
+                    {/* Adjusted modal container - moved down for better visibility of controls */}
+                    <div className="w-full max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden
+                                  mt-16 sm:mt-12 md:mt-6 mb-16 sm:mb-8"> 
                         <Card className="relative">
                             {/* Alert Section */}
                             {alert.show && (
@@ -363,8 +354,8 @@ const NewComersCount = () => {
                                 </Alert>
                             )}
 
-                            {/* Control Buttons */}
-                            <div className="sticky top-0 left-0 right-0 z-20 flex justify-end items-center p-3 bg-white/95 dark:bg-gray-800/95 border-b border-gray-100 dark:border-gray-700">
+                            {/* Control Buttons - Moved down slightly */}
+                            <div className="sticky top-0 left-0 right-0 z-20 flex justify-end items-center p-3 mt-3 bg-gradient-to-b from-gray-100/90 to-transparent dark:from-gray-800/90">
                                 {/* Download Button */}
                                 <button 
                                     type="button"
@@ -382,18 +373,18 @@ const NewComersCount = () => {
                                         setSelectedProfile(null);
                                         setDetailedProfile(null);
                                     }}
-                                    className="text-gray-500 hover:text-gray-800 transition-colors p-2 rounded-full bg-white/80 dark:bg-gray-700 shadow-md"
+                                    className="text-gray-500 hover:text-gray-800 transition-colors p-2 rounded-full bg-white/80 shadow-md"
                                     title="Close"
                                 >
                                     <X className="h-5 w-5" />
                                 </button>
                             </div>
 
-                            {/* Profile Card Content - Referenced for downloading */}
-                            <div ref={profileCardRef} data-profile-card className="flex flex-col md:flex-row">
+                          {/* Profile Card Content - Referenced for downloading */}
+                          <div ref={profileCardRef} data-profile-card className="flex flex-col md:flex-row">
                                 {/* Left Column - Profile Image */}
                                 <div className="w-full md:w-1/3 bg-gradient-to-b from-blue-500 to-blue-700 p-4 sm:p-6 flex flex-col items-center justify-start">
-                                    <div className="relative mb-4 w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden border-4 border-white shadow-lg">
+                                    <div className="relative mb-4 w-28 h-28 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 border-white shadow-lg">
                                         {detailedProfile.profile_picture || cachedImage ? (
                                             <img 
                                                 ref={displayedImageRef}
@@ -420,6 +411,7 @@ const NewComersCount = () => {
                                             </div>
                                         )}
                                     </div>
+                                    
                                     <h2 className="text-xl sm:text-2xl font-bold text-white text-center mt-2">
                                         {`${detailedProfile.first_name} ${detailedProfile.last_name}`}
                                     </h2>
@@ -465,8 +457,8 @@ const NewComersCount = () => {
                                     </div>
                                 </div>
                                 
-                                {/* Right Column - Profile Details */}
-                                <div className="w-full md:w-2/3 p-4 sm:p-6 overflow-y-auto max-h-[60vh] md:max-h-[70vh]">
+                                {/*   - Profile Details */}
+                                <div className="w-full md:w-2/3 p-4 sm:p-6 overflow-y-auto max-h-[calc(100vh-180px)] md:max-h-[700px]">
                                     <CardHeader className="px-0 pt-0">
                                         <CardTitle className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white flex flex-col sm:flex-row sm:items-center gap-2">
                                             Profile Information
@@ -583,139 +575,140 @@ const NewComersCount = () => {
         );
     };
 
-    return (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-            <Breadcrumb pageName="New Comers" className="text-black dark:text-white" />
-            
-            <div className="space-y-6">
-                {/* Alert Section */}
-                {alert.show && (
-                    <Alert className={`w-full ${alert.type === "success" ? "bg-green-500 text-white" : "bg-red-200 text-red-900"}`}>
-                        <AlertDescription className="text-sm sm:text-base">
-                            {alert.message}
-                        </AlertDescription>
-                    </Alert>
-                )}
+return (
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+    <Breadcrumb pageName="New Comers" className="text-black dark:text-white" />
+    
+    <div className="space-y-6">
+        {/* Alert Section */}
+        {alert.show && (
+            <Alert className={`w-full ${alert.type === "success" ? "bg-green-500 text-white" : "bg-red-200 text-red-900"}`}>
+                <AlertDescription className="text-sm sm:text-base">
+                    {alert.message}
+                </AlertDescription>
+            </Alert>
+        )}
 
-                {/* Newcomers Search Section */}
-                <div className="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                    <div className="border-b border-gray-200 px-4 py-4 dark:border-gray-700">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Search
-                </h3>
-            </div>
-            <div className="p-4 sm:p-6">
-                <div className="space-y-4">
-                <div className="w-full">
-                    <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Enter Name
-                    </label>
-                    <div className="flex flex-col sm:flex-row gap-2">
-                    <input
-                        type="text"
-                        placeholder="Search by name"
-                        className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                        value={searchParams.name}
-                        onChange={(e) => setSearchParams({ name: e.target.value })}
-                    />
-                    <button
-                        onClick={searchNewcomers}
-                        disabled={isLoading}
-                        className="w-full sm:w-auto inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50"
-                    >
-                        <Search className="mr-2 h-4 w-4" />
-                        Search
-                    </button>
-                    </div>
-                </div>
+        {/* Newcomers Search Section */}
+        <div className="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+          
+                        <div className="border-b border-gray-200 px-4 py-4 dark:border-gray-700">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                Search
+                            </h3>
+                        </div>
+                        <div className="p-4 sm:p-6">
+                            <div className="space-y-4">
+                                <div className="w-full">
+                                    <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        Enter Name
+                                    </label>
+                                    <div className="flex flex-col sm:flex-row gap-2">
+                                        <input
+                                            type="text"
+                                            placeholder="Search by name"
+                                            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                            value={searchParams.name}
+                                            onChange={(e) => setSearchParams({ name: e.target.value })}
+                                        />
+                                        <button
+                                            onClick={searchNewcomers}
+                                            disabled={isLoading}
+                                            className="w-full sm:w-auto inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50"
+                                        >
+                                            <Search className="mr-2 h-4 w-4" />
+                                            Search
+                                        </button>
+                                    </div>
+                                </div>
             
-                                        {/* No Results Message */}
-            {noResults && (
-                <div className="mt-4 rounded-md bg-gray-100 p-4 text-center dark:bg-gray-700">
-                <p className="text-red-500 dark:text-red-300">No results found</p>
-                </div>
-            )}
+                                    {/* No Results Message */}
+                                    {noResults && (
+                                            <div className="mt-4 rounded-md bg-gray-100 p-4 text-center dark:bg-gray-700">
+                                                <p className="text-red-500 dark:text-red-300">No results found</p>
+                                        </div>
+                                    )}
             
-            {/* Results Table */}
-            {newcomersList.results.length > 0 && (
-                <div className="mt-6 overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
-                <div className="min-w-full divide-y divide-gray-200">
-                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead className="bg-gray-50 dark:bg-gray-800">
-                        <tr>
-                        {['Name', 'Email', 'Phone', 'Profile'].map((header) => (
-                            <th 
-                            key={header}
-                            className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-white"
-                            >
-                            {header}
-                            </th>
-                        ))}
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
-                        {newcomersList.results.map((newcomer, index) => (
-                        <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                            <td className="px-2 sm:px-4 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-white">
-                            {`${newcomer.first_name} ${newcomer.last_name}`}
-                            </td>
-                            <td className="px-2 sm:px-4 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-300 max-w-[120px] truncate">
-                            {newcomer.email}
-                            </td>
-                            <td className="px-2 sm:px-4 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-300">
-                            {newcomer.phone_number}
-                            </td>
-                            <td className="px-2 sm:px-4 py-4 whitespace-nowrap text-xs sm:text-sm">
-                            <button 
-                                onClick={() => handleProfileClick(newcomer)}
-                                className="text-blue-500 hover:text-blue-700 transition-colors"
-                            >
-                                <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
-                            </button>
-                            </td>
-                        </tr>
-                        ))}
-                    </tbody>
-                    </table>
-                </div>
-                </div>
-            )}
-            </div>
+                                    {/* Results Table */}
+                                    {newcomersList.results.length > 0 && (
+                                        <div className="mt-6 overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+                                            <div className="min-w-full divide-y divide-gray-200">
+                                                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                                    <thead className="bg-gray-50 dark:bg-gray-800">
+                                                        <tr>
+                                                            {['Name', 'Email', 'Phone', 'Profile'].map((header) => (
+                                                                <th 
+                                                                    key={header}
+                                                                    className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-white"
+                                                                >
+                                                                    {header}
+                                                                </th>
+                                                            ))}
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
+                                                        {newcomersList.results.map((newcomer, index) => (
+                                                            <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                                                                <td className="px-2 sm:px-4 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-white">
+                                                                    {`${newcomer.first_name} ${newcomer.last_name}`}
+                                                                </td>
+                                                                <td className="px-2 sm:px-4 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-300 max-w-[120px] truncate">
+                                                                    {newcomer.email}
+                                                                </td>
+                                                                <td className="px-2 sm:px-4 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-300">
+                                                                    {newcomer.phone_number}
+                                                                </td>
+                                                                <td className="px-2 sm:px-4 py-4 whitespace-nowrap text-xs sm:text-sm">
+                                                                    <button 
+                                                                        onClick={() => handleProfileClick(newcomer)}
+                                                                        className="text-blue-500 hover:text-blue-700 transition-colors"
+                                                                    >
+                                                                        <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
             
-                   {/* Pagination Controls */}
-                {newcomersList.results.length > 0 && (
-                <div className="mt-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
-                    <button
-                        onClick={() => handlePagination(newcomersList.previous)}
-                        disabled={!newcomersList.previous || isLoading}
-                        className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        Previous
-                    </button>
-                    <button
-                        onClick={() => handlePagination(newcomersList.next)}
-                        disabled={!newcomersList.next || isLoading}
-                        className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        Next
-                    </button>
-                    </div>
-                    
-                    <div className="text-xs sm:text-sm text-gray-500 text-center w-full sm:w-auto my-2 sm:my-0">
-                    Showing {newcomersList.results.length} of {newcomersList.count} results
-                    </div>
-                    
-                    <button
-                    onClick={handleClear}
-                    className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-md transition-colors w-full sm:w-auto"
-                    >
-                    Clear Results
-                    </button>
-                </div>
-                )}
-            </div>
-            </div>
+                                {/* Pagination Controls */}
+                                {newcomersList.results.length > 0 && (
+                                    <div className="mt-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+                                        <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
+                                            <button
+                                                onClick={() => handlePagination(newcomersList.previous)}
+                                                disabled={!newcomersList.previous || isLoading}
+                                                className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                Previous
+                                            </button>
+                                            <button
+                                                onClick={() => handlePagination(newcomersList.next)}
+                                                disabled={!newcomersList.next || isLoading}
+                                                className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                Next
+                                            </button>
+                                        </div>
+            
+                                        <div className="text-xs sm:text-sm text-gray-500 text-center w-full sm:w-auto my-2 sm:my-0">
+                                            Showing {newcomersList.results.length} of {newcomersList.count} results
+                                        </div>
+            
+                                        <button
+                                            onClick={handleClear}
+                                            className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-md transition-colors w-full sm:w-auto"
+                                        >
+                                            Clear Results
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                     </div>
             
                     {/* Profile Modal */}

@@ -612,7 +612,7 @@ const formatDate = (dateString) => {
                             <div className="flex justify-center mt-6">
                                 <Link
                                     to={isSuperAdmin() ? "/admindashboard" : "/dashboard"}
-                                    className="flex items-center rounded bg-primary p-3 font-medium text-white hover:bg-opacity-90"
+                                    className="flex items-center rounded bg-primary p-3 font-medium text-white text-center hover:bg-opacity-90"
                                 >
                                     Back to Dashboard
                                 </Link>

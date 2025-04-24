@@ -656,7 +656,7 @@ const formatDate = (dateString) => {
 
                                 <Link
                                     to={isSuperAdmin() ? "/admindashboard" : "/dashboard"}
-                                    className="flex items-center rounded bg-primary p-3 font-medium text-white hover:bg-opacity-90"
+                                    className="flex items-center rounded text-center bg-primary p-3 font-medium text-white hover:bg-opacity-90"
                                 >
                                     Back to Dashboard
                                 </Link>

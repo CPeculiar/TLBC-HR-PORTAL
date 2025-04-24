@@ -30,9 +30,6 @@ const NewComersCount = () => {
         limit: 10
     });
     
-    // Create a reference to the profile card element
-    const profileCardRef = useRef(null);
-    
     const showAlert = (message, type) => {
       setAlert({ show: true, message, type });
       setTimeout(() => setAlert({ show: false, message: "", type: "" }), 3000);
@@ -130,13 +127,15 @@ const NewComersCount = () => {
         setIsLoading(false);
       }
     };
+
+    // Create a reference to the profile card element
+    const profileCardRef = useRef(null);
     
     // Function to handle profile clicks in the results table
     const handleProfileClick = (newcomer) => {
         fetchDetailedProfile(newcomer);
     };
 
-    // Profile Modal Component - Fixed and moved outside the handleProfileClick function
     const ProfileModal = ({ newcomer }) => {
         if (!detailedProfile) return null;
         
@@ -252,8 +251,8 @@ const NewComersCount = () => {
                 
                 // Get the cached image or fallback
                 const profileImageSource = cachedImage || 
-                                        sessionStorage.getItem('cached_profile_image') ||
-                                        null;
+                                           sessionStorage.getItem('cached_profile_image') ||
+                                           null;
                 
                 // Create a clone for capture
                 const clone = profileCardRef.current.cloneNode(true);
@@ -347,9 +346,8 @@ const NewComersCount = () => {
             });
         };
 
-        // Return the modal content
         return (
-            <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[1000] overflow-y-auto pt-60 sm:pt-70 md:pt-16 md:pl-16 lg:pl-64">
+            <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[1000] overflow-y-auto pt-16 sm:pt-20 md:pt-16 md:pl-16 lg:pl-64">
                 <div className="min-h-screen w-full flex items-center justify-center py-4 px-2 sm:px-4">
                     {/* Modal container with improved positioning */}
                     <div className="w-full max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden my-4"> 
@@ -389,8 +387,8 @@ const NewComersCount = () => {
                                 </button>
                             </div>
 
-                            {/* Profile Card Content - Referenced for downloading */}
-                            <div ref={profileCardRef} data-profile-card className="flex flex-col md:flex-row">
+                          {/* Profile Card Content - Referenced for downloading */}
+                          <div ref={profileCardRef} data-profile-card className="flex flex-col md:flex-row">
                                 {/* Left Column - Profile Image */}
                                 <div className="w-full md:w-1/3 bg-gradient-to-b from-blue-500 to-blue-700 p-4 sm:p-6 flex flex-col items-center justify-start">
                                     <div className="relative mb-4 w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden border-4 border-white shadow-lg">
@@ -420,6 +418,7 @@ const NewComersCount = () => {
                                             </div>
                                         )}
                                     </div>
+                                    
                                     <h2 className="text-xl sm:text-2xl font-bold text-white text-center mt-2">
                                         {`${detailedProfile.first_name} ${detailedProfile.last_name}`}
                                     </h2>
@@ -597,9 +596,9 @@ const NewComersCount = () => {
                     </Alert>
                 )}
 
-                {/* Newcomers Search Section */}
-                <div className="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                    <div className="border-b border-gray-200 px-4 py-4 dark:border-gray-700">
+               {/* Newcomers Search Section */}
+            <div className="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div className="border-b border-gray-200 px-4 py-4 dark:border-gray-700">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Search
                 </h3>

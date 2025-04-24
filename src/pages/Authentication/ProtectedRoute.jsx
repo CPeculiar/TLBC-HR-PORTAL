@@ -41,7 +41,7 @@ const ProtectedRoute = ({ children }) => {
         // Clear tokens and redirect to login
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-        navigate('/', { replace: true });
+        // navigate('/', { replace: true });
         setIsAuthenticated(false);
       } finally {
         setIsLoading(false);
@@ -49,19 +49,7 @@ const ProtectedRoute = ({ children }) => {
     };
 
     checkAuthentication();
-  }, [navigate]);
-
-  // Prevent browser back button access to protected routes when logged out
-  useEffect(() => {
-    const handlePopState = () => {
-      if (!localStorage.getItem('accessToken')) {
-        navigate('/', { replace: true });
-      }
-    };
-
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, [navigate]);
+  }, []);
 
   if (isLoading) {
     return <div><Loader /></div>;
