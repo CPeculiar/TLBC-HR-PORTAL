@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import html2canvas from "html2canvas";
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import { Eye, X, Search, ChevronLeft, ChevronRight, Edit } from "lucide-react";
 import User from '../../images/user/user-09.png'
@@ -22,6 +23,8 @@ const UserSearchAdmin = ({  deleteUser }) => {
   const [messageType, setMessageType] = useState(''); // 'success' or 'error'
   const [userToDelete, setUserToDelete] = useState(null); // State to track which user is being deleted
   
+  const profileCardRef = useRef(null);
+  const [alert, setAlert] = useState({ show: false, message: "", type: "" });
   const navigate = useNavigate();
 
   const primaryColor = '#3c50e0';
@@ -30,6 +33,11 @@ const UserSearchAdmin = ({  deleteUser }) => {
   const borderColor = '#ccc';
   const backgroundColor = '#f5f5f5';
 
+// Add this function after the existing functions
+const showAlert = (message, type) => {
+  setAlert({ show: true, message, type });
+  setTimeout(() => setAlert({ show: false, message: "", type: "" }), 3000);
+};
 
   const fetchUsers = async (page) => {
     // Reset previous error
@@ -94,6 +102,63 @@ const UserSearchAdmin = ({  deleteUser }) => {
     setTotalPages(1);
   };
 
+  const handleDownloadProfile = async () => {
+    try {
+      setIsLoading(true);
+      showAlert("Preparing download...", "success");
+      
+      setTimeout(async () => {
+        try {
+          if (!profileCardRef.current) {
+            throw new Error("Profile card element not found");
+          }
+          
+          const element = profileCardRef.current;
+          
+          const canvas = await html2canvas(element, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: "#ffffff",
+            logging: false,
+            onclone: (clonedDoc, clonedElement) => {
+              clonedElement.style.display = 'block';
+              clonedElement.style.position = 'relative';
+              clonedElement.style.width = '800px';
+              clonedElement.style.height = 'auto';
+              
+              clonedElement.style.transform = 'none';
+              
+              const buttons = clonedElement.querySelectorAll('button');
+              buttons.forEach(button => {
+                button.style.display = 'none';
+              });
+            }
+          });
+          
+          const image = canvas.toDataURL("image/png", 1.0);
+          const link = document.createElement("a");
+          link.href = image;
+          link.download = `${selectedUser.first_name || 'user'}_${selectedUser.last_name || 'profile'}_profile.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          showAlert("Profile downloaded successfully", "success");
+        } catch (error) {
+          console.error("Download error:", error);
+          showAlert("Failed to download profile. Please try again.", "error");
+        } finally {
+          setIsLoading(false);
+        }
+      }, 300);
+    } catch (error) {
+      console.error("Download error:", error);
+      showAlert("Failed to download profile. Please try again.", "error");
+      setIsLoading(false);
+    }
+  };
+
   const showProfileCard = () => {
     // show the profileCard
     
@@ -155,6 +220,15 @@ const UserSearchAdmin = ({  deleteUser }) => {
   return (
     <>
     <Breadcrumb pageName="Admin User Search"  className="text-black dark:text-white" />
+
+    {/* Add Alert Section */}
+    {alert.show && (
+        <div className={`fixed top-4 right-4 z-50 px-4 py-2 rounded-md shadow-lg ${
+          alert.type === "success" ? "bg-green-500 text-white" : "bg-red-500 text-white"
+        }`}>
+          {alert.message}
+        </div>
+      )}
 
     <div
      className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-6 bg-white dark:bg-boxdark"
@@ -404,8 +478,13 @@ const UserSearchAdmin = ({  deleteUser }) => {
         </div>
       )}
       
-    {selectedUser && (
-      <UserProfileCard user={selectedUser} onClose={() => setSelectedUser(null)} />
+     {selectedUser && (
+        <UserProfileCard 
+          user={selectedUser} 
+          onClose={() => setSelectedUser(null)} 
+          onDownload={handleDownloadProfile}
+          profileCardRef={profileCardRef}
+        />
     )}
   </>
   );

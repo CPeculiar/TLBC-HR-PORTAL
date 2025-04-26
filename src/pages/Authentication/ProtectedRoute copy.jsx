@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import authService from '../../js/services/authService';
 import Loader from '../../common/Loader';
 import IdleTimerProvider from '../../components/idleTimer/IdleTimerProvider';
 
 const ProtectedRoute = ({ children }) => {
-  const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -41,7 +40,7 @@ const ProtectedRoute = ({ children }) => {
         // Clear tokens and redirect to login
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-        navigate('/', { replace: true });
+        // navigate('/', { replace: true });
         setIsAuthenticated(false);
       } finally {
         setIsLoading(false);
@@ -49,19 +48,7 @@ const ProtectedRoute = ({ children }) => {
     };
 
     checkAuthentication();
-  }, [navigate]);
-
-  // Prevent browser back button access to protected routes when logged out
-  useEffect(() => {
-    const handlePopState = () => {
-      if (!localStorage.getItem('accessToken')) {
-        navigate('/', { replace: true });
-      }
-    };
-
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, [navigate]);
+  }, []);
 
   if (isLoading) {
     return <div><Loader /></div>;

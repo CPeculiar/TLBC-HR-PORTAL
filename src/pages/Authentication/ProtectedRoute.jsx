@@ -1,12 +1,13 @@
+// ProtectedRoute.jsx
 import React, { useEffect, useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import authService from '../../js/services/authService';
 import Loader from '../../common/Loader';
 import IdleTimerProvider from '../../components/idleTimer/IdleTimerProvider';
 
-const ProtectedRoute = ({ children }) => {
-  const navigate = useNavigate();
+const ProtectedRoute = ({ children, requiredRoles = [] }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -26,12 +27,24 @@ const ProtectedRoute = ({ children }) => {
         if (isTokenValid) {
           // Token is valid, allow access
           setIsAuthenticated(true);
+          
+          // Get user info for role-based access control
+          if (requiredRoles.length > 0) {
+            const userInfo = await authService.getUserInfo();
+            setUserRole(userInfo.role);
+          }
         } else {
           // Try to refresh the token
           const isRefreshed = await authService.refreshToken();
           
           if (isRefreshed) {
             setIsAuthenticated(true);
+            
+            // Get user info for role-based access control
+            if (requiredRoles.length > 0) {
+              const userInfo = await authService.getUserInfo();
+              setUserRole(userInfo.role);
+            }
           } else {
             // Refresh failed, redirect to login
             throw new Error('Token refresh failed');
@@ -41,7 +54,6 @@ const ProtectedRoute = ({ children }) => {
         // Clear tokens and redirect to login
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-        // navigate('/', { replace: true });
         setIsAuthenticated(false);
       } finally {
         setIsLoading(false);
@@ -49,7 +61,7 @@ const ProtectedRoute = ({ children }) => {
     };
 
     checkAuthentication();
-  }, []);
+  }, [requiredRoles]);
 
   if (isLoading) {
     return <div><Loader /></div>;
@@ -57,7 +69,12 @@ const ProtectedRoute = ({ children }) => {
 
   // If not authenticated, redirect to login
   if (!isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/signin" replace />;
+  }
+
+  // Check for required roles
+  if (requiredRoles.length > 0 && !requiredRoles.includes(userRole)) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   // Wrap children with IdleTimerProvider only for authenticated routes

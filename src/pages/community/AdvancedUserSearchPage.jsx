@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import html2canvas from "html2canvas";
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
-import { Eye, X, PlusCircle, Trash2, Search, Filter, Mail } from "lucide-react";
+import { Eye, X, PlusCircle, Trash2, Search, Filter, Mail, Download } from "lucide-react";
 import UserIcon from '../../images/user/user-14.png';
 import UserProfileCard from './UserProfileCard';
 import UserProfileCardAdmin from '../User Management/UserProfileCardAdmin';
@@ -36,11 +37,20 @@ const AdvancedUserSearchPage = () => {
     const navigate = useNavigate();
     const [churches, setChurches] = useState([]);
     const [zones, setZones] = useState([]);
+// Add this state in the component
+const [alert, setAlert] = useState({ show: false, message: "", type: "" });
+const profileCardRef = useRef(null);
 
      // URLs for pagination
      const [nextPageUrl, setNextPageUrl] = useState(null);
      const [previousPageUrl, setPreviousPageUrl] = useState(null);
      const [totalCount, setTotalCount] = useState(0);
+
+     // Add this function in the component
+const showAlert = (message, type) => {
+  setAlert({ show: true, message, type });
+  setTimeout(() => setAlert({ show: false, message: "", type: "" }), 3000);
+};
 
 
  // Fetch churches and zones on component mount
@@ -189,6 +199,95 @@ if (usernameField && usernameField.value) {
   }
   };
 
+  // Add this download function
+// Add this download function to your AdvancedUserSearchPage component
+const handleDownloadProfile = async () => {
+  try {
+    setIsLoading(true);
+    showAlert("Preparing download...", "success");
+    
+    // Give DOM time to update before attempting to capture
+    setTimeout(async () => {
+      try {
+        if (!profileCardRef.current) {
+          throw new Error("Profile card element not found");
+        }
+        
+        // Make sure the element is visible and rendered
+        const element = profileCardRef.current;
+        
+        // Use html2canvas with optimized settings
+        const canvas = await html2canvas(element, {
+          scale: 2, // Higher scale for better quality
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: "#ffffff",
+          logging: false,
+          windowHeight: 3000, // Ensure enough height to capture everything
+          windowWidth: 800,   // Fixed width for consistency
+          onclone: (clonedDoc, clonedElement) => {
+            // Make sure the cloned element is visible
+            clonedElement.style.display = 'block';
+            clonedElement.style.position = 'static';
+            clonedElement.style.width = '800px'; // Set fixed width
+            clonedElement.style.height = 'auto';
+            clonedElement.style.transform = 'none';
+            clonedElement.style.overflow = 'visible';
+            
+            // Remove any max-height restrictions
+            clonedElement.style.maxHeight = 'none';
+            
+            // Show all hidden elements
+            const hiddenElements = clonedElement.querySelectorAll('.hidden');
+            hiddenElements.forEach(el => {
+              el.classList.remove('hidden');
+            });
+            
+            // Ensure all content is visible
+            const contentElements = clonedElement.querySelectorAll('*');
+            contentElements.forEach(el => {
+              el.style.overflow = 'visible';
+            });
+            
+            // Ensure all images are loaded before capturing
+            const images = clonedElement.querySelectorAll('img');
+            images.forEach(img => {
+              if (img.complete) return;
+              img.style.visibility = 'visible';
+              img.style.display = 'block';
+            });
+            
+            // Hide buttons in the cloned element
+            const buttons = clonedElement.querySelectorAll('button');
+            buttons.forEach(button => {
+              button.style.display = 'none';
+            });
+          }
+        });
+        
+        // Convert to image and trigger download
+        const image = canvas.toDataURL("image/png", 1.0);
+        const link = document.createElement("a");
+        link.href = image;
+        link.download = `${selectedUser.first_name || 'user'}_${selectedUser.last_name || 'profile'}_profile.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showAlert("Profile downloaded successfully", "success");
+      } catch (error) {
+        console.error("Download error:", error);
+        showAlert("Failed to download profile. Please try again.", "error");
+      } finally {
+        setIsLoading(false);
+      }
+    }, 500); // Delay to ensure the ref is properly set
+  } catch (error) {
+    console.error("Download error:", error);
+    showAlert("Failed to download profile. Please try again.", "error");
+    setIsLoading(false);
+  }
+};
       // Add a new search field
       const addSearchField = () => {
           setSearchFields([...searchFields, { 
@@ -418,6 +517,15 @@ if (usernameField && usernameField.value) {
     <>
       <Breadcrumb pageName="Advanced Member Search"  className="text-black dark:text-white"  />
 
+{/* Alert Section */}
+{alert.show && (
+  <div className={`fixed top-4 right-4 z-50 px-4 py-2 rounded-md shadow-lg ${
+    alert.type === "success" ? "bg-green-500 text-white" : "bg-red-500 text-white"
+  }`}>
+    {alert.message}
+  </div>
+)}
+
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-6">
       <div className="bg-white dark:bg-boxdark rounded-lg shadow-sm border border-stroke dark:border-strokedark p-4 sm:p-6 space-y-4">
         <div className="space-y-4">
@@ -583,18 +691,21 @@ if (usernameField && usernameField.value) {
       </div>
 
       {selectedUser && !isUsernameSearch && (
-        <UserProfileCard 
-          user={selectedUser} 
-          // onClose={() => setSelectedUser(null)} 
-          onClose={handleCloseProfile}
-        />
+    <UserProfileCard 
+        user={selectedUser} 
+        onClose={handleCloseProfile}
+        onDownload={handleDownloadProfile}
+        profileCardRef={profileCardRef}
+    />
       )}
 
-            {selectedUser && isUsernameSearch && (
-                <UserProfileCardAdmin 
-                    user={selectedUser} 
-                    onClose={handleCloseProfile}
-                />
+      {selectedUser && isUsernameSearch && (
+    <UserProfileCardAdmin 
+        user={selectedUser} 
+        onClose={handleCloseProfile}
+        onDownload={handleDownloadProfile}
+        profileCardRef={profileCardRef}
+    />
             )}
     </>
   );

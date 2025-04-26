@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { AuthProvider } from './js/services/AuthContext';
+import history from './js/services/navigationService';
 
 import Loader from './common/Loader';
 import PageTitle from './components/PageTitle';
@@ -110,6 +111,18 @@ import AdminLOLDUpload from './pages/LOLD/AdminLOLDUpload';
 import AdminLOLDMgt from './pages/LOLD/AdminLOLDMgt';
 import BirthdayRedirect from './pages/Birthday/BirthdayRedirect';
 
+// Create a wrapper component to handle navigation in protected routes
+const NavigationWrapper = ({ children }) => {
+  const location = useLocation();
+  
+  useEffect(() => {
+    // Enable browser history for protected routes
+    // This is called when the component mounts and on location changes
+    window.onpopstate = null; // Clear any global popstate handlers
+  }, [location]);
+  
+  return <>{children}</>;
+};
 
 function App() {
   const [loading, setLoading] = useState(true); 
@@ -134,26 +147,8 @@ function App() {
       Email: "info@thelordsbrethrenchurch.org",
       image: "/events/NOG-Jan-2025.jpg",
     },
-    {
-      id: 2,
-      title: "Ministers Refreshers Course, February 2025 Edition.",
-      Conductor: "Conductor: Pastor Kenechukwu Chukwukelue",
-      date: "Saturday, February 08, 2025",
-      time: "9:00 PM",
-      location: "The Lord's Brethren Place, Awka.",
-      description: "Ministry-wide MRC, February 2025 edition.",
-      Contact: "09134445037",
-      Email: "info@thelordsbrethrenchurch.org",
-      image: "/events/MRC-Feb-2025.jpg",
-    },
   ];
 });
-
-// Persist events to localStorage whenever they change
-useEffect(() => {
-  localStorage.setItem('events', JSON.stringify(events));
-}, [events]);
-
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 1000);
@@ -175,6 +170,7 @@ useEffect(() => {
 
   const withDefaultLayout = (component, title) => {
     return (
+      <NavigationWrapper>
       <DefaultLayout>
         {React.cloneElement(component, { 
           events,
@@ -182,19 +178,17 @@ useEffect(() => {
           title 
         })}
       </DefaultLayout>
+      </NavigationWrapper>
     );
   };
-
   
   if (loading) {
     return <Loader />;
   }
 
-
   return (
     <MediaProvider>
-    <BrowserRouter>
-    <>
+    <BrowserRouter history={history}>
       <Routes>
 
        {/* Auth Routes - Outside DefaultLayout and ProtectedRoute */}
@@ -290,16 +284,13 @@ useEffect(() => {
        <Route path="/admindashboard" element= {
          <ProtectedRoute requiredRoles={['superadmin']}>
         {withDefaultLayout(<AdminDashboard />, "Admin Dashboard")} 
-        </ProtectedRoute> }
-       
-        />
+        </ProtectedRoute> } />
 
 <Route path="/dashboard" element= {
          <ProtectedRoute>
         {withDefaultLayout(<UserDashboard />, "User Dashboard")} 
-        </ProtectedRoute> }
-       
-        />
+        </ProtectedRoute> }  />
+
       <Route path="/calendar" element={withDefaultLayout(<Calendar />, "Calendar")} />
       <Route path="/profile" element={withDefaultLayout(<Profile />, "Profile")} />
       <Route path="/forms/form-elements" element={withDefaultLayout(<FormElements />, "Form Elements")} />
@@ -434,13 +425,10 @@ useEffect(() => {
             {/* Chat */}
             <Route path="/ChatComponent" element={withDefaultLayout(<ChatComponent />, "Chat")} />
             <Route path="/UserChat" element={withDefaultLayout(<UserChat />, "Chat")} />
-       
-
 
       <Route path="/transactions" element={withDefaultLayout(<Transactions />, "Create Church Account")} />
       
     </Routes>
-    </>
     </BrowserRouter>
 
     </MediaProvider>

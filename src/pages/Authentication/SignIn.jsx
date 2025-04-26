@@ -13,21 +13,6 @@ const SignIn = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   // Clear any stored tokens or session data
-  //   localStorage.removeItem('accessToken');
-  //   localStorage.removeItem('accessToken');
-  //   sessionStorage.removeItem('refreshToken');
-  //   sessionStorage.removeItem('refreshToken');
-    
-  //   // Ensure browser can't go back to previous authenticated pages
-  //   window.history.pushState(null, document.title, window.location.href);
-  //   window.addEventListener('popstate', () => {
-  //     window.history.pushState(null, document.title, window.location.href);
-  //   });
-  // }, []);
-
-
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };

@@ -69,7 +69,7 @@ const TableOne = () => {
           navigate("/");
           return;
         }
-
+  
         const response = await axios.get(
           'https://tlbc-platform-api.onrender.com/api/users/?limit=500',
           {
@@ -117,7 +117,8 @@ const TableOne = () => {
 useEffect(() => {
   const checkBirthdays = () => {
     if (allUsers.length > 0) {
-      updateDisplayedUsers(allUsers);
+      updateDisplayedUsers([...allUsers]);
+      // updateDisplayedUsers(allUsers);
     }
   };
 
@@ -138,7 +139,8 @@ useEffect(() => {
   }, timeUntilMidnight);
 
   return () => clearTimeout(timeout);
-}, [allUsers]);
+}, []);
+// }, [allUsers]);
 
 
 const formatBirthDate = (dateString) => {
